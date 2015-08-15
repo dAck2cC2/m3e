@@ -9,10 +9,6 @@
 
 #include <sys/types.h>
 
-#ifdef _CYGWIN
-#define off64_t  _off64_t
-#endif // _CYGWIN
-
 _MEDIA_BEGIN
 
 class IDataSource : public RefBase
@@ -31,7 +27,7 @@ public:
 
     virtual bool sniff(String8 *mimeType, float *confidence
 #ifdef ENABLE_AMESSAGE
-                       , sp<AMessage> *meta
+                       , sp<AMessage> *meta = NULL
 #endif // ENABLE_AMESSAGE
                       ) = 0;
 

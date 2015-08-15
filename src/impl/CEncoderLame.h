@@ -16,7 +16,7 @@ public:
 
     virtual int syncEncode(
         const sp<MediaSource>& pMediaSource_in,
-        const sp<IDataRender>& pDataRender_out,
+        const sp<IAudioSink>&  pAudioSink_out,
         const sp<AMessage>&    pOption_in = NULL);
 
 public:
@@ -27,15 +27,15 @@ public:
 private:
     virtual int  prepare(
         const sp<MediaSource>& pMediaSource_in,
-        const sp<IDataRender>& pDataRender_out,
+        const sp<IAudioSink>&  pAudioSink_out,
         const sp<AMessage>&    pOption_in
     );
 
-    virtual int  encode( const sp<MediaSource>& pMediaSource_in, const sp<IDataRender>& pDataRender_out);
+    virtual int  encode( const sp<MediaSource>& pMediaSource_in, const sp<IAudioSink>& pAudioSink_out);
     virtual void finish( );
 
 private:
-    lame_t           m_pGobalFlags;
+    lame_t   m_pGobalFlags;
 
     DISALLOW_EVIL_CONSTRUCTORS(CEncoderLame);
 };

@@ -31,6 +31,7 @@ CEngineAnalyzer::parse(int argc, char *argv[])
         RETURN (-1);
     }
 
+    // Is it no need to do this ?
     //if (m_pData != NULL) {
     //	RETURN(ALREADY_EXISTS);
     //}

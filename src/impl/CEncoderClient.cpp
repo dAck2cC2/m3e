@@ -13,7 +13,7 @@
 #include "media/MediaExtractor.h"
 #include "media/MediaSource.h"
 #include "media/MetaData.h"
-#include "media/CFileRender.h"
+#include "media/CFileSink.h"
 
 #include <stdio.h>
 
@@ -129,9 +129,10 @@ CEncoderClient::foundMediaFile(const char *path, sp<MediaExtractor>& pExtractor_
             CHECK_PTR_EXT(pEncoder, UNKNOWN_ERROR);
 
             String8 out = getOutputFile(String8(path));
-            sp<IDataRender> pRender = new CFileRender(out.string());
+            sp<IAudioSink> pAudioSink = new CFileSink(out.string());
+            CHECK_PTR_EXT(pAudioSink, UNKNOWN_ERROR);
 
-            chk = pEncoder->asyncEncode(pExtractor_in->getTrack(i), pRender, m_pOption, String8(path));
+            chk = pEncoder->asyncEncode(pExtractor_in->getTrack(i), pAudioSink, m_pOption, String8(path));
 
             if (OK == chk) {
                 int32_t bNeedDeleteFile = 0;

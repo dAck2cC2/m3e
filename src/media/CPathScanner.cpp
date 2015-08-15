@@ -61,6 +61,7 @@ const char *CPathScanner::locale() const
 void CPathScanner::loadSkipList()
 {
 #ifdef ENABLE_SKIP_LIST
+
     mSkipList = (char *)malloc(PROPERTY_VALUE_MAX * sizeof(char));
 
     if (mSkipList) {

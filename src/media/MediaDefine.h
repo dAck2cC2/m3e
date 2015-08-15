@@ -7,11 +7,17 @@
 #define _MEDIA_BEGIN  ENGINE_BEGIN
 #define _MEDIA_END    ENGINE_END
 
+/*******************************************/
+// ENABLE
+/*******************************************/
 
 #ifndef ENABLE_CUSTOMISE
 #define ENABLE_CUSTOMISE
 #endif // ENABLE_CUSTOMISE
 
+/*******************************************/
+// DISABLE
+/*******************************************/
 
 #ifdef ENABLE_SKIP_LIST
 #undef ENABLE_SKIP_LIST

@@ -8,6 +8,9 @@ TARGET := m3e.exe
 CFLAGS += -D_CYGWIN 
 CFLAGS += -DHAVE_PTHREADS
 #CFLAGS += -DHAVE_WIN32_THREADS
+CFLAGS += -DO_LARGEFILE=0
+CFLAGS += -Dlseek64=lseek
+CFLAGS += -Doff64_t=_off64_t
 
 EXT_LIB += ./lib/libmp3lame.a
 

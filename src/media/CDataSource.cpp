@@ -1,9 +1,11 @@
 
+#define TAG_LOG  "CDataSource"
 #include "media/MediaDefine.h"
 #include "media/CDataSource.h"
 #include "media/WAVExtractor.h"
 
 _MEDIA_BEGIN
+
 
 // The sniffer can optionally fill in "meta" with an AMessage containing
 // a dictionary of values that helps the corresponding extractor initialize

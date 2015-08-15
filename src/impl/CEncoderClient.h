@@ -9,7 +9,7 @@
 ENGINE_BEGIN
 
 class String8;
-//class IEngineEncoder;
+class AMessage;
 class CAsyncEncoderGroup;
 
 class CEncoderClient : public IEngineScannerClient

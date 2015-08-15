@@ -32,7 +32,7 @@ public:
     explicit IEngineAnalyzer() {};
     virtual ~IEngineAnalyzer() {};
 
-    virtual int  parse(int argc, char *argv[]) = 0;
+    virtual int           parse(int argc, char *argv[]) = 0;
     virtual sp<AMessage>  getOption() = 0;
 
     DISALLOW_EVIL_CONSTRUCTORS(IEngineAnalyzer);

@@ -10,16 +10,25 @@
 #define _UTILS_NAME   ENGINE
 
 
-#define LOG_NDEBUG      0
-//#define LOG_NDEBUG      1
+//#define LOG_NDEBUG      0
+#define LOG_NDEBUG      1
+
 
 #if LOG_NDEBUG == 0
 #define LOG_FILE_NAME   "./logcat.log"
 #endif // LOG_NDEBUG
 
+/******************************************/
+// ENABLE
+/******************************************/
+
 #ifndef ENABLE_CUSTOMISE
 #define ENABLE_CUSTOMISE
 #endif // ENABLE_CUSTOMISE
+
+/******************************************/
+// DISABLE
+/******************************************/
 
 #ifdef ENABLE_CALL_STACK
 #undef ENABLE_CALL_STACK

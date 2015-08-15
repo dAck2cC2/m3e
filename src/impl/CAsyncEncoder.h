@@ -33,7 +33,7 @@ public:
 
     int asyncEncode(
         const sp<MediaSource>&     pSrc_in,
-        const sp<IDataRender>&     pDst_in,
+        const sp<IAudioSink>&     pDst_in,
         const sp<AMessage>&        pOpt_in,
         const String8&             cSrcFile_in
     );
@@ -81,7 +81,7 @@ private:
         explicit CEncoderThread(
             CAsyncEncoder&             cParent_in,
             const sp<MediaSource>&     pSrc_in,
-            const sp<IDataRender>&     pDst_in,
+            const sp<IAudioSink>&      pDst_in,
             const sp<AMessage>&        pOpt_in,
             const sp<IEngineEncoder>&  pEncoder_in,
             const int32_t              iAffinity_in = -1
@@ -95,7 +95,7 @@ private:
     private:
         CAsyncEncoder&      m_cParent;
         sp<MediaSource>     m_pMediaSource;
-        sp<IDataRender>     m_pDataRender;
+        sp<IAudioSink>      m_pAudioSink;
         sp<AMessage>        m_pOption;
         sp<IEngineEncoder>  m_pEncoder;
 

@@ -9,14 +9,12 @@
 #include "media/MetaData.h"
 #include "media/MediaDefs.h"
 #include "media/MediaBuffer.h"
-#include "media/IDataRender.h"
-
-//#include "lame.h"
-#include <stdio.h>
+#include "media/IAudioSink.h"
 
 ENGINE_BEGIN
 
 CEncoderLame::CEncoderLame()
+    : m_pGobalFlags(NULL)
 {
     AUTO_LOG();
 }
@@ -30,14 +28,14 @@ CEncoderLame::~CEncoderLame()
 int
 CEncoderLame::syncEncode(
     const sp<MediaSource>& pMediaSource_in,
-    const sp<IDataRender>& pDataRender_out,
+    const sp<IAudioSink>&  pAudioSink_out,
     const sp<AMessage>&    pOption_in
 )
 {
     AUTO_LOG();
 
     CHECK_PTR_EXT(pMediaSource_in, BAD_VALUE);
-    CHECK_PTR_EXT(pDataRender_out, BAD_VALUE);
+    CHECK_PTR_EXT(pAudioSink_out,  BAD_VALUE);
 
     sp<MetaData> meta = pMediaSource_in->getFormat();
 
@@ -45,10 +43,10 @@ CEncoderLame::syncEncode(
     CHECK(meta->findCString(kKeyMIMEType, &mime));
 
     if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_RAW)) {
-        int ret = prepare(pMediaSource_in, pDataRender_out, pOption_in);
+        int ret = prepare(pMediaSource_in, pAudioSink_out, pOption_in);
 
         if (OK == ret) {
-            ret = encode( pMediaSource_in, pDataRender_out);
+            ret = encode( pMediaSource_in, pAudioSink_out);
         }
 
         finish();
@@ -90,14 +88,18 @@ CEncoderLame::msgf(const char *format, va_list ap)
 
 int CEncoderLame::prepare(
     const sp<MediaSource>& pMediaSource_in,
-    const sp<IDataRender>& pDataRender_out,
+    const sp<IAudioSink>&  pAudioSink_out,
     const sp<AMessage>&    pOption_in
 )
 {
     AUTO_LOG();
 
+    if (m_pGobalFlags != NULL) {
+        RETURN(ALREADY_EXISTS);
+    }
+
     CHECK_PTR_EXT(pMediaSource_in, BAD_VALUE);
-    CHECK_PTR_EXT(pDataRender_out,  BAD_VALUE);
+    CHECK_PTR_EXT(pAudioSink_out,  BAD_VALUE);
 
     sp<MetaData>  pMeta = pMediaSource_in->getFormat();
     CHECK_PTR_EXT(pMeta,  BAD_VALUE);
@@ -151,7 +153,7 @@ int CEncoderLame::prepare(
 
         if (id3v2tag != 0) {
             int iTagSz = lame_get_id3v2_tag(m_pGobalFlags, id3v2tag, id3v2_size);
-            int iWrite = (int) pDataRender_out->syncWrite(id3v2tag, iTagSz);
+            int iWrite = (int) pAudioSink_out->write(id3v2tag, iTagSz);
             delete(id3v2tag);
             CHECK_IS_EXT((iTagSz == iWrite), UNKNOWN_ERROR);
         }
@@ -161,13 +163,13 @@ int CEncoderLame::prepare(
 }
 
 int
-CEncoderLame::encode(const sp<MediaSource>& pMediaSource_in, const sp<IDataRender>& pDataRender_out)
+CEncoderLame::encode(const sp<MediaSource>& pMediaSource_in, const sp<IAudioSink>& pAudioSink_out)
 {
     AUTO_LOG();
 
     CHECK_PTR_EXT(m_pGobalFlags, BAD_VALUE);
     CHECK_PTR_EXT(pMediaSource_in, BAD_VALUE);
-    CHECK_PTR_EXT(pDataRender_out, BAD_VALUE);
+    CHECK_PTR_EXT(pAudioSink_out, BAD_VALUE);
 
     sp<MetaData>  pMeta = pMediaSource_in->getFormat();
     CHECK_PTR_EXT(pMeta,  BAD_VALUE);
@@ -228,7 +230,7 @@ CEncoderLame::encode(const sp<MediaSource>& pMediaSource_in, const sp<IDataRende
         int iWriteSize = iOutSize;
 
         if (iOutSize > 0) {
-            iWriteSize = pDataRender_out->syncWrite(pMP3Buf, iOutSize);
+            iWriteSize = pAudioSink_out->write(pMP3Buf, iOutSize);
         }
 
         delete (pMP3Buf);
@@ -249,7 +251,7 @@ CEncoderLame::encode(const sp<MediaSource>& pMediaSource_in, const sp<IDataRende
         int iWriteSize = iOutSize;
 
         if (iOutSize > 0) {
-            iWriteSize = pDataRender_out->syncWrite(pMP3Buf, iOutSize);
+            iWriteSize = pAudioSink_out->write(pMP3Buf, iOutSize);
         }
 
         delete (pMP3Buf);
@@ -264,7 +266,7 @@ CEncoderLame::encode(const sp<MediaSource>& pMediaSource_in, const sp<IDataRende
         int iWriteSize = iOutSize;
 
         if ((iOutSize > 0) && (((size_t)iOutSize) <= sizeof(pMP3Buf))) {
-            iWriteSize = pDataRender_out->syncWrite(pMP3Buf, iOutSize);
+            iWriteSize = pAudioSink_out->write(pMP3Buf, iOutSize);
         }
 
         delete (pMP3Buf);

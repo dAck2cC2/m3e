@@ -22,10 +22,6 @@
 #include "media/MediaDefine.h"
 #include "media/MediaExtractor.h"
 
-#ifdef _CYGWIN
-#define off64_t _off64_t
-#endif // _CYGWIN
-
 _MEDIA_BEGIN
 
 #ifdef ENABLE_AMESSAGE

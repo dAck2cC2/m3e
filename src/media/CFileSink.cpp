@@ -1,6 +1,7 @@
 
+#define LOG_TAG  "CFileSink"
 #include "media/MediaDefine.h"
-#include "media/CFileRender.h"
+#include "media/CFileSink.h"
 #include "utils/Errors.h"
 #include "utils/ADebug.h"
 #include "utils/log.h"
@@ -11,7 +12,7 @@
 
 _MEDIA_BEGIN
 
-CFileRender::CFileRender(const char *filename)
+CFileSink::CFileSink(const char *filename)
     : mFd(-1)
 {
     mFd = open(filename, O_WRONLY | O_CREAT, 0777);
@@ -21,7 +22,7 @@ CFileRender::CFileRender(const char *filename)
     }
 }
 
-CFileRender::~CFileRender()
+CFileSink::~CFileSink()
 {
     Mutex::Autolock autoLock(mLock);
 
@@ -32,7 +33,7 @@ CFileRender::~CFileRender()
 }
 
 ssize_t
-CFileRender::syncWrite(const void *data, const size_t size)
+CFileSink::write(const void *data, size_t size)
 {
     if ((data == 0) || (size <= 0)) {
         return BAD_VALUE;

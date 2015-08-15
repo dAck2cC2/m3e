@@ -9,7 +9,7 @@
 ENGINE_BEGIN
 
 struct MediaSource;
-class  IDataRender;
+class  IAudioSink;
 class  AMessage;
 
 class IEngineEncoder : public RefBase
@@ -20,8 +20,9 @@ public:
 
     virtual int syncEncode(
         const sp<MediaSource>& pMediaSource_in,
-        const sp<IDataRender>& pDataRender_out,
-        const sp<AMessage>& pOption_in = NULL) = 0;
+        const sp<IAudioSink>&  pAudioSink_out,
+        const sp<AMessage>&    pOption_in = NULL
+    ) = 0;
 
     DISALLOW_EVIL_CONSTRUCTORS(IEngineEncoder);
 };

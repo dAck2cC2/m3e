@@ -1,4 +1,5 @@
 
+#define LOG_TAG  "CFileSource"
 #include "media/MediaDefine.h"
 #include "media/CFileSource.h"
 #include "utils/ADebug.h"
@@ -7,11 +8,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#ifdef _CYGWIN
-#define O_LARGEFILE 0
-#define lseek64 lseek
-#endif // _CYGWIN
 
 _MEDIA_BEGIN
 

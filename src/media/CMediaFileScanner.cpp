@@ -1,4 +1,5 @@
 
+#define LOG_TAG  "CMediaFileScanner"
 #include "media/CMediaFileScanner.h"
 #include "media/CFileSource.h"
 #include "media/MediaExtractor.h"

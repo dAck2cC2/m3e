@@ -13,10 +13,7 @@
 // Compiler Switch
 /*---------------------------------------------------------------------------*/
 
-#define _ENGINE_SW_DEBUG
-#define _ENGINE_SW_UNIQUE_TAG
-#define _ENGINE_SW_LOCK_API
-//#define _ENGINE_SW_AAP_FUNC_
+
 
 /*---------------------------------------------------------------------------*/
 // DEFINITION

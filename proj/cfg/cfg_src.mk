@@ -31,7 +31,7 @@ CPPSRC += main.cpp \
           media/CMediaFileScanner.cpp \
           media/CDataSource.cpp \
           media/CFileSource.cpp \
-          media/CFileRender.cpp \
+          media/CFileSink.cpp \
           media/MediaSource.cpp \
           media/MediaDefs.cpp \
           media/MetaData.cpp \

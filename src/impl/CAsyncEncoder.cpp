@@ -9,7 +9,7 @@
 #include "media/MetaData.h"
 #include "media/MediaDefs.h"
 #include "media/MediaBuffer.h"
-#include "media/IDataRender.h"
+#include "media/IAudioSink.h"
 #include "impl/CAsyncEncoder.h"
 #include "engine/CEngineFactory.h"
 
@@ -48,7 +48,7 @@ CAsyncEncoder::~CAsyncEncoder()
 int
 CAsyncEncoder::asyncEncode(
     const sp<MediaSource>&     pMediaSource_in,
-    const sp<IDataRender>&     pDataRender_out,
+    const sp<IAudioSink>&      pAudioSink_out,
     const sp<AMessage>&        pOption_in,
     const String8&             cSrcFile_in
 )
@@ -57,7 +57,7 @@ CAsyncEncoder::asyncEncode(
 
     CHECK_PTR_EXT(m_pEncoder, BAD_VALUE);
     CHECK_PTR_EXT(pMediaSource_in, BAD_VALUE);
-    CHECK_PTR_EXT(pDataRender_out, BAD_VALUE);
+    CHECK_PTR_EXT(pAudioSink_out,  BAD_VALUE);
 
     sp<MetaData> meta = pMediaSource_in->getFormat();
     CHECK_PTR_EXT(meta, BAD_VALUE);
@@ -71,7 +71,7 @@ CAsyncEncoder::asyncEncode(
         m_pThread = new CEncoderThread(
             *this,
             pMediaSource_in,
-            pDataRender_out,
+            pAudioSink_out,
             pOption_in,
             m_pEncoder,
             m_iAffinity
@@ -176,7 +176,7 @@ CAsyncEncoder::next()
 CAsyncEncoder::CEncoderThread::CEncoderThread(
     CAsyncEncoder&             cParent_in,
     const sp<MediaSource>&     pSrc_in,
-    const sp<IDataRender>&     pDst_in,
+    const sp<IAudioSink>&      pDst_in,
     const sp<AMessage>&        pOpt_in,
     const sp<IEngineEncoder>&  pEncoder_in,
     const int32_t              iAffinity_in
@@ -185,7 +185,7 @@ CAsyncEncoder::CEncoderThread::CEncoderThread(
     : Thread(false, iAffinity_in),
       m_cParent(cParent_in),
       m_pMediaSource(pSrc_in),
-      m_pDataRender(pDst_in),
+      m_pAudioSink(pDst_in),
       m_pOption(pOpt_in),
       m_pEncoder(pEncoder_in)
 {
@@ -203,12 +203,12 @@ CAsyncEncoder::CEncoderThread::threadLoop()
     AUTO_LOG();
 
     if (m_pEncoder != NULL) {
-        m_pEncoder->syncEncode(m_pMediaSource, m_pDataRender, m_pOption);
+        m_pEncoder->syncEncode(m_pMediaSource, m_pAudioSink, m_pOption);
     }
 
     m_pEncoder     = NULL;
     m_pMediaSource = NULL;
-    m_pDataRender  = NULL;
+    m_pAudioSink   = NULL;
     m_pOption      = NULL;
 
     m_cParent.release();
