@@ -728,10 +728,10 @@ Thread::Thread(bool canCallJava
         mStatus(NO_ERROR),
         mExitPending(false), mRunning(false)
 #ifdef HAVE_ANDROID_OS
-        , mTid(-1)
+    , mTid(-1)
 #endif
 #ifdef ENABLE_CUSTOMISE
-        , mAffinity(iAffinity)
+    , mAffinity(iAffinity)
 #endif // ENABLE_CUSTOMISE
 {
 }
@@ -803,7 +803,7 @@ int Thread::_threadLoop(void* user)
     self->mHoldSelf.clear();
 
 #if defined(ENABLE_CUSTOMISE)
-#if defined(HAVE_PTHREADS) && !defined(_CYGWIN)
+#if defined(HAVE_PTHREADS) && !defined(_CYGWIN) && !defined(_MACOSX)
     {
         int iCoreCnt = sysconf(_SC_NPROCESSORS_ONLN);
 

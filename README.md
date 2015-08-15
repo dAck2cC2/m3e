@@ -1,2 +1,2 @@
 # m3e
-Multimedia Engine
+Multimedia Engine with the stageflight from Android.

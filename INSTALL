@@ -1,0 +1,15 @@
+To complie :
+
+0.  You need lame(mp3 encoder) at first. You can download source code 
+    from the website below, and build "libmp3lame.a" on your platform.
+
+    http://lame.sourceforge.net/
+
+1.  'cd' to the project directory which fits your environment, such as 
+    ./proj/osx or ./proj/linux. Make a directory "lib", copy the 
+    "libmp3lame.a" to the "lib" directory.
+
+2.  make         
+
+That's it!
+Jeremy Feng <dAck2cC@yahoo.com>
