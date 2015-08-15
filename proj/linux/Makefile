@@ -7,7 +7,6 @@ TARGET := m3e
 
 CFLAGS += -D_LINUX 
 CFLAGS += -DHAVE_PTHREADS
-#CFLAGS += -DHAVE_WIN32_THREADS
 
 LIBS += -lpthread
 EXT_LIB += ./lib/libmp3lame.a
