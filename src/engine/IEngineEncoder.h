@@ -10,6 +10,7 @@ ENGINE_BEGIN
 
 struct MediaSource;
 class  IDataRender;
+class  AMessage;
 
 class IEngineEncoder : public RefBase
 {
@@ -17,7 +18,10 @@ public:
     explicit IEngineEncoder() {};
     virtual ~IEngineEncoder() {};
 
-    virtual int syncEncode(const sp<MediaSource>& pMediaSource_in, const sp<IDataRender>& pDataRender_out) = 0;
+    virtual int syncEncode(
+        const sp<MediaSource>& pMediaSource_in,
+        const sp<IDataRender>& pDataRender_out,
+        const sp<AMessage>& pOption_in = NULL) = 0;
 
     DISALLOW_EVIL_CONSTRUCTORS(IEngineEncoder);
 };

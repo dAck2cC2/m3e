@@ -10,6 +10,7 @@
 
 ENGINE_BEGIN
 
+class AMessage;
 class CAsyncEncoder;
 class CAsyncEncoderGroup;
 
@@ -33,8 +34,11 @@ public:
     int asyncEncode(
         const sp<MediaSource>&     pSrc_in,
         const sp<IDataRender>&     pDst_in,
-        const String8&             cSrcPath_in
+        const sp<AMessage>&        pOpt_in,
+        const String8&             cSrcFile_in
     );
+
+    String8& getSourceFile();
 
     // Decrements the reference count and returns the buffer to its
     // associated CAsyncEncoderGroup if the reference count drops to 0.
@@ -49,8 +53,6 @@ public:
     void reset();
 
     void setObserver(IAsyncEncoderObserver * pObserver_in);
-
-    sp<IEngineEncoder>& get();
 
 protected:
     virtual ~CAsyncEncoder();
@@ -68,7 +70,8 @@ private:
     CAsyncEncoder *          m_pNext;
     sp<IEngineEncoder>       m_pEncoder;
     sp<Thread>               m_pThread;
-    String8                  m_cSrcPath;
+    sp<AMessage>             m_pOption;
+    String8                  m_cSrcFile;
     int32_t                  m_iAffinity;
 
 private:
@@ -79,6 +82,7 @@ private:
             CAsyncEncoder&             cParent_in,
             const sp<MediaSource>&     pSrc_in,
             const sp<IDataRender>&     pDst_in,
+            const sp<AMessage>&        pOpt_in,
             const sp<IEngineEncoder>&  pEncoder_in,
             const int32_t              iAffinity_in = -1
         );
@@ -92,6 +96,7 @@ private:
         CAsyncEncoder&      m_cParent;
         sp<MediaSource>     m_pMediaSource;
         sp<IDataRender>     m_pDataRender;
+        sp<AMessage>        m_pOption;
         sp<IEngineEncoder>  m_pEncoder;
 
         DISALLOW_EVIL_CONSTRUCTORS(CEncoderThread);

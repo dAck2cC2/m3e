@@ -23,10 +23,8 @@
 
 #include "utils/ADebug.h"
 
-#ifdef ENABLE_HEXDUMP
 #include "utils/AString.h"
 #include "utils/hexdump.h"
-#endif // ENABLE_HEXDUMP
 
 #include "media/MediaDefine.h"
 #include "media/MetaData.h"
@@ -366,7 +364,6 @@ String8 MetaData::typed_data::asString() const
     }
 
     default:
-#ifdef ENABLE_HEXDUMP
         out = String8::format("(unknown type %d, size %d)", mType, mSize);
 
         if (mSize <= 48) { // if it's less than three lines of hex data, dump it
@@ -376,7 +373,6 @@ String8 MetaData::typed_data::asString() const
             out.append(foo.c_str());
         }
 
-#endif // ENABLE_HEXDUMP
         break;
     }
 

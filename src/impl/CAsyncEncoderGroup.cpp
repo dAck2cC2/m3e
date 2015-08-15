@@ -3,8 +3,10 @@
 #define LOG_TAG   "CAsyncEncoderGroup"
 #include "utils/ADebugExt.h"
 #include "utils/ADebug.h"
+#include "utils/AMessage.h"
 #include "utils/Errors.h"
 #include "engine/EngineDefine.h"
+#include "engine/CEngineFactory.h"
 #include "impl/CAsyncEncoderGroup.h"
 
 ENGINE_BEGIN
@@ -85,11 +87,22 @@ exit:
     return OK;
 }
 
-void CAsyncEncoderGroup::signalReturned(CAsyncEncoder *)
+void CAsyncEncoderGroup::signalReturned(CAsyncEncoder * pEncoder_in)
 {
     AUTO_LOG();
 
     Mutex::Autolock autoLock(mLock);
+
+    if (pEncoder_in != NULL) {
+        sp<AMessage> pInfo = new AMessage();
+
+        if (pInfo != NULL) {
+            pInfo->setString(INFO_INPUT_FILE, pEncoder_in->getSourceFile().string());
+
+            CEngineFactory::getInstance().getMonitor()->publish(pInfo);
+        }
+    }
+
     mCondition.signal();
 }
 

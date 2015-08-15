@@ -10,6 +10,7 @@ ENGINE_BEGIN
 
 class MediaExtractor;
 class String8;
+class AMessage;
 
 class IEngineScannerClient : public RefBase
 {
@@ -17,7 +18,7 @@ public:
     explicit IEngineScannerClient() {};
     virtual ~IEngineScannerClient() {};
 
-    virtual int  init() = 0;
+    virtual int  init(const sp<AMessage>& pOption_in) = 0;
 
     virtual void setLocale(const char* locale) = 0;
 

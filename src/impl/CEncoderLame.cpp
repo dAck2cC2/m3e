@@ -1,8 +1,9 @@
 
-#define  ENABLE_ADEBUG_EXT
+//#define  ENABLE_ADEBUG_EXT
 #define LOG_TAG   "CEncoderLame"
 #include "utils/ADebugExt.h"
 #include "utils/ADebug.h"
+#include "utils/AMessage.h"
 #include "impl/CEncoderLame.h"
 #include "media/MediaSource.h"
 #include "media/MetaData.h"
@@ -27,7 +28,11 @@ CEncoderLame::~CEncoderLame()
 
 
 int
-CEncoderLame::syncEncode(const sp<MediaSource>& pMediaSource_in, const sp<IDataRender>& pDataRender_out)
+CEncoderLame::syncEncode(
+    const sp<MediaSource>& pMediaSource_in,
+    const sp<IDataRender>& pDataRender_out,
+    const sp<AMessage>&    pOption_in
+)
 {
     AUTO_LOG();
 
@@ -40,7 +45,7 @@ CEncoderLame::syncEncode(const sp<MediaSource>& pMediaSource_in, const sp<IDataR
     CHECK(meta->findCString(kKeyMIMEType, &mime));
 
     if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_RAW)) {
-        int ret = prepare(pMediaSource_in, pDataRender_out);
+        int ret = prepare(pMediaSource_in, pDataRender_out, pOption_in);
 
         if (OK == ret) {
             ret = encode( pMediaSource_in, pDataRender_out);
@@ -60,21 +65,34 @@ void
 CEncoderLame::errorf(const char *format, va_list ap)
 {
     AUTO_LOG();
+
+    // TO DO
+    // notify monitor
 }
 
 void
 CEncoderLame::debugf(const char *format, va_list ap)
 {
     AUTO_LOG();
+
+    // TO DO
+    // notify monitor
 }
 
 void
 CEncoderLame::msgf(const char *format, va_list ap)
 {
     AUTO_LOG();
+
+    // TO DO
+    // notify monitor
 }
 
-int CEncoderLame::prepare(const sp<MediaSource>& pMediaSource_in, const sp<IDataRender>& pDataRender_out)
+int CEncoderLame::prepare(
+    const sp<MediaSource>& pMediaSource_in,
+    const sp<IDataRender>& pDataRender_out,
+    const sp<AMessage>&    pOption_in
+)
 {
     AUTO_LOG();
 
@@ -92,6 +110,11 @@ int CEncoderLame::prepare(const sp<MediaSource>& pMediaSource_in, const sp<IData
     lame_set_msgf(m_pGobalFlags, CEncoderLame::msgf);
 
     id3tag_init(m_pGobalFlags);
+
+    // TO DO
+    // pass the user option to encoder
+    //if (pOption_in != NULL) {
+    //}
 
     int  ret = OK;
     bool chk = false;
@@ -116,12 +139,10 @@ int CEncoderLame::prepare(const sp<MediaSource>& pMediaSource_in, const sp<IData
     CHECK_IS_EXT((true == chk), UNKNOWN_ERROR);
     ret = lame_set_num_samples(m_pGobalFlags, iDataSize / (iChannelNum * ((iBitsPerSample + 7) / 8)));
     CHECK_IS_EXT((ret == OK), ret);
-    //printf("[num:%d][ret:%d] \n", iDataSize / (iChannelNum * ((iBitsPerSample + 7) / 8)), ret);
 
     lame_set_write_id3tag_automatic(m_pGobalFlags, 0);
     ret = lame_init_params(m_pGobalFlags);
     CHECK_IS_EXT((ret == OK), ret);
-    //printf("[lame_init_params][ret:%d] \n", ret);
 
     size_t id3v2_size = lame_get_id3v2_tag(m_pGobalFlags, 0, 0);
 
@@ -175,7 +196,6 @@ CEncoderLame::encode(const sp<MediaSource>& pMediaSource_in, const sp<IDataRende
             pBuf = NULL;
             continue;
         }
-
 
         int16_t *pOrg = (int16_t *)((const char *)pBuf->data() + pBuf->range_offset());
         ssize_t iSamplesRead = pBuf->range_length() / 2;
@@ -259,8 +279,6 @@ void
 CEncoderLame::finish()
 {
     AUTO_LOG();
-
-    //printf("encoded \n");
 
     if (m_pGobalFlags != NULL) {
         lame_close(m_pGobalFlags);

@@ -7,18 +7,15 @@
     INCLUDE
 *******************************************************************************/
 
-#include <stdio.h>
-#include <unistd.h>
+#define ENABLE_ADEBUG_EXT
+#define LOG_TAG  "main"
+#include "utils/ADebugExt.h"
+#include "utils/AString.h"
+#include "utils/AMessage.h"
 #include "engine/CEngineFactory.h"
 
-using namespace ENGINE;
+using namespace ENGINE_NAMESPACE;
 
-/*******************************************************************************
-    INTERNAL FUNCTION
-*******************************************************************************/
-
-static void usage(void);
-//static void frontend_msgf(const char *format, va_list ap);
 
 /*******************************************************************************
     DEFINITION
@@ -26,35 +23,42 @@ static void usage(void);
 
 int main(int argc, char *argv[])
 {
-    //printf("MP3 Encoder version 0.1 \n");
+    sp<IEngineAnalyzer> pAnalyzer = CEngineFactory::getInstance().createAnalyzer();
+    CHECK_PTR_EXT(pAnalyzer, UNKNOWN_ERROR);
 
-    // argv[1] is path or wave file.
-    if (argc != 2) {
-        usage();
-        return (-1);
+    int ret = pAnalyzer->parse(argc, argv);
+    CHECK_IS_EXT((OK == ret), ret);
+
+    sp<AMessage> pOption = pAnalyzer->getOption();
+    CHECK_PTR_EXT(pOption, INVALID_OPERATION);
+
+    AString cOperaton;
+    bool chk = pOption->findString(OPTION_OPERATION, &cOperaton);
+    CHECK_IS_EXT((true  == chk), UNKNOWN_ERROR);
+    CHECK_IS_EXT((false == cOperaton.empty()), UNKNOWN_ERROR);
+
+    sp<IEngineScanner> pScanner = CEngineFactory::getInstance().createScanner();
+    CHECK_PTR_EXT(pScanner, UNKNOWN_ERROR);
+
+    sp<IEngineScannerClient> pClient  = CEngineFactory::getInstance().createClient(cOperaton.c_str());
+    CHECK_PTR_EXT(pClient, UNKNOWN_ERROR);
+
+    ret = pClient->init(pOption);
+    CHECK_IS_EXT((OK == ret), ret);
+
+    AString cSource;
+    chk = pOption->findString(OPTION_INPUT_FILE, &cSource);
+
+    if ((true == chk) && (false == cSource.empty())) {
+        pScanner->processFile(cSource.c_str(), NULL, pClient);
     }
 
-    sp<IEngineScanner>       pScanner = CEngineFactory::getInstance().createMediaScanner();
-    sp<IEngineScannerClient> pClient  = CEngineFactory::getInstance().createMP3EncoderClient();
+    chk = pOption->findString(OPTION_INPUT_PATH, &cSource);
 
-    pClient->init();
-    pScanner->processDirectory(argv[1], pClient);
+    if ((true == chk) && (false == cSource.empty())) {
+        pScanner->processDirectory(cSource.c_str(), pClient);
+    }
 
-//	::sleep(1);
-
-    return 0;
+    RETURN(OK);
 }
-
-static void
-usage(void)
-{
-    printf("usage: m3e file \n");
-    printf("file - is a wave file or a path for wave file \n");
-}
-
-//static void
-//frontend_msgf(const char *format, va_list ap)
-//{
-//}
-
 

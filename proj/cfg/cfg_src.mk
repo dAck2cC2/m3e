@@ -22,8 +22,11 @@ CPPSRC += main.cpp \
           utils/Static.cpp \
           utils/Timers.cpp \
           utils/Threads.cpp \
+          utils/hexdump.cpp \
           utils/AString.cpp \
           utils/ABuffer.cpp \
+          utils/AAtomizer.cpp \
+          utils/AMessage.cpp \
           media/CPathScanner.cpp \
           media/CMediaFileScanner.cpp \
           media/CDataSource.cpp \
@@ -36,11 +39,12 @@ CPPSRC += main.cpp \
           media/MediaBuffer.cpp \
           media/MediaBufferGroup.cpp \
           media/WAVExtractor.cpp \
-          impl/CEncoderLame.cpp \
+          impl/CEngineAnalyzer.cpp \
+          impl/CEngineMonitor.cpp \
           impl/CAsyncEncoder.cpp \
           impl/CAsyncEncoderGroup.cpp \
-          impl/CMP3EncoderClient.cpp 
-
+          impl/CEncoderClient.cpp \
+          impl/CEncoderLame.cpp 
           
 # **************************************
 # Build Path

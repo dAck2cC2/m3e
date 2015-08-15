@@ -12,9 +12,11 @@
 /*---------------------------------------------------------------------------*/
 
 #include "engine/EngineDefine.h"
-#include "engine/IEngineScannerClient.h"
-#include "engine/IEngineScanner.h"
+#include "engine/IEngineAnalyzer.h"
+#include "engine/IEngineMonitor.h"
 #include "engine/IEngineEncoder.h"
+#include "engine/IEngineScanner.h"
+#include "engine/IEngineScannerClient.h"
 #include "utils/Singleton.h"
 #include "utils/ABase.h"
 
@@ -26,9 +28,12 @@ class CEngineFactory : public Singleton<CEngineFactory>
     friend class Singleton<CEngineFactory>;
 
 public:
-    virtual sp<IEngineScanner>        createMediaScanner();
-    virtual sp<IEngineScannerClient>  createMP3EncoderClient();
-    virtual sp<IEngineEncoder>        createMP3Encoder();
+    virtual sp<IEngineAnalyzer>       createAnalyzer();
+    virtual sp<IEngineScanner>        createScanner();
+    virtual sp<IEngineScannerClient>  createClient( const char* pszType_in);
+    virtual sp<IEngineEncoder>        createEncoder(const char* pszName_in);
+
+    virtual IEngineMonitor*           getMonitor();
 
     virtual ~CEngineFactory();
 private:

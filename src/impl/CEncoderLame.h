@@ -14,7 +14,10 @@ public:
     explicit CEncoderLame();
     virtual ~CEncoderLame();
 
-    virtual int syncEncode(const sp<MediaSource>& pMediaSource_in, const sp<IDataRender>& pDataRender_out);
+    virtual int syncEncode(
+        const sp<MediaSource>& pMediaSource_in,
+        const sp<IDataRender>& pDataRender_out,
+        const sp<AMessage>&    pOption_in = NULL);
 
 public:
     static void errorf(const char *format, va_list ap);
@@ -22,7 +25,12 @@ public:
     static void msgf(const char *format, va_list ap);
 
 private:
-    virtual int  prepare(const sp<MediaSource>& pMediaSource_in, const sp<IDataRender>& pDataRender_out);
+    virtual int  prepare(
+        const sp<MediaSource>& pMediaSource_in,
+        const sp<IDataRender>& pDataRender_out,
+        const sp<AMessage>&    pOption_in
+    );
+
     virtual int  encode( const sp<MediaSource>& pMediaSource_in, const sp<IDataRender>& pDataRender_out);
     virtual void finish( );
 

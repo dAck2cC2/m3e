@@ -1,6 +1,6 @@
 
-#ifndef __CMP3_ENCODER_CLIENT_H__
-#define __CMP3_ENCODER_CLIENT_H__
+#ifndef __CENCODER_CLIENT_H__
+#define __CENCODER_CLIENT_H__
 
 #include "engine/EngineDefine.h"
 #include "engine/IEngineScannerClient.h"
@@ -9,16 +9,16 @@
 ENGINE_BEGIN
 
 class String8;
-class IEngineEncoder;
+//class IEngineEncoder;
 class CAsyncEncoderGroup;
 
-class CMP3EncoderClient : public IEngineScannerClient
+class CEncoderClient : public IEngineScannerClient
 {
 public:
-    explicit CMP3EncoderClient();
-    virtual ~CMP3EncoderClient();
+    explicit CEncoderClient();
+    virtual ~CEncoderClient();
 
-    virtual int  init();
+    virtual int  init(const sp<AMessage>& pOption_in);
 
     virtual void setLocale(const char* locale);
 
@@ -28,15 +28,16 @@ public:
     virtual int  foundMediaFile(const char *path, sp<MediaExtractor>& pExtractor_in);
 
 private:
-    String8 getOutputFilePath(const String8& cInputFilePath_in);
+    String8 getOutputFile(const String8& cInputFile_in);
 
 private:
     CAsyncEncoderGroup*  m_pGroup;
+    sp<AMessage>         m_pOption;
 
-    DISALLOW_EVIL_CONSTRUCTORS(CMP3EncoderClient);
+    DISALLOW_EVIL_CONSTRUCTORS(CEncoderClient);
 };
 
 ENGINE_END
 
-#endif // __CMP3_ENCODER_CLIENT_H__
+#endif // __CENCODER_CLIENT_H__
 

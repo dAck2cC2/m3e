@@ -14,7 +14,7 @@ _MEDIA_BEGIN
 CFileRender::CFileRender(const char *filename)
     : mFd(-1)
 {
-    mFd = open(filename, O_WRONLY | O_CREAT);
+    mFd = open(filename, O_WRONLY | O_CREAT, 0777);
 
     if (mFd < 0) {
         ALOGE("Failed to create file '%s'. (%s)", filename, strerror(errno));

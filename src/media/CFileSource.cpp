@@ -55,9 +55,6 @@ CFileSource::~CFileSource()
 
         if ((mDelete) && (!mFilename.isEmpty())) {
             ::remove(mFilename.string());
-            printf("[%s] is done.\n", mFilename.getPathLeaf().string());
-        } else {
-            printf("[%s] is done.\n", mFilename.getPathLeaf().string());
         }
     }
 }

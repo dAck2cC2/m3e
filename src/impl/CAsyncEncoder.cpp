@@ -3,6 +3,7 @@
 #define LOG_TAG   "CAsyncEncoder"
 #include "utils/ADebugExt.h"
 #include "utils/ADebug.h"
+#include "utils/AMessage.h"
 #include "utils/atomic.h"
 #include "media/MediaSource.h"
 #include "media/MetaData.h"
@@ -20,7 +21,8 @@ CAsyncEncoder::CAsyncEncoder(const sp<IEngineEncoder>& pEncoder_in, const int32_
       m_pNext(NULL),
       m_pEncoder(pEncoder_in),
       m_pThread(NULL),
-      m_cSrcPath(),
+      m_pOption(NULL),
+      m_cSrcFile(),
       m_iAffinity(iAffinity_in)
 {
     AUTO_LOG();
@@ -47,7 +49,8 @@ int
 CAsyncEncoder::asyncEncode(
     const sp<MediaSource>&     pMediaSource_in,
     const sp<IDataRender>&     pDataRender_out,
-    const String8&             cSrcPath_in
+    const sp<AMessage>&        pOption_in,
+    const String8&             cSrcFile_in
 )
 {
     AUTO_LOG();
@@ -63,12 +66,13 @@ CAsyncEncoder::asyncEncode(
     CHECK(meta->findCString(kKeyMIMEType, &mime));
 
     if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_RAW)) {
-        m_cSrcPath = cSrcPath_in;
+        m_cSrcFile = cSrcFile_in;
 
         m_pThread = new CEncoderThread(
             *this,
             pMediaSource_in,
             pDataRender_out,
+            pOption_in,
             m_pEncoder,
             m_iAffinity
         );
@@ -81,6 +85,13 @@ CAsyncEncoder::asyncEncode(
     }
 
     RETURN(OK);
+}
+
+
+String8&
+CAsyncEncoder::getSourceFile()
+{
+    return (m_cSrcFile);
 }
 
 
@@ -146,15 +157,6 @@ CAsyncEncoder::setObserver(IAsyncEncoderObserver * pObserver_in)
     m_pObserver = pObserver_in;
 }
 
-
-sp<IEngineEncoder>&
-CAsyncEncoder::get()
-{
-    AUTO_LOG();
-
-    return (m_pEncoder);
-}
-
 void
 CAsyncEncoder::setNext(CAsyncEncoder * pNext_in)
 {
@@ -175,6 +177,7 @@ CAsyncEncoder::CEncoderThread::CEncoderThread(
     CAsyncEncoder&             cParent_in,
     const sp<MediaSource>&     pSrc_in,
     const sp<IDataRender>&     pDst_in,
+    const sp<AMessage>&        pOpt_in,
     const sp<IEngineEncoder>&  pEncoder_in,
     const int32_t              iAffinity_in
 
@@ -183,6 +186,7 @@ CAsyncEncoder::CEncoderThread::CEncoderThread(
       m_cParent(cParent_in),
       m_pMediaSource(pSrc_in),
       m_pDataRender(pDst_in),
+      m_pOption(pOpt_in),
       m_pEncoder(pEncoder_in)
 {
     AUTO_LOG();
@@ -199,12 +203,13 @@ CAsyncEncoder::CEncoderThread::threadLoop()
     AUTO_LOG();
 
     if (m_pEncoder != NULL) {
-        m_pEncoder->syncEncode(m_pMediaSource, m_pDataRender);
+        m_pEncoder->syncEncode(m_pMediaSource, m_pDataRender, m_pOption);
     }
 
     m_pEncoder     = NULL;
     m_pMediaSource = NULL;
     m_pDataRender  = NULL;
+    m_pOption      = NULL;
 
     m_cParent.release();
 
