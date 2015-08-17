@@ -259,16 +259,13 @@ struct key_value_pair_t {
     key_value_pair_t(const key_value_pair_t& o) : key(o.key), value(o.value) { }
     key_value_pair_t(const KEY& k, const VALUE& v) : key(k), value(v)  { }
     key_value_pair_t(const KEY& k) : key(k) { }
-    inline bool operator < (const key_value_pair_t& o) const
-    {
+    inline bool operator < (const key_value_pair_t& o) const {
         return strictly_order_type(key, o.key);
     }
-    inline const KEY& getKey() const
-    {
+    inline const KEY& getKey() const {
         return key;
     }
-    inline const VALUE& getValue() const
-    {
+    inline const VALUE& getValue() const {
         return value;
     }
 };

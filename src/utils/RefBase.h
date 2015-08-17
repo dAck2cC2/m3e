@@ -112,14 +112,12 @@ public:
     weakref_type*   getWeakRefs() const;
 
     //! DEBUGGING ONLY: Print references held on object.
-    inline  void            printRefs() const
-    {
+    inline  void            printRefs() const {
         getWeakRefs()->printRefs();
     }
 
     //! DEBUGGING ONLY: Enable tracking of object.
-    inline  void            trackMe(bool enable, bool retain)
-    {
+    inline  void            trackMe(bool enable, bool retain) {
         getWeakRefs()->trackMe(enable, retain);
     }
 
@@ -170,19 +168,16 @@ class LightRefBase
 {
 public:
     inline LightRefBase() : mCount(0) { }
-    inline void incStrong(const void* id) const
-    {
+    inline void incStrong(const void* id) const {
         android_atomic_inc(&mCount);
     }
-    inline void decStrong(const void* id) const
-    {
+    inline void decStrong(const void* id) const {
         if (android_atomic_dec(&mCount) == 1) {
             delete static_cast<const T*>(this);
         }
     }
     //! DEBUGGING ONLY: Get current strong ref count.
-    inline int32_t getStrongCount() const
-    {
+    inline int32_t getStrongCount() const {
         return mCount;
     }
 
@@ -241,13 +236,11 @@ public:
 
     // Accessors
 
-    inline  weakref_type* get_refs() const
-    {
+    inline  weakref_type* get_refs() const {
         return m_refs;
     }
 
-    inline  T* unsafe_get() const
-    {
+    inline  T* unsafe_get() const {
         return m_ptr;
     }
 
@@ -260,57 +253,45 @@ public:
     COMPARE_WEAK( <= )
     COMPARE_WEAK( >= )
 
-    inline bool operator == (const wp<T>& o) const
-    {
+    inline bool operator == (const wp<T>& o) const {
         return (m_ptr == o.m_ptr) && (m_refs == o.m_refs);
     }
     template<typename U>
-    inline bool operator == (const wp<U>& o) const
-    {
+    inline bool operator == (const wp<U>& o) const {
         return m_ptr == o.m_ptr;
     }
 
-    inline bool operator > (const wp<T>& o) const
-    {
+    inline bool operator > (const wp<T>& o) const {
         return (m_ptr == o.m_ptr) ? (m_refs > o.m_refs) : (m_ptr > o.m_ptr);
     }
     template<typename U>
-    inline bool operator > (const wp<U>& o) const
-    {
+    inline bool operator > (const wp<U>& o) const {
         return (m_ptr == o.m_ptr) ? (m_refs > o.m_refs) : (m_ptr > o.m_ptr);
     }
 
-    inline bool operator < (const wp<T>& o) const
-    {
+    inline bool operator < (const wp<T>& o) const {
         return (m_ptr == o.m_ptr) ? (m_refs < o.m_refs) : (m_ptr < o.m_ptr);
     }
     template<typename U>
-    inline bool operator < (const wp<U>& o) const
-    {
+    inline bool operator < (const wp<U>& o) const {
         return (m_ptr == o.m_ptr) ? (m_refs < o.m_refs) : (m_ptr < o.m_ptr);
     }
-    inline bool operator != (const wp<T>& o) const
-    {
+    inline bool operator != (const wp<T>& o) const {
         return m_refs != o.m_refs;
     }
-    template<typename U> inline bool operator != (const wp<U>& o) const
-    {
+    template<typename U> inline bool operator != (const wp<U>& o) const {
         return !operator == (o);
     }
-    inline bool operator <= (const wp<T>& o) const
-    {
+    inline bool operator <= (const wp<T>& o) const {
         return !operator > (o);
     }
-    template<typename U> inline bool operator <= (const wp<U>& o) const
-    {
+    template<typename U> inline bool operator <= (const wp<U>& o) const {
         return !operator > (o);
     }
-    inline bool operator >= (const wp<T>& o) const
-    {
+    inline bool operator >= (const wp<T>& o) const {
         return !operator < (o);
     }
-    template<typename U> inline bool operator >= (const wp<U>& o) const
-    {
+    template<typename U> inline bool operator >= (const wp<U>& o) const {
         return !operator < (o);
     }
 
@@ -520,12 +501,10 @@ class ReferenceMover
 
     template <typename TYPE>
     struct StrongReferenceCast : public ReferenceConverterBase {
-        virtual size_t getReferenceTypeSize() const
-        {
+        virtual size_t getReferenceTypeSize() const {
             return sizeof( sp<TYPE> );
         }
-        virtual void* getReferenceBase(void const* p) const
-        {
+        virtual void* getReferenceBase(void const* p) const {
             sp<TYPE> const* sptr(reinterpret_cast<sp<TYPE> const*>(p));
             return static_cast<typename TYPE::basetype *>(sptr->get());
         }
@@ -533,12 +512,10 @@ class ReferenceMover
 
     template <typename TYPE>
     struct WeakReferenceCast : public ReferenceConverterBase {
-        virtual size_t getReferenceTypeSize() const
-        {
+        virtual size_t getReferenceTypeSize() const {
             return sizeof( wp<TYPE> );
         }
-        virtual void* getReferenceBase(void const* p) const
-        {
+        virtual void* getReferenceBase(void const* p) const {
             wp<TYPE> const* sptr(reinterpret_cast<wp<TYPE> const*>(p));
             return static_cast<typename TYPE::basetype *>(sptr->unsafe_get());
         }
@@ -546,15 +523,13 @@ class ReferenceMover
 
 public:
     template<typename TYPE> static inline
-    void move_references(sp<TYPE>* d, sp<TYPE> const* s, size_t n)
-    {
+    void move_references(sp<TYPE>* d, sp<TYPE> const* s, size_t n) {
         memmove(d, s, n * sizeof(sp<TYPE>));
         StrongReferenceCast<TYPE> caster;
         TYPE::moveReferences(d, s, n, caster);
     }
     template<typename TYPE> static inline
-    void move_references(wp<TYPE>* d, wp<TYPE> const* s, size_t n)
-    {
+    void move_references(wp<TYPE>* d, wp<TYPE> const* s, size_t n) {
         memmove(d, s, n * sizeof(wp<TYPE>));
         WeakReferenceCast<TYPE> caster;
         TYPE::moveReferences(d, s, n, caster);

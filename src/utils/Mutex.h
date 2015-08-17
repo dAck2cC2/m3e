@@ -71,16 +71,13 @@ public:
     class Autolock
     {
     public:
-        inline Autolock(Mutex& mutex) : mLock(mutex)
-        {
+        inline Autolock(Mutex& mutex) : mLock(mutex) {
             mLock.lock();
         }
-        inline Autolock(Mutex* mutex) : mLock(*mutex)
-        {
+        inline Autolock(Mutex* mutex) : mLock(*mutex) {
             mLock.lock();
         }
-        inline ~Autolock()
-        {
+        inline ~Autolock() {
             mLock.unlock();
         }
     private:

@@ -30,8 +30,7 @@ _UTILS_BEGIN
 class LibUtilsFirstStatics
 {
 public:
-    LibUtilsFirstStatics()
-    {
+    LibUtilsFirstStatics() {
         __android_log_init();
         initialize_string8();
 #ifdef ENABLE_STRING16
@@ -39,8 +38,7 @@ public:
 #endif // ENABLE_STRING16
     }
 
-    ~LibUtilsFirstStatics()
-    {
+    ~LibUtilsFirstStatics() {
 #ifdef ENABLE_STRING16
         terminate_string16();
 #endif // ENABLE_STRING16
@@ -64,8 +62,7 @@ public:
     virtual ~LogTextOutput() { };
 
 protected:
-    virtual status_t writeLines(const struct iovec& vec, size_t N)
-    {
+    virtual status_t writeLines(const struct iovec& vec, size_t N) {
         //android_writevLog(&vec, N);       <-- this is now a no-op
         if (N != 1) ALOGI("WARNING: writeLines N=%zu\n", N);
 
@@ -81,8 +78,7 @@ public:
     virtual ~FdTextOutput() { };
 
 protected:
-    virtual status_t writeLines(const struct iovec& vec, size_t N)
-    {
+    virtual status_t writeLines(const struct iovec& vec, size_t N) {
         writev(mFD, &vec, N);
         return NO_ERROR;
     }

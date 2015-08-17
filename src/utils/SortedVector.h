@@ -56,8 +56,7 @@ public:
      * empty the vector
      */
 
-    inline  void            clear()
-    {
+    inline  void            clear() {
         VectorImpl::clear();
     }
 
@@ -66,23 +65,19 @@ public:
      */
 
     //! returns number of items in the vector
-    inline  size_t          size() const
-    {
+    inline  size_t          size() const {
         return VectorImpl::size();
     }
     //! returns whether or not the vector is empty
-    inline  bool            isEmpty() const
-    {
+    inline  bool            isEmpty() const {
         return VectorImpl::isEmpty();
     }
     //! returns how many items can be stored without reallocating the backing store
-    inline  size_t          capacity() const
-    {
+    inline  size_t          capacity() const {
         return VectorImpl::capacity();
     }
     //! sets the capacity. capacity can never be reduced less than size()
-    inline  ssize_t         setCapacity(size_t size)
-    {
+    inline  ssize_t         setCapacity(size_t size) {
         return VectorImpl::setCapacity(size);
     }
 
@@ -123,8 +118,7 @@ public:
     ssize_t         add(const TYPE& item);
 
     //! editItemAt() MUST NOT change the order of this item
-    TYPE&           editItemAt(size_t index)
-    {
+    TYPE&           editItemAt(size_t index) {
         return *( static_cast<TYPE *>(VectorImpl::editItemLocation(index)) );
     }
 
@@ -138,8 +132,7 @@ public:
     //! remove several items
     inline  ssize_t         removeItemsAt(size_t index, size_t count = 1);
     //! remove one item
-    inline  ssize_t         removeAt(size_t index)
-    {
+    inline  ssize_t         removeAt(size_t index) {
         return removeItemsAt(index);
     }
 

@@ -46,8 +46,7 @@ struct AString {
     void trim();
     void erase(size_t start, size_t n);
 
-    void append(char c)
-    {
+    void append(char c) {
         append(&c, 1);
     }
     void append(const char *s);

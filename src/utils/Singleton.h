@@ -31,8 +31,7 @@ template <typename TYPE>
 class Singleton
 {
 public:
-    static TYPE& getInstance()
-    {
+    static TYPE& getInstance() {
         Mutex::Autolock _l(sLock);
         TYPE* instance = sInstance;
 
@@ -44,8 +43,7 @@ public:
         return *instance;
     }
 
-    static bool hasInstance()
-    {
+    static bool hasInstance() {
         Mutex::Autolock _l(sLock);
         return sInstance != 0;
     }

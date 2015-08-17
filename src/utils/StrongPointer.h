@@ -90,16 +90,13 @@ public:
 
     // Accessors
 
-    inline  T&      operator* () const
-    {
+    inline  T&      operator* () const {
         return *m_ptr;
     }
-    inline  T*      operator-> () const
-    {
+    inline  T*      operator-> () const {
         return m_ptr;
     }
-    inline  T*      get() const
-    {
+    inline  T*      get() const {
         return m_ptr;
     }
 

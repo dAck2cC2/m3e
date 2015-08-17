@@ -48,6 +48,7 @@ CXXFLAGS = $(CFLAGS)
 ASTYLE_DIR = $(patsubst $(BUILD_ROOT)%, $(SRC_DIR)%, $(BUILD_DIR))
 ASTYLE_OPT += -A3 -z2 -s4 -f -n -p
 ASTYLE := astyle
+DTOU := dos2unix
 
 # **************************************
 # Rule
@@ -64,7 +65,10 @@ check_dir:
 format:
 	@for DIR in $(ASTYLE_DIR) ; do \
 	$(ASTYLE) --mode=c $(ASTYLE_OPT) $$DIR/*.* ;\
+	$(DTOU) $$DIR/*.* ;\
 	done
+	@$(DTOU) ../cfg/*.*
+	@$(DTOU) ./Makefile
 
 $(TARGET) : $(OBJS)
 	@echo [Linking][$(TARGET)]

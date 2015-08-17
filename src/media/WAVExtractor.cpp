@@ -71,8 +71,7 @@ struct WAVSource : public MediaSource {
         MediaBuffer **buffer, const ReadOptions *options = NULL);
 
 #ifdef ENABLE_CUSTOMISE
-    virtual void deleteFileAfter(const bool bDelete_in = true)
-    {
+    virtual void deleteFileAfter(const bool bDelete_in = true) {
         if (mDataSource != NULL) mDataSource->deleteFileAfter(bDelete_in);
     }
 #endif // ENABLE_CUSTOMISE

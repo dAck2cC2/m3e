@@ -51,32 +51,25 @@ protected:
     public:
         explicit _Node(const T& val) : mVal(val) {}
         ~_Node() {}
-        inline T& getRef()
-        {
+        inline T& getRef() {
             return mVal;
         }
-        inline const T& getRef() const
-        {
+        inline const T& getRef() const {
             return mVal;
         }
-        inline _Node* getPrev() const
-        {
+        inline _Node* getPrev() const {
             return mpPrev;
         }
-        inline _Node* getNext() const
-        {
+        inline _Node* getNext() const {
             return mpNext;
         }
-        inline void setVal(const T& val)
-        {
+        inline void setVal(const T& val) {
             mVal = val;
         }
-        inline void setPrev(_Node* ptr)
-        {
+        inline void setPrev(_Node* ptr) {
             mpPrev = ptr;
         }
-        inline void setNext(_Node* ptr)
-        {
+        inline void setNext(_Node* ptr) {
             mpNext = ptr;
         }
     private:
@@ -104,9 +97,9 @@ protected:
     };
 
     template <
-        typename U,
-        template <class> class Constness
-        >
+    typename U,
+             template <class> class Constness
+             >
     class _ListIterator
     {
         typedef _ListIterator<U, Constness>     _Iter;
@@ -131,25 +124,21 @@ protected:
         /*
          * Dereference operator.  Used to get at the juicy insides.
          */
-        _Type& operator*() const
-        {
+        _Type& operator*() const {
             return mpNode->getRef();
         }
-        _Type* operator->() const
-        {
+        _Type* operator->() const {
             return &(mpNode->getRef());
         }
 
         /*
          * Iterator comparison.
          */
-        inline bool operator==(const _Iter& right) const
-        {
+        inline bool operator==(const _Iter& right) const {
             return mpNode == right.mpNode;
         }
 
-        inline bool operator!=(const _Iter& right) const
-        {
+        inline bool operator!=(const _Iter& right) const {
             return mpNode != right.mpNode;
         }
 
@@ -157,45 +146,38 @@ protected:
          * handle comparisons between iterator and const_iterator
          */
         template<typename OTHER>
-        inline bool operator==(const OTHER& right) const
-        {
+        inline bool operator==(const OTHER& right) const {
             return mpNode == right.mpNode;
         }
 
         template<typename OTHER>
-        inline bool operator!=(const OTHER& right) const
-        {
+        inline bool operator!=(const OTHER& right) const {
             return mpNode != right.mpNode;
         }
 
         /*
          * Incr/decr, used to move through the list.
          */
-        inline _Iter& operator++()       // pre-increment
-        {
+        inline _Iter& operator++() {     // pre-increment
             mpNode = mpNode->getNext();
             return *this;
         }
-        const _Iter operator++(int)      // post-increment
-        {
+        const _Iter operator++(int) {    // post-increment
             _Iter tmp(*this);
             mpNode = mpNode->getNext();
             return tmp;
         }
-        inline _Iter& operator--()       // pre-increment
-        {
+        inline _Iter& operator--() {     // pre-increment
             mpNode = mpNode->getPrev();
             return *this;
         }
-        const _Iter operator--(int)     // post-increment
-        {
+        const _Iter operator--(int) {   // post-increment
             _Iter tmp(*this);
             mpNode = mpNode->getPrev();
             return tmp;
         }
 
-        inline _NodePtr getNode() const
-        {
+        inline _NodePtr getNode() const {
             return mpNode;
         }
 
@@ -205,17 +187,14 @@ protected:
     };
 
 public:
-    List()
-    {
+    List() {
         prep();
     }
-    List(const List<T>& src)        // copy-constructor
-    {
+    List(const List<T>& src) {      // copy-constructor
         prep();
         insert(begin(), src.begin(), src.end());
     }
-    virtual ~List()
-    {
+    virtual ~List() {
         clear();
         delete[] (unsigned char*) mpMiddle;
     }
@@ -226,14 +205,12 @@ public:
     List<T>& operator=(const List<T>& right);
 
     /* returns true if the list is empty */
-    inline bool empty() const
-    {
+    inline bool empty() const {
         return mpMiddle->getNext() == mpMiddle;
     }
 
     /* return #of elements in list */
-    size_t size() const
-    {
+    size_t size() const {
         return size_t(distance(begin(), end()));
     }
 
@@ -242,36 +219,29 @@ public:
      * _Node* we're returning is converted to an "iterator" by a
      * constructor in _ListIterator.
      */
-    inline iterator begin()
-    {
+    inline iterator begin() {
         return iterator(mpMiddle->getNext());
     }
-    inline const_iterator begin() const
-    {
+    inline const_iterator begin() const {
         return const_iterator(const_cast<_Node const*>(mpMiddle->getNext()));
     }
-    inline iterator end()
-    {
+    inline iterator end() {
         return iterator(mpMiddle);
     }
-    inline const_iterator end() const
-    {
+    inline const_iterator end() const {
         return const_iterator(const_cast<_Node const*>(mpMiddle));
     }
 
     /* add the object to the head or tail of the list */
-    void push_front(const T& val)
-    {
+    void push_front(const T& val) {
         insert(begin(), val);
     }
-    void push_back(const T& val)
-    {
+    void push_back(const T& val) {
         insert(end(), val);
     }
 
     /* insert before the current node; returns iterator at new node */
-    iterator insert(iterator posn, const T& val)
-    {
+    iterator insert(iterator posn, const T& val) {
         _Node* newNode = new _Node(val);        // alloc & copy-construct
         newNode->setNext(posn.getNode());
         newNode->setPrev(posn.getNode()->getPrev());
@@ -281,15 +251,13 @@ public:
     }
 
     /* insert a range of elements before the current node */
-    void insert(iterator posn, const_iterator first, const_iterator last)
-    {
+    void insert(iterator posn, const_iterator first, const_iterator last) {
         for ( ; first != last; ++first)
             insert(posn, *first);
     }
 
     /* remove one entry; returns iterator at next node */
-    iterator erase(iterator posn)
-    {
+    iterator erase(iterator posn) {
         _Node* pNext = posn.getNode()->getNext();
         _Node* pPrev = posn.getNode()->getPrev();
         pPrev->setNext(pNext);
@@ -299,8 +267,7 @@ public:
     }
 
     /* remove a range of elements */
-    iterator erase(iterator first, iterator last)
-    {
+    iterator erase(iterator first, iterator last) {
         while (first != last)
             erase(first++);     // don't erase than incr later!
 
@@ -308,8 +275,7 @@ public:
     }
 
     /* remove all contents of the list */
-    void clear()
-    {
+    void clear() {
         _Node* pCurrent = mpMiddle->getNext();
         _Node* pNext;
 
@@ -334,17 +300,16 @@ public:
      * _ListIterator of the same type but different constness.
      */
     template <
-        typename U,
-        template <class> class CL,
-        template <class> class CR
-        >
+    typename U,
+             template <class> class CL,
+             template <class> class CR
+             >
     ptrdiff_t distance(
         _ListIterator<U, CL> first, _ListIterator<U, CR> last) const
     {
         ptrdiff_t count = 0;
 
-        while (first != last)
-        {
+        while (first != last) {
             ++first;
             ++count;
         }
@@ -359,8 +324,7 @@ private:
      * might have side-effects or require arguments.  So, we do this
      * slightly uncouth storage alloc.
      */
-    void prep()
-    {
+    void prep() {
         mpMiddle = (_Node*) new unsigned char[sizeof(_Node)];
         mpMiddle->setPrev(mpMiddle);
         mpMiddle->setNext(mpMiddle);

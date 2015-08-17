@@ -40,35 +40,28 @@ struct ABuffer : public RefBase {
     sp<AMessage> meta();
 #endif // ENABLE_AMESSAGE
 
-    uint8_t *base()
-    {
+    uint8_t *base() {
         return (uint8_t *)mData;
     }
-    uint8_t *data()
-    {
+    uint8_t *data() {
         return (uint8_t *)mData + mRangeOffset;
     }
-    size_t capacity() const
-    {
+    size_t capacity() const {
         return mCapacity;
     }
-    size_t size() const
-    {
+    size_t size() const {
         return mRangeLength;
     }
-    size_t offset() const
-    {
+    size_t offset() const {
         return mRangeOffset;
     }
 
     void setRange(size_t offset, size_t size);
 
-    void setInt32Data(int32_t data)
-    {
+    void setInt32Data(int32_t data) {
         mInt32Data = data;
     }
-    int32_t int32Data() const
-    {
+    int32_t int32Data() const {
         return mInt32Data;
     }
 

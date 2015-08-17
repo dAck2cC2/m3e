@@ -32,7 +32,8 @@ typedef enum {
     SP_CNT,
     SP_MAX        = SP_CNT - 1,
     SP_SYSTEM_DEFAULT = SP_FOREGROUND,
-} SchedPolicy;
+}
+SchedPolicy;
 
 /* Assign thread tid to the cgroup associated with the specified policy.
  * If the thread is a thread group leader, that is it's gettid() == getpid(),

@@ -107,7 +107,7 @@ extern "C" {
         dstP += bytes;
 
         switch (bytes) {
-        /* note: everything falls through. */
+            /* note: everything falls through. */
         case 4:
             *--dstP = (uint8_t)((srcChar | kByteMark) & kByteMask);
             srcChar >>= 6;

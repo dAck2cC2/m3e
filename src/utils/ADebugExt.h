@@ -74,13 +74,11 @@ class CAutoLog
 {
 public:
     explicit CAutoLog(const char* pszTagName_in, const char* pszApiName_in)
-        : m_pszTagName(pszTagName_in), m_pszApiName(pszApiName_in)
-    {
+        : m_pszTagName(pszTagName_in), m_pszApiName(pszApiName_in) {
         __android_log_print_tag_id(0, 0, m_pszTagName, "[%s][START]", m_pszApiName);
     };
 
-    virtual ~CAutoLog()
-    {
+    virtual ~CAutoLog() {
         __android_log_print_tag_id(0, 0, m_pszTagName, "[%s][E N D]", m_pszApiName);
     };
 

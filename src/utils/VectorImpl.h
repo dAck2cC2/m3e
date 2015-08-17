@@ -57,19 +57,16 @@ public:
     VectorImpl&     operator = (const VectorImpl& rhs);
 
     /*! C-style array access */
-    inline  const void*     arrayImpl() const
-    {
+    inline  const void*     arrayImpl() const {
         return mStorage;
     }
     void*           editArrayImpl();
 
     /*! vector stats */
-    inline  size_t          size() const
-    {
+    inline  size_t          size() const {
         return mCount;
     }
-    inline  bool            isEmpty() const
-    {
+    inline  bool            isEmpty() const {
         return mCount == 0;
     }
     size_t          capacity() const;

@@ -204,22 +204,19 @@ public:
      * replaces whatever was there before.
      */
     String8& appendPath(const char* leaf);
-    String8& appendPath(const String8& leaf)
-    {
+    String8& appendPath(const String8& leaf) {
         return appendPath(leaf.string());
     }
 
     /*
      * Like appendPath(), but does not affect this string.  Returns a new one instead.
      */
-    String8 appendPathCopy(const char* leaf) const
-    {
+    String8 appendPathCopy(const char* leaf) const {
         String8 p(*this);
         p.appendPath(leaf);
         return p;
     }
-    String8 appendPathCopy(const String8& leaf) const
-    {
+    String8 appendPathCopy(const String8& leaf) const {
         return appendPathCopy(leaf.string());
     }
 

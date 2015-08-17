@@ -66,8 +66,7 @@ public:
     * empty the vector
     */
 
-    inline  void            clear()
-    {
+    inline  void            clear() {
         VectorImpl::clear();
     }
 
@@ -76,23 +75,19 @@ public:
      */
 
     //! returns number of items in the vector
-    inline  size_t          size() const
-    {
+    inline  size_t          size() const {
         return VectorImpl::size();
     }
     //! returns whether or not the vector is empty
-    inline  bool            isEmpty() const
-    {
+    inline  bool            isEmpty() const {
         return VectorImpl::isEmpty();
     }
     //! returns how many items can be stored without reallocating the backing store
-    inline  size_t          capacity() const
-    {
+    inline  size_t          capacity() const {
         return VectorImpl::capacity();
     }
     //! sets the capacity. capacity can never be reduced less than size()
-    inline  ssize_t         setCapacity(size_t size)
-    {
+    inline  ssize_t         setCapacity(size_t size) {
         return VectorImpl::setCapacity(size);
     }
 
@@ -172,8 +167,7 @@ public:
     //! remove several items
     inline  ssize_t         removeItemsAt(size_t index, size_t count = 1);
     //! remove one item
-    inline  ssize_t         removeAt(size_t index)
-    {
+    inline  ssize_t         removeAt(size_t index) {
         return removeItemsAt(index);
     }
 
@@ -188,8 +182,7 @@ public:
     inline status_t        sort(compar_r_t cmp, void* state);
 
     // for debugging only
-    inline size_t getItemSize() const
-    {
+    inline size_t getItemSize() const {
         return itemSize();
     }
 
@@ -201,40 +194,31 @@ public:
     typedef TYPE* iterator;
     typedef TYPE const* const_iterator;
 
-    inline iterator begin()
-    {
+    inline iterator begin() {
         return editArray();
     }
-    inline iterator end()
-    {
+    inline iterator end() {
         return editArray() + size();
     }
-    inline const_iterator begin() const
-    {
+    inline const_iterator begin() const {
         return array();
     }
-    inline const_iterator end() const
-    {
+    inline const_iterator end() const {
         return array() + size();
     }
-    inline void reserve(size_t n)
-    {
+    inline void reserve(size_t n) {
         setCapacity(n);
     }
-    inline bool empty() const
-    {
+    inline bool empty() const {
         return isEmpty();
     }
-    inline void push_back(const TYPE& item)
-    {
+    inline void push_back(const TYPE& item) {
         insertAt(item, size(), 1);
     }
-    inline void push_front(const TYPE& item)
-    {
+    inline void push_front(const TYPE& item) {
         insertAt(item, 0, 1);
     }
-    inline iterator erase(iterator pos)
-    {
+    inline iterator erase(iterator pos) {
         return begin() + removeItemsAt(pos - array());
     }
 

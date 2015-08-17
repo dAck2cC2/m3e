@@ -67,8 +67,7 @@ public:
         : mStrong(INITIAL_STRONG_VALUE)
         , mWeak(0)
         , mBase(base)
-        , mFlags(0)
-    {
+        , mFlags(0) {
     }
 
     void addStrongRef(const void* /*id*/) { }
@@ -90,12 +89,10 @@ public:
         , mStrongRefs(NULL)
         , mWeakRefs(NULL)
         , mTrackEnabled(!!DEBUG_REFS_ENABLED_BY_DEFAULT)
-        , mRetain(false)
-    {
+        , mRetain(false) {
     }
 
-    ~weakref_impl()
-    {
+    ~weakref_impl() {
         bool dumpStack = false;
 
         if (!mRetain && mStrongRefs != NULL) {
@@ -147,15 +144,13 @@ public:
         }
     }
 
-    void addStrongRef(const void* id)
-    {
+    void addStrongRef(const void* id) {
         //ALOGD_IF(mTrackEnabled,
         //        "addStrongRef: RefBase=%p, id=%p", mBase, id);
         addRef(&mStrongRefs, id, mStrong);
     }
 
-    void removeStrongRef(const void* id)
-    {
+    void removeStrongRef(const void* id) {
         //ALOGD_IF(mTrackEnabled,
         //        "removeStrongRef: RefBase=%p, id=%p", mBase, id);
         if (!mRetain) {
@@ -165,21 +160,18 @@ public:
         }
     }
 
-    void renameStrongRefId(const void* old_id, const void* new_id)
-    {
+    void renameStrongRefId(const void* old_id, const void* new_id) {
         //ALOGD_IF(mTrackEnabled,
         //        "renameStrongRefId: RefBase=%p, oid=%p, nid=%p",
         //        mBase, old_id, new_id);
         renameRefsId(mStrongRefs, old_id, new_id);
     }
 
-    void addWeakRef(const void* id)
-    {
+    void addWeakRef(const void* id) {
         addRef(&mWeakRefs, id, mWeak);
     }
 
-    void removeWeakRef(const void* id)
-    {
+    void removeWeakRef(const void* id) {
         if (!mRetain) {
             removeRef(&mWeakRefs, id);
         } else {
@@ -187,19 +179,16 @@ public:
         }
     }
 
-    void renameWeakRefId(const void* old_id, const void* new_id)
-    {
+    void renameWeakRefId(const void* old_id, const void* new_id) {
         renameRefsId(mWeakRefs, old_id, new_id);
     }
 
-    void trackMe(bool track, bool retain)
-    {
+    void trackMe(bool track, bool retain) {
         mTrackEnabled = track;
         mRetain = retain;
     }
 
-    void printRefs() const
-    {
+    void printRefs() const {
         String8 text;
 
         {
@@ -239,8 +228,7 @@ private:
         int32_t ref;
     };
 
-    void addRef(ref_entry** refs, const void* id, int32_t mRef)
-    {
+    void addRef(ref_entry** refs, const void* id, int32_t mRef) {
         if (mTrackEnabled) {
             AutoMutex _l(mMutex);
 
@@ -258,8 +246,7 @@ private:
         }
     }
 
-    void removeRef(ref_entry** refs, const void* id)
-    {
+    void removeRef(ref_entry** refs, const void* id) {
         if (mTrackEnabled) {
             AutoMutex _l(mMutex);
 
@@ -303,8 +290,7 @@ private:
         }
     }
 
-    void renameRefsId(ref_entry* r, const void* old_id, const void* new_id)
-    {
+    void renameRefsId(ref_entry* r, const void* old_id, const void* new_id) {
         if (mTrackEnabled) {
             AutoMutex _l(mMutex);
             ref_entry* ref = r;
@@ -319,8 +305,7 @@ private:
         }
     }
 
-    void printRefsLocked(String8* out, const ref_entry* refs) const
-    {
+    void printRefsLocked(String8* out, const ref_entry* refs) const {
         char buf[128];
 
         while (refs) {
@@ -409,7 +394,7 @@ void RefBase::forceIncStrong(const void* id) const
     case INITIAL_STRONG_VALUE:
         android_atomic_add(-INITIAL_STRONG_VALUE, &refs->mStrong);
 
-    // fall through...
+        // fall through...
     case 0:
         refs->mBase->onFirstRef();
     }

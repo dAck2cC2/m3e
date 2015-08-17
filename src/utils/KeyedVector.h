@@ -45,8 +45,7 @@ public:
      * empty the vector
      */
 
-    inline  void            clear()
-    {
+    inline  void            clear() {
         mVector.clear();
     }
 
@@ -55,23 +54,19 @@ public:
      */
 
     //! returns number of items in the vector
-    inline  size_t          size() const
-    {
+    inline  size_t          size() const {
         return mVector.size();
     }
     //! returns whether or not the vector is empty
-    inline  bool            isEmpty() const
-    {
+    inline  bool            isEmpty() const {
         return mVector.isEmpty();
     }
     //! returns how many items can be stored without reallocating the backing store
-    inline  size_t          capacity() const
-    {
+    inline  size_t          capacity() const {
         return mVector.capacity();
     }
     //! sets the capacity. capacity can never be reduced less than size()
-    inline ssize_t          setCapacity(size_t size)
-    {
+    inline ssize_t          setCapacity(size_t size) {
         return mVector.setCapacity(size);
     }
 

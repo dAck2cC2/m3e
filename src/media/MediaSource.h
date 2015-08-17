@@ -97,8 +97,7 @@ struct MediaSource : public virtual RefBase {
     // Causes this source to suspend pulling data from its upstream source
     // until a subsequent read-with-seek. Currently only supported by
     // OMXCodec.
-    virtual status_t pause()
-    {
+    virtual status_t pause() {
         return ERROR_UNSUPPORTED;
     }
 
@@ -107,8 +106,7 @@ struct MediaSource : public virtual RefBase {
     // This will be called after a successful start() and before the
     // first read() call.
     // Callee assumes ownership of the buffers if no error is returned.
-    virtual status_t setBuffers(const Vector<MediaBuffer *> &buffers)
-    {
+    virtual status_t setBuffers(const Vector<MediaBuffer *> &buffers) {
         return ERROR_UNSUPPORTED;
     }
 

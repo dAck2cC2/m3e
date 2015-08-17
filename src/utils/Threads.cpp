@@ -93,8 +93,7 @@ struct thread_data_t {
 
     // we use this trampoline when we need to set the priority with
     // nice/setpriority, and name with prctl.
-    static int trampoline(const thread_data_t* t)
-    {
+    static int trampoline(const thread_data_t* t) {
         thread_func_t f = t->entryFunction;
         void* u = t->userData;
         int prio = t->priority;
@@ -522,8 +521,7 @@ typedef struct WinCondition {
     // allows us to optimize the code if we're just signaling.
     bool                wasBroadcast;
 
-    status_t wait(WinCondition* condState, HANDLE hMutex, nsecs_t* abstime)
-    {
+    status_t wait(WinCondition* condState, HANDLE hMutex, nsecs_t* abstime) {
         // Increment the wait count, avoiding race conditions.
         EnterCriticalSection(&condState->waitersCountLock);
         condState->waitersCount++;
@@ -728,10 +726,10 @@ Thread::Thread(bool canCallJava
         mStatus(NO_ERROR),
         mExitPending(false), mRunning(false)
 #ifdef HAVE_ANDROID_OS
-    , mTid(-1)
+        , mTid(-1)
 #endif
 #ifdef ENABLE_CUSTOMISE
-    , mAffinity(iAffinity)
+        , mAffinity(iAffinity)
 #endif // ENABLE_CUSTOMISE
 {
 }

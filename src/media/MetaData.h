@@ -244,21 +244,18 @@ private:
             float reservoir;
         } u;
 
-        bool usesReservoir() const
-        {
+        bool usesReservoir() const {
             return mSize <= sizeof(u.reservoir);
         }
 
         void allocateStorage(size_t size);
         void freeStorage();
 
-        void *storage()
-        {
+        void *storage() {
             return usesReservoir() ? &u.reservoir : u.ext_data;
         }
 
-        const void *storage() const
-        {
+        const void *storage() const {
             return usesReservoir() ? &u.reservoir : u.ext_data;
         }
     };
