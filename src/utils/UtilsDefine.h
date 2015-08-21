@@ -50,9 +50,10 @@
 #endif // ENABLE_AMESSAGE
 
 
-#ifdef ENABLE_ALOOPER
-#undef ENABLE_ALOOPER
-#endif // ENABLE_ALOOPER
+//#ifdef ENABLE_ALOOPER
+//#undef ENABLE_ALOOPER
+//#endif // ENABLE_ALOOPER
+#define ENABLE_ALOOPER
 
 
 #ifdef ENABLE_PARCEL

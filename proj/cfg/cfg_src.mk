@@ -27,6 +27,9 @@ CPPSRC += main.cpp \
           utils/ABuffer.cpp \
           utils/AAtomizer.cpp \
           utils/AMessage.cpp \
+          utils/AHandler.cpp \
+          utils/ALooper.cpp \
+          utils/ALooperRoster.cpp \
           media/CPathScanner.cpp \
           media/CMediaFileScanner.cpp \
           media/CDataSource.cpp \
