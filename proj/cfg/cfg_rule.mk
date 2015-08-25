@@ -45,8 +45,9 @@ CXX = $(GXX)
 #AR = ar
 CXXFLAGS = $(CFLAGS)
 
-ASTYLE_DIR = $(patsubst $(BUILD_ROOT)%, $(SRC_DIR)%, $(BUILD_DIR))
-ASTYLE_OPT += -A3 -z2 -s4 -f -n -p
+#ASTYLE_DIR  = $(patsubst $(BUILD_ROOT)%, $(SRC_DIR)%, $(BUILD_DIR))
+ASTYLE_FILE = $(shell find $(SRC_DIR) -type f)
+ASTYLE_OPT += --mode=c -A3 -z2 -s4 -f -n -p
 ASTYLE := astyle
 DTOU := dos2unix
 
@@ -63,9 +64,9 @@ check_dir:
 	done
 
 format:
-	@for DIR in $(ASTYLE_DIR) ; do \
-	$(ASTYLE) --mode=c $(ASTYLE_OPT) $$DIR/*.* ;\
-	$(DTOU) $$DIR/*.* ;\
+	@for FILE in $(ASTYLE_FILE) ; do \
+	$(ASTYLE) $(ASTYLE_OPT) $$FILE ;\
+	$(DTOU) $$FILE ;\
 	done
 	@$(DTOU) ../cfg/*.*
 	@$(DTOU) ./Makefile

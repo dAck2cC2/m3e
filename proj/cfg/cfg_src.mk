@@ -30,6 +30,8 @@ CPPSRC += main.cpp \
           utils/AHandler.cpp \
           utils/ALooper.cpp \
           utils/ALooperRoster.cpp \
+          omx/SoftOMXComponent.cpp \
+          omx/SimpleSoftOMXComponent.cpp \
           media/CPathScanner.cpp \
           media/CMediaFileScanner.cpp \
           media/CDataSource.cpp \
@@ -56,5 +58,6 @@ CPPSRC += main.cpp \
 BUILD_DIR += $(BUILD_ROOT)/engine \
              $(BUILD_ROOT)/utils \
              $(BUILD_ROOT)/media \
+             $(BUILD_ROOT)/omx\
              $(BUILD_ROOT)/impl
 
