@@ -10,9 +10,9 @@
 
 ENGINE_BEGIN
 
-class AMessage;
-class CAsyncEncoder;
-class CAsyncEncoderGroup;
+struct AMessage;
+class  CAsyncEncoder;
+class  CAsyncEncoderGroup;
 
 class IAsyncEncoderObserver
 {

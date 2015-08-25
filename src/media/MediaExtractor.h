@@ -23,9 +23,9 @@
 
 _MEDIA_BEGIN
 
-class IDataSource;
-class MediaSource;
-class MetaData;
+class  IDataSource;
+struct MediaSource;
+class  MetaData;
 
 class MediaExtractor : public RefBase
 {

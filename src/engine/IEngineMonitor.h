@@ -13,7 +13,7 @@ extern const char *INFO_OUTPUT_FILE;
 extern const char *INFO_OPERATION;
 extern const char *INFO_CORE_COUNT;
 
-class AMessage;
+struct AMessage;
 
 class IEngineMonitor : public RefBase
 {

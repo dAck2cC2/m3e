@@ -8,9 +8,9 @@
 
 ENGINE_BEGIN
 
-class MediaExtractor;
-class String8;
-class AMessage;
+class  MediaExtractor;
+class  String8;
+struct AMessage;
 
 class IEngineScannerClient : public RefBase
 {

@@ -8,9 +8,9 @@
 
 ENGINE_BEGIN
 
-class String8;
-class AMessage;
-class CAsyncEncoderGroup;
+class  String8;
+struct AMessage;
+class  CAsyncEncoderGroup;
 
 class CEncoderClient : public IEngineScannerClient
 {

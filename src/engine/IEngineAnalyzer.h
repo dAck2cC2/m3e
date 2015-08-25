@@ -24,7 +24,7 @@ extern const char *ENCODER_TYPE_AAC;
 
 extern const char *ENCODER_NAME_LAME;
 
-class AMessage;
+struct AMessage;
 
 class IEngineAnalyzer : public RefBase
 {

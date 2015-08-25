@@ -10,7 +10,7 @@ ENGINE_BEGIN
 
 struct MediaSource;
 class  IAudioSink;
-class  AMessage;
+struct  AMessage;
 
 class IEngineEncoder : public RefBase
 {
