@@ -56,7 +56,7 @@ extern "C" {
  *  for this header file to compile successfully
  */
 
-#include "omx/OMX_Index.h"
+#include "omxil/OMX_Index.h"
 
 
 /** The OMX_COMMANDTYPE enumeration is used to specify the action in the

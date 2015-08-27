@@ -58,10 +58,10 @@ extern "C" {
  *  for this header file to compile successfully
  */
 
-#include "omx/OMX_Audio.h"
-#include "omx/OMX_Video.h"
-#include "omx/OMX_Image.h"
-#include "omx/OMX_Other.h"
+#include "omxil/OMX_Audio.h"
+#include "omxil/OMX_Video.h"
+#include "omxil/OMX_Image.h"
+#include "omxil/OMX_Other.h"
 
 /** @ingroup comp */
 typedef enum OMX_PORTDOMAINTYPE {

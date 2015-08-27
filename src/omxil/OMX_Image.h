@@ -56,7 +56,7 @@ extern "C" {
  * for this header file to compile successfully
  */
 
-#include "omx/OMX_IVCommon.h"
+#include "omxil/OMX_IVCommon.h"
 
 /** @defgroup imaging OpenMAX IL Imaging Domain
  * @ingroup iv

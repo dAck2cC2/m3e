@@ -22,8 +22,8 @@
 #include "utils/AString.h"
 #include "utils/RefBase.h"
 
-#include "omx/OMXDefine.h"
-#include "omx/OMX_Component.h"
+#include "omxil/OMXDefine.h"
+#include "omxil/OMX_Component.h"
 
 _OMX_BEGIN
 

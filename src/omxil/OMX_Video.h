@@ -63,7 +63,7 @@ extern "C" {
  * for this header file to compile successfully
  */
 
-#include "omx/OMX_IVCommon.h"
+#include "omxil/OMX_IVCommon.h"
 
 
 /**

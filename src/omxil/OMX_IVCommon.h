@@ -56,7 +56,7 @@ extern "C" {
  * file to compile successfully
  */
 
-#include "omx/OMX_Core.h"
+#include "omxil/OMX_Core.h"
 
 /** @defgroup iv OpenMAX IL Imaging and Video Domain
  * Common structures for OpenMAX IL Imaging and Video domains

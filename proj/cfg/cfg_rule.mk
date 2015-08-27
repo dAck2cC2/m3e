@@ -28,7 +28,7 @@ INT_INCLUDE += -I$(SRC_DIR)
 LIBS += 
 
 # External Library
-EXT_INCLUDE += -I../../3rd/lame/inc
+EXT_INCLUDE += -I../../3rd/lame/include
 EXT_LIB += 
 
 

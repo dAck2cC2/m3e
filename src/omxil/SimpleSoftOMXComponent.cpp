@@ -18,8 +18,8 @@
 #define LOG_TAG "SimpleSoftOMXComponent"
 #include "utils/log.h"
 
-#include "omx/OMXDefine.h"
-#include "omx/SimpleSoftOMXComponent.h"
+#include "omxil/OMXDefine.h"
+#include "omxil/SimpleSoftOMXComponent.h"
 
 #include "utils/ADebug.h"
 #include "utils/ALooper.h"

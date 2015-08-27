@@ -18,8 +18,8 @@
 
 #define SIMPLE_SOFT_OMX_COMPONENT_H_
 
-#include "omx/OMXDefine.h"
-#include "omx/SoftOMXComponent.h"
+#include "omxil/OMXDefine.h"
+#include "omxil/SoftOMXComponent.h"
 
 #include "utils/AHandlerReflector.h"
 #include "utils/RefBase.h"
