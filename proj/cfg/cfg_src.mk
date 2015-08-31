@@ -44,6 +44,7 @@ CPPSRC += main.cpp \
           media/MediaBuffer.cpp \
           media/MediaBufferGroup.cpp \
           media/WAVExtractor.cpp \
+          media/MediaCodecList.cpp \
           impl/CEngineAnalyzer.cpp \
           impl/CEngineMonitor.cpp \
           impl/CAsyncEncoder.cpp \
