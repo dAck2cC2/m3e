@@ -22,6 +22,14 @@
 // DISABLE
 /******************************************/
 
+#ifdef ENABLE_BINDER
+#undef ENABLE_BINDER
+#endif // ENABLE_BINDER
+
+
+#ifdef ENABLE_VIDEO
+#undef ENABLE_VIDEO
+#endif // ENABLE_VIDEO
 
 #endif // __OMX_DEFINE_H__
 

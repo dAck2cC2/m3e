@@ -24,9 +24,11 @@
 #include "utils/ADebug.h"
 #include "media/MediaErrors.h"
 
+#ifdef ENABLE_OMX
 //#include <media/stagefright/OMXClient.h>
 //#include <media/stagefright/OMXCodec.h>
-//#include <utils/threads.h>
+#endif // ENABLE_OMX
+
 #include "utils/Mutex.h"
 
 #ifdef ENABLE_XML

@@ -31,6 +31,13 @@
 #undef ENABLE_ALL_EXTRACTOR
 #endif // ENABLE_ALL_EXTRACTOR
 
+#ifdef ENABLE_XML
+#undef ENABLE_XML
+#endif // ENABLE_XML
+
+#ifdef ENABLE_OMX
+#undef ENABLE_OMX
+#endif // ENABLE_OMX
 
 #endif // __MEDIA_DEFINE_H__
 

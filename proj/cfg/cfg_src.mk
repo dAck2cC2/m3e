@@ -30,8 +30,10 @@ CPPSRC += main.cpp \
           utils/AHandler.cpp \
           utils/ALooper.cpp \
           utils/ALooperRoster.cpp \
-          omxil/SoftOMXComponent.cpp \
           omxil/SimpleSoftOMXComponent.cpp \
+          omxil/SoftOMXComponent.cpp \
+          omxil/SoftOMXPlugin.cpp \
+          omxil/OMXMaster.cpp \
           media/CPathScanner.cpp \
           media/CMediaFileScanner.cpp \
           media/CDataSource.cpp \
