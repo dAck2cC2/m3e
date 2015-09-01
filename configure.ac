@@ -40,11 +40,11 @@ CFLAGS="${ac_save_CFLAGS}"
 
 # Checks for programs.
 AC_PROG_CC
-if test "${GCC}" = "yes"; then
-	AC_MSG_CHECKING(version of GCC)
-	GCC_version=`${GCC} --version | sed -n '1s/^[[^ ]]* (.*) //;s/ .*$//;1p'`
-	AC_MSG_RESULT(${GCC_version})
-fi
+#if test "${GCC}" = "yes"; then
+#	AC_MSG_CHECKING(version of GCC)
+#	GCC_version=`${GCC} --version | sed -n '1s/^[[^ ]]* (.*) //;s/ .*$//;1p'`
+#	AC_MSG_RESULT(${GCC_version})
+#fi
 
 
 AC_PROG_CXX
@@ -99,7 +99,7 @@ MAKEDEP="-M"
 case $host_os in
   *cygwin* ) CFLAGS="-D_CYGWIN ${CFLAGS}";;
   *linux*  ) CFLAGS="-D_LINUX ${CFLAGS}";;
-  *darwin* ) CFLAGS="-D_OSX ${CFLAGS}";;
+  *darwin* ) CFLAGS="-D_MACOSX -D__linux__ ${CFLAGS}";;
          * ) CFLAGS="-D_LINUX ${CFLAGS}";;
 esac
 
