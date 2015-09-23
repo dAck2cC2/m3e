@@ -11,8 +11,9 @@ CFLAGS += -DPATH_MAX=4096
 CFLAGS += -Doff64_t=off_t
 CFLAGS += -DO_LARGEFILE=0
 CFLAGS += -Dlseek64=lseek
-#CFLAGS += -D_LIBCPP_HAS_NO_UNICODE_CHARS
-CFLAGS += -D__linux__
+CFLAGS += -D_LIBCPP_HAS_NO_UNICODE_CHARS
+#CFLAGS += -D__linux__
+CFLAGS += -U__cplusplus -D__cplusplus=201103L
 
 LIBS += -lpthread
 EXT_LIB += ./lib/libmp3lame.a
