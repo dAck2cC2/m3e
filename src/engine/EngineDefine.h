@@ -24,8 +24,8 @@
 // namespace
 /*---------------------------------------------------------------------------*/
 
-#define ENGINE            engine
-#define ENGINE_NAMESPACE  ENGINE
+#define ENGINE            android
+#define ENGINE_NAMESPACE  android
 #define ENGINE_BEGIN      namespace ENGINE_NAMESPACE {
 #define ENGINE_END        } // namespace ENGINE_NAMESPACE
 

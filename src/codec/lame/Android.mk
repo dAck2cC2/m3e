@@ -1,0 +1,14 @@
+
+LOCAL_PATH := $(call my-dir)
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libmp3lame
+LOCAL_MODULE_STEM := libmp3lame.a
+LOCAL_SRC_FILES := lib/libmp3lame.a
+LOCAL_MODULE_CLASS := STATIC_LIBRARIES
+
+LOCAL_NOTICE_FILE := LICENSE
+
+
+include $(BUILD_PREBUILT)
+include $(BUILD_NOTICE_FILE)

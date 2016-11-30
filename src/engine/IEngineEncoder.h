@@ -4,7 +4,7 @@
 
 #include "engine/EngineDefine.h"
 #include "utils/RefBase.h"
-#include "utils/ABase.h"
+#include "media/stagefright/foundation/ABase.h"
 
 ENGINE_BEGIN
 

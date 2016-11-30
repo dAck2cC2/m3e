@@ -18,7 +18,7 @@
 #include "engine/IEngineScanner.h"
 #include "engine/IEngineScannerClient.h"
 #include "utils/Singleton.h"
-#include "utils/ABase.h"
+#include "media/stagefright/foundation/ABase.h"
 
 ENGINE_BEGIN
 // ---------------------------------------------------------------------------

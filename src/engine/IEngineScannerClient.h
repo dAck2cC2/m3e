@@ -4,11 +4,11 @@
 
 #include "engine/EngineDefine.h"
 #include "utils/RefBase.h"
-#include "utils/ABase.h"
+#include "media/stagefright/foundation/ABase.h"
 
 ENGINE_BEGIN
 
-class  MediaExtractor;
+class  IMediaExtractor;
 class  String8;
 struct AMessage;
 
@@ -25,7 +25,7 @@ public:
     virtual int  scanFile(const char* path, long long lastModified,
                           long long fileSize, bool isDirectory, bool noMedia) = 0;
 
-    virtual int  foundMediaFile(const char * pszPath_in, sp<MediaExtractor>& pExtractor_in) = 0;
+    virtual int  foundMediaFile(const char * pszPath_in, sp<IMediaExtractor>& pExtractor_in) = 0;
 
     DISALLOW_EVIL_CONSTRUCTORS(IEngineScannerClient);
 };
