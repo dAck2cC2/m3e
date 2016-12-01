@@ -7,11 +7,13 @@ To complie :
 
 1.  copy the "libmp3lame.a" to the "src/codec/lame/lib" directory.
 
-2.  ./build/envsetup.sh
+2.  source ./build/envsetup.sh
 
-3.  make         
+3.  lunch
 
-4.  everything will be in out/bin
+4.  make        
+
+5.  everything will be in out/bin
 
 That's it!
 Jeremy Feng <dAck2cC@yahoo.com>

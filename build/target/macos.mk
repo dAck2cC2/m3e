@@ -10,7 +10,8 @@ CFLAGS += -Doff64_t=off_t
 CFLAGS += -DO_LARGEFILE=0
 CFLAGS += -Dlseek64=lseek
 #CFLAGS += -D_LIBCPP_HAS_NO_UNICODE_CHARS
-CFLAGS += -D__linux__
+#CFLAGS += -D__linux__
+CFLAGS += -std=c++11
 
 LIBS += -lpthread
 
