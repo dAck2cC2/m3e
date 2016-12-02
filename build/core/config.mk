@@ -19,7 +19,7 @@ include $(BUILD_SYSTEM)/combo/select.mk
 # See envsetup.mk for a description of SCAN_EXCLUDE_DIRS
 FIND_LEAVES_EXCLUDES := $(addprefix --prune=, $(SCAN_EXCLUDE_DIRS) .repo .git)
 
-#MAKECMDGOALS:= showcommands
+MAKECMDGOALS:= showcommands
 SHOW_COMMANDS:= $(filter showcommands,$(MAKECMDGOALS))
 hide := $(if $(SHOW_COMMANDS),,@)
 

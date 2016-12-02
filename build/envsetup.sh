@@ -170,7 +170,7 @@ function build_host_file()
 
     if [ $host = Auto ] 
     then
-        host=$(uname -o)
+        host=$(uname)
     fi
 
     if [ $host = Cygwin ]
@@ -179,6 +179,9 @@ function build_host_file()
     elif [ $host = Dawin ]
     then
         LUNCH_BUILD_HOST=build/target/macos.mk
+    elif [ $host = Linux ]
+    then
+        LUNCH_BUILD_HOST=build/target/linux.mk
     else
         echo unknown build host machine ...
     fi
@@ -187,4 +190,4 @@ function build_host_file()
 add_lunch_combo Auto
 add_lunch_combo Cygwin
 add_lunch_combo Dawin
-
+add_lunch_combo Linux

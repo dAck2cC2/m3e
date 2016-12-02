@@ -20,7 +20,7 @@
 #include "utils/UtilsDefine.h"
 #include "utils/Thread.h"
 #include "utils/AndroidThreads.h"
-#include "utils/log.h"
+#include "utils/Log.h"
 
 #include "utils/sched_policy.h"
 #include "utils/properties.h"

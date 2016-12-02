@@ -29,7 +29,7 @@
 #include <cutils/log.h>
 #include <utils/KeyedVector.h>
 #include <utils/threads.h>
-#include <utils/Atomic.h>
+//#include <utils/Atomic.h>
 #include <binder/Parcel.h>
 //#include <utils/CallStack.h>
 

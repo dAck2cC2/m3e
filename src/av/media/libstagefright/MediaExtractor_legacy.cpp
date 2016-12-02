@@ -16,7 +16,7 @@
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "MediaExtractor"
-#include "utils/log.h"
+#include "utils/Log.h"
 
 #include <media/stagefright/foundation/AMessage.h>
 #include "media/stagefright/MediaExtractor.h"

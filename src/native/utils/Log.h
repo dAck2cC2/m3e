@@ -34,6 +34,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdint.h>
 #ifdef HAVE_PTHREADS
 #include <pthread.h>
 #endif

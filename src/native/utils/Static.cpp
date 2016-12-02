@@ -18,7 +18,7 @@
 // destruction order in the library.
 
 #include "utils/UtilsDefine.h"
-#include "utils/log.h"
+#include "utils/Log.h"
 #include "utils/Static.h"
 
 #ifdef ENABLE_TEXT_OUTPUT

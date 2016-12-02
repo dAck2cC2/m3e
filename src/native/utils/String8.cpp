@@ -17,7 +17,7 @@
 #include "utils/UtilsDefine.h"
 #include "utils/String8.h"
 
-#include "utils/log.h"
+#include "utils/Log.h"
 #include "utils/Unicode.h"
 #include "utils/SharedBuffer.h"
 #include "utils/os_sep.h"

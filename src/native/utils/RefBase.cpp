@@ -22,7 +22,7 @@
 #ifdef ENABLE_CALL_STACK
 #include "utils/CallStack.h"
 #endif // ENABLE_CALL_STACK
-#include "utils/log.h"
+#include "utils/Log.h"
 //#include "utils/threads.h"
 #ifdef ENABLE_TEXT_OUTPUT
 #include "utils/TextOutput.h"

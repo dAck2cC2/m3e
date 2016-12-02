@@ -3,7 +3,7 @@
 #include "media/MediaDefine.h"
 #include "media/CFileSource.h"
 #include "media/stagefright/foundation/ADebug.h"
-#include "utils/log.h"
+#include "utils/Log.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>

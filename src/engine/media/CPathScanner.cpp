@@ -17,7 +17,7 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "CPathScanner"
 //#include <cutils/properties.h>
-#include "utils/log.h"
+#include "utils/Log.h"
 #include "utils/Errors.h"
 
 #include "media/MediaDefine.h"

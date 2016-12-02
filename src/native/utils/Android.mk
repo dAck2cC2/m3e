@@ -14,7 +14,7 @@ LOCAL_SRC_FILES:= \
           Timers.cpp \
           Threads.cpp \
           atomic.c \
-          log.c
+          Log.c
 
 LOCAL_C_INCLUDES:= \
     $(TOPDIR)src/native
