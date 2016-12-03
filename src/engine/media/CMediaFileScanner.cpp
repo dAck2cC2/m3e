@@ -2,7 +2,8 @@
 #define LOG_TAG  "CMediaFileScanner"
 #include "media/CMediaFileScanner.h"
 #include "utils/String16.h"
-#include "media/CFileSource.h"
+#include "media/IMediaHTTPService.h"
+#include "media/stagefright/DataSource.h"
 #include "media/stagefright/MediaExtractor.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -50,7 +51,8 @@ CMediaFileScanner::processFile(
         return MEDIA_SCAN_RESULT_SKIPPED;
     }
 
-    sp<DataSource> pSrc = new CFileSource(path);
+    sp<DataSource> pSrc = DataSource::CreateFromURI(NULL /* httpService */, path);
+
     status_t err;
 
     if ((err = pSrc->initCheck())) {

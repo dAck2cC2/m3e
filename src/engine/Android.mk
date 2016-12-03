@@ -5,7 +5,6 @@ LOCAL_MODULE:= libengine
 
 LOCAL_SRC_FILES:= \
           media/CFileSink.cpp \
-          media/CFileSource.cpp \
           media/CMediaFileScanner.cpp \
           media/CPathScanner.cpp \
           impl/CAsyncEncoder.cpp \
