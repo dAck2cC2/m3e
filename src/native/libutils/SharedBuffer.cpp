@@ -19,7 +19,7 @@
 
 #include "utils/UtilsDefine.h"
 #include "utils/SharedBuffer.h"
-#include "utils/atomic.h"
+#include "cutils/atomic.h"
 
 // ---------------------------------------------------------------------------
 

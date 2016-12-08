@@ -17,7 +17,7 @@ LOCAL_SRC_FILES:= \
 
 LOCAL_C_INCLUDES:= \
     $(TOPDIR)src \
-    $(TOPDIR)src/native \
+    $(TOPDIR)src/native/include \
     $(TOPDIR)src/codec/lame/include \
     $(TOPDIR)src/av/include \
     $(TOPDIR)src/av/external \

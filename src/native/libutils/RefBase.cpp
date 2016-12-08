@@ -18,7 +18,6 @@
 
 #include "utils/RefBase.h"
 
-#include "utils/atomic.h"
 #ifdef ENABLE_CALL_STACK
 #include "utils/CallStack.h"
 #endif // ENABLE_CALL_STACK

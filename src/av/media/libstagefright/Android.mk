@@ -19,6 +19,7 @@ LOCAL_SRC_FILES:=                         \
         WAVExtractor.cpp                  \
         MediaSource.cpp                   \
         MediaExtractor_legacy.cpp         \
+        AudioPlayer.cpp                   \
 
 
 #        ACodec.cpp                        \
@@ -26,7 +27,6 @@ LOCAL_SRC_FILES:=                         \
         AACWriter.cpp                     \
         AMRExtractor.cpp                  \
         AMRWriter.cpp                     \
-        AudioPlayer.cpp                   \
         AudioSource.cpp                   \
         CameraSource.cpp                  \
         CameraSourceTimeLapse.cpp         \
@@ -78,7 +78,7 @@ LOCAL_C_INCLUDES:= \
         $(TOP)/src/av/external/media/hardware \
         $(TOP)/src/av/external/media/openmax \
         $(TOP)/src/av/external/netd \
-        $(TOP)/src/native \
+        $(TOP)/src/native/include \
 
 
 LOCAL_SHARED_LIBRARIES := \

@@ -44,11 +44,11 @@ extern "C" {
 //#endif
 
 #if defined(__arm__)
-#include "utils/atomic-arm.h"
+#include "cutils/atomic-arm.h"
 #elif defined(__i386__) || defined(__x86_64__)
-#include "utils/atomic-x86.h"
+#include "cutils/atomic-x86.h"
 #elif defined(__mips__)
-#include "utils/atomic-mips.h"
+#include "cutils/atomic-mips.h"
 #else
 #error atomic operations are unsupported
 #endif

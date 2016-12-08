@@ -4,6 +4,9 @@ include $(CLEAR_VARS)
 LOCAL_MODULE:= libutils
 
 LOCAL_SRC_FILES:= \
+	  cutils/atomic.c \
+	  cutils/properties.c \
+	  cutils/qtaguid.c \
           RefBase.cpp \
           SharedBuffer.cpp \
           VectorImpl.cpp \
@@ -13,11 +16,10 @@ LOCAL_SRC_FILES:= \
           Static.cpp \
           Timers.cpp \
           Threads.cpp \
-          atomic.c \
           Log.c
 
 LOCAL_C_INCLUDES:= \
-    $(TOPDIR)src/native
+    $(TOPDIR)src/native/include
 
 LOCAL_SHARED_LIBRARIES := \
 

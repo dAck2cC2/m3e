@@ -22,8 +22,8 @@
 #include "utils/AndroidThreads.h"
 #include "utils/Log.h"
 
-#include "utils/sched_policy.h"
-#include "utils/properties.h"
+#include "cutils/sched_policy.h"
+#include "cutils/properties.h"
 
 #include <stdio.h>
 #include <stdlib.h>

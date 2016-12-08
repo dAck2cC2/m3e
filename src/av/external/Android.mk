@@ -9,14 +9,13 @@ LOCAL_SRC_FILES:= \
           binder/Parcel.cpp \
           binder/IInterface.cpp \
           binder/IMemory.cpp \
-          cutils/properties.c \
-          cutils/qtaguid.c \
+          binder/IPCThreadState.cpp \
           libdrmframework/DrmManagerClient.cpp \
           netd/NetdClient.cpp 
 
 LOCAL_C_INCLUDES:= \
     $(LOCAL_PATH) \
-    $(TOPDIR)src/native \
+    $(TOPDIR)src/native/include \
     $(TOPDIR)src/av/include
 
 LOCAL_SHARED_LIBRARIES := libutils

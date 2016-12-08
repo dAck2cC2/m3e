@@ -13,10 +13,11 @@ LOCAL_SRC_FILES:= \
           IDataSource.cpp \
           IMediaExtractor.cpp \
           IMediaExtractorService.cpp \
-	  IMediaSource.cpp
+    	  IMediaSource.cpp \
+	      AudioTrack.cpp
 
 LOCAL_C_INCLUDES:= \
-    $(TOPDIR)src/native \
+    $(TOPDIR)src/native/include \
     $(TOPDIR)src/av/include \
     $(TOPDIR)src/av/external
 

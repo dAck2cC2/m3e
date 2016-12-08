@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef __CUTILS_BITOPS_H
-#define __CUTILS_BITOPS_H
+#ifndef ANDROID_AUDIO_ROUNDUP_H
+#define ANDROID_AUDIO_ROUNDUP_H
 
-#include <sys/cdefs.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-__BEGIN_DECLS
+/** Round up to the next highest power of 2 */
+unsigned roundup(unsigned v);
 
-static inline int popcount(unsigned int x)
-{
-    return __builtin_popcount(x);
+#ifdef __cplusplus
 }
+#endif
 
-static inline int popcountl(unsigned long x)
-{
-    return __builtin_popcountl(x);
-}
-
-static inline int popcountll(unsigned long long x)
-{
-    return __builtin_popcountll(x);
-}
-
-__END_DECLS
-
-#endif /* __CUTILS_BITOPS_H */
+#endif  // ANDROID_AUDIO_ROUNDUP_H

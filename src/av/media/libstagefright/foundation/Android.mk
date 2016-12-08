@@ -25,7 +25,7 @@ LOCAL_SRC_FILES:=                 \
 #AWakeLock.cpp                 \
 
 LOCAL_C_INCLUDES:= \
-    src/native \
+    src/native/include \
     src/av/external \
     src/av/include \
     src/av/include/media/stagefright/foundation

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2007 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,6 @@
  * limitations under the License.
  */
 
-#ifndef HEXDUMP_H_
+#define inline
 
-#define HEXDUMP_H_
-
-#include "utils/UtilsDefine.h"
-#include <sys/types.h>
-
-_UTILS_BEGIN
-
-struct AString;
-
-void hexdump(
-    const void *_data, size_t size,
-    size_t indent = 0, AString *appendTo = NULL);
-
-_UTILS_END
-
-#endif  // HEXDUMP_H_
+#include "cutils/atomic-inline.h"

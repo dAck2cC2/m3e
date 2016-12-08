@@ -4,7 +4,7 @@
 #include "utils/ADebugExt.h"
 #include "media/stagefright/foundation/ADebug.h"
 #include "media/stagefright/foundation/AMessage.h"
-#include "utils/atomic.h"
+#include "cutils/atomic.h"
 #include "media/stagefright/MediaSource.h"
 #include "media/stagefright/MetaData.h"
 #include "media/stagefright/MediaDefs.h"

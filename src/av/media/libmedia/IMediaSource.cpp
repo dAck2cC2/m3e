@@ -30,6 +30,43 @@ status_t BnMediaSource::onTransact(
     return NO_ERROR;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+IMediaSource::ReadOptions::ReadOptions() {
+    reset();
+}
+
+void IMediaSource::ReadOptions::reset() {
+    mOptions = 0;
+    mSeekTimeUs = 0;
+    mLatenessUs = 0;
+    mNonBlocking = false;
+}
+
+void IMediaSource::ReadOptions::setNonBlocking() {
+    mNonBlocking = true;
+}
+
+void IMediaSource::ReadOptions::clearNonBlocking() {
+    mNonBlocking = false;
+}
+
+bool IMediaSource::ReadOptions::getNonBlocking() const {
+    return mNonBlocking;
+}
+
+void IMediaSource::ReadOptions::setSeekTo(int64_t time_us, SeekMode mode) {
+    mOptions |= kSeekTo_Option;
+    mSeekTimeUs = time_us;
+    mSeekMode = mode;
+}
+
+void IMediaSource::ReadOptions::clearSeekTo() {
+    mOptions &= ~kSeekTo_Option;
+    mSeekTimeUs = 0;
+    mSeekMode = SEEK_CLOSEST_SYNC;
+}
+
 bool IMediaSource::ReadOptions::getSeekTo(
         int64_t *time_us, SeekMode *mode) const {
     *time_us = mSeekTimeUs;
@@ -37,5 +74,12 @@ bool IMediaSource::ReadOptions::getSeekTo(
     return (mOptions & kSeekTo_Option) != 0;
 }
 
+void IMediaSource::ReadOptions::setLateBy(int64_t lateness_us) {
+    mLatenessUs = lateness_us;
+}
+
+int64_t IMediaSource::ReadOptions::getLateBy() const {
+    return mLatenessUs;
+}
 
 }
