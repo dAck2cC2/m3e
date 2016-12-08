@@ -10,9 +10,11 @@ CFLAGS += -fpermissive
 CFLAGS += -std=c++0x
 CFLAGS += -fPIC
 
-LIBS += -lpthread
+HOST_dynamic_gcclibs += -lpthread
 
 HOST_SHLIB_SUFFIX := .so
 TARGET_SHLIB_SUFFIX := .so
 
+HOST_STATIC_LIB_SUFFIX := .a
+TARGET_STATIC_LIB_SUFFIX := .a
 

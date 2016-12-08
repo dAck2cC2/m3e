@@ -70,7 +70,7 @@ else
     endif
 endif
 
-my_cxx_ldlibs :=
+my_cxx_ldlibs := $(HOST_$(my_link_type)_gcclibs)
 ifdef remove_unuse
 ifneq ($(filter $(my_cxx_stl),libc++ libc++_static),)
     my_cflags += -D_USING_LIBCXX
