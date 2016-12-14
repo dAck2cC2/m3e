@@ -5,6 +5,9 @@
 ## The list of object files is exported in $(all_objects).
 ###########################################################
 
+TARGET_AR := ar
+TARGET_GLOBAL_ARFLAGS := rcs
+
 LOCAL_CXX := g++
 LOCAL_CC  := g++
 GLOBAL_CFLAGS_NO_OVERRIDE := $(CFLAGS)
@@ -362,7 +365,7 @@ endif
 # in the exception project list.
 ifeq ($(my_clang),false)
     ifeq ($(call find_in_local_clang_exception_projects,$(LOCAL_MODULE_MAKEFILE)),)
-        $(error $(LOCAL_MODULE_MAKEFILE): $(LOCAL_MODULE): LOCAL_CLANG is set to false)
+        #$(error $(LOCAL_MODULE_MAKEFILE): $(LOCAL_MODULE): LOCAL_CLANG is set to false)
     endif
 endif
 
