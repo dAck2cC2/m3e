@@ -19,27 +19,24 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-#include "utils/UtilsDefine.h"
-#include "utils/Mutex.h"
-//#include "utils/threads.h"
-//#include "cutils/compiler.h"
+#include <utils/Mutex.h>
+#include <utils/threads.h>
+#include <cutils/compiler.h>
 
-_UTILS_BEGIN
+namespace android {
 // ---------------------------------------------------------------------------
 
 template <typename TYPE>
-class Singleton
+class ANDROID_API Singleton
 {
 public:
     static TYPE& getInstance() {
         Mutex::Autolock _l(sLock);
         TYPE* instance = sInstance;
-
         if (instance == 0) {
             instance = new TYPE();
             sInstance = instance;
         }
-
         return *instance;
     }
 
@@ -47,10 +44,10 @@ public:
         Mutex::Autolock _l(sLock);
         return sInstance != 0;
     }
-
+    
 protected:
-    ~Singleton() { };
-    Singleton() { };
+    ~Singleton() { }
+    Singleton() { }
 
 private:
     Singleton(const Singleton&);
@@ -58,7 +55,13 @@ private:
     static Mutex sLock;
     static TYPE* sInstance;
 };
+#if 0
+template <typename TYPE>
+Mutex Singleton<TYPE>::sLock;
 
+template <typename TYPE>
+TYPE* Singleton<TYPE>::sInstance;
+#endif
 /*
  * use ANDROID_SINGLETON_STATIC_INSTANCE(TYPE) in your implementation file
  * (eg: <TYPE>.cpp) to create the static instance of Singleton<>'s attributes,
@@ -69,13 +72,14 @@ private:
  */
 
 #define ANDROID_SINGLETON_STATIC_INSTANCE(TYPE)                 \
-    template<> Mutex Singleton< TYPE >::sLock(Mutex::PRIVATE);  \
-    template<> TYPE* Singleton< TYPE >::sInstance(0);           \
-    template class Singleton< TYPE >;
+    template<> ::android::Mutex  \
+        (::android::Singleton< TYPE >::sLock)(::android::Mutex::PRIVATE);  \
+    template<> TYPE* ::android::Singleton< TYPE >::sInstance(0);  \
+    template class ::android::Singleton< TYPE >;
 
 
 // ---------------------------------------------------------------------------
-_UTILS_END
+}; // namespace android
 
 #endif // ANDROID_UTILS_SINGLETON_H
 

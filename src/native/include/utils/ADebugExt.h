@@ -12,9 +12,10 @@
 //    COMPILER SWITCH
 /*---------------------------------------------------------------------------*/
 
+#define ENABLE_ADEBUG_EXT
+
 #define _SW_ADEBUG_EXT_OFF   0
 #define _SW_ADEBUG_EXT_ON    1
-#define ENABLE_ADEBUG_EXT
 
 #ifdef    ENABLE_ADEBUG_EXT
 #define   _SW_ADEBUG_EXT    _SW_ADEBUG_EXT_ON
@@ -33,8 +34,6 @@
 #include "utils/UtilsDefine.h"
 #include "utils/Log.h"
 #include "utils/Errors.h"
-
-#ifdef ENABLE_CUSTOMISE
 
 /*---------------------------------------------------------------------------*/
 //    UTILITY MACRO
@@ -86,8 +85,6 @@ private:
 _UTILS_END
 
 #endif // _SW_ADEBUG_EXT_ON
-
-#endif // ENABLE_CUSTOMISE
 
 #endif // __ADEBUG_EXT_H__
 

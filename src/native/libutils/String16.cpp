@@ -13,27 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <utils/String16.h>
-//#include <utils/Debug.h>
+
 #include <utils/Log.h>
 #include <utils/Unicode.h>
-#include <utils/String8.h>
-#ifdef ENABLE_TEXT_OUTPUT
-#include <utils/TextOutput.h>
-#endif // ENABLE_TEXT_OUTPUT
 #include <utils/threads.h>
-//#include <private/utils/Static.h>
+
 #include <memory.h>
 #include <stdio.h>
 #include <ctype.h>
+
+#include "SharedBuffer.h"
+
 namespace android {
+
 static SharedBuffer* gEmptyStringBuf = NULL;
 static char16_t* gEmptyString = NULL;
+
 static inline char16_t* getEmptyString()
 {
     gEmptyStringBuf->acquire();
    return gEmptyString;
 }
+
 void initialize_string16()
 {
     SharedBuffer* buf = SharedBuffer::alloc(sizeof(char16_t));
@@ -42,50 +45,76 @@ void initialize_string16()
     gEmptyStringBuf = buf;
     gEmptyString = str;
 }
+
 void terminate_string16()
 {
     SharedBuffer::bufferFromData(gEmptyString)->release();
     gEmptyStringBuf = NULL;
     gEmptyString = NULL;
 }
+
 // ---------------------------------------------------------------------------
+
 static char16_t* allocFromUTF8(const char* u8str, size_t u8len)
 {
     if (u8len == 0) return getEmptyString();
+
     const uint8_t* u8cur = (const uint8_t*) u8str;
+
     const ssize_t u16len = utf8_to_utf16_length(u8cur, u8len);
     if (u16len < 0) {
         return getEmptyString();
     }
-    const uint8_t* const u8end = u8cur + u8len;
+
     SharedBuffer* buf = SharedBuffer::alloc(sizeof(char16_t)*(u16len+1));
     if (buf) {
         u8cur = (const uint8_t*) u8str;
         char16_t* u16str = (char16_t*)buf->data();
-        utf8_to_utf16(u8cur, u8len, u16str);
+
+        utf8_to_utf16(u8cur, u8len, u16str, ((size_t) u16len) + 1);
+
         //printf("Created UTF-16 string from UTF-8 \"%s\":", in);
         //printHexData(1, str, buf->size(), 16, 1);
         //printf("\n");
-        
+
         return u16str;
     }
+
     return getEmptyString();
 }
+
 // ---------------------------------------------------------------------------
+
 String16::String16()
     : mString(getEmptyString())
 {
 }
+
+String16::String16(StaticLinkage)
+    : mString(0)
+{
+    // this constructor is used when we can't rely on the static-initializers
+    // having run. In this case we always allocate an empty string. It's less
+    // efficient than using getEmptyString(), but we assume it's uncommon.
+
+    char16_t* data = static_cast<char16_t*>(
+            SharedBuffer::alloc(sizeof(char16_t))->data());
+    data[0] = 0;
+    mString = data;
+}
+
 String16::String16(const String16& o)
     : mString(o.mString)
 {
     SharedBuffer::bufferFromData(mString)->acquire();
 }
+
 String16::String16(const String16& o, size_t len, size_t begin)
     : mString(getEmptyString())
 {
     setTo(o, len, begin);
 }
+
 String16::String16(const char16_t* o)
 {
     size_t len = strlen16(o);
@@ -97,9 +126,10 @@ String16::String16(const char16_t* o)
         mString = str;
         return;
     }
-    
+
     mString = getEmptyString();
 }
+
 String16::String16(const char16_t* o, size_t len)
 {
     SharedBuffer* buf = SharedBuffer::alloc((len+1)*sizeof(char16_t));
@@ -111,31 +141,42 @@ String16::String16(const char16_t* o, size_t len)
         mString = str;
         return;
     }
-    
+
     mString = getEmptyString();
 }
+
 String16::String16(const String8& o)
     : mString(allocFromUTF8(o.string(), o.size()))
 {
 }
+
 String16::String16(const char* o)
     : mString(allocFromUTF8(o, strlen(o)))
 {
 }
+
 String16::String16(const char* o, size_t len)
     : mString(allocFromUTF8(o, len))
 {
 }
+
 String16::~String16()
 {
     SharedBuffer::bufferFromData(mString)->release();
 }
+
+size_t String16::size() const
+{
+    return SharedBuffer::sizeFromData(mString)/sizeof(char16_t)-1;
+}
+
 void String16::setTo(const String16& other)
 {
     SharedBuffer::bufferFromData(other.mString)->acquire();
     SharedBuffer::bufferFromData(mString)->release();
     mString = other.mString;
 }
+
 status_t String16::setTo(const String16& other, size_t len, size_t begin)
 {
     const size_t N = other.size();
@@ -149,15 +190,19 @@ status_t String16::setTo(const String16& other, size_t len, size_t begin)
         setTo(other);
         return NO_ERROR;
     }
+
     if (&other == this) {
         LOG_ALWAYS_FATAL("Not implemented");
     }
+
     return setTo(other.string()+begin, len);
 }
+
 status_t String16::setTo(const char16_t* other)
 {
     return setTo(other, strlen16(other));
 }
+
 status_t String16::setTo(const char16_t* other, size_t len)
 {
     SharedBuffer* buf = SharedBuffer::bufferFromData(mString)
@@ -171,6 +216,7 @@ status_t String16::setTo(const char16_t* other, size_t len)
     }
     return NO_MEMORY;
 }
+
 status_t String16::append(const String16& other)
 {
     const size_t myLen = size();
@@ -181,7 +227,7 @@ status_t String16::append(const String16& other)
     } else if (otherLen == 0) {
         return NO_ERROR;
     }
-    
+
     SharedBuffer* buf = SharedBuffer::bufferFromData(mString)
         ->editResize((myLen+otherLen+1)*sizeof(char16_t));
     if (buf) {
@@ -192,6 +238,7 @@ status_t String16::append(const String16& other)
     }
     return NO_MEMORY;
 }
+
 status_t String16::append(const char16_t* chrs, size_t otherLen)
 {
     const size_t myLen = size();
@@ -201,7 +248,7 @@ status_t String16::append(const char16_t* chrs, size_t otherLen)
     } else if (otherLen == 0) {
         return NO_ERROR;
     }
-    
+
     SharedBuffer* buf = SharedBuffer::bufferFromData(mString)
         ->editResize((myLen+otherLen+1)*sizeof(char16_t));
     if (buf) {
@@ -213,10 +260,12 @@ status_t String16::append(const char16_t* chrs, size_t otherLen)
     }
     return NO_MEMORY;
 }
+
 status_t String16::insert(size_t pos, const char16_t* chrs)
 {
     return insert(pos, chrs, strlen16(chrs));
 }
+
 status_t String16::insert(size_t pos, const char16_t* chrs, size_t len)
 {
     const size_t myLen = size();
@@ -226,12 +275,15 @@ status_t String16::insert(size_t pos, const char16_t* chrs, size_t len)
     } else if (len == 0) {
         return NO_ERROR;
     }
+
     if (pos > myLen) pos = myLen;
+
     #if 0
     printf("Insert in to %s: pos=%d, len=%d, myLen=%d, chrs=%s\n",
            String8(*this).string(), pos,
            len, myLen, String8(chrs, len).string());
     #endif
+
     SharedBuffer* buf = SharedBuffer::bufferFromData(mString)
         ->editResize((myLen+len+1)*sizeof(char16_t));
     if (buf) {
@@ -249,6 +301,7 @@ status_t String16::insert(size_t pos, const char16_t* chrs, size_t len)
     }
     return NO_MEMORY;
 }
+
 ssize_t String16::findFirst(char16_t c) const
 {
     const char16_t* str = string();
@@ -262,6 +315,7 @@ ssize_t String16::findFirst(char16_t c) const
     }
     return -1;
 }
+
 ssize_t String16::findLast(char16_t c) const
 {
     const char16_t* str = string();
@@ -275,18 +329,26 @@ ssize_t String16::findLast(char16_t c) const
     }
     return -1;
 }
+
 bool String16::startsWith(const String16& prefix) const
 {
     const size_t ps = prefix.size();
     if (ps > size()) return false;
     return strzcmp16(mString, ps, prefix.string(), ps) == 0;
 }
+
 bool String16::startsWith(const char16_t* prefix) const
 {
     const size_t ps = strlen16(prefix);
     if (ps > size()) return false;
     return strncmp16(mString, prefix, ps) == 0;
 }
+
+bool String16::contains(const char16_t* chrs) const
+{
+    return strstr16(mString, chrs) != nullptr;
+}
+
 status_t String16::makeLower()
 {
     const size_t N = size();
@@ -308,6 +370,7 @@ status_t String16::makeLower()
     }
     return NO_ERROR;
 }
+
 status_t String16::replaceAll(char16_t replaceThis, char16_t withThis)
 {
     const size_t N = size();
@@ -328,6 +391,7 @@ status_t String16::replaceAll(char16_t replaceThis, char16_t withThis)
     }
     return NO_ERROR;
 }
+
 status_t String16::remove(size_t len, size_t begin)
 {
     const size_t N = size();
@@ -340,6 +404,7 @@ status_t String16::remove(size_t len, size_t begin)
     if (begin == 0 && len == N) {
         return NO_ERROR;
     }
+
     if (begin > 0) {
         SharedBuffer* buf = SharedBuffer::bufferFromData(mString)
             ->editResize((N+1)*sizeof(char16_t));
@@ -360,11 +425,5 @@ status_t String16::remove(size_t len, size_t begin)
     }
     return NO_MEMORY;
 }
-#ifdef ENABLE_TEXT_OUTPUT
-TextOutput& operator<<(TextOutput& to, const String16& val)
-{
-    to << String8(val).string();
-    return to;
-}
-#endif // ENABLE_TEXT_OUTPUT
+
 }; // namespace android

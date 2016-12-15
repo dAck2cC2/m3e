@@ -24,7 +24,7 @@
 #include "utils/Log.h"
 
 #include "utils/Errors.h"
-#include "utils/SharedBuffer.h"
+#include "SharedBuffer.h"
 #include "utils/VectorImpl.h"
 
 /*****************************************************************************/

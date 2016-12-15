@@ -14,27 +14,20 @@
  * limitations under the License.
  */
 
-#include "utils/UtilsDefine.h"
-#include "utils/String8.h"
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 
-#include "utils/Log.h"
-#include "utils/Unicode.h"
-#include "utils/SharedBuffer.h"
-#include "utils/os_sep.h"
-#include "utils/Static.h"
+#include <utils/String8.h>
 
-
-#ifdef ENABLE_TEXT_OUTPUT
-#include "utils/TextOutput.h"
-#endif // ENABLE_TEXT_OUTPUT
-
-#ifdef ENABLE_STRING16
-#include "utils/String16.h"
-#endif // ENABLE_STRING16
-
-//#include <utils/threads.h>
+#include <utils/Compat.h>
+#include <utils/Log.h>
+#include <utils/Unicode.h>
+#include <utils/String16.h>
+#include <utils/threads.h>
 
 #include <ctype.h>
+
+#include "SharedBuffer.h"
 
 /*
  * Functions outside android is below the namespace android, since they use
@@ -43,7 +36,7 @@
 
 // ---------------------------------------------------------------------------
 
-_UTILS_BEGIN
+namespace android {
 
 // Separator used by resource paths. This is not platform dependent contrary
 // to OS_PATH_SEPARATOR.
@@ -54,6 +47,8 @@ static char* gEmptyString = NULL;
 
 extern int gDarwinCantLoadAllObjects;
 int gDarwinIsReallyAnnoying;
+
+void initialize_string8();
 
 static inline char* getEmptyString()
 {
@@ -88,16 +83,17 @@ void terminate_string8()
 static char* allocFromUTF8(const char* in, size_t len)
 {
     if (len > 0) {
-        SharedBuffer* buf = SharedBuffer::alloc(len + 1);
+        if (len == SIZE_MAX) {
+            return NULL;
+        }
+        SharedBuffer* buf = SharedBuffer::alloc(len+1);
         ALOG_ASSERT(buf, "Unable to allocate shared buffer");
-
         if (buf) {
             char* str = (char*)buf->data();
             memcpy(str, in, len);
             str[len] = 0;
             return str;
         }
-
         return NULL;
     }
 
@@ -108,22 +104,21 @@ static char* allocFromUTF16(const char16_t* in, size_t len)
 {
     if (len == 0) return getEmptyString();
 
-    const ssize_t bytes = utf16_to_utf8_length(in, len);
-
-    if (bytes < 0) {
+     // Allow for closing '\0'
+    const ssize_t resultStrLen = utf16_to_utf8_length(in, len) + 1;
+    if (resultStrLen < 1) {
         return getEmptyString();
     }
 
-    SharedBuffer* buf = SharedBuffer::alloc(bytes + 1);
+    SharedBuffer* buf = SharedBuffer::alloc(resultStrLen);
     ALOG_ASSERT(buf, "Unable to allocate shared buffer");
-
     if (!buf) {
         return getEmptyString();
     }
 
-    char* str = (char*)buf->data();
-    utf16_to_utf8(in, len, str);
-    return str;
+    char* resultStr = (char*)buf->data();
+    utf16_to_utf8(in, len, resultStr, resultStrLen);
+    return resultStr;
 }
 
 static char* allocFromUTF32(const char32_t* in, size_t len)
@@ -132,23 +127,21 @@ static char* allocFromUTF32(const char32_t* in, size_t len)
         return getEmptyString();
     }
 
-    const ssize_t bytes = utf32_to_utf8_length(in, len);
-
-    if (bytes < 0) {
+    const ssize_t resultStrLen = utf32_to_utf8_length(in, len) + 1;
+    if (resultStrLen < 1) {
         return getEmptyString();
     }
 
-    SharedBuffer* buf = SharedBuffer::alloc(bytes + 1);
+    SharedBuffer* buf = SharedBuffer::alloc(resultStrLen);
     ALOG_ASSERT(buf, "Unable to allocate shared buffer");
-
     if (!buf) {
         return getEmptyString();
     }
 
-    char* str = (char*) buf->data();
-    utf32_to_utf8(in, len, str);
+    char* resultStr = (char*) buf->data();
+    utf32_to_utf8(in, len, resultStr, resultStrLen);
 
-    return str;
+    return resultStr;
 }
 
 // ---------------------------------------------------------------------------
@@ -156,6 +149,19 @@ static char* allocFromUTF32(const char32_t* in, size_t len)
 String8::String8()
     : mString(getEmptyString())
 {
+}
+
+String8::String8(StaticLinkage)
+    : mString(0)
+{
+    // this constructor is used when we can't rely on the static-initializers
+    // having run. In this case we always allocate an empty string. It's less
+    // efficient than using getEmptyString(), but we assume it's uncommon.
+
+    char* data = static_cast<char*>(
+            SharedBuffer::alloc(sizeof(char))->data());
+    data[0] = 0;
+    mString = data;
 }
 
 String8::String8(const String8& o)
@@ -180,12 +186,10 @@ String8::String8(const char* o, size_t len)
     }
 }
 
-#ifdef ENABLE_STRING16
 String8::String8(const String16& o)
     : mString(allocFromUTF16(o.string(), o.size()))
 {
 }
-#endif // ENABLE_STRING16
 
 String8::String8(const char16_t* o)
     : mString(allocFromUTF16(o, strlen16(o)))
@@ -212,6 +216,11 @@ String8::~String8()
     SharedBuffer::bufferFromData(mString)->release();
 }
 
+size_t String8::length() const
+{
+    return SharedBuffer::sizeFromData(mString)-1;
+}
+
 String8 String8::format(const char* fmt, ...)
 {
     va_list args;
@@ -230,8 +239,7 @@ String8 String8::formatV(const char* fmt, va_list args)
     return result;
 }
 
-void String8::clear()
-{
+void String8::clear() {
     SharedBuffer::bufferFromData(mString)->release();
     mString = getEmptyString();
 }
@@ -248,7 +256,6 @@ status_t String8::setTo(const char* other)
     const char *newString = allocFromUTF8(other, strlen(other));
     SharedBuffer::bufferFromData(mString)->release();
     mString = newString;
-
     if (mString) return NO_ERROR;
 
     mString = getEmptyString();
@@ -260,7 +267,6 @@ status_t String8::setTo(const char* other, size_t len)
     const char *newString = allocFromUTF8(other, len);
     SharedBuffer::bufferFromData(mString)->release();
     mString = newString;
-
     if (mString) return NO_ERROR;
 
     mString = getEmptyString();
@@ -272,7 +278,6 @@ status_t String8::setTo(const char16_t* other, size_t len)
     const char *newString = allocFromUTF16(other, len);
     SharedBuffer::bufferFromData(mString)->release();
     mString = newString;
-
     if (mString) return NO_ERROR;
 
     mString = getEmptyString();
@@ -284,7 +289,6 @@ status_t String8::setTo(const char32_t* other, size_t len)
     const char *newString = allocFromUTF32(other, len);
     SharedBuffer::bufferFromData(mString)->release();
     mString = newString;
-
     if (mString) return NO_ERROR;
 
     mString = getEmptyString();
@@ -294,7 +298,6 @@ status_t String8::setTo(const char32_t* other, size_t len)
 status_t String8::append(const String8& other)
 {
     const size_t otherLen = other.bytes();
-
     if (bytes() == 0) {
         setTo(other);
         return NO_ERROR;
@@ -334,20 +337,26 @@ status_t String8::appendFormat(const char* fmt, ...)
 
 status_t String8::appendFormatV(const char* fmt, va_list args)
 {
-    int result = NO_ERROR;
-    int n = vsnprintf(NULL, 0, fmt, args);
+    int n, result = NO_ERROR;
+    va_list tmp_args;
+
+    /* args is undefined after vsnprintf.
+     * So we need a copy here to avoid the
+     * second vsnprintf access undefined args.
+     */
+    va_copy(tmp_args, args);
+    n = vsnprintf(NULL, 0, fmt, tmp_args);
+    va_end(tmp_args);
 
     if (n != 0) {
         size_t oldLength = length();
         char* buf = lockBuffer(oldLength + n);
-
         if (buf) {
             vsnprintf(buf + oldLength, n + 1, fmt, args);
         } else {
             result = NO_MEMORY;
         }
     }
-
     return result;
 }
 
@@ -356,8 +365,7 @@ status_t String8::real_append(const char* other, size_t otherLen)
     const size_t myLen = bytes();
 
     SharedBuffer* buf = SharedBuffer::bufferFromData(mString)
-                        ->editResize(myLen + otherLen + 1);
-
+        ->editResize(myLen+otherLen+1);
     if (buf) {
         char* str = (char*)buf->data();
         mString = str;
@@ -366,21 +374,18 @@ status_t String8::real_append(const char* other, size_t otherLen)
         str[otherLen] = '\0';
         return NO_ERROR;
     }
-
     return NO_MEMORY;
 }
 
 char* String8::lockBuffer(size_t size)
 {
     SharedBuffer* buf = SharedBuffer::bufferFromData(mString)
-                        ->editResize(size + 1);
-
+        ->editResize(size+1);
     if (buf) {
         char* str = (char*)buf->data();
         mString = str;
         return str;
     }
-
     return NULL;
 }
 
@@ -393,8 +398,7 @@ status_t String8::unlockBuffer(size_t size)
 {
     if (size != this->size()) {
         SharedBuffer* buf = SharedBuffer::bufferFromData(mString)
-                            ->editResize(size + 1);
-
+            ->editResize(size+1);
         if (! buf) {
             return NO_MEMORY;
         }
@@ -410,14 +414,36 @@ status_t String8::unlockBuffer(size_t size)
 ssize_t String8::find(const char* other, size_t start) const
 {
     size_t len = size();
-
     if (start >= len) {
         return -1;
     }
-
-    const char* s = mString + start;
+    const char* s = mString+start;
     const char* p = strstr(s, other);
-    return p ? p - mString : -1;
+    return p ? p-mString : -1;
+}
+
+bool String8::removeAll(const char* other) {
+    ssize_t index = find(other);
+    if (index < 0) return false;
+
+    char* buf = lockBuffer(size());
+    if (!buf) return false; // out of memory
+
+    size_t skip = strlen(other);
+    size_t len = size();
+    size_t tail = index;
+    while (size_t(index) < len) {
+        ssize_t next = find(other, index + skip);
+        if (next < 0) {
+            next = len;
+        }
+
+        memmove(buf + tail, buf + index + skip, next - index - skip);
+        tail += next - index - skip;
+        index = next;
+    }
+    unlockBuffer(tail);
+    return true;
 }
 
 void String8::toLower()
@@ -428,24 +454,19 @@ void String8::toLower()
 void String8::toLower(size_t start, size_t length)
 {
     const size_t len = size();
-
     if (start >= len) {
         return;
     }
-
-    if (start + length > len) {
-        length = len - start;
+    if (start+length > len) {
+        length = len-start;
     }
-
     char* buf = lockBuffer(len);
     buf += start;
-
     while (length > 0) {
         *buf = tolower(*buf);
         buf++;
         length--;
     }
-
     unlockBuffer(len);
 }
 
@@ -457,24 +478,19 @@ void String8::toUpper()
 void String8::toUpper(size_t start, size_t length)
 {
     const size_t len = size();
-
     if (start >= len) {
         return;
     }
-
-    if (start + length > len) {
-        length = len - start;
+    if (start+length > len) {
+        length = len-start;
     }
-
     char* buf = lockBuffer(len);
     buf += start;
-
     while (length > 0) {
         *buf = toupper(*buf);
         buf++;
         length--;
     }
-
     unlockBuffer(len);
 }
 
@@ -493,14 +509,6 @@ void String8::getUtf32(char32_t* dst) const
     utf8_to_utf32(mString, length(), dst);
 }
 
-#ifdef ENABLE_TEXT_OUTPUT
-TextOutput& operator<<(TextOutput& to, const String8& val)
-{
-    to << val.string();
-    return to;
-}
-#endif // ENABLE_TEXT_OUTPUT
-
 // ---------------------------------------------------------------------------
 // Path functions
 
@@ -516,7 +524,7 @@ void String8::setPathName(const char* name, size_t len)
     memcpy(buf, name, len);
 
     // remove trailing path separator, if present
-    if (len > 0 && buf[len - 1] == OS_PATH_SEPARATOR)
+    if (len > 0 && buf[len-1] == OS_PATH_SEPARATOR)
         len--;
 
     buf[len] = '\0';
@@ -530,11 +538,10 @@ String8 String8::getPathLeaf(void) const
     const char*const buf = mString;
 
     cp = strrchr(buf, OS_PATH_SEPARATOR);
-
     if (cp == NULL)
         return String8(*this);
     else
-        return String8(cp + 1);
+        return String8(cp+1);
 }
 
 String8 String8::getPathDir(void) const
@@ -543,7 +550,6 @@ String8 String8::getPathDir(void) const
     const char*const str = mString;
 
     cp = strrchr(str, OS_PATH_SEPARATOR);
-
     if (cp == NULL)
         return String8("");
     else
@@ -557,25 +563,20 @@ String8 String8::walkPath(String8* outRemains) const
     const char* buf = str;
 
     cp = strchr(buf, OS_PATH_SEPARATOR);
-
     if (cp == buf) {
         // don't include a leading '/'.
-        buf = buf + 1;
+        buf = buf+1;
         cp = strchr(buf, OS_PATH_SEPARATOR);
     }
 
     if (cp == NULL) {
         String8 res = buf != str ? String8(buf) : *this;
-
         if (outRemains) *outRemains = String8("");
-
         return res;
     }
 
-    String8 res(buf, cp - buf);
-
-    if (outRemains) *outRemains = String8(cp + 1);
-
+    String8 res(buf, cp-buf);
+    if (outRemains) *outRemains = String8(cp+1);
     return res;
 }
 
@@ -588,12 +589,10 @@ char* String8::find_extension(void) const
 {
     const char* lastSlash;
     const char* lastDot;
-//    int extLen;
     const char* const str = mString;
 
     // only look at the filename
     lastSlash = strrchr(str, OS_PATH_SEPARATOR);
-
     if (lastSlash == NULL)
         lastSlash = str;
     else
@@ -601,7 +600,6 @@ char* String8::find_extension(void) const
 
     // find the last dot
     lastDot = strrchr(lastSlash, '.');
-
     if (lastDot == NULL)
         return NULL;
 
@@ -614,7 +612,6 @@ String8 String8::getPathExtension(void) const
     char* ext;
 
     ext = find_extension();
-
     if (ext != NULL)
         return String8(ext);
     else
@@ -627,7 +624,6 @@ String8 String8::getBasePath(void) const
     const char* const str = mString;
 
     ext = find_extension();
-
     if (ext == NULL)
         return String8(*this);
     else
@@ -644,7 +640,6 @@ String8& String8::appendPath(const char* name)
         }
 
         size_t len = length();
-
         if (len == 0) {
             // no existing filename, just use the new one
             setPathName(name);
@@ -654,13 +649,13 @@ String8& String8::appendPath(const char* name)
         // make room for oldPath + '/' + newPath
         int newlen = strlen(name);
 
-        char* buf = lockBuffer(len + 1 + newlen);
+        char* buf = lockBuffer(len+1+newlen);
 
         // insert a '/' if needed
-        if (buf[len - 1] != OS_PATH_SEPARATOR)
+        if (buf[len-1] != OS_PATH_SEPARATOR)
             buf[len++] = OS_PATH_SEPARATOR;
 
-        memcpy(buf + len, name, newlen + 1);
+        memcpy(buf+len, name, newlen+1);
         len += newlen;
 
         unlockBuffer(len);
@@ -676,21 +671,16 @@ String8& String8::convertToResPath()
 {
 #if OS_PATH_SEPARATOR != RES_PATH_SEPARATOR
     size_t len = length();
-
     if (len > 0) {
         char * buf = lockBuffer(len);
-
         for (char * end = buf + len; buf < end; ++buf) {
             if (*buf == OS_PATH_SEPARATOR)
                 *buf = RES_PATH_SEPARATOR;
         }
-
         unlockBuffer(len);
     }
-
 #endif
     return *this;
 }
 
-_UTILS_END
-
+}; // namespace android

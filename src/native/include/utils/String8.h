@@ -17,46 +17,47 @@
 #ifndef ANDROID_STRING8_H
 #define ANDROID_STRING8_H
 
-#include "utils/UtilsDefine.h"
-#include "utils/Errors.h"
-#include "utils/SharedBuffer.h"
-#include "utils/Unicode.h"
-#include "utils/TypeHelpers.h"
+#include <string> // for std::string
+
+#include <utils/Errors.h>
+#include <utils/Unicode.h>
+#include <utils/TypeHelpers.h>
 
 #include <string.h> // for strcmp
 #include <stdarg.h>
 
 // ---------------------------------------------------------------------------
 
-_UTILS_BEGIN
+namespace android {
 
-#ifdef ENABLE_TEXT_OUTPUT
-class TextOutput;
-#endif // ENABLE_TEXT_OUTPUT
-
-#ifdef ENABLE_STRING16
 class String16;
-#endif // ENABLE_STRING16
+class TextOutput;
 
 //! This is a string holding UTF-8 characters. Does not allow the value more
 // than 0x10FFFF, which is not valid unicode codepoint.
 class String8
 {
 public:
-    String8();
-    String8(const String8& o);
+    /* use String8(StaticLinkage) if you're statically linking against
+     * libutils and declaring an empty static String8, e.g.:
+     *
+     *   static String8 sAStaticEmptyString(String8::kEmptyString);
+     *   static String8 sAnotherStaticEmptyString(sAStaticEmptyString);
+     */
+    enum StaticLinkage { kEmptyString };
+
+                                String8();
+    explicit                    String8(StaticLinkage);
+                                String8(const String8& o);
     explicit                    String8(const char* o);
     explicit                    String8(const char* o, size_t numChars);
 
-#ifdef ENABLE_STRING16
     explicit                    String8(const String16& o);
-#endif // ENABLE_STRING16
-
     explicit                    String8(const char16_t* o);
     explicit                    String8(const char16_t* o, size_t numChars);
     explicit                    String8(const char32_t* o);
     explicit                    String8(const char32_t* o, size_t numChars);
-    ~String8();
+                                ~String8();
 
     static inline const String8 empty();
 
@@ -64,36 +65,36 @@ public:
     static String8              formatV(const char* fmt, va_list args);
 
     inline  const char*         string() const;
+    static inline std::string   std_string(const String8& str);
     inline  size_t              size() const;
-    inline  size_t              length() const;
     inline  size_t              bytes() const;
     inline  bool                isEmpty() const;
 
-    inline  const SharedBuffer* sharedBuffer() const;
+            size_t              length() const;
 
-    void                clear();
+            void                clear();
 
-    void                setTo(const String8& other);
-    status_t            setTo(const char* other);
-    status_t            setTo(const char* other, size_t numChars);
-    status_t            setTo(const char16_t* other, size_t numChars);
-    status_t            setTo(const char32_t* other,
-                              size_t length);
+            void                setTo(const String8& other);
+            status_t            setTo(const char* other);
+            status_t            setTo(const char* other, size_t numChars);
+            status_t            setTo(const char16_t* other, size_t numChars);
+            status_t            setTo(const char32_t* other,
+                                      size_t length);
 
-    status_t            append(const String8& other);
-    status_t            append(const char* other);
-    status_t            append(const char* other, size_t numChars);
+            status_t            append(const String8& other);
+            status_t            append(const char* other);
+            status_t            append(const char* other, size_t numChars);
 
-    status_t            appendFormat(const char* fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-    status_t            appendFormatV(const char* fmt, va_list args);
+            status_t            appendFormat(const char* fmt, ...)
+                    __attribute__((format (printf, 2, 3)));
+            status_t            appendFormatV(const char* fmt, va_list args);
 
-    // Note that this function takes O(N) time to calculate the value.
-    // No cache value is stored.
-    size_t              getUtf32Length() const;
-    int32_t             getUtf32At(size_t index,
-                                   size_t *next_index) const;
-    void                getUtf32(char32_t* dst) const;
+            // Note that this function takes O(N) time to calculate the value.
+            // No cache value is stored.
+            size_t              getUtf32Length() const;
+            int32_t             getUtf32At(size_t index,
+                                           size_t *next_index) const;
+            void                getUtf32(char32_t* dst) const;
 
     inline  String8&            operator=(const String8& other);
     inline  String8&            operator=(const char* other);
@@ -122,18 +123,26 @@ public:
 
     inline                      operator const char*() const;
 
-    char*               lockBuffer(size_t size);
-    void                unlockBuffer();
-    status_t            unlockBuffer(size_t size);
+            char*               lockBuffer(size_t size);
+            void                unlockBuffer();
+            status_t            unlockBuffer(size_t size);
 
-    // return the index of the first byte of other in this at or after
-    // start, or -1 if not found
-    ssize_t             find(const char* other, size_t start = 0) const;
+            // return the index of the first byte of other in this at or after
+            // start, or -1 if not found
+            ssize_t             find(const char* other, size_t start = 0) const;
 
-    void                toLower();
-    void                toLower(size_t start, size_t numChars);
-    void                toUpper();
-    void                toUpper(size_t start, size_t numChars);
+            // return true if this string contains the specified substring
+    inline  bool                contains(const char* other) const;
+
+            // removes all occurrence of the specified substring
+            // returns true if any were found and removed
+            bool                removeAll(const char* other);
+
+            void                toLower();
+            void                toLower(size_t start, size_t numChars);
+            void                toUpper();
+            void                toUpper(size_t start, size_t numChars);
+
 
     /*
      * These methods operate on the string as if it were a path name.
@@ -204,21 +213,14 @@ public:
      * replaces whatever was there before.
      */
     String8& appendPath(const char* leaf);
-    String8& appendPath(const String8& leaf) {
-        return appendPath(leaf.string());
-    }
+    String8& appendPath(const String8& leaf)  { return appendPath(leaf.string()); }
 
     /*
      * Like appendPath(), but does not affect this string.  Returns a new one instead.
      */
-    String8 appendPathCopy(const char* leaf) const {
-        String8 p(*this);
-        p.appendPath(leaf);
-        return p;
-    }
-    String8 appendPathCopy(const String8& leaf) const {
-        return appendPathCopy(leaf.string());
-    }
+    String8 appendPathCopy(const char* leaf) const
+                                             { String8 p(*this); p.appendPath(leaf); return p; }
+    String8 appendPathCopy(const String8& leaf) const { return appendPathCopy(leaf.string()); }
 
     /*
      * Converts all separators in this string to /, the default path separator.
@@ -230,26 +232,17 @@ public:
     String8& convertToResPath();
 
 private:
-    status_t            real_append(const char* other, size_t numChars);
-
-#ifdef ENABLE_CUSTOMISE
+            status_t            real_append(const char* other, size_t numChars);
+#if defined(ENABLE_CUSTOMISE)
 public:
-#endif // ENABLE_CUSTOMISE
-    char*               find_extension(void) const;
-#ifdef ENABLE_CUSTOMISE
-private:
-#endif // ENABLE_CUSTOMISE
-
-    const char* mString;
+#endif
+            char*               find_extension(void) const;
+            const char* mString;
 };
 
 // String8 can be trivially moved using memcpy() because moving does not
 // require any change to the underlying SharedBuffer contents or reference count.
 ANDROID_TRIVIAL_MOVE_TRAIT(String8)
-
-#ifdef ENABLE_TEXT_OUTPUT
-TextOutput& operator<<(TextOutput& to, const String16& val);
-#endif // ENABLE_TEXT_OUTPUT
 
 // ---------------------------------------------------------------------------
 // No user servicable parts below.
@@ -264,8 +257,7 @@ inline int strictly_order_type(const String8& lhs, const String8& rhs)
     return compare_type(lhs, rhs) < 0;
 }
 
-inline const String8 String8::empty()
-{
+inline const String8 String8::empty() {
     return String8();
 }
 
@@ -274,9 +266,9 @@ inline const char* String8::string() const
     return mString;
 }
 
-inline size_t String8::length() const
+inline std::string String8::std_string(const String8& str)
 {
-    return SharedBuffer::sizeFromData(mString) - 1;
+    return std::string(str.string());
 }
 
 inline size_t String8::size() const
@@ -291,12 +283,12 @@ inline bool String8::isEmpty() const
 
 inline size_t String8::bytes() const
 {
-    return SharedBuffer::sizeFromData(mString) - 1;
+    return length();
 }
 
-inline const SharedBuffer* String8::sharedBuffer() const
+inline bool String8::contains(const char* other) const
 {
-    return SharedBuffer::bufferFromData(mString);
+    return find(other) >= 0;
 }
 
 inline String8& String8::operator=(const String8& other)
@@ -407,7 +399,7 @@ inline String8::operator const char*() const
     return mString;
 }
 
-_UTILS_END
+}  // namespace android
 
 // ---------------------------------------------------------------------------
 
