@@ -13,6 +13,7 @@
 #include "impl/CEngineMonitor.h"
 #include "impl/CEncoderClient.h"
 #include "impl/CEncoderLame.h"
+#include "impl/CPlayerClient.h"
 #include "media/CMediaFileScanner.h"
 
 ENGINE_BEGIN
@@ -33,6 +34,7 @@ const char *INFO_CORE_COUNT   = "info/core/count";
 
 const char *OPERATION_ENCODE  = "operation/encode";
 const char *OPERATION_DECODE  = "operation/decode";
+const char *OPERATION_PLAYER  = "operation/player";
 
 const char *ENCODER_TYPE_MP3  = "encoder/type/mp3";
 const char *ENCODER_TYPE_AAC  = "encoder/type/aac";
@@ -72,9 +74,12 @@ CEngineFactory::createClient(const char* pszOperation_in)
     }
 
     if (!strcasecmp(pszOperation_in, OPERATION_ENCODE)) {
+        g_cMonitor.setOnOff(true);
         return (new CEncoderClient());
     } else if (!strcasecmp(pszOperation_in, OPERATION_DECODE)) {
         // TO DO
+    } else if (!strcasecmp(pszOperation_in, OPERATION_PLAYER)) {
+        return (new CPlayerClient());
     } else {
         // EMPTY
     }

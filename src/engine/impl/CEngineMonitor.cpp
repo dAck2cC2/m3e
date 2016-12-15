@@ -14,7 +14,8 @@ CEngineMonitor::CEngineMonitor()
     : m_cMutex(),
       m_cDuration(),
       m_iOperationCnt(0),
-      m_iCoreCnt(0)
+      m_iCoreCnt(0),
+      m_bIsOn(false)
 {
     AUTO_LOG();
 
@@ -48,6 +49,8 @@ CEngineMonitor::end()
 
     m_cDuration.stop();
 
+    if (!m_bIsOn) RETURN(OK);
+
     long long iTime = m_cDuration.durationUsecs();
 
     printf("=============================================\n");
@@ -69,6 +72,8 @@ CEngineMonitor::publish(const sp<AMessage>& pInfo_in)
 
     Mutex::Autolock lck(m_cMutex);
 
+    CHECK_IS_EXT((true == m_bIsOn), INVALID_OPERATION);
+
     AString cSourceFile;
     pInfo_in->findString(INFO_INPUT_FILE, &cSourceFile);
 
@@ -87,6 +92,17 @@ CEngineMonitor::publish(const sp<AMessage>& pInfo_in)
     RETURN(OK);
 }
 
+void 
+CEngineMonitor::setOnOff(const bool isOn_in)
+{
+    AUTO_LOG();
+
+    Mutex::Autolock lck(m_cMutex);
+
+    m_bIsOn = isOn_in;
+
+    return;
+}
 
 ENGINE_END
 

@@ -16,7 +16,8 @@ public:
     explicit CEngineMonitor();
     virtual ~CEngineMonitor();
 
-    virtual int publish(const sp<AMessage>& pInfo_in);
+    virtual int  publish(const sp<AMessage>& pInfo_in);
+    virtual void setOnOff(const bool isOn_in);
 
 private:
     int  begin();
@@ -27,6 +28,7 @@ private:
     DurationTimer  m_cDuration;
     int            m_iOperationCnt;
     int32_t        m_iCoreCnt;
+    bool           m_bIsOn;
 
     DISALLOW_EVIL_CONSTRUCTORS(CEngineMonitor);
 };

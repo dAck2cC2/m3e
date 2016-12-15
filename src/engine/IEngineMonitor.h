@@ -21,7 +21,8 @@ public:
     explicit IEngineMonitor() {};
     virtual ~IEngineMonitor() {};
 
-    virtual int publish(const sp<AMessage>& pInfo_in) = 0;
+    virtual int  publish(const sp<AMessage>& pInfo_in) = 0;
+    virtual void setOnOff(const bool isOn_in) = 0;
 
     DISALLOW_EVIL_CONSTRUCTORS(IEngineMonitor);
 };

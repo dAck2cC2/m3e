@@ -13,7 +13,9 @@ LOCAL_SRC_FILES:= \
           impl/CEncoderLame.cpp \
           impl/CEngineAnalyzer.cpp \
           impl/CEngineFactory.cpp \
-	  impl/CEngineMonitor.cpp
+          impl/CEngineMonitor.cpp \
+          impl/CPlayerClient.cpp 
+
 
 LOCAL_C_INCLUDES:= \
     $(TOPDIR)src \
@@ -21,12 +23,14 @@ LOCAL_C_INCLUDES:= \
     $(TOPDIR)src/codec/lame/include \
     $(TOPDIR)src/av/include \
     $(TOPDIR)src/av/external \
+    $(TOPDIR)src/device \
     $(LOCAL_PATH) \
 
 LOCAL_SHARED_LIBRARIES := \
     libstagefright_foundation \
     libstagefright \
-    libutils
+    libutils \
+    libaudio 
 
 #LOCAL_REQUIRED_MODULES := libmp3lame
 LOCAL_STATIC_LIBRARIES := libmp3lame

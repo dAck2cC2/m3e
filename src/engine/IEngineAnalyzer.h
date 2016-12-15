@@ -18,6 +18,7 @@ extern const char *OPTION_REMOVE_SOURCE_FILE;
 
 extern const char *OPERATION_ENCODE;
 extern const char *OPERATION_DECODE;
+extern const char *OPERATION_PLAYER;
 
 extern const char *ENCODER_TYPE_MP3;
 extern const char *ENCODER_TYPE_AAC;

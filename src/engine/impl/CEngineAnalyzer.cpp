@@ -1,5 +1,5 @@
 
-//#define ENABLE_ADEBUG_EXT
+#define ENABLE_ADEBUG_EXT
 #define LOG_TAG  "CEngineAnalyzer"
 #include "utils/ADebugExt.h"
 #include "media/stagefright/foundation/AString.h"
@@ -21,15 +21,27 @@ CEngineAnalyzer::~CEngineAnalyzer()
     AUTO_LOG();
 }
 
+void
+CEngineAnalyzer::usage()
+{
+    AUTO_LOG();
+    
+    printf(
+    "usage: m3e [option] <file/path> \n"
+    "[option] \n"
+    "-e:    encoder the wave file. \n"
+    "-p:    play the wave file. \n"
+    "<file/path> \n"
+    "a wave file or a path for wave file. \n"
+    );
+}
+
 int
 CEngineAnalyzer::parse(int argc, char *argv[])
 {
     AUTO_LOG();
 
-    if ((argc != 2) || (argv[1] == NULL)) {
-        usage();
-        RETURN (-1);
-    }
+    bool valid = false;
 
     // Is it no need to do this ?
     //if (m_pData != NULL) {
@@ -39,20 +51,58 @@ CEngineAnalyzer::parse(int argc, char *argv[])
     m_pData = new AMessage();
     CHECK_PTR_EXT(m_pData, NO_MEMORY);
 
-    //TO DO
+    for (int i = 1; i < argc; ++i) {
+        char* token = argv[i];
 
-    // only support wav -> mp3
-    m_pData->setString(OPTION_OPERATION, OPERATION_ENCODE);
-    m_pData->setString(OPTION_ENCODER_TYPE, ENCODER_TYPE_MP3);
+        // [option]
+        if (*token++ == '-') {
+            // -e 
+            if (!strcmp(token, "e")) {
+                if (i+1 >= argc) {
+                    break;
+                }
 
-    // only support lame
-    m_pData->setString(OPTION_ENCODER_NAME, ENCODER_NAME_LAME);
+                printf("encode -> %s \n", argv[i+1]);
 
-    // only support path
-    m_pData->setString(OPTION_INPUT_PATH, argv[1]);
+                // only support path
+                m_pData->setString(OPTION_INPUT_PATH, argv[i+1]);
 
-    // only support delete source file
-    m_pData->setInt32(OPTION_REMOVE_SOURCE_FILE, 1);
+                // only support wav -> mp3
+                m_pData->setString(OPTION_OPERATION, OPERATION_ENCODE);
+                m_pData->setString(OPTION_ENCODER_TYPE, ENCODER_TYPE_MP3);
+
+                // only support lame
+                m_pData->setString(OPTION_ENCODER_NAME, ENCODER_NAME_LAME);
+
+                // only support delete source file
+                m_pData->setInt32(OPTION_REMOVE_SOURCE_FILE, 1);
+            }
+            // -p
+            else if (!strcmp(token, "p")) {
+                if (i+1 >= argc) {
+                    break;
+                }
+                
+                printf("play -> %s \n", argv[i+1]);
+
+                // only support file
+                m_pData->setString(OPTION_INPUT_FILE, argv[i+1]);
+                
+                m_pData->setString(OPTION_OPERATION, OPERATION_PLAYER);
+            } 
+            else {
+                valid = false;
+                break;
+            }
+
+            valid = true;
+        }
+    }
+
+    if (!valid) {
+        usage();
+        RETURN(INVALID_OPERATION);
+    }
 
     RETURN(OK);
 }
@@ -65,15 +115,4 @@ CEngineAnalyzer::getOption()
     return (m_pData);
 }
 
-
-void
-CEngineAnalyzer::usage()
-{
-    AUTO_LOG();
-
-    printf("usage: m3e file \n");
-    printf("file - is a wave file or a path for wave file \n");
-}
-
 ENGINE_END
-
