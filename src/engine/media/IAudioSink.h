@@ -1,7 +1,7 @@
 #ifndef __IAUDIO_SINK_H__
 #define __IAUDIO_SINK_H__
 
-#include "media/MediaDefine.h"
+#include "MediaDefine.h"
 #include "utils/RefBase.h"
 #include "media/stagefright/foundation/ABase.h"
 

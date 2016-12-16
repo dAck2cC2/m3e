@@ -20,8 +20,8 @@
 #include "utils/Log.h"
 #include "utils/Errors.h"
 
-#include "media/MediaDefine.h"
-#include "media/CPathScanner.h"
+#include "MediaDefine.h"
+#include "CPathScanner.h"
 
 #include <sys/stat.h>
 #include <dirent.h>

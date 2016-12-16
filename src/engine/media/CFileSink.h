@@ -1,8 +1,8 @@
 #ifndef __CFILE_SINK_H__
 #define __CFILE_SINK_H__
 
-#include "media/MediaDefine.h"
-#include "media/IAudioSink.h"
+#include "MediaDefine.h"
+#include "IAudioSink.h"
 #include "utils/Mutex.h"
 #include "media/stagefright/foundation/ABase.h"
 

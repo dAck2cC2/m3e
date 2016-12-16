@@ -2,17 +2,18 @@
 //#define  ENABLE_ADEBUG_EXT
 #define LOG_TAG   "CPlayerClient"
 #include "utils/ADebugExt.h"
+#include "utils/String8.h"
+#include "utils/Errors.h"
 #include "media/stagefright/foundation/ADebug.h"
 #include "media/stagefright/foundation/AString.h"
 #include "media/stagefright/foundation/AMessage.h"
-#include "utils/String8.h"
-#include "utils/Errors.h"
-#include "impl/CPlayerClient.h"
-#include "engine/CEngineFactory.h"
 #include "media/stagefright/MediaExtractor.h"
 #include "media/stagefright/MediaSource.h"
 #include "media/stagefright/MetaData.h"
 #include "media/stagefright/AudioPlayer.h"
+#include "CEngineFactory.h"
+
+#include "CPlayerClient.h"
 
 #include <stdio.h>
 
@@ -88,13 +89,17 @@ CPlayerClient::foundMediaFile(const char *path, sp<IMediaExtractor>& pExtractor_
         String8 mime = String8(_mime);
 
         if (!strncasecmp(mime.string(), "audio/", 6)) {
-            if (NULL == m_pPlayer) {
-                m_pPlayer = new AudioPlayer(m_pSink);
-                CHECK_PTR_EXT(m_pPlayer, UNKNOWN_ERROR);
+            AudioPlayer *player = new AudioPlayer(m_pSink);
+            player->setSource(pExtractor_in->getTrack(i));
+            player->start(true /* sourceAlreadyStarted */);
 
-                m_pPlayer->setSource(pExtractor_in->getTrack(i));
-                m_pPlayer->start();
+            status_t finalStatus;
+            while (!player->reachedEOS(&finalStatus)) {
+                usleep(100000ll);
             }
+
+            delete player;
+            player = NULL;            
         }
     }
 

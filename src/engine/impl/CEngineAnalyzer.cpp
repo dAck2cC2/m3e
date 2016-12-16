@@ -2,11 +2,11 @@
 #define ENABLE_ADEBUG_EXT
 #define LOG_TAG  "CEngineAnalyzer"
 #include "utils/ADebugExt.h"
+//#include "utils/String8.h"
 #include "media/stagefright/foundation/AString.h"
 #include "media/stagefright/foundation/AMessage.h"
-//#include "utils/String8.h"
-#include "engine/EngineDefine.h"
-#include "impl/CEngineAnalyzer.h"
+
+#include "CEngineAnalyzer.h"
 
 ENGINE_BEGIN
 
@@ -32,7 +32,7 @@ CEngineAnalyzer::usage()
     "-e:    encoder the wave file. \n"
     "-p:    play the wave file. \n"
     "<file/path> \n"
-    "a wave file or a path for wave file. \n"
+    "a file or path for wave file. \n"
     );
 }
 

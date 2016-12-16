@@ -2,8 +2,8 @@
 #ifndef __CENGINE_ANALYZER_H__
 #define __CENGINE_ANALYZER_H__
 
-#include "engine/EngineDefine.h"
-#include "engine/IEngineAnalyzer.h"
+#include "EngineDefine.h"
+#include "IEngineAnalyzer.h"
 #include "media/stagefright/foundation/ABase.h"
 
 ENGINE_BEGIN

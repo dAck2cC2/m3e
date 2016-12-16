@@ -2,8 +2,8 @@
 #ifndef __CENGINE_MONITOR_H__
 #define __CENGINE_MONITOR_H__
 
-#include "engine/EngineDefine.h"
-#include "engine/IEngineMonitor.h"
+#include "EngineDefine.h"
+#include "IEngineMonitor.h"
 #include "utils/Mutex.h"
 #include "utils/Timers.h"
 #include "media/stagefright/foundation/ABase.h"

@@ -1,6 +1,6 @@
 
 #define LOG_TAG  "CMediaFileScanner"
-#include "media/CMediaFileScanner.h"
+#include "CMediaFileScanner.h"
 #include "utils/String16.h"
 #include "media/IMediaHTTPService.h"
 #include "media/stagefright/DataSource.h"

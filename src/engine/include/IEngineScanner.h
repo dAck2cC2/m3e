@@ -2,8 +2,8 @@
 #ifndef __IENGINE_SCANNER_H__
 #define __IENGINE_SCANNER_H__
 
-#include "engine/EngineDefine.h"
-#include "engine/IEngineScannerClient.h"
+#include "EngineDefine.h"
+#include "IEngineScannerClient.h"
 #include "utils/RefBase.h"
 #include "media/stagefright/foundation/ABase.h"
 

@@ -1,8 +1,8 @@
 #ifndef __CMEDIA_FILE_SCANNER_H__
 #define __CMEDIA_FILE_SCANNER_H__
 
-#include "media/MediaDefine.h"
-#include "media/CPathScanner.h"
+#include "MediaDefine.h"
+#include "CPathScanner.h"
 #include "media/stagefright/foundation/ABase.h"
 
 _MEDIA_BEGIN

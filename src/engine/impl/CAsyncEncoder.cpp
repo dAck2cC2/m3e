@@ -2,16 +2,17 @@
 #//define ENABLE_ADEBUG_EXT
 #define LOG_TAG   "CAsyncEncoder"
 #include "utils/ADebugExt.h"
+#include "cutils/atomic.h"
 #include "media/stagefright/foundation/ADebug.h"
 #include "media/stagefright/foundation/AMessage.h"
-#include "cutils/atomic.h"
 #include "media/stagefright/MediaSource.h"
 #include "media/stagefright/MetaData.h"
 #include "media/stagefright/MediaDefs.h"
 #include "media/stagefright/MediaBuffer.h"
-#include "media/IAudioSink.h"
-#include "impl/CAsyncEncoder.h"
-#include "engine/CEngineFactory.h"
+#include "CEngineFactory.h"
+
+#include "IAudioSink.h"
+#include "CAsyncEncoder.h"
 
 ENGINE_BEGIN
 

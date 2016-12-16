@@ -2,8 +2,8 @@
 #ifndef __CENCODER_CLIENT_H__
 #define __CENCODER_CLIENT_H__
 
-#include "engine/EngineDefine.h"
-#include "engine/IEngineScannerClient.h"
+#include "EngineDefine.h"
+#include "IEngineScannerClient.h"
 #include "media/stagefright/foundation/ABase.h"
 
 ENGINE_BEGIN

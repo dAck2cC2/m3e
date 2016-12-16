@@ -12,10 +12,9 @@
 #include "utils/ADebugExt.h"
 #include "media/stagefright/foundation/AString.h"
 #include "media/stagefright/foundation/AMessage.h"
-#include "engine/CEngineFactory.h"
+#include "CEngineFactory.h"
 
 using namespace ENGINE_NAMESPACE;
-
 
 /*******************************************************************************
     DEFINITION

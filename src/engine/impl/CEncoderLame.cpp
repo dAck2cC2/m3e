@@ -4,12 +4,14 @@
 #include "utils/ADebugExt.h"
 #include "media/stagefright/foundation/ADebug.h"
 #include "media/stagefright/foundation/AMessage.h"
-#include "impl/CEncoderLame.h"
 #include "media/stagefright/MediaSource.h"
 #include "media/stagefright/MetaData.h"
 #include "media/stagefright/MediaDefs.h"
 #include "media/stagefright/MediaBuffer.h"
-#include "media/IAudioSink.h"
+
+#include "IAudioSink.h"
+#include "CEncoderLame.h"
+
 
 ENGINE_BEGIN
 

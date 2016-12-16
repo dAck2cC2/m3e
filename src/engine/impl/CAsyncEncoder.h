@@ -2,8 +2,8 @@
 #ifndef __CASYNC_ENCODER_H__
 #define __CASYNC_ENCODER_H__
 
-#include "engine/EngineDefine.h"
-#include "engine/IEngineEncoder.h"
+#include "EngineDefine.h"
+#include "IEngineEncoder.h"
 #include "utils/Thread.h"
 #include "utils/String8.h"
 #include "media/stagefright/foundation/ABase.h"

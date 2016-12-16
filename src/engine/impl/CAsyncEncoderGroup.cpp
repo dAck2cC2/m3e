@@ -2,12 +2,13 @@
 //#define ENABLE_ADEBUG_EXT
 #define LOG_TAG   "CAsyncEncoderGroup"
 #include "utils/ADebugExt.h"
+#include "utils/Errors.h"
 #include "media/stagefright/foundation/ADebug.h"
 #include "media/stagefright/foundation/AMessage.h"
-#include "utils/Errors.h"
-#include "engine/EngineDefine.h"
-#include "engine/CEngineFactory.h"
-#include "impl/CAsyncEncoderGroup.h"
+#include "EngineDefine.h"
+#include "CEngineFactory.h"
+
+#include "CAsyncEncoderGroup.h"
 
 ENGINE_BEGIN
 

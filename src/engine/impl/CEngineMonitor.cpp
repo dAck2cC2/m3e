@@ -2,11 +2,11 @@
 //#define ENABLE_ADEBUG_EXT
 #define LOG_TAG  "CEngineMonitor"
 #include "utils/ADebugExt.h"
+//#include "utils/String8.h"
 #include "media/stagefright/foundation/AString.h"
 #include "media/stagefright/foundation/AMessage.h"
-//#include "utils/String8.h"
-#include "engine/EngineDefine.h"
-#include "impl/CEngineMonitor.h"
+
+#include "CEngineMonitor.h"
 
 ENGINE_BEGIN
 

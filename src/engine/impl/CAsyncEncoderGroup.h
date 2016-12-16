@@ -2,10 +2,11 @@
 #ifndef __CASYNC_ENCODER_GROUP_H__
 #define __CASYNC_ENCODER_GROUP_H__
 
-#include "engine/EngineDefine.h"
-#include "impl/CAsyncEncoder.h"
+#include "EngineDefine.h"
 #include "utils/Condition.h"
 #include "media/stagefright/foundation/ABase.h"
+
+#include "CAsyncEncoder.h"
 
 ENGINE_BEGIN
 

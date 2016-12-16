@@ -16,7 +16,6 @@ LOCAL_SRC_FILES:= \
           impl/CEngineMonitor.cpp \
           impl/CPlayerClient.cpp 
 
-
 LOCAL_C_INCLUDES:= \
     $(TOPDIR)src \
     $(TOPDIR)src/native/include \
@@ -24,7 +23,9 @@ LOCAL_C_INCLUDES:= \
     $(TOPDIR)src/av/include \
     $(TOPDIR)src/av/external \
     $(TOPDIR)src/device \
-    $(LOCAL_PATH) \
+    $(TOPDIR)src/engine/include \
+    $(TOPDIR)src/engine/impl \
+    $(TOPDIR)src/engine/media
 
 LOCAL_SHARED_LIBRARIES := \
     libstagefright_foundation \
@@ -32,9 +33,7 @@ LOCAL_SHARED_LIBRARIES := \
     libutils \
     libaudio 
 
-#LOCAL_REQUIRED_MODULES := libmp3lame
 LOCAL_STATIC_LIBRARIES := libmp3lame
-
 
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 
@@ -44,3 +43,5 @@ LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
 
 
 include $(BUILD_SHARED_LIBRARY)
+
+include $(call first-makefiles-under, $(LOCAL_PATH))

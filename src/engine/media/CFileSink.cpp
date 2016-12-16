@@ -1,10 +1,10 @@
 
 #define LOG_TAG  "CFileSink"
-#include "media/MediaDefine.h"
-#include "media/CFileSink.h"
+#include "MediaDefine.h"
+#include "CFileSink.h"
+#include "utils/Log.h"
 #include "utils/Errors.h"
 #include "media/stagefright/foundation/ADebug.h"
-#include "utils/Log.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>

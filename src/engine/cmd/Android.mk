@@ -7,7 +7,7 @@ LOCAL_SRC_FILES:= \
           main.cpp 
 
 LOCAL_C_INCLUDES:= \
-    $(TOPDIR)src \
+    $(TOPDIR)src/engine/include \
     $(TOPDIR)src/native/include \
     $(TOPDIR)src/av/include \
 

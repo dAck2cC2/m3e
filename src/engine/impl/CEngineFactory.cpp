@@ -8,13 +8,14 @@
 //    INCLUDE
 /*---------------------------------------------------------------------------*/
 
-#include "engine/CEngineFactory.h"
-#include "impl/CEngineAnalyzer.h"
-#include "impl/CEngineMonitor.h"
-#include "impl/CEncoderClient.h"
-#include "impl/CEncoderLame.h"
-#include "impl/CPlayerClient.h"
-#include "media/CMediaFileScanner.h"
+#include "CEngineFactory.h"
+
+#include "CEngineAnalyzer.h"
+#include "CEngineMonitor.h"
+#include "CEncoderClient.h"
+#include "CEncoderLame.h"
+#include "CPlayerClient.h"
+#include "CMediaFileScanner.h"
 
 ENGINE_BEGIN
 // ---------------------------------------------------------------------------

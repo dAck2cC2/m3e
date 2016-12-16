@@ -2,7 +2,7 @@
 #ifndef __MEDIA_DEFINE_H__
 #define __MEDIA_DEFINE_H__
 
-#include "engine/EngineDefine.h"
+#include "EngineDefine.h"
 
 #define _MEDIA_BEGIN  ENGINE_BEGIN
 #define _MEDIA_END    ENGINE_END

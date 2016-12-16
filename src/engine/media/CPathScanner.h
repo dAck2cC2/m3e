@@ -1,8 +1,8 @@
 #ifndef __CPATH_SCANNER_H__
 #define __CPATH_SCANNER_H__
 
-#include "engine/IEngineScanner.h"
-#include "media/MediaDefine.h"
+#include "IEngineScanner.h"
+#include "MediaDefine.h"
 #include "media/stagefright/foundation/ABase.h"
 
 struct dirent;

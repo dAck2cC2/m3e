@@ -2,7 +2,7 @@
 #ifndef __IENGINE_ANALYZER_H__
 #define __IENGINE_ANALYZER_H__
 
-#include "engine/EngineDefine.h"
+#include "EngineDefine.h"
 #include "utils/RefBase.h"
 #include "media/stagefright/foundation/ABase.h"
 

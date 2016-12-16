@@ -1,7 +1,7 @@
 #ifndef __CENCODER_LAME__
 #define __CENCODER_LAME__
 
-#include "engine/IEngineEncoder.h"
+#include "IEngineEncoder.h"
 #include "media/stagefright/foundation/ABase.h"
 
 #include "lame.h"

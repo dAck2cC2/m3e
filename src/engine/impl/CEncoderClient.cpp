@@ -2,18 +2,19 @@
 //#define  ENABLE_ADEBUG_EXT
 #define LOG_TAG   "CEncoderClient"
 #include "utils/ADebugExt.h"
+#include "utils/String8.h"
+#include "utils/Errors.h"
 #include "media/stagefright/foundation/ADebug.h"
 #include "media/stagefright/foundation/AString.h"
 #include "media/stagefright/foundation/AMessage.h"
-#include "utils/String8.h"
-#include "utils/Errors.h"
-#include "impl/CAsyncEncoderGroup.h"
-#include "impl/CEncoderClient.h"
-#include "engine/CEngineFactory.h"
 #include "media/stagefright/MediaExtractor.h"
 #include "media/stagefright/MediaSource.h"
 #include "media/stagefright/MetaData.h"
-#include "media/CFileSink.h"
+#include "CEngineFactory.h"
+
+#include "CAsyncEncoderGroup.h"
+#include "CEncoderClient.h"
+#include "CFileSink.h"
 
 #include <stdio.h>
 

@@ -11,12 +11,12 @@
 //    INCLUDE
 /*---------------------------------------------------------------------------*/
 
-#include "engine/EngineDefine.h"
-#include "engine/IEngineAnalyzer.h"
-#include "engine/IEngineMonitor.h"
-#include "engine/IEngineEncoder.h"
-#include "engine/IEngineScanner.h"
-#include "engine/IEngineScannerClient.h"
+#include "EngineDefine.h"
+#include "IEngineAnalyzer.h"
+#include "IEngineMonitor.h"
+#include "IEngineEncoder.h"
+#include "IEngineScanner.h"
+#include "IEngineScannerClient.h"
 #include "utils/Singleton.h"
 #include "media/stagefright/foundation/ABase.h"
 
