@@ -10,7 +10,6 @@ LOCAL_SRC_FILES:= \
           impl/CAsyncEncoder.cpp \
           impl/CAsyncEncoderGroup.cpp \
           impl/CEncoderClient.cpp \
-          impl/CEncoderLame.cpp \
           impl/CEngineAnalyzer.cpp \
           impl/CEngineFactory.cpp \
           impl/CEngineMonitor.cpp \
@@ -19,7 +18,6 @@ LOCAL_SRC_FILES:= \
 LOCAL_C_INCLUDES:= \
     $(TOPDIR)src \
     $(TOPDIR)src/native/include \
-    $(TOPDIR)src/codec/lame/include \
     $(TOPDIR)src/av/include \
     $(TOPDIR)src/av/external \
     $(TOPDIR)src/device \
@@ -33,14 +31,18 @@ LOCAL_SHARED_LIBRARIES := \
     libutils \
     libaudio 
 
-LOCAL_STATIC_LIBRARIES := libmp3lame
-
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 
 LOCAL_CFLAGS += -Wno-multichar -Wall
 LOCAL_CLANG := true
 LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
 
+ifdef ENABLE_CODEC_LAME
+LOCAL_CFLAGS += -DENABLE_CODE_LAME
+LOCAL_SRC_FILES += impl/CEncoderLame.cpp
+LOCAL_C_INCLUDES += $(TOPDIR)src/codec/lame/include
+LOCAL_STATIC_LIBRARIES := libmp3lame
+endif
 
 ifdef BUILD_CYGWIN
 LOCAL_CFLAGS += -fpermissive

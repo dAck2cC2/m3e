@@ -1,3 +1,14 @@
+###############################################################################
+# 0.  You need lame(mp3 encoder) at first. You can download source code 
+#     from the website below, and build "libmp3lame.a" on your platform.
+# 
+#     http://lame.sourceforge.net/
+# 
+# 1.  Copy the header files to the "src/codec/lame/include" directory.
+#
+# 2.  Copy the "libmp3lame.a" to the "src/codec/lame/lib" directory.
+#
+###############################################################################
 
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)

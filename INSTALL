@@ -1,19 +1,9 @@
 To complie :
 
-0.  You need lame(mp3 encoder) at first. You can download source code 
-    from the website below, and build "libmp3lame.a" on your platform.
-
-    http://lame.sourceforge.net/
-
-1.  copy the "libmp3lame.a" to the "src/codec/lame/lib" directory.
-
-2.  source ./build/envsetup.sh
-
-3.  lunch
-
-4.  make        
-
-5.  everything will be in out/bin
+1.  source ./build/envsetup.sh
+2.  lunch
+3.  make
+4.  everything will be in "out" directory
 
 That's it!
 Jeremy Feng <dAck2cC@yahoo.com>

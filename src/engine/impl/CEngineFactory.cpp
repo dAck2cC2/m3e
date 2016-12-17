@@ -13,9 +13,12 @@
 #include "CEngineAnalyzer.h"
 #include "CEngineMonitor.h"
 #include "CEncoderClient.h"
-#include "CEncoderLame.h"
 #include "CPlayerClient.h"
 #include "CMediaFileScanner.h"
+
+#ifdef ENABLE_CODEC_LAME
+#include "CEncoderLame.h"
+#endif // ENABLE_CODEC_LAME
 
 ENGINE_BEGIN
 // ---------------------------------------------------------------------------
@@ -95,9 +98,11 @@ CEngineFactory::createEncoder(const char* pszName_in)
         return (NULL);
     }
 
+#ifdef ENABLE_CODEC_LAME
     if (!strcasecmp(pszName_in, ENCODER_NAME_LAME)) {
         return (new CEncoderLame());
     }
+#endif // ENABLE_CODEC_LAME
 
     return (NULL);
 }
