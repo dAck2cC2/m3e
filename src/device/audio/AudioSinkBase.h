@@ -14,21 +14,21 @@ public:
         explicit AudioSinkBase();
         virtual ~AudioSinkBase();
 
-        virtual bool        ready() const; // audio output is open and ready
-        virtual ssize_t     bufferSize() const;
-        virtual ssize_t     frameCount() const;
-        virtual ssize_t     channelCount() const;
-        virtual ssize_t     frameSize() const;
-        virtual uint32_t    latency() const;
-        virtual float       msecsPerFrame() const;
-        virtual status_t    getPosition(uint32_t *position) const;
-        virtual status_t    getTimestamp(AudioTimestamp &ts) const;
-        virtual int64_t     getPlayedOutDurationUs(int64_t nowUs) const;
-        virtual status_t    getFramesWritten(uint32_t *frameswritten) const;
-        virtual audio_session_t getSessionId() const;
-        virtual audio_stream_type_t getAudioStreamType() const;
-        virtual uint32_t    getSampleRate() const;
-        virtual int64_t     getBufferDurationInUs() const;
+        virtual bool        ready() const; // {AUTO_LOG();return (NO_ERROR == mStatus);}; 
+        virtual ssize_t     bufferSize() const; // {AUTO_LOG();return (0);};
+        virtual ssize_t     frameCount() const; // {AUTO_LOG();return (0);};
+        virtual ssize_t     channelCount() const; // {AUTO_LOG();return (mChannelCount);};
+        virtual ssize_t     frameSize() const; // {AUTO_LOG();return (0);};
+        virtual uint32_t    latency() const; // {AUTO_LOG();return (0);};
+        virtual float       msecsPerFrame() const; // {AUTO_LOG();return (0);};
+        virtual status_t    getPosition(uint32_t *position) const; // {AUTO_LOG();return (0);};
+        virtual status_t    getTimestamp(AudioTimestamp &ts) const; // {AUTO_LOG();return (0);};
+        virtual int64_t     getPlayedOutDurationUs(int64_t nowUs) const; // {AUTO_LOG();return (0);};
+        virtual status_t    getFramesWritten(uint32_t *frameswritten) const; // {AUTO_LOG();return (0);};
+        virtual audio_session_t getSessionId() const; // {AUTO_LOG();return (0);};
+        virtual audio_stream_type_t getAudioStreamType() const; // {AUTO_LOG();return (0);};
+        virtual uint32_t    getSampleRate() const; // {AUTO_LOG();return (mSampleRate);};
+        virtual int64_t     getBufferDurationInUs() const; // {AUTO_LOG();return (0);};
 
         // If no callback is specified, use the "write" API below to submit
         // audio data.
@@ -71,6 +71,7 @@ protected:
         virtual bool        isOffloaded_l() const = 0;
         virtual uint32_t    updateAndGetPosition_l() = 0;
         virtual void        flush_l() = 0;
+        virtual void        close_l() = 0;
 
         // body of AudioTrackThread::threadLoop()
         // returns the maximum amount of time before we would like to run again, where:

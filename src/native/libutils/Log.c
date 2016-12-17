@@ -95,6 +95,8 @@ void __android_log_assert(const char *cond, const char *tag,
 
 int __android_log_write(int prio, const char *tag, const char *text)
 {
+    //printf("[%s]%s\n",tag,text);
+
 #ifdef LOG_FILE_NAME
     bool   bNeedCR = false;
     size_t lenTag  = 0;

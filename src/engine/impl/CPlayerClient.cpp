@@ -82,21 +82,25 @@ CPlayerClient::foundMediaFile(const char *path, sp<IMediaExtractor>& pExtractor_
 
     for (size_t i = 0; i < pExtractor_in->countTracks(); ++i) {
         sp<MetaData> meta = pExtractor_in->getTrackMetaData(i);
+        CHECK_PTR_EXT(meta, BAD_VALUE);
 
         const char *_mime;
         CHECK(meta->findCString(kKeyMIMEType, &_mime));
+        CHECK_PTR_EXT(_mime, BAD_VALUE);
 
         String8 mime = String8(_mime);
 
         if (!strncasecmp(mime.string(), "audio/", 6)) {
             AudioPlayer *player = new AudioPlayer(m_pSink);
+            CHECK_PTR_EXT(player, BAD_VALUE);
+                        
             player->setSource(pExtractor_in->getTrack(i));
-            player->start(true /* sourceAlreadyStarted */);
+            player->start(false /* sourceAlreadyStarted */);
 
-            status_t finalStatus;
-            while (!player->reachedEOS(&finalStatus)) {
-                usleep(100000ll);
-            }
+            //status_t finalStatus;
+            //while (!player->reachedEOS(&finalStatus)) {
+            //    usleep(100000ll);
+            //}
 
             delete player;
             player = NULL;            

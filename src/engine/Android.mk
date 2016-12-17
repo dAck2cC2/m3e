@@ -38,7 +38,7 @@ LOCAL_CLANG := true
 LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
 
 ifdef ENABLE_CODEC_LAME
-LOCAL_CFLAGS += -DENABLE_CODE_LAME
+LOCAL_CFLAGS += -DENABLE_CODEC_LAME
 LOCAL_SRC_FILES += impl/CEncoderLame.cpp
 LOCAL_C_INCLUDES += $(TOPDIR)src/codec/lame/include
 LOCAL_STATIC_LIBRARIES := libmp3lame

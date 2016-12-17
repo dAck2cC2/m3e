@@ -7,7 +7,7 @@
 
 #include "DumpSink.h"
 
-#ifdef ENABLE_OPENAL
+#ifdef ENABLE_AUDIO_OPENAL
 #include "OpenALSink.h"
 #endif // ENABLE_OPENAL
 
@@ -135,7 +135,7 @@ AudioSinkFactory::registerBuiltinFactories()
 
     registerFactory_l(new DumpSinkFactory(),   AUDIO_SINK_DUMP);
 
-#ifdef ENABLE_OPENAL    
+#ifdef ENABLE_AUDIO_OPENAL    
     registerFactory_l(new OpenALSinkFactory(), AUDIO_SINK_OPENAL);
 #endif // ENABLE_OPENAL
 

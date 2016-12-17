@@ -17,8 +17,9 @@ protected:
         virtual status_t    restoreTrack_l(const char *from);
         virtual bool        isOffloaded_l() const;
         virtual uint32_t    updateAndGetPosition_l();
-        virtual void        flush_l();
         virtual nsecs_t     processAudioBuffer_l();
+        virtual void        flush_l();       
+        virtual void        close_l();
 
         DISALLOW_EVIL_CONSTRUCTORS(DumpSink);
 };

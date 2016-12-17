@@ -339,7 +339,7 @@ AudioSinkBase::close()
     
     AutoMutex lock(mLock);
 
-    return;
+    return (close_l());
 }
 
 status_t    

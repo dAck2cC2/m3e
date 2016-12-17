@@ -53,14 +53,6 @@ DumpSink::updateAndGetPosition_l()
     return 0;
 }
 
-void        
-DumpSink::flush_l()
-{
-    AUTO_LOG();
-    
-    return;
-}
-
 nsecs_t 
 DumpSink::processAudioBuffer_l()
 {
@@ -69,5 +61,20 @@ DumpSink::processAudioBuffer_l()
     return 0;
 }
 
+void        
+DumpSink::flush_l()
+{
+    AUTO_LOG();
+    
+    return;
+}
+
+void
+DumpSink::close_l()
+{
+    AUTO_LOG();
+
+    return;
+}
 
 }  // namespace android
