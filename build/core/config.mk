@@ -15,6 +15,8 @@ combo_target := HOST_
 combo_2nd_arch_prefix := 
 include $(BUILD_SYSTEM)/combo/select.mk
 
+include $(BUILD_SYSTEM)/clang/config.mk
+
 # Pruned directory options used when using findleaves.py
 # See envsetup.mk for a description of SCAN_EXCLUDE_DIRS
 FIND_LEAVES_EXCLUDES := $(addprefix --prune=, $(SCAN_EXCLUDE_DIRS) .repo .git)

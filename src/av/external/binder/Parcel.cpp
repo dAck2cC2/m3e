@@ -437,7 +437,7 @@ status_t Parcel::setDataSize(size_t size)
         return BAD_VALUE;
     }
 
-    status_t err;
+    status_t err = NO_ERROR;
     //err = continueWrite(size);
     if (err == NO_ERROR) {
         mDataSize = size;
@@ -478,7 +478,7 @@ status_t Parcel::setData(const uint8_t* buffer, size_t len)
 status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
 {
     //const sp<ProcessState> proc(ProcessState::self());
-    status_t err;
+    status_t err = NO_ERROR;
     const uint8_t *data = parcel->mData;
     const binder_size_t *objects = parcel->mObjects;
     size_t size = parcel->mObjectsSize;
@@ -504,7 +504,7 @@ status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
 
     // Count objects in range
     for (int i = 0; i < (int) size; i++) {
-        size_t off = objects[i];
+        //size_t off = objects[i];
         //if ((off >= offset) && (off + sizeof(flat_binder_object) <= offset + len)) {
         //    if (firstIndex == -1) {
         //        firstIndex = i;
@@ -539,8 +539,8 @@ status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
             //if (objects == (binder_size_t*)0) {
             //    return NO_MEMORY;
             //}
-            mObjects = objects;
-            mObjectsCapacity = newSize;
+            //mObjects = objects;
+            //mObjectsCapacity = newSize;
         }
 
         // append and acquire objects
@@ -616,7 +616,7 @@ bool Parcel::checkInterface(IBinder* binder) const
 bool Parcel::enforceInterface(const String16& interface,
                               IPCThreadState* threadState) const
 {
-    int32_t strictPolicy = readInt32();
+    //int32_t strictPolicy = readInt32();
     //if (threadState == NULL) {
     //    threadState = IPCThreadState::self();
     //}
@@ -717,7 +717,7 @@ void* Parcel::writeInplace(size_t len)
     }
 
     if ((mDataPos+padded) <= mDataCapacity) {
-restart_write:
+//restart_write:
         //printf("Writing %ld bytes, padded to %ld\n", len, padded);
         uint8_t* const data = mData+mDataPos;
 
@@ -748,8 +748,8 @@ restart_write:
 }
 
 status_t Parcel::writeUtf8AsUtf16(const std::string& str) {
-    const uint8_t* strData = (uint8_t*)str.data();
-    const size_t strLen= str.length();
+    //const uint8_t* strData = (uint8_t*)str.data();
+    //const size_t strLen= str.length();
     const ssize_t utf16Len = -1;
     //utf8_to_utf16_length(strData, strLen);
     if (utf16Len < 0 || utf16Len> std::numeric_limits<int32_t>::max()) {

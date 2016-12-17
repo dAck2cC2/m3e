@@ -48,7 +48,7 @@ CAsyncEncoder::~CAsyncEncoder()
 
 int
 CAsyncEncoder::asyncEncode(
-    const sp<MediaSource>&     pMediaSource_in,
+    const sp<IMediaSource>&     pMediaSource_in,
     const sp<IAudioSink>&      pAudioSink_out,
     const sp<AMessage>&        pOption_in,
     const String8&             cSrcFile_in
@@ -176,7 +176,7 @@ CAsyncEncoder::next()
 
 CAsyncEncoder::CEncoderThread::CEncoderThread(
     CAsyncEncoder&             cParent_in,
-    const sp<MediaSource>&     pSrc_in,
+    const sp<IMediaSource>&     pSrc_in,
     const sp<IAudioSink>&      pDst_in,
     const sp<AMessage>&        pOpt_in,
     const sp<IEngineEncoder>&  pEncoder_in,

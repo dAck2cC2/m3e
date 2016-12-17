@@ -31,15 +31,19 @@ LOCAL_C_INCLUDES:= \
     src/av/include/media/stagefright/foundation
 
 LOCAL_SHARED_LIBRARIES := \
-        libmisc         \
-        libutils
+    libutils \
+    libmisc
 
-LOCAL_CFLAGS += -Wno-multichar -Werror -Wall
+
+LOCAL_CFLAGS += -Wno-multichar -Wno-attributes -Wall
 LOCAL_CLANG := true
-LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
+#LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
 
 LOCAL_MODULE:= libstagefright_foundation
 
+ifdef BUILD_CYGWIN
+LOCAL_NO_PIC := true
+endif
 
 
 include $(BUILD_SHARED_LIBRARY)

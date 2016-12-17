@@ -105,7 +105,12 @@ LOCAL_SHARED_LIBRARIES += \
         libstagefright_foundation \
 
 
-LOCAL_CFLAGS += -Wno-multichar -Werror -Wno-error=deprecated-declarations -Wall
+LOCAL_CFLAGS += \
+        -Wno-multichar \
+        -Wno-error=deprecated-declarations \
+        -Wno-enum-compare \
+        -Wno-attributes \
+        -Wall
 
 # enable experiments only in userdebug and eng builds
 ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
@@ -118,6 +123,14 @@ LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
 LOCAL_MODULE:= libstagefright
 
 LOCAL_MODULE_TAGS := optional
+
+ifdef BUILD_CYGWIN
+LOCAL_CFLAGS += -fpermissive
+LOCAL_CFLAGS += -DO_LARGEFILE=0
+LOCAL_CFLAGS += -Dlseek64=lseek
+LOCAL_NO_PIC := true
+endif
+
 
 include $(BUILD_SHARED_LIBRARY)
 

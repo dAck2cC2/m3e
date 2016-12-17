@@ -1,8 +1,10 @@
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "OpenALSink"
-#include <utils/Log.h>
-#include <OpenALSink.h>
+#include "utils/ADebugExt.h"
+#include "utils/Log.h"
+#include "utils/Errors.h"
+#include "OpenALSink.h"
 
 namespace android {
 
@@ -10,13 +12,16 @@ namespace android {
     OpenALSink
 ******************************************************************************/
 
-OpenALSink::OpenALSink()
+OpenALSink::OpenALSink() :
+    mDev(NULL),
+    mCtx(NULL)
 {
-
+    AUTO_LOG();
 }
 
 OpenALSink::~OpenALSink()
 {
+    AUTO_LOG();
 
 }
 
@@ -172,6 +177,16 @@ OpenALSink::getPlaybackRate(AudioPlaybackRate* rate /* nonnull */)
 status_t 
 OpenALSink::createSink_l()
 {
+    AUTO_LOG();
+
+    mDev = alcOpenDevice(NULL);
+    CHECK_PTR_EXT(mDev, NO_MEMORY);
+
+    mCtx = alcCreateContext(mDev, NULL);
+    CHECK_PTR_EXT(mCtx, NO_MEMORY);
+
+    alcMakeContextCurrent(mCtx);
+
     return 0;
 }
 

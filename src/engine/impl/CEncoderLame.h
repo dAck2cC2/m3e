@@ -15,7 +15,7 @@ public:
     virtual ~CEncoderLame();
 
     virtual int syncEncode(
-        const sp<MediaSource>& pMediaSource_in,
+        const sp<IMediaSource>& pMediaSource_in,
         const sp<IAudioSink>&  pAudioSink_out,
         const sp<AMessage>&    pOption_in = NULL);
 
@@ -26,12 +26,12 @@ public:
 
 private:
     virtual int  prepare(
-        const sp<MediaSource>& pMediaSource_in,
+        const sp<IMediaSource>& pMediaSource_in,
         const sp<IAudioSink>&  pAudioSink_out,
         const sp<AMessage>&    pOption_in
     );
 
-    virtual int  encode( const sp<MediaSource>& pMediaSource_in, const sp<IAudioSink>& pAudioSink_out);
+    virtual int  encode( const sp<IMediaSource>& pMediaSource_in, const sp<IAudioSink>& pAudioSink_out);
     virtual void finish( );
 
 private:

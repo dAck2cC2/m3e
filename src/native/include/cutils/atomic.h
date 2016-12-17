@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+#include <cutils/atomic-inline.h>
 
 #ifdef __cplusplus
 extern "C" {

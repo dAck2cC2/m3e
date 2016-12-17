@@ -29,7 +29,7 @@ CEncoderLame::~CEncoderLame()
 
 int
 CEncoderLame::syncEncode(
-    const sp<MediaSource>& pMediaSource_in,
+    const sp<IMediaSource>& pMediaSource_in,
     const sp<IAudioSink>&  pAudioSink_out,
     const sp<AMessage>&    pOption_in
 )
@@ -89,7 +89,7 @@ CEncoderLame::msgf(const char *format, va_list ap)
 }
 
 int CEncoderLame::prepare(
-    const sp<MediaSource>& pMediaSource_in,
+    const sp<IMediaSource>& pMediaSource_in,
     const sp<IAudioSink>&  pAudioSink_out,
     const sp<AMessage>&    pOption_in
 )
@@ -165,7 +165,7 @@ int CEncoderLame::prepare(
 }
 
 int
-CEncoderLame::encode(const sp<MediaSource>& pMediaSource_in, const sp<IAudioSink>& pAudioSink_out)
+CEncoderLame::encode(const sp<IMediaSource>& pMediaSource_in, const sp<IAudioSink>& pAudioSink_out)
 {
     AUTO_LOG();
 

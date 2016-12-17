@@ -14,7 +14,7 @@ LOCAL_SRC_FILES:= \
           IMediaExtractor.cpp \
           IMediaExtractorService.cpp \
     	  IMediaSource.cpp \
-	      AudioTrack.cpp
+	  AudioTrack.cpp
 
 LOCAL_C_INCLUDES:= \
     $(TOPDIR)src/native/include \
@@ -23,12 +23,15 @@ LOCAL_C_INCLUDES:= \
 
 LOCAL_SHARED_LIBRARIES := libmisc libutils libstagefright_foundation
 
-
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 
-LOCAL_CFLAGS += -Wno-multichar -Wall
+LOCAL_CFLAGS += -Wno-multichar -Wno-attributes -Wno-unused-function -Wall
 LOCAL_CLANG := true
-LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
+#LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
 
+ifdef BUILD_CYGWIN
+LOCAL_CFLAGS += -fpermissive
+LOCAL_NO_PIC := true
+endif
 
 include $(BUILD_SHARED_LIBRARY)

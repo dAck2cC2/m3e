@@ -8,7 +8,7 @@
 
 ENGINE_BEGIN
 
-struct MediaSource;
+struct IMediaSource;
 class  IAudioSink;
 struct  AMessage;
 
@@ -19,7 +19,7 @@ public:
     virtual ~IEngineEncoder() {};
 
     virtual int syncEncode(
-        const sp<MediaSource>& pMediaSource_in,
+        const sp<IMediaSource>& pMediaSource_in,
         const sp<IAudioSink>&  pAudioSink_out,
         const sp<AMessage>&    pOption_in = NULL
     ) = 0;

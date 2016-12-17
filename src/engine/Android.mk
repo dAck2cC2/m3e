@@ -42,6 +42,11 @@ LOCAL_CLANG := true
 LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
 
 
+ifdef BUILD_CYGWIN
+LOCAL_CFLAGS += -fpermissive
+LOCAL_NO_PIC := true
+endif
+
 include $(BUILD_SHARED_LIBRARY)
 
 include $(call first-makefiles-under, $(LOCAL_PATH))

@@ -283,8 +283,8 @@ my_ldflags := $(filter-out -l%,$(my_ldlib_flags))
 my_ldlib_flags :=
 
 # Move other ldlibs back to shared libraries
-my_shared_libraries += $(patsubst -l%,lib%,$(filter-out $(my_allowed_ldlibs),$(my_ldlibs)))
-my_ldlibs := $(filter $(my_allowed_ldlibs),$(my_ldlibs))
+#my_shared_libraries += $(patsubst -l%,lib%,$(filter-out $(my_allowed_ldlibs),$(my_ldlibs)))
+#my_ldlibs := $(filter $(my_allowed_ldlibs),$(my_ldlibs))
 endif
 
 ifdef LOCAL_SDK_VERSION
@@ -1711,7 +1711,7 @@ endif
 
 my_bad_ldlibs := $(filter-out $(my_allowed_ldlibs),$(my_ldlibs))
 ifneq ($(my_bad_ldlibs),)
-  $(error $(LOCAL_MODULE_MAKEFILE): $(LOCAL_MODULE): Bad LOCAL_LDLIBS entries: $(my_bad_ldlibs))
+#  $(error $(LOCAL_MODULE_MAKEFILE): $(LOCAL_MODULE): Bad LOCAL_LDLIBS entries: $(my_bad_ldlibs))
 endif
 endif
 

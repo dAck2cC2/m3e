@@ -6,7 +6,10 @@
 #include <media/stagefright/foundation/ADebug.h>
 
 #include "DumpSink.h"
+
+#ifdef ENABLE_OPENAL
 #include "OpenALSink.h"
+#endif // ENABLE_OPENAL
 
 namespace android {
 
@@ -102,7 +105,6 @@ AudioSinkFactory::createSink(const int type)
 {
     sp<MediaPlayerBase::AudioSink> p;
     IFactory* factory;
-    status_t init_result;
     Mutex::Autolock lock_(&sLock);
 
     if (sFactoryMap.indexOfKey(type) < 0) {
@@ -132,7 +134,10 @@ AudioSinkFactory::registerBuiltinFactories()
     }
 
     registerFactory_l(new DumpSinkFactory(),   AUDIO_SINK_DUMP);
-    //registerFactory_l(new OpenALSinkFactory(), AUDIO_SINK_OPENAL);
+
+#ifdef ENABLE_OPENAL    
+    registerFactory_l(new OpenALSinkFactory(), AUDIO_SINK_OPENAL);
+#endif // ENABLE_OPENAL
 
     sInitComplete = true;
 }

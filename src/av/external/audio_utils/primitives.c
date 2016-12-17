@@ -373,6 +373,7 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
         const void *src, uint32_t src_mask, size_t sample_size, size_t count)
 {
 #if 0
+#if 0
     /* alternate way of handling memcpy_by_channel_mask by using the idxary */
     int8_t idxary[32];
     uint32_t src_channels = popcount(src_mask);
@@ -401,7 +402,7 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
     case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
         uint8x3_t *udst = (uint8x3_t*)dst;
         const uint8x3_t *usrc = (const uint8x3_t*)src;
-        static const uint8x3_t zero; /* tricky - we use this to zero out a sample */
+	static const uint8x3_t zero; /* tricky - we use this to zero out a sample */
 
         copy_frame_by_mask(udst, dst_mask, usrc, src_mask, count, zero);
     } break;
@@ -415,6 +416,7 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
         abort(); /* illegal value */
         break;
     }
+#endif
 #endif
 }
 
@@ -440,6 +442,7 @@ void memcpy_by_index_array(void *dst, uint32_t dst_channels,
         const void *src, uint32_t src_channels,
         const int8_t *idxary, size_t sample_size, size_t count)
 {
+#if 0
     switch (sample_size) {
     case 1: {
         uint8_t *udst = (uint8_t*)dst;
@@ -470,6 +473,7 @@ void memcpy_by_index_array(void *dst, uint32_t dst_channels,
         abort(); /* illegal value */
         break;
     }
+#endif
 }
 
 size_t memcpy_by_index_array_initialization(int8_t *idxary, size_t idxcount,

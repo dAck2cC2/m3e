@@ -951,9 +951,9 @@ ssize_t AudioTrack::setBufferSizeInFrames(size_t bufferSizeInFrames)
         return NO_INIT;
     //}
     // Reject if timed track or compressed audio.
-    if (!audio_is_linear_pcm(mFormat)) {
-        return INVALID_OPERATION;
-    }
+    //if (!audio_is_linear_pcm(mFormat)) {
+    //    return INVALID_OPERATION;
+    //}
     //return (ssize_t) mProxy->setBufferSizeInFrames((uint32_t) bufferSizeInFrames);
 }
 
@@ -1531,14 +1531,14 @@ status_t AudioTrack::createTrack_l()
     //        gain_from_float(mVolume[AUDIO_INTERLEAVE_RIGHT])));
 
     //mProxy->setSendLevel(mSendLevel);
-    const uint32_t effectiveSampleRate = adjustSampleRate(mSampleRate, mPlaybackRate.mPitch);
-    const float effectiveSpeed = adjustSpeed(mPlaybackRate.mSpeed, mPlaybackRate.mPitch);
-    const float effectivePitch = adjustPitch(mPlaybackRate.mPitch);
+    //const uint32_t effectiveSampleRate = adjustSampleRate(mSampleRate, mPlaybackRate.mPitch);
+    //const float effectiveSpeed = adjustSpeed(mPlaybackRate.mSpeed, mPlaybackRate.mPitch);
+    //const float effectivePitch = adjustPitch(mPlaybackRate.mPitch);
     //mProxy->setSampleRate(effectiveSampleRate);
 
-    AudioPlaybackRate playbackRateTemp = mPlaybackRate;
-    playbackRateTemp.mSpeed = effectiveSpeed;
-    playbackRateTemp.mPitch = effectivePitch;
+    //AudioPlaybackRate playbackRateTemp = mPlaybackRate;
+    //playbackRateTemp.mSpeed = effectiveSpeed;
+    //playbackRateTemp.mPitch = effectivePitch;
     //mProxy->setPlaybackRate(playbackRateTemp);
     //mProxy->setMinimum(mNotificationFramesAct);
 
@@ -1683,9 +1683,9 @@ void AudioTrack::releaseBuffer(const Buffer* audioBuffer)
         return;
     }
 
-    Proxy::Buffer buffer;
-    buffer.mFrameCount = stepCount;
-    buffer.mRaw = audioBuffer->raw;
+    //Proxy::Buffer buffer;
+    //buffer.mFrameCount = stepCount;
+    //buffer.mRaw = audioBuffer->raw;
 
     AutoMutex lock(mLock);
     mReleased += stepCount;
@@ -1737,7 +1737,7 @@ ssize_t AudioTrack::write(const void* buffer, size_t userSize, bool blocking)
     while (userSize >= mFrameSize) {
         audioBuffer.frameCount = userSize / mFrameSize;
 
-        status_t err = obtainBuffer(&audioBuffer, NULL);
+        status_t err = obtainBuffer(&audioBuffer, 0);
                 //blocking ? &ClientProxy::kForever : &ClientProxy::kNonBlocking);
         if (err < 0) {
             if (written > 0) {
@@ -1779,7 +1779,7 @@ nsecs_t AudioTrack::processAudioBuffer()
         mLock.unlock();
         static const int32_t kMaxTries = 5;
         int32_t tryCounter = kMaxTries;
-        uint32_t pollUs = 10000;
+        //uint32_t pollUs = 10000;
         //do {
         //    int policy = sched_getscheduler(0) & ~SCHED_RESET_ON_FORK;
         //    if (policy == SCHED_FIFO || policy == SCHED_RR) {
@@ -1874,8 +1874,8 @@ nsecs_t AudioTrack::processAudioBuffer()
     uint32_t loopPeriod = 0; // time in frames for next EVENT_LOOP_END or EVENT_BUFFER_END
 
     if (mLoopCount > 0) {
-        int loopCount;
-        size_t bufferPosition;
+        int loopCount = 0;
+        size_t bufferPosition = 0;
         //mStaticProxy->getBufferPositionAndLoopCount(&bufferPosition, &loopCount);
         loopPeriod = ((loopCount > 0) ? mLoopEnd : mFrameCount) - bufferPosition;
         loopCountNotifications = min(mLoopCountNotified - loopCount, kMaxLoopCountNotifications);
@@ -1905,9 +1905,9 @@ nsecs_t AudioTrack::processAudioBuffer()
         // should wait on proxy futex and handle CBLK_STREAM_END_DONE within this function
         // (and make sure we don't callback for more data while we're stopping).
         // This helps with position, marker notifications, and track invalidation.
-        struct timespec timeout;
-        timeout.tv_sec = WAIT_STREAM_END_TIMEOUT_SEC;
-        timeout.tv_nsec = 0;
+        //struct timespec timeout;
+        //timeout.tv_sec = WAIT_STREAM_END_TIMEOUT_SEC;
+        //timeout.tv_nsec = 0;
 
         status_t status = 0; //proxy->waitStreamEndDone(&timeout);
         switch (status) {

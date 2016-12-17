@@ -4,6 +4,9 @@
 #include <AudioSinkFactory.h>
 #include <AudioSinkBase.h>
 
+#include <AL/al.h>
+#include <AL/alc.h>
+
 namespace android {
 
 class OpenALSink : public AudioSinkBase 
@@ -70,6 +73,10 @@ protected:
         virtual uint32_t    updateAndGetPosition_l();
         virtual void        flush_l();
         virtual nsecs_t     processAudioBuffer_l();
+
+private:
+        ALCdevice*  mDev;
+        ALCcontext* mCtx;
 
         DISALLOW_EVIL_CONSTRUCTORS(OpenALSink);
 };

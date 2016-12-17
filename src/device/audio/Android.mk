@@ -6,9 +6,7 @@ LOCAL_MODULE:= libaudio
 LOCAL_SRC_FILES:= \
           AudioSinkFactory.cpp \
           AudioSinkBase.cpp \
-          OpenALSink.cpp \
           DumpSink.cpp
-
 
 LOCAL_C_INCLUDES:= \
     $(LOCAL_PATH) \
@@ -18,14 +16,20 @@ LOCAL_C_INCLUDES:= \
 
 LOCAL_SHARED_LIBRARIES := libutils 
 
-
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 
 LOCAL_CFLAGS += -Wno-multichar -Wall
 LOCAL_CLANG := true
 LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
-#LOCAL_NO_LIBGCC := true
-#LOCAL_NO_CRT := true
 
+ifdef BUILD_CYGWIN
+LOCAL_NO_PIC := true
+endif 
+
+ifdef ENABLE_OPENAL
+LOCAL_SRC_FILES += OpenALSink.cpp
+LOCAL_CFLAGS += -DENABLE_OPENAL
+LOCAL_LDLIBS += -lopenal
+endif
 
 include $(BUILD_SHARED_LIBRARY)

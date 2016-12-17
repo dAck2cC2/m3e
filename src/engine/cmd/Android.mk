@@ -27,5 +27,8 @@ LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
 LOCAL_NO_LIBGCC := true
 LOCAL_NO_CRT := true
 
+ifdef BUILD_CYGWIN
+LOCAL_NO_PIC := true
+endif 
 
 include $(BUILD_EXECUTABLE)
