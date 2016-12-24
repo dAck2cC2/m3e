@@ -4,6 +4,8 @@
 #include <AudioSinkFactory.h>
 #include <AudioSinkBase.h>
 
+#include <stdio.h>
+
 namespace android {
 
 class DumpSink : public AudioSinkBase 
@@ -20,6 +22,9 @@ protected:
         virtual nsecs_t     processAudioBuffer_l();
         virtual void        flush_l();       
         virtual void        close_l();
+
+private:
+        FILE* mFile;
 
         DISALLOW_EVIL_CONSTRUCTORS(DumpSink);
 };

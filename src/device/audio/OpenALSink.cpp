@@ -10,15 +10,13 @@ namespace android {
 
 // The number of buffers and bytes-per-buffer for our stream are set here. The number of buffers should be two or more, and the buffer size should be a multiple of the frame size (by default, OpenAL's largest frame size is 4, however extensions that can add more formats may be larger). Slower // // // systems may need more buffers/larger buffer sizes.
 
-#define BUFFER_MS (100)
+#define OPENAL_SINK_BUFFER_MS (100)
 
 /******************************************************************************
     OpenALSink
 ******************************************************************************/
 
-OpenALSink::OpenALSink() :
-    mDev(NULL),
-    mCtx(NULL)
+OpenALSink::OpenALSink()
 {
     AUTO_LOG();
 
@@ -35,36 +33,38 @@ OpenALSink::bufferSize() const
 {
     AUTO_LOG();
 
+    return (mAud.size);
+}
+
+status_t    
+OpenALSink::getTimestamp(AudioTimestamp &ts) const
+{
+    AUTO_LOG();
+    
     return 0;
 }
 
-ssize_t     
-OpenALSink::frameCount() const
+int64_t     
+OpenALSink::getPlayedOutDurationUs(int64_t nowUs) const
 {
+    AUTO_LOG();
+    
     return 0;
 }
 
-ssize_t     
-OpenALSink::channelCount() const
+status_t    
+OpenALSink::getFramesWritten(uint32_t *frameswritten) const
 {
+    AUTO_LOG();
+    
     return 0;
 }
 
-ssize_t     
-OpenALSink::frameSize() const
+int64_t     
+OpenALSink::getBufferDurationInUs() const
 {
-    return 0;
-}
-
-uint32_t    
-OpenALSink::latency() const
-{
-    return 0;
-}
-
-float       
-OpenALSink::msecsPerFrame() const
-{
+    AUTO_LOG();
+    
     return 0;
 }
 
@@ -73,53 +73,13 @@ OpenALSink::getPosition(uint32_t *position) const
 {
     AUTO_LOG();
 
-    CHECK_PTR_EXT(position, BAD_VALUE)
+    AutoMutex lock(AudioSinkBase::mLock);
+
+    CHECK_PTR_EXT(position, BAD_VALUE);    
 
     (*position) = mAud.pos;
 
     RETURN(OK);
-}
-
-status_t    
-OpenALSink::getTimestamp(AudioTimestamp &ts) const
-{
-    return 0;
-}
-
-int64_t     
-OpenALSink::getPlayedOutDurationUs(int64_t nowUs) const
-{
-    return 0;
-}
-
-status_t    
-OpenALSink::getFramesWritten(uint32_t *frameswritten) const
-{
-    return 0;
-}
-
-audio_session_t 
-OpenALSink::getSessionId() const
-{
-    return AUDIO_SESSION_NONE;
-}
-
-audio_stream_type_t 
-OpenALSink::getAudioStreamType() const
-{
-    return AUDIO_STREAM_DEFAULT;
-}
-
-uint32_t    
-OpenALSink::getSampleRate() const
-{
-    return 0;
-}
-
-int64_t     
-OpenALSink::getBufferDurationInUs() const
-{
-    return 0;
 }
 
 status_t 
@@ -128,16 +88,16 @@ OpenALSink::createSink_l()
     AUTO_LOG();
 
     // First the standard open-device, create-context, set-context..
-    mDev = alcOpenDevice(NULL);
-    CHECK_PTR_EXT(mDev, NO_MEMORY);
+    ALCdevice* dev = alcOpenDevice(NULL);
+    CHECK_PTR_EXT(dev, NO_MEMORY);
 
-    mCtx = alcCreateContext(mDev, NULL);
-    CHECK_PTR_EXT(mCtx, NO_MEMORY);
+    ALCcontext* ctx = alcCreateContext(dev, NULL);
+    CHECK_PTR_EXT(ctx, NO_MEMORY);
 
-    alcMakeContextCurrent(mCtx);
+    alcMakeContextCurrent(ctx);
 
     // Generate the buffers and sources
-    alGenBuffers(BUFFER_COUNT, mAud.buf);
+    alGenBuffers(OPENAL_SINK_BUFFER_COUNT, mAud.buf);
     alGenSources(1, &(mAud.src));
     CHECK_IS_EXT((AL_NO_ERROR == alGetError()), BAD_VALUE);
     
@@ -149,7 +109,21 @@ OpenALSink::createSink_l()
     CHECK_IS_EXT((OK == ret), ret);
 
     // Calculate buffer size
-    mAud.size = (BUFFER_MS/BUFFER_COUNT) * mAud.bits * mChannelCount * (mAud.frq/1000);
+    if (AudioSinkBase::mFrameCount <= 0) {
+        AudioSinkBase::mFrameCount = (mAud.frq * OPENAL_SINK_BUFFER_MS) / 1000;
+        if (AudioSinkBase::mFrameCount == 0) {
+            AudioSinkBase::mFrameCount = 1024;
+        }
+        AudioSinkBase::mLatency = (1000*AudioSinkBase::mFrameCount) / mAud.frq; 
+    }
+    mAud.size = AudioSinkBase::mFrameSize * AudioSinkBase::mFrameCount;
+
+    ALOGD("create frameCount: %d", AudioSinkBase::mFrameCount);
+    ALOGD("create latency: %d", AudioSinkBase::mLatency);
+    ALOGD("create format: %d", mAud.fmt);
+    ALOGD("create frequency: %d", mAud.frq);
+    ALOGD("create bitsPerSample: %d", mAud.bits);
+    ALOGD("create bufferSize: %d", mAud.size);
 
     RETURN(OK);
 }
@@ -181,13 +155,69 @@ OpenALSink::updateAndGetPosition_l()
 nsecs_t 
 OpenALSink::processAudioBuffer_l()
 {
-    AUTO_LOG();
+    //AUTO_LOG();
+
+    CHECK_PTR_EXT(AudioSinkBase::mCblk, NS_NEVER);
+    CHECK_IS_EXT((mAud.size > 0), NS_NEVER);
+
+	static struct {
+        ALint  cnt;
+		ALuint buf[OPENAL_SINK_BUFFER_COUNT];
+	} s_free = { 0 };
 
     /* Get relevant source info */
     ALint state = 0;
     alGetSourcei(mAud.src, AL_SOURCE_STATE, &state);
+    if (AL_INITIAL == state) {
+        for (int i = 0; i < OPENAL_SINK_BUFFER_COUNT; ++i) {
+            s_free.buf[i] = mAud.buf[i];
+        }
+        s_free.cnt = OPENAL_SINK_BUFFER_COUNT;
+    } else {
+        while (s_free.cnt <= 0) {
+            alGetSourcei(mAud.src, AL_BUFFERS_PROCESSED, &s_free.cnt);
+            alSourceUnqueueBuffers(mAud.src, s_free.cnt, s_free.buf);
+            CHECK_IS_EXT((AL_NO_ERROR == alGetError()), NS_WHENEVER);
 
-    return 0;
+            if (0 == s_free.cnt) {
+                //ALOGV("wait for playback ...");
+                usleep(100);
+            }
+        }
+    }
+
+    CHECK_IS_EXT((s_free.cnt > 0), NS_WHENEVER);
+
+    void* buf = malloc(mAud.size);
+    CHECK_PTR_EXT(buf, NS_INACTIVE);
+
+    size_t nsrc = AudioSinkBase::mCblk(this, buf, mAud.size, AudioSinkBase::mCookie, CB_EVENT_FILL_BUFFER);
+    if ((nsrc <= 0) || (nsrc > mAud.size)) {
+        free(buf);
+        RETURN(NS_WHENEVER);
+    }    
+
+	alBufferData(s_free.buf[s_free.cnt - 1], mAud.fmt, buf, nsrc, mAud.frq);
+	alSourceQueueBuffers(mAud.src, 1, &s_free.buf[s_free.cnt - 1]);
+	s_free.cnt--;
+    free(buf);
+
+    mAud.pos += nsrc;
+
+    if ((state != AL_PLAYING) && (state != AL_PAUSED)) {
+        ALint queued = 0;
+
+        /* If no buffers are queued, playback is finished */
+        alGetSourcei(mAud.src, AL_BUFFERS_QUEUED, &queued);
+        if(queued == 0) {
+            return NS_INACTIVE;
+        }
+
+        alSourcePlay(mAud.src);
+        CHECK_IS_EXT((AL_NO_ERROR == alGetError()), NS_WHENEVER);
+    }
+
+    RETURN(0);
 }
 
 void        
@@ -203,7 +233,7 @@ OpenALSink::close_l()
 
 	if (mAud.src) {
 		alDeleteSources(1, &mAud.src);
-		alDeleteBuffers(BUFFER_COUNT, mAud.buf);
+		alDeleteBuffers(OPENAL_SINK_BUFFER_COUNT, mAud.buf);
 		memset(&mAud, 0x00, sizeof(mAud));
 	}
 

@@ -15,7 +15,11 @@ namespace android {
 
 static int getDefaultPlayerType() 
 {
+#ifdef ENABLE_AUDIO_OPENAL
+    return AUDIO_SINK_OPENAL;
+#else  
     return AUDIO_SINK_DUMP;
+#endif
 }
 
 ANDROID_SINGLETON_STATIC_INSTANCE(AudioSinkFactory);

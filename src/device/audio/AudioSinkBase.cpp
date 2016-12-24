@@ -5,6 +5,8 @@
 #include <utils/Log.h>
 #include <AudioSinkBase.h>
 
+#include <system/audio.h>
+
 namespace android {
 
 /******************************************************************************
@@ -33,7 +35,9 @@ bool
 AudioSinkBase::ready() const
 {
     AUTO_LOG();
-    
+
+    AutoMutex lock(mLock);
+
     return (NO_ERROR == mStatus);
 }
 
@@ -50,7 +54,9 @@ AudioSinkBase::frameCount() const
 {
     AUTO_LOG();
     
-    return 0;
+    AutoMutex lock(mLock);
+
+    return (mFrameCount);
 }
 
 ssize_t     
@@ -58,51 +64,59 @@ AudioSinkBase::channelCount() const
 {
     AUTO_LOG();
     
-    return 0;
+    AutoMutex lock(mLock);
+
+    return (mChannelCount);
 }
 
 ssize_t     
 AudioSinkBase::frameSize() const
 {
     AUTO_LOG();
-    
-    return 0;
+
+    AutoMutex lock(mLock);    
+
+    return (mFrameSize);
 }
 
 uint32_t    
 AudioSinkBase::latency() const
 {
     AUTO_LOG();
-    
-    return 0;
+
+    AutoMutex lock(mLock);
+
+    return (mLatency);
 }
 
 float       
 AudioSinkBase::msecsPerFrame() const
 {
     AUTO_LOG();
-    
-    return 0;
+
+    AutoMutex lock(mLock);
+
+    if (mSampleRate > 0) { 
+        return ((float)1.0f / mSampleRate);
+    } else {
+        return (0);
+    }
 }
 
 status_t    
 AudioSinkBase::getPosition(uint32_t *position) const
 {
     AUTO_LOG();
-    
-    AutoMutex lock(mLock);
-    
-    return 0;
+
+    RETURN(OK);
 }
 
 status_t    
 AudioSinkBase::getTimestamp(AudioTimestamp &ts) const
 {
     AUTO_LOG();
-    
-    AutoMutex lock(mLock);
-    
-    return 0;
+        
+    RETURN(OK);
 }
 
 int64_t     
@@ -144,16 +158,14 @@ AudioSinkBase::getSampleRate() const
     
     AutoMutex lock(mLock);
     
-    return 0;
+    return (mSampleRate);
 }
 
 int64_t     
 AudioSinkBase::getBufferDurationInUs() const
 {
     AUTO_LOG();
-    
-    AutoMutex lock(mLock);
-    
+        
     return 0;
 }
 
@@ -181,18 +193,99 @@ AudioSinkBase::open(
     ALOGD("open doNotReconnect : %d", doNotReconnect);
     ALOGD("open suggestedFrameCount : %d", suggestedFrameCount);
     
-    mSampleRate = sampleRate;
-    mChannelCount = channelCount;
-    mChannelMask = channelMask;
+    //////////////////////////////////////////////////////
+    //  format
+    /////////////////////////////////////////////////////
+
+    if (format == AUDIO_FORMAT_DEFAULT) {
+        format = AUDIO_FORMAT_PCM_16_BIT;
+    }
+    // validate parameters
+    if (!audio_is_valid_format(format)) {
+        ALOGE("Invalid format %#x", format);
+        RETURN(BAD_VALUE);
+    }
     mFormat = format;
+
+    //////////////////////////////////////////////////////
+    //  channel mask and count
+    /////////////////////////////////////////////////////
+
+    mChannelCount = channelCount;
+    // playing to an AudioTrack, set up mask if necessary
+    mChannelMask = channelMask == CHANNEL_MASK_USE_CHANNEL_ORDER ?
+                audio_channel_out_mask_from_count(channelCount) : channelMask;
+    CHECK_IS_EXT((0 != mChannelMask), BAD_VALUE);   
+    if (!audio_is_output_channel(mChannelMask)) {
+        ALOGE("Invalid channel mask %#x", mChannelMask);
+        RETURN(BAD_VALUE);
+    }
+    // check the mask and count
+    int channelCountFromMask = audio_channel_count_from_out_mask(mChannelMask);
+    CHECK_IS_EXT((mChannelCount == channelCountFromMask), BAD_VALUE);
+
+    //////////////////////////////////////////////////////
+    //  frame size
+    /////////////////////////////////////////////////////
+
+    if (flags & AUDIO_OUTPUT_FLAG_DIRECT) {
+        if (audio_has_proportional_frames(format)) {
+            mFrameSize = channelCount * audio_bytes_per_sample(format);
+        } else {
+            mFrameSize = sizeof(uint8_t);
+        }
+    } else {
+        ALOG_ASSERT(audio_has_proportional_frames(format));
+        mFrameSize = channelCount * audio_bytes_per_sample(format);
+        // createTrack will return an error if PCM format is not supported by server,
+        // so no need to check for specific PCM formats here
+    }
+
+    //////////////////////////////////////////////////////
+    //  sample rate
+    /////////////////////////////////////////////////////
+
+    // sampling rate must be specified for direct outputs
+    if (sampleRate == 0 && (flags & AUDIO_OUTPUT_FLAG_DIRECT) != 0) {
+        RETURN(BAD_VALUE);
+    }
+    mSampleRate = sampleRate;
+
+    //////////////////////////////////////////////////////
+    //  offload
+    /////////////////////////////////////////////////////
+
+    // Make copy of input parameter offloadInfo so that in the future:
+    //  (a) createTrack_l doesn't need it as an input parameter
+    //  (b) we can support re-creation of offloaded tracks
+    if (offloadInfo != NULL) {
+        mOffloadInfoCopy = *offloadInfo;
+        mOffloadInfo = &mOffloadInfoCopy;
+    } else {
+        mOffloadInfo = NULL;
+    }
+
+    //////////////////////////////////////////////////////
+    //  Frame Count and latency
+    /////////////////////////////////////////////////////
+
+    mSuggestedFrameCount = suggestedFrameCount;
+
+    // They should be modified by createSink_l()
+    mFrameCount = suggestedFrameCount;
+    mLatency = (1000*mFrameCount) / mSampleRate;
+
+    //////////////////////////////////////////////////////
+    //  others
+    /////////////////////////////////////////////////////
+
     mBufferCount = bufferCount;
     mFlags = flags;
-    memset(&mOffloadInfo, 0x00, sizeof(mOffloadInfo));
-    if (offloadInfo) {
-        memcpy(&mOffloadInfo, offloadInfo, sizeof(mOffloadInfo));
-    }
     mDoNotReconnect = doNotReconnect;
-    mSuggestedFrameCount = suggestedFrameCount;
+
+    //////////////////////////////////////////////////////
+    //  callback and thread
+    /////////////////////////////////////////////////////
 
     mCookie = cookie;
     mCblk = cbf;
@@ -202,7 +295,10 @@ AudioSinkBase::open(
         // thread begins in paused state, and will not reference us until start()
     }
 
-    // create the IAudioTrack
+    //////////////////////////////////////////////////////
+    //  initialize sink
+    /////////////////////////////////////////////////////
+
     status_t status = createSink_l();
 
     if (status != NO_ERROR) {
@@ -211,12 +307,12 @@ AudioSinkBase::open(
             mAudioSinkThread->requestExitAndWait();
             mAudioSinkThread.clear();
         }
-        return status;
+        RETURN(status);
     }
 
     mStatus = NO_ERROR;
 
-    return NO_ERROR;
+    RETURN(NO_ERROR);
 }
 
 status_t    
@@ -260,7 +356,7 @@ AudioSinkBase::start()
         }
     }
     
-    return status;
+    RETURN(status);
 }
 
 ssize_t     
@@ -309,9 +405,8 @@ AudioSinkBase::flush()
     if (mState == STATE_ACTIVE || mState == STATE_FLUSHED) {
         return;
     }
-    flush_l();
     
-    return;
+    return (flush_l());
 }
 
 void        
@@ -381,7 +476,7 @@ AudioSinkBase::AudioSinkThread::~AudioSinkThread()
 bool 
 AudioSinkBase::AudioSinkThread::threadLoop()
 {
-    AUTO_LOG();
+    //AUTO_LOG();
     
     {
         AutoMutex _l(mMyLock);

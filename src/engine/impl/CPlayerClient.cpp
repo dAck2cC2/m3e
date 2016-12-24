@@ -97,10 +97,10 @@ CPlayerClient::foundMediaFile(const char *path, sp<IMediaExtractor>& pExtractor_
             player->setSource(pExtractor_in->getTrack(i));
             player->start(false /* sourceAlreadyStarted */);
 
-            //status_t finalStatus;
-            //while (!player->reachedEOS(&finalStatus)) {
-            //    usleep(100000ll);
-            //}
+            status_t finalStatus;
+            while (!player->reachedEOS(&finalStatus)) {
+                usleep(100000ll);
+            }
 
             delete player;
             player = NULL;            

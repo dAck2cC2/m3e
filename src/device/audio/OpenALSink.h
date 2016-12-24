@@ -16,19 +16,11 @@ public:
         virtual ~OpenALSink();
 
         virtual ssize_t     bufferSize() const;
-        virtual ssize_t     frameCount() const;
-        virtual ssize_t     channelCount() const;
-        virtual ssize_t     frameSize() const;
-        virtual uint32_t    latency() const;
-        virtual float       msecsPerFrame() const;
-        virtual status_t    getPosition(uint32_t *position) const;
         virtual status_t    getTimestamp(AudioTimestamp &ts) const;
         virtual int64_t     getPlayedOutDurationUs(int64_t nowUs) const;
         virtual status_t    getFramesWritten(uint32_t *frameswritten) const;
-        virtual audio_session_t getSessionId() const;
-        virtual audio_stream_type_t getAudioStreamType() const;
-        virtual uint32_t    getSampleRate() const;
         virtual int64_t     getBufferDurationInUs() const;
+        virtual status_t    getPosition(uint32_t *position) const;
 
 protected:
         virtual status_t    createSink_l();
@@ -43,14 +35,12 @@ private:
         status_t convertFormatType();
 
 private:
-        ALCdevice*  mDev;
-        ALCcontext* mCtx;
 
-#define BUFFER_COUNT  (4)
+#define OPENAL_SINK_BUFFER_COUNT  (4)
 
         struct {
             ALuint   src;
-            ALuint   buf[BUFFER_COUNT];
+            ALuint   buf[OPENAL_SINK_BUFFER_COUNT];
             ALenum   fmt;
             ALsizei  frq;
             int      bits;
