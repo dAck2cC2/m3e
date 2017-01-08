@@ -32,12 +32,12 @@ class IInterface : public virtual RefBase
 {
 public:
             IInterface();
-            //static sp<IBinder>  asBinder(const IInterface*);
-            //static sp<IBinder>  asBinder(const sp<IInterface>&);
+            static sp<IBinder>  asBinder(const IInterface*);
+            static sp<IBinder>  asBinder(const sp<IInterface>&);
 
 protected:
     virtual                     ~IInterface();
-    //virtual IBinder*            onAsBinder() = 0;
+    virtual IBinder*            onAsBinder() = 0;
 };
 
 // ----------------------------------------------------------------------
@@ -59,7 +59,7 @@ public:
     //virtual const String16&     getInterfaceDescriptor() const;
 
 protected:
-    //virtual IBinder*            onAsBinder();
+    virtual IBinder*            onAsBinder();
 };
 
 #if 0
@@ -132,14 +132,14 @@ inline const String16& BnInterface<INTERFACE>::getInterfaceDescriptor() const
 {
     return INTERFACE::getInterfaceDescriptor();
 }
-
+#endif
 
 template<typename INTERFACE>
 IBinder* BnInterface<INTERFACE>::onAsBinder()
 {
-    return this;
+    return (IBinder*)(this);
 }
-
+#if 0
 template<typename INTERFACE>
 inline BpInterface<INTERFACE>::BpInterface(const sp<IBinder>& remote)
     : BpRefBase(remote)

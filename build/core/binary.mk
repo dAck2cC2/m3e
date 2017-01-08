@@ -9,8 +9,9 @@ TARGET_AR := ar
 TARGET_GLOBAL_ARFLAGS := rcs
 
 LOCAL_CXX := g++
-LOCAL_CC  := g++
+LOCAL_CC  := gcc
 GLOBAL_CFLAGS_NO_OVERRIDE := $(CFLAGS)
+GLOBAL_CPPFLAGS_NO_OVERRIDE := $(CPPFLAGS)
 
 #######################################
 include $(BUILD_SYSTEM)/base_rules.mk
@@ -1124,6 +1125,7 @@ $(cpp_objects): $(intermediates)/%.o: \
     $(my_additional_dependencies)
 	$(transform-$(PRIVATE_HOST)cpp-to-o)
 $(call include-depfiles-for-objs, $(cpp_objects))
+-include $(cpp_objects:%.o=%.d))
 endif
 
 cpp_objects += $(dotdot_arm_objects) $(dotdot_objects)
@@ -1225,6 +1227,7 @@ $(c_objects): $(intermediates)/%.o: $(TOPDIR)$(LOCAL_PATH)/%.c \
     $(my_additional_dependencies)
 	$(transform-$(PRIVATE_HOST)c-to-o)
 $(call include-depfiles-for-objs, $(c_objects))
+-include $(c_objects:%.o=%.d)
 endif
 
 c_objects += $(dotdot_arm_objects) $(dotdot_objects)

@@ -28,7 +28,7 @@ IInterface::IInterface()
 
 IInterface::~IInterface() {
 }
-#if 0
+#if 1
 // static
 sp<IBinder> IInterface::asBinder(const IInterface* iface)
 {
