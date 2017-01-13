@@ -1,0 +1,8 @@
+title: M3e
+description: Multimedia Engine
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-modernist
+
+gems:
+  - jekyll-mentions
