@@ -3,7 +3,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 cmake_minimum_required(VERSION 2.8.5)
-project(M3E C)
+project(M3E)
 
 # Version
 # It is based on the stagefright from Android 7.1.0_r7
@@ -173,7 +173,7 @@ endif()
 
 add_definitions(-DUSING_GENERATED_CONFIG_H)
 # General includes
-include_directories(${M3E_BINARY_DIR}/include ${M3E_SOURCE_DIR}/include)
+#include_directories(${M3E_BINARY_DIR}/include ${M3E_SOURCE_DIR}/include)
 
 
 # General source files
