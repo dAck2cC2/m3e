@@ -508,6 +508,10 @@ typedef enum {
 #define android_printAssert(cond, tag, fmt...) \
     __android_log_assert(cond, tag, \
         __android_second(0, ## fmt, NULL) __android_rest(fmt))
+#else
+#define android_printAssert(cond, tag, fmt, ...) \
+    __android_log_assert(cond, tag, \
+        __android_second(0, ## fmt, NULL) __android_rest(fmt))
 #endif // _MSC_VER
 #define android_writeLog(prio, tag, text) \
     __android_log_write(prio, tag, text)

@@ -49,6 +49,8 @@ extern "C" {
 #include "cutils/atomic-x86.h"
 #elif defined(__mips__)
 #include "cutils/atomic-mips.h"
+#elif defined(_MSC_VER)
+#include "cutils/atomic-msvc.h"
 #else
 #error atomic operations are unsupported
 #endif
