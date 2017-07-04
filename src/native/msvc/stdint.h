@@ -26,6 +26,8 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// https://github.com/mattn/gntp-send/tree/master/include/msinttypes
 // 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -251,6 +253,12 @@ typedef uint64_t  uintmax_t;
 
 // define pid_t
 typedef int pid_t;
+
+// define uid_t
+typedef unsigned int uid_t;
+
+// define off64_t
+typedef uint64_t off64_t;
 
 // define ssize_t
 #if defined(_MSC_VER)

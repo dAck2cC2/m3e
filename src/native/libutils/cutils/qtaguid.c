@@ -21,7 +21,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#ifndef _MSC_VER
 #include <pthread.h>
+#endif // _MSC_VER
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

@@ -227,7 +227,7 @@ struct threadDetails {
     int (*func)(void*);
     void* arg;
 };
-static __stdcall unsigned int threadIntermediary(void* vDetails)
+static unsigned int threadIntermediary(void* vDetails)
 {
     struct threadDetails* pDetails = (struct threadDetails*) vDetails;
     int result;
@@ -815,8 +815,11 @@ int Thread::_threadLoop(void* user)
     }
 #elif defined(HAVE_WIN32_THREADS)
     {
+#ifdef _MSC_VER
+		int iCoreCnt = 1;
+#else  // _MSC_VER
         int iCoreCnt = sysconf(_SC_NPROCESSORS_ONLN);
-
+#endif // _MSC_VER
         if (((self->mAffinity) >= 0) && ((self->mAffinity) < iCoreCnt)) {
             HANDLE hCurrent = GetCurrentThread();
             SetThreadAffinityMask(hCurrent, (1 << self->mAffinity));

@@ -19,7 +19,7 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include <strings.h>
+//#include <strings.h>
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS

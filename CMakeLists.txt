@@ -178,4 +178,5 @@ add_definitions(-DUSING_GENERATED_CONFIG_H)
 
 # General source files
 include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
+include(${M3E_SOURCE_DIR}/cmake/misc.cmake)
 
