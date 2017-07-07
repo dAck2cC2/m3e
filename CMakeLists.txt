@@ -155,7 +155,7 @@ endif()
 # in this file need to change that, so remember the original value, and 
 # restore back to that afterwards. For check_function_exists() to work in
 # Emscripten, this value must be at its default value.
-set(ORIG_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
+#set(ORIG_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
 
 if(CYGWIN)
   # We build M3E on cygwin without the UNIX emulation layer
@@ -171,7 +171,7 @@ if(CYGWIN)
   set(M3E_CFLAGS "${M3E_CFLAGS} -I/usr/include/mingw")
 endif()
 
-add_definitions(-DUSING_GENERATED_CONFIG_H)
+#add_definitions(-DUSING_GENERATED_CONFIG_H)
 # General includes
 #include_directories(${M3E_BINARY_DIR}/include ${M3E_SOURCE_DIR}/include)
 
@@ -180,4 +180,4 @@ add_definitions(-DUSING_GENERATED_CONFIG_H)
 include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
 #include(${M3E_SOURCE_DIR}/cmake/misc.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external.cmake)
-
+include(${M3E_SOURCE_DIR}/cmake/test.cmake)

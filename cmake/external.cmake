@@ -19,3 +19,21 @@ EXEC_PROGRAM("git clone ${EXT_LINK}/${EXT_PATH}/${MOD}" ${M3E_SOURCE_DIR}/${EXT_
 EXEC_PROGRAM("git checkout tags/${EXT_TAG}" ${M3E_SOURCE_DIR}/${EXT_PATH}/${MOD})
 ENDIF()
 ENDFOREACH()
+
+# gtest
+
+INCLUDE_DIRECTORIES(
+${M3E_SOURCE_DIR}/${EXT_PATH}/gtest
+${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include
+${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/intlude/internal
+)
+
+FILE(GLOB LIBGTEST_HEADER_FILES
+${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include/*.h
+${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include/internal/*.h
+)
+
+SET(LIBGTEST_SOURCE_FILES ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/src/gtest-all.cc)
+
+ADD_LIBRARY(gtest STATIC ${LIBGTEST_SOURCE_FILES} ${LIBGTEST_HEADER_FILES})
+
