@@ -1,0 +1,3 @@
+
+SET(BUILD_PATH ${M3E_BINARY_DIR}/build)
+SET(EXT_PATH external)

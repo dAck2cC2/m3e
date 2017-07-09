@@ -1,5 +1,5 @@
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the SDL source code and call cmake from there")
+  message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the M3E source code and call cmake from there")
 endif()
 
 cmake_minimum_required(VERSION 2.8.5)
@@ -16,7 +16,7 @@ set(M3E_VERSION "${M3E_MAJOR_VERSION}.${M3E_MINOR_VERSION}.${M3E_MICRO_VERSION}_
 message(STATUS "${M3E_VERSION}")
 
 # General settings & flags
-set(LIBRARY_OUTPUT_DIRECTORY "build")
+#set(LIBRARY_OUTPUT_DIRECTORY "build")
 # Check for 64 or 32 bit
 set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -161,8 +161,8 @@ if(CYGWIN)
   # We build M3E on cygwin without the UNIX emulation layer
   include_directories("-I/usr/include/mingw")
   set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -mno-cygwin")
-  check_c_source_compiles("int main(int argc, char **argv) {}"
-    HAVE_GCC_NO_CYGWIN)
+  #check_c_source_compiles("int main(int argc, char **argv) {}"
+  #  HAVE_GCC_NO_CYGWIN)
   set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
   if(HAVE_GCC_NO_CYGWIN)
     list(APPEND EXTRA_LDFLAGS "-mno-cygwin")
@@ -176,8 +176,5 @@ endif()
 #include_directories(${M3E_BINARY_DIR}/include ${M3E_SOURCE_DIR}/include)
 
 
-# General source files
-include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
-#include(${M3E_SOURCE_DIR}/cmake/misc.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external.cmake)
-include(${M3E_SOURCE_DIR}/cmake/test.cmake)
+# sub module
+add_subdirectory(cmake)
