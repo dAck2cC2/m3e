@@ -9,6 +9,10 @@ include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 
+if(MSVC)
+add_definitions(-D__STDC_LIMIT_MACROS)
+endif()
+
 # dependency
 
 set(TESTALL_DEPLIB

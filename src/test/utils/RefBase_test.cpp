@@ -21,7 +21,9 @@
 
 #include <thread>
 #include <atomic>
+#if !defined(_MSC_VER)
 #include <sched.h>
+#endif // _MSC_VER
 #include <errno.h>
 
 // Enhanced version of StrongPointer_test, but using RefBase underneath.

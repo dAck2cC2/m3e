@@ -35,9 +35,11 @@ protected:
 
 TEST_F(UnicodeTest, UTF8toUTF16ZeroLength) {
     ssize_t measured;
-
+#if defined(_MSC_VER)
+	uint8_t* str = NULL;
+#else  // _MSC_VER
     const uint8_t str[] = { };
-
+#endif // _MSC_VER
     measured = utf8_to_utf16_length(str, 0);
     EXPECT_EQ(0, measured)
             << "Zero length input should return zero length output.";
