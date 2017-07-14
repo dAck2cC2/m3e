@@ -40,7 +40,7 @@ class String8;
 class TextOutput;
 
 //! This is a string holding UTF-16 characters.
-class String16
+class DECLSPEC String16
 {
 public:
     /* use String16(StaticLinkage) if you're statically linking against

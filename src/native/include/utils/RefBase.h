@@ -177,6 +177,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <utils/UtilsDefine.h>
 #include <utils/StrongPointer.h>
 #include <utils/TypeHelpers.h>
 
@@ -231,7 +232,7 @@ public:
 
 // ---------------------------------------------------------------------------
 
-class RefBase
+class DECLSPEC RefBase
 {
 public:
             void            incStrong(const void* id) const;
@@ -242,7 +243,7 @@ public:
             //! DEBUGGING ONLY: Get current strong ref count.
             int32_t         getStrongCount() const;
 
-    class weakref_type
+    class DECLSPEC weakref_type
     {
     public:
         RefBase*            refBase() const;

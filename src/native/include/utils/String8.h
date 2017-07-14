@@ -35,7 +35,7 @@ class TextOutput;
 
 //! This is a string holding UTF-8 characters. Does not allow the value more
 // than 0x10FFFF, which is not valid unicode codepoint.
-class String8
+class DECLSPEC String8
 {
 public:
     /* use String8(StaticLinkage) if you're statically linking against

@@ -1,6 +1,26 @@
 #ifndef __UTILS_DEFINE_H__
 #define __UTILS_DEFINE_H__
 
+/* Some compilers use a special export keyword */
+#ifndef DECLSPEC
+# if defined(WIN32) || defined(__WINRT__)
+#  ifdef __BORLANDC__
+#   ifdef BUILD_SDL
+#    define DECLSPEC
+#   else
+#    define DECLSPEC    __declspec(dllimport)
+#   endif
+#  else
+#   define DECLSPEC __declspec(dllexport)
+#  endif
+# else
+#  if defined(__GNUC__) && __GNUC__ >= 4
+#   define DECLSPEC __attribute__ ((visibility("default")))
+#  else
+#   define DECLSPEC
+#  endif
+# endif
+#endif
 
 #define _UTILS_BEGIN  namespace _UTILS_NAME {
 #define _UTILS_END    }
