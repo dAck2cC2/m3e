@@ -27,3 +27,9 @@ endif()
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(utils SHARED ${UTILS_SOURCE_FILES} ${UTILS_HEADER_FILES})
+
+if(UNIX AND NOT APPLE)
+find_package(Threads)
+target_link_libraries(utils ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
