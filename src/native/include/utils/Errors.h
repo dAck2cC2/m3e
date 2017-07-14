@@ -27,6 +27,8 @@
 // use this type to return error codes
 #ifdef HAVE_MS_C_RUNTIME
 typedef int         status_t;
+#elif defined(_MACOSX)
+typedef int64_t     status_t;
 #else
 typedef int32_t     status_t;
 #endif

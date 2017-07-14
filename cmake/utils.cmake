@@ -1,5 +1,5 @@
 
-# include and define
+# define
 if(MSVC)
 add_definitions(-DHAVE_MS_C_RUNTIME)
 add_definitions(-DHAVE_WIN32_THREADS)
@@ -18,5 +18,6 @@ add_definitions(-DHAVE_PTHREADS)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++0x")
 endif()
 
+# include
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include)
 
