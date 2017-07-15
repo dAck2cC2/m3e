@@ -4,8 +4,8 @@
 #include <AudioSinkFactory.h>
 #include <AudioSinkBase.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#include <al.h>
+#include <alc.h>
 
 namespace android {
 

@@ -20,7 +20,7 @@ gtest
 utils
 )
 
-set(LIBMISC_DEP ${TESTALL_DEPLIB})
+set(TESTALL_DEP ${TESTALL_DEPLIB})
 
 # main source
 
