@@ -2,7 +2,7 @@
 project(UTILS)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
+include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
 
 # header files
 file(GLOB UTILS_HEADER_FILES

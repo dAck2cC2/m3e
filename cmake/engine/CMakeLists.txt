@@ -2,8 +2,9 @@
 project(ENGINE)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
-include(${M3E_SOURCE_DIR}/cmake/misc.cmake)
+include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/stagefright_foundation/include.cmake)
 
 set(ENGINE_DEPLIB
 utils

@@ -2,9 +2,10 @@
 project(STAGEFRIGHT)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
-include(${M3E_SOURCE_DIR}/cmake/misc.cmake)
-include(${M3E_SOURCE_DIR}/cmake/media.cmake)
+include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/media/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/stagefright_foundation/include.cmake)
 
 set(STAGEFRIGHT_DEPLIB
 utils
@@ -19,10 +20,15 @@ ${STAGEFRIGHT_DEPLIB}
 )
 
 # define
-if(APPLE)
+if(APPLE OR CYGWIN)
 add_definitions(-DO_LARGEFILE=0)
 add_definitions(-Dlseek64=lseek)
+add_definitions(-Wno-enum-compare)
 endif()
+
+if(CYGWIN)
+add_definitions(-D_GNU_SOURCE)
+endif(CYGWIN)
 
 # include files
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/media/libstagefright)
@@ -58,6 +64,22 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/MediaSource.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/MediaExtractor_legacy.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/AudioPlayer.cpp
 )
+
+# codec selector
+if(ENABLE_CODEC_SELECTOR)
+message(STATUS "ENABLE_CODEC_SELECTOR:${ENABLE_CODEC_SELECTOR}")
+
+include(${M3E_SOURCE_DIR}/cmake/expat/include.cmake)
+
+set(STAGEFRIGHT_SOURCE_FILES ${STAGEFRIGHT_SOURCE_FILES}
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/SimpleDecodingSource.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/MediaCodecListOverrides.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/MediaCodecList.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/CodecBase.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/MediaCodec.cpp
+)
+endif(ENABLE_CODEC_SELECTOR)
+
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

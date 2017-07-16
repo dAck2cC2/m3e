@@ -2,8 +2,9 @@
 project(STAGEFRIGHT_FOUNDATION)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
-include(${M3E_SOURCE_DIR}/cmake/misc.cmake)
+include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/stagefright_foundation/include.cmake)
 
 set(STAGEFRIGHT_FOUNDATION_DEPLIB
 utils
@@ -14,6 +15,11 @@ misc
 set(STAGEFRIGHT_FOUNDATION_DEP 
 ${STAGEFRIGHT_FOUNDATION_DEPLIB}
 )
+
+# define
+if(CYGWIN)
+add_definitions(-D_GNU_SOURCE)
+endif()
 
 # include files
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)

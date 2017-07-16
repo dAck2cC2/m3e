@@ -2,7 +2,7 @@
 project(AUDIO)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
+include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
 
 set(AUDIO_DEPLIB
 utils
@@ -12,6 +12,11 @@ utils
 set(AUDIO_DEP 
 ${AUDIO_DEPLIB}
 )
+
+# define
+if(CYGWIN)
+add_definitions(-D_GNU_SOURCE)
+endif()
 
 # include files
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/device/audio)
@@ -30,13 +35,19 @@ ${M3E_SOURCE_DIR}/src/device/audio/AudioSinkBase.cpp
 ${M3E_SOURCE_DIR}/src/device/audio/DumpSink.cpp
 )
 
+# OpenAL
+if(APPLE OR CYGWIN)
 if(APPLE)
-find_path(OPENAL_INCLUDE al.h)
-include_directories(AFTER ${OPENAL_INCLUDE})
+    find_path(OPENAL_INCLUDE al.h)
+    include_directories(AFTER ${OPENAL_INCLUDE})
 
-find_library(OPENAL_LIBRARY OpenAL)
-mark_as_advanced(OPENAL_LIBRARY)
-set(AUDIO_DEPLIB ${AUDIO_DEPLIB} ${OPENAL_LIBRARY})
+    find_library(OPENAL_LIBRARY OpenAL)
+    mark_as_advanced(OPENAL_LIBRARY)
+    set(AUDIO_DEPLIB ${AUDIO_DEPLIB} ${OPENAL_LIBRARY})
+elseif(CYGWIN)
+    include_directories(AFTER /usr/include/AL)
+    set(AUDIO_DEPLIB ${AUDIO_DEPLIB} openal)    
+endif()
 
 add_definitions(-DENABLE_AUDIO_OPENAL)
 set(AUDIO_SOURCE_FILES ${AUDIO_SOURCE_FILES}

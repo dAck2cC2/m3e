@@ -2,8 +2,8 @@
 project(MISC)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
-include(${M3E_SOURCE_DIR}/cmake/misc.cmake)
+include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
 
 set(MISC_DEPLIB
 utils

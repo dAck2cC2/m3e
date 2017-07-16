@@ -4,9 +4,9 @@
 project(TESTALL)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-#include(${M3E_SOURCE_DIR}/cmake/gtest.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils.cmake)
+include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
 
+#include(${M3E_SOURCE_DIR}/cmake/gtest.cmake)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 
 if(MSVC)
