@@ -45,3 +45,7 @@ add_subdirectory(stagefright)
 add_subdirectory(audio)
 add_subdirectory(engine)
 add_subdirectory(m3ecmd)
+
+if(ENABLE_CODEC_SELECTOR)
+add_subdirectory(stagefright_mediafilter)
+endif(ENABLE_CODEC_SELECTOR)
