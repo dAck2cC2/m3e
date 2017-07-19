@@ -38,6 +38,9 @@ ${M3E_SOURCE_DIR}/src/av/external/ui/GraphicBuffer.h
 ${M3E_SOURCE_DIR}/src/av/external/ui/Region.h
 ${M3E_SOURCE_DIR}/src/av/external/mediautils/BatteryNotifier.h
 ${M3E_SOURCE_DIR}/src/av/external/gui/Surface.h
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/RenderScript.h
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/rsCppStructs.h
+${M3E_SOURCE_DIR}/src/av/external/rs/rsDefines.h
 )
 set(MISC_SOURCE_FILES ${MISC_SOURCE_FILES}
 ${M3E_SOURCE_DIR}/src/av/external/ui/Fence.cpp
@@ -45,8 +48,16 @@ ${M3E_SOURCE_DIR}/src/av/external/ui/GraphicBuffer.cpp
 ${M3E_SOURCE_DIR}/src/av/external/ui/Region.cpp
 ${M3E_SOURCE_DIR}/src/av/external/mediautils/BatteryNotifier.cpp
 ${M3E_SOURCE_DIR}/src/av/external/gui/Surface.cpp
-#${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Allocation.cpp
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/BaseObj.cpp
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Allocation.cpp
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Type.cpp
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/RenderScript.cpp
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Element.cpp
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/ScriptIntrinsics.cpp
+${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Script.cpp
 )
+add_definitions(-DPATH_MAX=4096)
+add_definitions(-DRS_COMPATIBILITY_LIB)
 endif(ENABLE_CODEC_SELECTOR)
 
 # target files

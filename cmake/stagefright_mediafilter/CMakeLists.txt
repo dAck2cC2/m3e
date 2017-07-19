@@ -34,6 +34,7 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/MediaFilter.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/ZeroFilter.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/SimpleFilter.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/SaturationFilter.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/IntrinsicBlurFilter.cpp
 )
 
 # target files
