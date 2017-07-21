@@ -10,6 +10,7 @@ include(${M3E_SOURCE_DIR}/cmake/stagefright/include.cmake)
 set(STAGEFRIGHT_MEDIAFILTER_DEPLIB
 utils
 misc
+stagefright_foundation
 )
 
 # define
@@ -35,6 +36,9 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/ZeroFilter.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/SimpleFilter.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/SaturationFilter.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/IntrinsicBlurFilter.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/GraphicBufferListener.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/ColorConvert.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/filters/RSFilter.cpp
 )
 
 # target files

@@ -29,8 +29,8 @@
 #include <ui/Rect.h>
 #include <gui/OccupancyTracker.h>
 
-//#include <EGL/egl.h>
-//#include <EGL/eglext.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 namespace android {
 // ----------------------------------------------------------------------------
@@ -143,9 +143,9 @@ public:
     //               * the buffer slot was invalid
     //               * the fence was NULL
     //               * the buffer slot specified is not in the acquired state
-    //virtual status_t releaseBuffer(int buf, uint64_t frameNumber,
-    //        EGLDisplay display, EGLSyncKHR fence,
-    //        const sp<Fence>& releaseFence) = 0;
+    virtual status_t releaseBuffer(int buf, uint64_t frameNumber,
+            EGLDisplay display, EGLSyncKHR fence,
+            const sp<Fence>& releaseFence) = 0;
 
     // consumerConnect connects a consumer to the BufferQueue.  Only one
     // consumer may be connected, and when that consumer disconnects the

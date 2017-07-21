@@ -38,6 +38,9 @@ ${M3E_SOURCE_DIR}/src/av/external/ui/GraphicBuffer.h
 ${M3E_SOURCE_DIR}/src/av/external/ui/Region.h
 ${M3E_SOURCE_DIR}/src/av/external/mediautils/BatteryNotifier.h
 ${M3E_SOURCE_DIR}/src/av/external/gui/Surface.h
+${M3E_SOURCE_DIR}/src/av/external/gui/BufferItem.h
+${M3E_SOURCE_DIR}/src/av/external/gui/BufferQueue.h
+${M3E_SOURCE_DIR}/src/av/external/gui/IConsumerListener.h
 ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/RenderScript.h
 ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/rsCppStructs.h
 ${M3E_SOURCE_DIR}/src/av/external/rs/rsDefines.h
@@ -48,6 +51,9 @@ ${M3E_SOURCE_DIR}/src/av/external/ui/GraphicBuffer.cpp
 ${M3E_SOURCE_DIR}/src/av/external/ui/Region.cpp
 ${M3E_SOURCE_DIR}/src/av/external/mediautils/BatteryNotifier.cpp
 ${M3E_SOURCE_DIR}/src/av/external/gui/Surface.cpp
+${M3E_SOURCE_DIR}/src/av/external/gui/BufferItem.cpp
+${M3E_SOURCE_DIR}/src/av/external/gui/BufferQueue.cpp
+${M3E_SOURCE_DIR}/src/av/external/gui/IConsumerListener.cpp
 ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/BaseObj.cpp
 ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Allocation.cpp
 ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Type.cpp

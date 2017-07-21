@@ -83,6 +83,7 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/MediaCodecList.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/CodecBase.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/MediaCodec.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/SurfaceUtils.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/ACodec.cpp
 )
 endif(ENABLE_CODEC_SELECTOR)
 
