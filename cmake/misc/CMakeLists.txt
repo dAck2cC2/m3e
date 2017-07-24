@@ -61,6 +61,7 @@ ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/RenderScript.cpp
 ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Element.cpp
 ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/ScriptIntrinsics.cpp
 ${M3E_SOURCE_DIR}/src/av/external/rs/cpp/Script.cpp
+${M3E_SOURCE_DIR}/src/av/external/binder/IServiceManager.cpp
 )
 add_definitions(-DPATH_MAX=4096)
 add_definitions(-DRS_COMPATIBILITY_LIB)

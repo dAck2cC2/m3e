@@ -48,4 +48,5 @@ add_subdirectory(m3ecmd)
 
 if(ENABLE_CODEC_SELECTOR)
 add_subdirectory(stagefright_mediafilter)
+add_subdirectory(stagefright_omx)
 endif(ENABLE_CODEC_SELECTOR)
