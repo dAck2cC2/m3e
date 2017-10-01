@@ -15,8 +15,12 @@ set(EXT_MODULES gtest)
 if(ENABLE_CODEC_SELECTOR)
 set(EXT_MODULES ${EXT_MODULES} 
 expat
+jpeg
+libyuv
 )
 add_subdirectory(expat)
+add_subdirectory(jpeg)
+add_subdirectory(libyuv)
 endif()
 
 # create the folder for external module
@@ -49,4 +53,5 @@ add_subdirectory(m3ecmd)
 if(ENABLE_CODEC_SELECTOR)
 add_subdirectory(stagefright_mediafilter)
 add_subdirectory(stagefright_omx)
+add_subdirectory(stagefright_color_conversion)
 endif(ENABLE_CODEC_SELECTOR)

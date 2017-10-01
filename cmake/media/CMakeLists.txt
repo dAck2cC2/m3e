@@ -51,12 +51,14 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/media/libstagefright)
 
 set(MEDIA_SOURCE_FILES ${MEDIA_SOURCE_FILES}
 ${M3E_SOURCE_DIR}/src/av/media/libmedia/IOMX.cpp
+${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaCodecList.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaCodecService.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libmedia/IResourceManagerClient.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libmedia/IResourceManagerService.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libmedia/MediaCodecInfo.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libmedia/MediaResource.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libmedia/MediaResourcePolicy.cpp
+${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaPlayerService.cpp
 )
 endif(ENABLE_CODEC_SELECTOR)
 

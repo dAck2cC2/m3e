@@ -69,6 +69,7 @@ set(STAGEFRIGHT_DEPLIB ${STAGEFRIGHT_DEPLIB}
 expat
 stagefright_mediafilter
 stagefright_omx
+stagefright_color_conversion
 )
 
 include(${M3E_SOURCE_DIR}/cmake/expat/include.cmake)
@@ -87,6 +88,8 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/SurfaceUtils.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/ACodec.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/DataConverter.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/OMXClient.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/SkipCutBuffer.cpp
+${M3E_SOURCE_DIR}/src/av/media/libstagefright/FrameRenderTracker.cpp
 )
 endif(ENABLE_CODEC_SELECTOR)
 

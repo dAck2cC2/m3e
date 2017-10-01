@@ -48,6 +48,7 @@ ${M3E_SOURCE_DIR}/src/av/external/rs/rsDefines.h
 set(MISC_SOURCE_FILES ${MISC_SOURCE_FILES}
 ${M3E_SOURCE_DIR}/src/av/external/ui/Fence.cpp
 ${M3E_SOURCE_DIR}/src/av/external/ui/GraphicBuffer.cpp
+${M3E_SOURCE_DIR}/src/av/external/ui/GraphicBufferMapper.cpp
 ${M3E_SOURCE_DIR}/src/av/external/ui/Region.cpp
 ${M3E_SOURCE_DIR}/src/av/external/mediautils/BatteryNotifier.cpp
 ${M3E_SOURCE_DIR}/src/av/external/gui/Surface.cpp
