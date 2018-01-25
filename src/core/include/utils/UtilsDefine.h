@@ -7,15 +7,6 @@
 #define _UTILS_END    }
 #define _UTILS_NAME   android
 
-
-//#define LOG_NDEBUG      0
-#define LOG_NDEBUG      1
-
-
-#if LOG_NDEBUG == 0
-#define LOG_FILE_NAME   "./logcat.log"
-#endif // LOG_NDEBUG
-
 /******************************************/
 // ENABLE
 /******************************************/

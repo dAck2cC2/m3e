@@ -74,7 +74,9 @@ enum {
     UNKNOWN_TRANSACTION = (UNKNOWN_ERROR + 6),
 #endif    
     FDS_NOT_ALLOWED     = (UNKNOWN_ERROR + 7),
+#if defined(_MSC_VER)
     UNEXPECTED_NULL     = (UNKNOWN_ERROR + 8),
+#endif // _MSC_VER
 };
 
 // Restore define; enumeration is in "android" namespace, so the value defined

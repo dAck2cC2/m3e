@@ -5,7 +5,7 @@ add_definitions(-DHAVE_MS_C_RUNTIME)
 add_definitions(-DHAVE_WIN32_THREADS)
 add_definitions(-D__BEGIN_DECLS= )
 add_definitions(-D__END_DECLS= )
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/msvc)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/msvc)
 
 elseif(APPLE)
 add_definitions(-D_MACOSX)
@@ -25,5 +25,5 @@ set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++0x")
 endif()
 
 # include
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/include)
 

@@ -2,7 +2,7 @@
 project(STAGEFRIGHT)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/stagefright_foundation/include.cmake)

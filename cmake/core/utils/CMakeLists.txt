@@ -2,7 +2,7 @@
 project(UTILS)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 
 # dependency
 
@@ -14,22 +14,22 @@ set(UTILS_DEP ${UTILS_DEPLIB})
 
 # header files
 file(GLOB UTILS_HEADER_FILES
-${M3E_SOURCE_DIR}/src/native/include/cutils/*.h
-${M3E_SOURCE_DIR}/src/native/include/utils/*.h
+${M3E_SOURCE_DIR}/src/core/include/cutils/*.h
+${M3E_SOURCE_DIR}/src/core/include/utils/*.h
 )
 
 # source files
 file(GLOB UTILS_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/native/libutils/*.c 
-${M3E_SOURCE_DIR}/src/native/libutils/*.cpp
-${M3E_SOURCE_DIR}/src/native/libutils/cutils/*.c
+${M3E_SOURCE_DIR}/src/core/libutils/*.c 
+${M3E_SOURCE_DIR}/src/core/libutils/*.cpp
+${M3E_SOURCE_DIR}/src/core/libutils/cutils/*.c
 )
 
 # header and source code for MSVC
 if(MSVC)
-set(UTILS_HEADER_FILES ${UTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/native/msvc/stdint.h)
-set(UTILS_HEADER_FILES ${UTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/native/msvc/sys/time.h)
-set(UTILS_SOURCE_FILES ${UTILS_SOURCE_FILES} ${M3E_SOURCE_DIR}/src/native/msvc/sys/time.c)
+set(UTILS_HEADER_FILES ${UTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/stdint.h)
+set(UTILS_HEADER_FILES ${UTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/sys/time.h)
+set(UTILS_SOURCE_FILES ${UTILS_SOURCE_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/sys/time.c)
 endif()
 
 # target files
