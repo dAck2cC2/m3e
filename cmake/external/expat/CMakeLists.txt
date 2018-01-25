@@ -2,7 +2,7 @@
 project(EXPAT)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/expat/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/expat/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/expat)
 

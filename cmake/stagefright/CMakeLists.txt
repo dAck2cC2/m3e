@@ -72,7 +72,7 @@ stagefright_omx
 stagefright_color_conversion
 )
 
-include(${M3E_SOURCE_DIR}/cmake/expat/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/expat/include.cmake)
 
 set(STAGEFRIGHT_HEADER_FILES ${STAGEFRIGHT_HEADER_FILES}
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/MediaCodecListOverrides.h

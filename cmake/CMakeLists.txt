@@ -23,7 +23,7 @@ else(CFG_NO_DEFAULT)
   set(ENABLE_CORE  "TRUE")
   set(ENABLE_AV    "TRUE")
   set(ENABLE_APP   "TRUE")  
-  set(ENABLE_TEST  "TRUE")
+#  set(ENABLE_TEST  "TRUE")
 endif(CFG_NO_DEFAULT)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
@@ -34,38 +34,9 @@ message(STATUS "Create\t${BUILD_PATH}")
 exec_program("mkdir ${BUILD_PATH}")
 endif()
 
-# external module
-set(EXT_LINK https://android.googlesource.com/platform)
-set(EXT_TAG android-7.1.0_r7)
-set(EXT_MODULES gtest)
-
-if(ENABLE_CODEC_SELECTOR)
-set(EXT_MODULES ${EXT_MODULES} 
-expat
-jpeg
-libyuv
-)
-add_subdirectory(expat)
-add_subdirectory(jpeg)
-add_subdirectory(libyuv)
-endif()
-
-# create the folder for external module
-if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH})
-message(STATUS "Create\t${M3E_SOURCE_DIR}/${EXT_PATH}")
-exec_program("mkdir ${EXT_PATH}" ${M3E_SOURCE_DIR})
-endif()
-
-# download the source code of external module
-foreach(MOD ${EXT_MODULES})
-if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/${MOD})
-message(STATUS "Download\t${MOD}")
-exec_program("git clone ${EXT_LINK}/${EXT_PATH}/${MOD}" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git checkout tags/${EXT_TAG}" ${M3E_SOURCE_DIR}/${EXT_PATH}/${MOD})
-endif()
-endforeach()
-
 # the subdirectory
+add_subdirectory(external)
+
 if(ENABLE_CORE)
 add_subdirectory(core)
 endif(ENABLE_CORE)
@@ -90,6 +61,5 @@ add_subdirectory(m3ecmd)
 endif(ENABLE_APP)
 
 if(ENABLE_TEST)
-add_subdirectory(gtest)
 add_subdirectory(test)
 endif(ENABLE_TEST)

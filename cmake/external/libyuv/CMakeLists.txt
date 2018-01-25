@@ -2,8 +2,8 @@
 project(YUV)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/jpeg/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/libyuv/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/jpeg/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/libyuv/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/libyuv/files)
 
