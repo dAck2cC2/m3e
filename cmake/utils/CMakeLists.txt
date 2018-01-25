@@ -4,6 +4,14 @@ project(UTILS)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/utils/include.cmake)
 
+# dependency
+
+set(UTILS_DEPLIB
+log
+)
+
+set(UTILS_DEP ${UTILS_DEPLIB})
+
 # header files
 file(GLOB UTILS_HEADER_FILES
 ${M3E_SOURCE_DIR}/src/native/include/cutils/*.h
@@ -27,6 +35,7 @@ endif()
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(utils SHARED ${UTILS_SOURCE_FILES} ${UTILS_HEADER_FILES})
+target_link_libraries(utils ${UTILS_DEPLIB})
 
 if(UNIX AND NOT APPLE)
 find_package(Threads)

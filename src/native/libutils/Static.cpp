@@ -31,7 +31,7 @@ class LibUtilsFirstStatics
 {
 public:
     LibUtilsFirstStatics() {
-        __android_log_init();
+        //__android_log_init();
         initialize_string8();
 #ifdef ENABLE_STRING16
         initialize_string16();
@@ -43,7 +43,7 @@ public:
         terminate_string16();
 #endif // ENABLE_STRING16
         terminate_string8();
-        __android_log_exit();
+        //__android_log_exit();
     }
 };
 

@@ -30,7 +30,11 @@
 extern "C" {
 #endif
 
+#ifdef _WIN32
+typedef uint32_t android_thread_id_t;
+#else
 typedef void* android_thread_id_t;
+#endif
 
 typedef int (*android_thread_func_t)(void*);
 
@@ -88,9 +92,7 @@ enum {
 // ---------------------------------------------------------------------------
 // C++ API
 #ifdef __cplusplus
-
-_UTILS_BEGIN
-
+namespace android {
 // ---------------------------------------------------------------------------
 
 typedef android_thread_id_t thread_id_t;
@@ -112,9 +114,7 @@ enum {
 };
 
 // ---------------------------------------------------------------------------
-
-_UTILS_END
-
+}; // namespace android
 #endif  // __cplusplus
 // ---------------------------------------------------------------------------
 

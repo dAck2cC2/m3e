@@ -25,13 +25,12 @@
 # include <pthread.h>
 #endif
 
-#include "utils/UtilsDefine.h"
-#include "utils/Errors.h"
-#include "utils/Mutex.h"
-#include "utils/Timers.h"
+#include <utils/Errors.h>
+#include <utils/Mutex.h>
+#include <utils/Timers.h>
 
 // ---------------------------------------------------------------------------
-_UTILS_BEGIN
+namespace android {
 // ---------------------------------------------------------------------------
 
 /*
@@ -42,23 +41,35 @@ _UTILS_BEGIN
  * or unlock the mutex and continue.  All threads calling wait() must
  * use the same mutex for a given Condition.
  */
-class Condition
-{
+class Condition {
 public:
     enum {
         PRIVATE = 0,
         SHARED = 1
     };
 
+    enum WakeUpType {
+        WAKE_UP_ONE = 0,
+        WAKE_UP_ALL = 1
+    };
+
     Condition();
-    Condition(int type);
+    explicit Condition(int type);
     ~Condition();
     // Wait on the condition variable.  Lock the mutex before calling.
     status_t wait(Mutex& mutex);
     // same with relative timeout
     status_t waitRelative(Mutex& mutex, nsecs_t reltime);
-    // Signal the condition variable, allowing one thread to continue.
+    // Signal the condition variable, allowing exactly one thread to continue.
     void signal();
+    // Signal the condition variable, allowing one or all threads to continue.
+    void signal(WakeUpType type) {
+        if (type == WAKE_UP_ONE) {
+            signal();
+        } else {
+            broadcast();
+        }
+    }
     // Signal the condition variable, allowing all threads to continue.
     void broadcast();
 
@@ -74,12 +85,10 @@ private:
 
 #if defined(HAVE_PTHREADS)
 
-inline Condition::Condition()
-{
+inline Condition::Condition() {
     pthread_cond_init(&mCond, NULL);
 }
-inline Condition::Condition(int type)
-{
+inline Condition::Condition(int type) {
     if (type == SHARED) {
         pthread_condattr_t attr;
         pthread_condattr_init(&attr);
@@ -90,56 +99,66 @@ inline Condition::Condition(int type)
         pthread_cond_init(&mCond, NULL);
     }
 }
-inline Condition::~Condition()
-{
+inline Condition::~Condition() {
     pthread_cond_destroy(&mCond);
 }
-inline status_t Condition::wait(Mutex& mutex)
-{
+inline status_t Condition::wait(Mutex& mutex) {
     return -pthread_cond_wait(&mCond, &mutex.mMutex);
 }
-inline status_t Condition::waitRelative(Mutex& mutex, nsecs_t reltime)
-{
-#if defined(HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE)
+inline status_t Condition::waitRelative(Mutex& mutex, nsecs_t reltime) {
     struct timespec ts;
-    ts.tv_sec  = reltime / 1000000000;
-    ts.tv_nsec = reltime % 1000000000;
-    return -pthread_cond_timedwait_relative_np(&mCond, &mutex.mMutex, &ts);
-#else // HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE
-    struct timespec ts;
-#if defined(HAVE_POSIX_CLOCKS)
+#if defined(__linux__)
     clock_gettime(CLOCK_REALTIME, &ts);
-#else // HAVE_POSIX_CLOCKS
-    // we don't support the clocks here.
+#else // __APPLE__
+    // Apple doesn't support POSIX clocks.
     struct timeval t;
     gettimeofday(&t, NULL);
     ts.tv_sec = t.tv_sec;
-    ts.tv_nsec = t.tv_usec * 1000;
-#endif // HAVE_POSIX_CLOCKS
-    ts.tv_sec += reltime / 1000000000;
-    ts.tv_nsec += reltime % 1000000000;
+    ts.tv_nsec = t.tv_usec*1000;
+#endif
 
-    if (ts.tv_nsec >= 1000000000) {
+    // On 32-bit devices, tv_sec is 32-bit, but `reltime` is 64-bit.
+    int64_t reltime_sec = reltime/1000000000;
+
+    ts.tv_nsec += static_cast<long>(reltime%1000000000);
+    if (reltime_sec < INT64_MAX && ts.tv_nsec >= 1000000000) {
         ts.tv_nsec -= 1000000000;
-        ts.tv_sec  += 1;
+        ++reltime_sec;
     }
 
+    int64_t time_sec = ts.tv_sec;
+    if (time_sec > INT64_MAX - reltime_sec) {
+        time_sec = INT64_MAX;
+    } else {
+        time_sec += reltime_sec;
+    }
+
+    ts.tv_sec = (time_sec > LONG_MAX) ? LONG_MAX : static_cast<long>(time_sec);
+
     return -pthread_cond_timedwait(&mCond, &mutex.mMutex, &ts);
-#endif // HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE
 }
-inline void Condition::signal()
-{
+inline void Condition::signal() {
+    /*
+     * POSIX says pthread_cond_signal wakes up "one or more" waiting threads.
+     * However bionic follows the glibc guarantee which wakes up "exactly one"
+     * waiting thread.
+     *
+     * man 3 pthread_cond_signal
+     *   pthread_cond_signal restarts one of the threads that are waiting on
+     *   the condition variable cond. If no threads are waiting on cond,
+     *   nothing happens. If several threads are waiting on cond, exactly one
+     *   is restarted, but it is not specified which.
+     */
     pthread_cond_signal(&mCond);
 }
-inline void Condition::broadcast()
-{
+inline void Condition::broadcast() {
     pthread_cond_broadcast(&mCond);
 }
 
 #endif // HAVE_PTHREADS
 
 // ---------------------------------------------------------------------------
-_UTILS_END
+}; // namespace android
 // ---------------------------------------------------------------------------
 
 #endif // _LIBS_UTILS_CONDITON_H

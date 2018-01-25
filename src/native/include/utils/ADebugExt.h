@@ -12,7 +12,7 @@
 //    COMPILER SWITCH
 /*---------------------------------------------------------------------------*/
 
-#define ENABLE_ADEBUG_EXT
+//#define ENABLE_ADEBUG_EXT
 
 #define _SW_ADEBUG_EXT_OFF   0
 #define _SW_ADEBUG_EXT_ON    1

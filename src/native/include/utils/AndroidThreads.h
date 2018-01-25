@@ -25,7 +25,7 @@
 #endif
 
 #include "utils/UtilsDefine.h"
-#include "utils/ThreadDefs.h"
+#include <utils/ThreadDefs.h>
 
 // ---------------------------------------------------------------------------
 // C API
@@ -57,6 +57,9 @@ extern int androidCreateRawThreadEtc(android_thread_func_t entryFunction,
                                      size_t threadStackSize,
                                      android_thread_id_t *threadId);
 
+// set the same of the running thread
+extern void androidSetThreadName(const char* name);
+
 // Used by the Java Runtime to control how threads are created, so that
 // they can be proper and lovely Java threads.
 typedef int (*android_create_thread_fn)(android_thread_func_t entryFunction,
@@ -71,10 +74,7 @@ extern void androidSetCreateThreadFunc(android_create_thread_fn func);
 // ------------------------------------------------------------------
 // Extra functions working with raw pids.
 
-// Get pid for the current thread.
-extern pid_t androidGetTid();
-
-#ifdef HAVE_ANDROID_OS
+#if defined(__ANDROID__)
 // Change the priority AND scheduling group of a particular thread.  The priority
 // should be one of the ANDROID_PRIORITY constants.  Returns INVALID_OPERATION
 // if the priority set failed, else another value if just the group set failed;
@@ -93,14 +93,11 @@ extern int androidGetThreadPriority(pid_t tid);
 // ----------------------------------------------------------------------------
 // C++ API
 #ifdef __cplusplus
-
-_UTILS_BEGIN
-
+namespace android {
 // ----------------------------------------------------------------------------
 
 // Create and run a new thread.
-inline bool createThread(thread_func_t f, void *a)
-{
+inline bool createThread(thread_func_t f, void *a) {
     return androidCreateThread(f, a) ? true : false;
 }
 
@@ -113,19 +110,16 @@ inline bool createThreadEtc(thread_func_t entryFunction,
                             thread_id_t *threadId = 0)
 {
     return androidCreateThreadEtc(entryFunction, userData, threadName,
-                                  threadPriority, threadStackSize, threadId) ? true : false;
+        threadPriority, threadStackSize, threadId) ? true : false;
 }
 
 // Get some sort of unique identifier for the current thread.
-inline thread_id_t getThreadId()
-{
+inline thread_id_t getThreadId() {
     return androidGetThreadId();
 }
 
 // ----------------------------------------------------------------------------
-
-_UTILS_END
-
+}; // namespace android
 #endif  // __cplusplus
 // ----------------------------------------------------------------------------
 

@@ -25,39 +25,36 @@
 # include <pthread.h>
 #endif
 
-#include "utils/UtilsDefine.h"
-#include "utils/Errors.h"
-
-
-//#define _DEBUG_TRACE_MUTEX
-#ifdef _DEBUG_TRACE_MUTEX
-#include <utils/MutexTracer.h>
-#endif
+#include <utils/Errors.h>
+#include <utils/Timers.h>
 
 // ---------------------------------------------------------------------------
-_UTILS_BEGIN
+namespace android {
 // ---------------------------------------------------------------------------
 
 class Condition;
 
 /*
+ * NOTE: This class is for code that builds on Win32.  Its usage is
+ * deprecated for code which doesn't build for Win32.  New code which
+ * doesn't build for Win32 should use std::mutex and std::lock_guard instead.
+ *
  * Simple mutex class.  The implementation is system-dependent.
  *
  * The mutex must be unlocked by the thread that locked it.  They are not
  * recursive, i.e. the same thread can't lock it multiple times.
  */
-class Mutex
-{
+class Mutex {
 public:
     enum {
         PRIVATE = 0,
         SHARED = 1
     };
 
-    Mutex();
-    Mutex(const char* name);
-    Mutex(int type, const char* name = NULL);
-    ~Mutex();
+                Mutex();
+    explicit    Mutex(const char* name);
+    explicit    Mutex(int type, const char* name = NULL);
+                ~Mutex();
 
     // lock or unlock the mutex
     status_t    lock();
@@ -66,20 +63,23 @@ public:
     // lock if possible; returns 0 on success, error otherwise
     status_t    tryLock();
 
+#if defined(__ANDROID__)
+    // lock the mutex, but don't wait longer than timeoutMilliseconds.
+    // Returns 0 on success, TIMED_OUT for failure due to timeout expiration.
+    //
+    // OSX doesn't have pthread_mutex_timedlock() or equivalent. To keep
+    // capabilities consistent across host OSes, this method is only available
+    // when building Android binaries.
+    status_t    timedLock(nsecs_t timeoutMilliseconds);
+#endif
+
     // Manages the mutex automatically. It'll be locked when Autolock is
     // constructed and released when Autolock goes out of scope.
-    class Autolock
-    {
+    class Autolock {
     public:
-        inline Autolock(Mutex& mutex) : mLock(mutex) {
-            mLock.lock();
-        }
-        inline Autolock(Mutex* mutex) : mLock(*mutex) {
-            mLock.lock();
-        }
-        inline ~Autolock() {
-            mLock.unlock();
-        }
+        inline explicit Autolock(Mutex& mutex) : mLock(mutex)  { mLock.lock(); }
+        inline explicit Autolock(Mutex* mutex) : mLock(*mutex) { mLock.lock(); }
+        inline ~Autolock() { mLock.unlock(); }
     private:
         Mutex& mLock;
     };
@@ -88,7 +88,7 @@ private:
     friend class Condition;
 
     // A mutex cannot be copied
-    Mutex(const Mutex&);
+                Mutex(const Mutex&);
     Mutex&      operator = (const Mutex&);
 
 #if defined(HAVE_PTHREADS)
@@ -97,35 +97,19 @@ private:
     void    _init();
     void*   mState;
 #endif
-
-#ifdef _DEBUG_TRACE_MUTEX
-    const char*     mName;
-#endif
 };
 
 // ---------------------------------------------------------------------------
 
 #if defined(HAVE_PTHREADS)
 
-inline Mutex::Mutex()
-#ifdef _DEBUG_TRACE_MUTEX
-    : mName(NULL)
-#endif
-{
+inline Mutex::Mutex() {
     pthread_mutex_init(&mMutex, NULL);
 }
-inline Mutex::Mutex(const char* name)
-#ifdef _DEBUG_TRACE_MUTEX
-    : mName(name)
-#endif
-{
+inline Mutex::Mutex(__attribute__((unused)) const char* name) {
     pthread_mutex_init(&mMutex, NULL);
 }
-inline Mutex::Mutex(int type, const char* name)
-#ifdef _DEBUG_TRACE_MUTEX
-    : mName(name)
-#endif
-{
+inline Mutex::Mutex(int type, __attribute__((unused)) const char* name) {
     if (type == SHARED) {
         pthread_mutexattr_t attr;
         pthread_mutexattr_init(&attr);
@@ -136,40 +120,27 @@ inline Mutex::Mutex(int type, const char* name)
         pthread_mutex_init(&mMutex, NULL);
     }
 }
-inline Mutex::~Mutex()
-{
+inline Mutex::~Mutex() {
     pthread_mutex_destroy(&mMutex);
 }
-inline status_t Mutex::lock()
-{
-#ifndef _DEBUG_TRACE_MUTEX
+inline status_t Mutex::lock() {
     return -pthread_mutex_lock(&mMutex);
-#else
-    MutexTracer::getInstance()->beforeLockMutex(mName);
-    status_t t = -pthread_mutex_lock(&mMutex);
-    MutexTracer::getInstance()->afterLockMutex(mName);
-    return t;
-#endif
 }
-inline void Mutex::unlock()
-{
+inline void Mutex::unlock() {
     pthread_mutex_unlock(&mMutex);
-#ifdef _DEBUG_TRACE_MUTEX
-    MutexTracer::getInstance()->unLockMutex(mName);
-#endif
 }
-inline status_t Mutex::tryLock()
-{
-#ifndef _DEBUG_TRACE_MUTEX
+inline status_t Mutex::tryLock() {
     return -pthread_mutex_trylock(&mMutex);
-#else
-
-    if(pthread_mutex_trylock(&mMutex) == 0) {
-        MutexTracer::getInstance()->afterLockMutex(mName);
-    }
-
-#endif
 }
+#if defined(__ANDROID__)
+inline status_t Mutex::timedLock(nsecs_t timeoutNs) {
+    const struct timespec ts = {
+        /* .tv_sec = */ static_cast<time_t>(timeoutNs / 1000000000),
+        /* .tv_nsec = */ static_cast<long>(timeoutNs % 1000000000),
+    };
+    return -pthread_mutex_timedlock(&mMutex, &ts);
+}
+#endif
 
 #endif // HAVE_PTHREADS
 
@@ -184,7 +155,7 @@ inline status_t Mutex::tryLock()
 typedef Mutex::Autolock AutoMutex;
 
 // ---------------------------------------------------------------------------
-_UTILS_END
+}; // namespace android
 // ---------------------------------------------------------------------------
 
 #endif // _LIBS_UTILS_MUTEX_H

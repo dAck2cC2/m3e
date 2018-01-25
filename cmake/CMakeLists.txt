@@ -39,6 +39,7 @@ endif()
 endforeach()
 
 # the subdirectory
+add_subdirectory(core)
 add_subdirectory(utils)
 add_subdirectory(gtest)
 add_subdirectory(test)

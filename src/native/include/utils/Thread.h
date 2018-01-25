@@ -27,15 +27,15 @@
 # include <pthread.h>
 #endif
 
-#include "utils/Condition.h"
-#include "utils/Errors.h"
-#include "utils/Mutex.h"
-#include "utils/RefBase.h"
-#include "utils/Timers.h"
-#include "utils/ThreadDefs.h"
+#include <utils/Condition.h>
+#include <utils/Errors.h>
+#include <utils/Mutex.h>
+#include <utils/RefBase.h>
+#include <utils/Timers.h>
+#include <utils/ThreadDefs.h>
 
 // ---------------------------------------------------------------------------
-_UTILS_BEGIN
+namespace android {
 // ---------------------------------------------------------------------------
 
 class Thread : virtual public RefBase
@@ -43,7 +43,7 @@ class Thread : virtual public RefBase
 public:
     // Create a Thread object, but doesn't create or start the associated
     // thread. See the run() method.
-    Thread(bool canCallJava = true
+    explicit Thread(bool canCallJava = true
 #ifdef ENABLE_CUSTOMISE
                               , int32_t iAffinity = 0x00000000
 #endif // ENABLE_CUSTOMISE
@@ -54,7 +54,7 @@ public:
     virtual status_t    run(    const char* name = 0,
                                 int32_t priority = PRIORITY_DEFAULT,
                                 size_t stack = 0);
-
+    
     // Ask this object's thread to exit. This function is asynchronous, when the
     // function returns the thread might still be running. Of course, this
     // function can be called from a different thread.
@@ -62,27 +62,30 @@ public:
 
     // Good place to do one-time initializations
     virtual status_t    readyToRun();
-
+    
     // Call requestExit() and wait until this object's thread exits.
     // BE VERY CAREFUL of deadlocks. In particular, it would be silly to call
     // this function from this object's thread. Will return WOULD_BLOCK in
     // that case.
-    status_t    requestExitAndWait();
+            status_t    requestExitAndWait();
 
     // Wait until this object's thread exits. Returns immediately if not yet running.
     // Do not call from this object's thread; will return WOULD_BLOCK in that case.
-    status_t    join();
+            status_t    join();
 
-#ifdef HAVE_ANDROID_OS
-    // Return the thread's kernel ID, same as the thread itself calling gettid() or
-    // androidGetTid(), or -1 if the thread is not running.
-    pid_t       getTid() const;
+    // Indicates whether this thread is running or not.
+            bool        isRunning() const;
+
+#if defined(__ANDROID__)
+    // Return the thread's kernel ID, same as the thread itself calling gettid(),
+    // or -1 if the thread is not running.
+            pid_t       getTid() const;
 #endif
 
 protected:
     // exitPending() returns true if requestExit() has been called.
-    bool        exitPending() const;
-
+            bool        exitPending() const;
+    
 private:
     // Derived class must implement threadLoop(). The thread starts its life
     // here. There are two ways of using the Thread object:
@@ -96,18 +99,18 @@ private:
     static  int             _threadLoop(void* user);
     const   bool            mCanCallJava;
     // always hold mLock when reading or writing
-    thread_id_t     mThread;
+            thread_id_t     mThread;
     mutable Mutex           mLock;
-    Condition       mThreadExitedCondition;
-    status_t        mStatus;
+            Condition       mThreadExitedCondition;
+            status_t        mStatus;
     // note that all accesses of mExitPending and mRunning need to hold mLock
     volatile bool           mExitPending;
     volatile bool           mRunning;
-    sp<Thread>      mHoldSelf;
-#ifdef HAVE_ANDROID_OS
+            sp<Thread>      mHoldSelf;
+#if defined(__ANDROID__)
     // legacy for debugging, not used by getTid() as it is set by the child thread
     // and so is not initialized until the child reaches that point
-    pid_t           mTid;
+            pid_t           mTid;
 #endif
 
 #ifdef ENABLE_CUSTOMISE
@@ -116,7 +119,7 @@ private:
 };
 
 
-_UTILS_END
+}; // namespace android
 
 // ---------------------------------------------------------------------------
 #endif // _LIBS_UTILS_THREAD_H
