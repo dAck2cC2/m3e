@@ -17,6 +17,7 @@
 #ifndef _LIBS_UTILS_CONDITION_H
 #define _LIBS_UTILS_CONDITION_H
 
+#include <limits.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <time.h>

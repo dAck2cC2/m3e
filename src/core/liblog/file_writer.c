@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <errno.h>
 
 #include "config_write.h"
 #include "log_portability.h"
@@ -291,12 +291,10 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 		if (cc == totalLen) break;
 
 		if (cc < 0) {
-			#if defined(_MSC_VER)
 			if (errno == EINTR) continue;
 
 			/* can't really log the failure; for now, throw out a stderr */
 			fprintf(stderr, "+++ LOG: write failed (errno=%d)\n", errno);
-			#endif // _MSC_VER
 			break;
 		}
 		else {
