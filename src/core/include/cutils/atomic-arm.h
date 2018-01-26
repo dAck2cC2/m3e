@@ -18,7 +18,11 @@
 #define ANDROID_CUTILS_ATOMIC_ARM_H
 
 #include <stdint.h>
-#include <machine/cpu-features.h>
+#include <features.h>
+
+#if defined(__thumb__)
+#undef __thumb__
+#endif // __thumb__
 
 extern inline void android_compiler_barrier(void)
 {
