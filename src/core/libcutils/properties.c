@@ -26,8 +26,7 @@
 #include <string.h>
 #include <unistd.h>
 
-//#include <android/log.h>
-#include <utils/Log.h>
+#include <android/log.h>
 #include <cutils/properties.h>
 //#include <cutils/sockets.h>
 

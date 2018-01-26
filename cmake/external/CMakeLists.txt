@@ -2,6 +2,11 @@
 set(EXT_LINK https://android.googlesource.com/platform)
 set(EXT_TAG android-7.1.0_r7)
 
+if (ENABLE_CORE)
+#set(EXT_MODULES ${EXT_MODULES} safe-iop)
+#add_subdirectory(safe-iop)
+endif(ENABLE_CORE)
+
 if(ENABLE_TEST)
 set(EXT_MODULES ${EXT_MODULES} gtest)
 add_subdirectory(gtest)

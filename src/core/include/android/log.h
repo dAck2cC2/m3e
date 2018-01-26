@@ -133,7 +133,7 @@ typedef enum android_LogPriority {
 /*
  * Send a simple string to the log.
  */
-int DECLSPEC __android_log_write(int prio, const char* tag, const char* text);
+DECLSPEC int __android_log_write(int prio, const char* tag, const char* text);
 
 #define android_writeLog(prio, tag, text) \
     __android_log_write(prio, tag, text)
@@ -141,7 +141,7 @@ int DECLSPEC __android_log_write(int prio, const char* tag, const char* text);
 /*
  * Send a formatted string to the log, used like printf(fmt,...)
  */
-int DECLSPEC __android_log_print(int prio, const char* tag,  const char* fmt, ...)
+DECLSPEC int __android_log_print(int prio, const char* tag,  const char* fmt, ...)
 #if defined(__GNUC__)
 #ifdef __USE_MINGW_ANSI_STDIO
 #if __USE_MINGW_ANSI_STDIO
@@ -200,7 +200,7 @@ int __android_log_vprint(int prio, const char* tag,
  * Log an assertion failure and abort the process to have a chance
  * to inspect it if a debugger is attached. This uses the FATAL priority.
  */
-void DECLSPEC __android_log_assert(const char* cond, const char* tag,
+DECLSPEC void __android_log_assert(const char* cond, const char* tag,
                           const char* fmt, ...)
 #if defined(__GNUC__)
     __attribute__ ((__noreturn__))

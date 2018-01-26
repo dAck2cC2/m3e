@@ -22,8 +22,8 @@
 #include "utils/AndroidThreads.h"
 #include "utils/Log.h"
 
-#include "cutils/sched_policy.h"
-#include "cutils/properties.h"
+//#include "cutils/sched_policy.h"
+//#include "cutils/properties.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,7 +56,7 @@
  * ===========================================================================
  */
 
-using namespace _UTILS_NAME;
+using namespace android;
 
 // ----------------------------------------------------------------------------
 #if defined(HAVE_PTHREADS)
@@ -394,7 +394,7 @@ int androidGetThreadPriority(pid_t tid)
 
 #endif
 
-_UTILS_BEGIN
+namespace android {
 
 /*
  * ===========================================================================
@@ -966,7 +966,5 @@ bool Thread::exitPending() const
     return mExitPending;
 }
 
-
-
-_UTILS_END
+}; // namespace android
 

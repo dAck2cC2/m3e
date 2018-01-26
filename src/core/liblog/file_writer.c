@@ -138,12 +138,8 @@ static void fileClose()
 static int fileWrite(log_id_t logId, struct timespec *ts,
 	struct iovec *vector, size_t count)
 {
-	if (logFd == NULL) {
-		return 0;
-	}
-
-	if (count != 3) {
-		return 0;
+	if ((NULL == vector) || (count != 3) || (NULL == ts)) {
+		return -2;
 	}
 	
 	lock();
@@ -160,30 +156,36 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 	char timeBuf[32];
 	char prefixBuf[128], suffixBuf[128];
 	char priChar;
-	time_t when;
+	//time_t when;
 #if !defined(_WIN32)
 	pid_t pid, tid;
 #else
 	uint32_t pid, tid;
 #endif
 
-	priChar = getPriorityString(logPrio)[0];
-	when = time(NULL);
-	pid = tid = getpid();       // find gettid()?
+	if (NULL == logFd) {
+		goto error;
+	}
 
-								/*
-								* Get the current date/time in pretty form
-								*
-								* It's often useful when examining a log with "less" to jump to
-								* a specific point in the file by searching for the date/time stamp.
-								* For this reason it's very annoying to have regexp meta characters
-								* in the time stamp.  Don't use forward slashes, parenthesis,
-								* brackets, asterisks, or other special chars here.
-								*/
+	priChar = getPriorityString(logPrio)[0];
+	pid = tid = getpid();       // find gettid()?
+#if defined(_MSC_VER)
+	tid = GetCurrentThreadId();
+#endif
+
+	/*
+	* Get the current date/time in pretty form
+	*
+	* It's often useful when examining a log with "less" to jump to
+	* a specific point in the file by searching for the date/time stamp.
+	* For this reason it's very annoying to have regexp meta characters
+	* in the time stamp.  Don't use forward slashes, parenthesis,
+	* brackets, asterisks, or other special chars here.
+	*/
 #if !defined(_WIN32)
-	ptm = localtime_r(&when, &tmBuf);
+	ptm = localtime_r(&(ts->tv_sec), &tmBuf);
 #else
-	ptm = localtime(&when);
+	ptm = localtime(&(ts->tv_sec));
 #endif
 	//strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", ptm);
 	strftime(timeBuf, sizeof(timeBuf), "%m-%d %H:%M:%S", ptm);
@@ -193,9 +195,9 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 	*/
 	size_t prefixLen, suffixLen;
 	prefixLen = snprintf(prefixBuf, sizeof(prefixBuf),
-		"[%s %5d:%5d %c/%-8s] ",
-		timeBuf, pid, tid, priChar, tag);
-	strcpy(suffixBuf, "\n\n"); suffixLen = 2;
+		"[%s.%3d P%5d:T%5d %c/%-8s] ",
+		timeBuf, ts->tv_nsec/1000000, pid, tid, priChar, tag);
+	strcpy(suffixBuf, "\n"); suffixLen = 1;
 
 	/*
 	* Figure out how many lines there will be.

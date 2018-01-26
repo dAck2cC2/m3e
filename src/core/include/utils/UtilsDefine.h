@@ -1,12 +1,6 @@
 #ifndef __UTILS_DEFINE_H__
 #define __UTILS_DEFINE_H__
 
-#include <if_def.h>
-
-#define _UTILS_BEGIN  namespace _UTILS_NAME {
-#define _UTILS_END    }
-#define _UTILS_NAME   android
-
 /******************************************/
 // ENABLE
 /******************************************/

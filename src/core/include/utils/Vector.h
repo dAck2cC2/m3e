@@ -29,7 +29,7 @@
 
 // ---------------------------------------------------------------------------
 
-_UTILS_BEGIN
+namespace android {
 
 template <typename TYPE>
 class SortedVector;
@@ -477,7 +477,7 @@ void Vector<TYPE>::do_move_backward(void* dest, const void* from, size_t num) co
     move_backward_type( reinterpret_cast<TYPE*>(dest), reinterpret_cast<const TYPE*>(from), num );
 }
 
-_UTILS_END
+}; // namespace android
 
 // ---------------------------------------------------------------------------
 

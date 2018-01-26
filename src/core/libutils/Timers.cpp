@@ -82,7 +82,7 @@ int toMillisecondTimeoutDelay(nsecs_t referenceTime, nsecs_t timeoutTime)
  * ===========================================================================
  */
 
-_UTILS_BEGIN
+namespace android {
 
 // Start the timer.
 void DurationTimer::start(void)
@@ -138,5 +138,5 @@ long long DurationTimer::durationUsecs(void) const
     ptv->tv_sec += usec / 1000000;
 }
 
-_UTILS_END
+}; // namespace android
 

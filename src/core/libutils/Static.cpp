@@ -25,7 +25,7 @@
 #include "utils/BufferedTextOutput.h"
 #endif // ENABLE_TEXT_OUTPUT
 
-_UTILS_BEGIN
+namespace android {
 
 class LibUtilsFirstStatics
 {
@@ -97,5 +97,5 @@ TextOutput& aerr(gStderrTextOutput);
 
 #endif // ENABLE_TEXT_OUTPUT
 
-_UTILS_END
+}; // namespace android
 

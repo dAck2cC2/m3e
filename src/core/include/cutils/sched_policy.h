@@ -29,11 +29,13 @@ typedef enum {
     SP_SYSTEM     = 2,  // can't be used with set_sched_policy()
     SP_AUDIO_APP  = 3,
     SP_AUDIO_SYS  = 4,
+    SP_TOP_APP    = 5,
     SP_CNT,
     SP_MAX        = SP_CNT - 1,
     SP_SYSTEM_DEFAULT = SP_FOREGROUND,
-}
-SchedPolicy;
+} SchedPolicy;
+
+extern int set_cpuset_policy(int tid, SchedPolicy policy);
 
 /* Assign thread tid to the cgroup associated with the specified policy.
  * If the thread is a thread group leader, that is it's gettid() == getpid(),
@@ -59,4 +61,4 @@ extern const char *get_sched_policy_name(SchedPolicy policy);
 }
 #endif
 
-#endif /* __CUTILS_SCHED_POLICY_H */
+#endif /* __CUTILS_SCHED_POLICY_H */ 

@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "utils/UtilsDefine.h"
 #include "utils/Log.h"
 
 #include "utils/Errors.h"
@@ -30,7 +29,7 @@
 /*****************************************************************************/
 
 
-_UTILS_BEGIN
+namespace android {
 
 // ----------------------------------------------------------------------------
 
@@ -681,5 +680,5 @@ ssize_t SortedVectorImpl::remove(const void* item)
 
 /*****************************************************************************/
 
-_UTILS_END
+}; // namespace android
 

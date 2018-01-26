@@ -17,6 +17,8 @@
 #ifndef ANDROID_STRING8_H
 #define ANDROID_STRING8_H
 
+#include <if_def.h>
+
 #include <string> // for std::string
 
 #include <utils/Errors.h>

@@ -3,26 +3,27 @@ project(UTILS)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/external/safe-iop/include.cmake)
 
 # dependency
 
 set(UTILS_DEPLIB
 log
+cutils
+#safeiop
 )
 
 set(UTILS_DEP ${UTILS_DEPLIB})
 
 # header files
 file(GLOB UTILS_HEADER_FILES
-${M3E_SOURCE_DIR}/src/core/include/cutils/*.h
 ${M3E_SOURCE_DIR}/src/core/include/utils/*.h
 )
 
 # source files
 file(GLOB UTILS_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/core/libutils/*.c 
+#${M3E_SOURCE_DIR}/src/core/libutils/*.c 
 ${M3E_SOURCE_DIR}/src/core/libutils/*.cpp
-${M3E_SOURCE_DIR}/src/core/libutils/cutils/*.c
 )
 
 # header and source code for MSVC

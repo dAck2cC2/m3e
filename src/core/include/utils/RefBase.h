@@ -170,6 +170,8 @@
 #ifndef ANDROID_REF_BASE_H
 #define ANDROID_REF_BASE_H
 
+#include <if_def.h>
+
 #include <atomic>
 
 #include <stdint.h>
@@ -177,7 +179,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <utils/UtilsDefine.h>
 #include <utils/StrongPointer.h>
 #include <utils/TypeHelpers.h>
 

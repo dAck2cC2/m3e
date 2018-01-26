@@ -137,7 +137,7 @@ enum {
 
 #ifdef __cplusplus
 
-_UTILS_BEGIN
+namespace android {
 
 /*
  * Time the duration of something.
@@ -170,7 +170,7 @@ private:
     struct timeval  mStopWhen;
 };
 
-_UTILS_END
+}; // namespace android
 
 #endif // def __cplusplus
 

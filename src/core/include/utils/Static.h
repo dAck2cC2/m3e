@@ -21,7 +21,7 @@
 #include "utils/Vector.h"
 //#include "utils/threads.h"
 
-_UTILS_BEGIN
+namespace android {
 
 // For TextStream.cpp
 extern Vector<int32_t> gTextBuffers;
@@ -34,5 +34,5 @@ extern void terminate_string8();
 extern void initialize_string16();
 extern void terminate_string16();
 
-_UTILS_END
+}; // namespace android
 
