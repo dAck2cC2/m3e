@@ -30,19 +30,19 @@ ${M3E_SOURCE_DIR}/src/test/main.cpp
 # test utils
 
 set(TEST_UTILS_SOURCE_FILES ${TEST_UTILS_SOURCE_FILES}
-#${M3E_SOURCE_DIR}/src/test/utils/Bitset_test.cpp
-#${M3E_SOURCE_DIR}/src/test/utils/BlobCache_test.cpp
-#${M3E_SOURCE_DIR}/src/test/utils/Looper_test.cpp
-#${M3E_SOURCE_DIR}/src/test/utils/LruCache_test.cpp
-${M3E_SOURCE_DIR}/src/test/utils/RefBase_test.cpp
-#${M3E_SOURCE_DIR}/src/test/utils/Singleton_test.cpp
-#${M3E_SOURCE_DIR}/src/test/utils/Singleton_test1.cpp
-#${M3E_SOURCE_DIR}/src/test/utils/Singleton_test2.cpp
-${M3E_SOURCE_DIR}/src/test/utils/String8_test.cpp
-${M3E_SOURCE_DIR}/src/test/utils/StrongPointer_test.cpp
-#${M3E_SOURCE_DIR}/src/test/utils/SystemClock_test.cpp
-${M3E_SOURCE_DIR}/src/test/utils/Unicode_test.cpp
-#${M3E_SOURCE_DIR}/src/test/utils/Vector_test.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/Bitset_test.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/BlobCache_test.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/Looper_test.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/LruCache_test.cpp
+${M3E_SOURCE_DIR}/src/test/core/utils/RefBase_test.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/Singleton_test.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/Singleton_test1.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/Singleton_test2.cpp
+${M3E_SOURCE_DIR}/src/test/core/utils/String8_test.cpp
+${M3E_SOURCE_DIR}/src/test/core/utils/StrongPointer_test.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/SystemClock_test.cpp
+${M3E_SOURCE_DIR}/src/test/core/utils/Unicode_test.cpp
+#${M3E_SOURCE_DIR}/src/test/core/utils/Vector_test.cpp
 )
 
 # project

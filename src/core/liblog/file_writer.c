@@ -8,6 +8,10 @@
 #include "log_portability.h"
 #include "logger.h"
 
+#if defined(_LINUX)
+#include <sys/syscall.h>
+#endif
+
 #define LOG_FILE_NAME  "logcat.log"
 
 static int fileOpen();
@@ -141,7 +145,11 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 	if ((NULL == vector) || (count != 3) || (NULL == ts)) {
 		return -2;
 	}
-	
+
+	if (NULL == logFd) {
+		return -3;
+	}
+
 	lock();
 
 	/* pull out the three fields */
@@ -163,14 +171,12 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 	uint32_t pid, tid;
 #endif
 
-	if (NULL == logFd) {
-		goto error;
-	}
-
 	priChar = getPriorityString(logPrio)[0];
 	pid = tid = getpid();       // find gettid()?
 #if defined(_MSC_VER)
 	tid = GetCurrentThreadId();
+#elif defined(_LINUX)
+	tid = syscall(__NR_gettid);
 #endif
 
 	/*
@@ -195,7 +201,7 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 	*/
 	size_t prefixLen, suffixLen;
 	prefixLen = snprintf(prefixBuf, sizeof(prefixBuf),
-		"[%s.%3d P%5d:T%5d %c/%-8s] ",
+		"[%s.%03d P%05d:T%05d %c/%-8s] ",
 		timeBuf, ts->tv_nsec/1000000, pid, tid, priChar, tag);
 	strcpy(suffixBuf, "\n"); suffixLen = 1;
 
