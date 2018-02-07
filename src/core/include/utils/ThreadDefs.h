@@ -17,8 +17,6 @@
 #ifndef _LIBS_UTILS_THREAD_DEFS_H
 #define _LIBS_UTILS_THREAD_DEFS_H
 
-#include "utils/UtilsDefine.h"
-
 #include <stdint.h>
 #include <sys/types.h>
 //#include <system/graphics.h>

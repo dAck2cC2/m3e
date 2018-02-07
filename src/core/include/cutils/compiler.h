@@ -38,7 +38,11 @@
  * template <typename TYPE>
  * class ANDROID_API Singleton { }
  */
-
+#if 0
 #define ANDROID_API __attribute__((visibility("default")))
+#else
+#include <if_def.h>
+#define ANDROID_API  DECLSPEC
+#endif
 
 #endif // ANDROID_CUTILS_COMPILER_H

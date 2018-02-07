@@ -17,7 +17,6 @@
 // #define LOG_NDEBUG 0
 #define LOG_TAG "libutils.threads"
 
-#include "utils/UtilsDefine.h"
 #include "utils/Thread.h"
 #include "utils/AndroidThreads.h"
 #include "utils/Log.h"

@@ -21,6 +21,11 @@
 #include <utils/JenkinsHash.h>
 #include <utils/LruCache.h>
 
+#if defined(_MSC_VER)
+#define srandom  srand
+#define random   rand
+#endif // _MSC_VER
+
 namespace {
 
 typedef int SimpleKey;

@@ -24,7 +24,6 @@
 # include <pthread.h>
 #endif
 
-#include "utils/UtilsDefine.h"
 #include <utils/ThreadDefs.h>
 
 // ---------------------------------------------------------------------------

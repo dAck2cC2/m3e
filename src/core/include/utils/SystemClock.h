@@ -14,36 +14,26 @@
  * limitations under the License.
  */
 
-// All static variables go here, to control initialization and
-// destruction order in the library.
+#ifndef ANDROID_UTILS_SYSTEMCLOCK_H
+#define ANDROID_UTILS_SYSTEMCLOCK_H
+
+#include "if_def.h"
+
+#include <stdint.h>
+#include <sys/types.h>
 
 namespace android {
 
-// For String8.cpp
-extern void initialize_string8();
-extern void terminate_string8();
+DECLSPEC
+int64_t uptimeMillis();
 
-// For String16.cpp
-extern void initialize_string16();
-extern void terminate_string16();
+DECLSPEC
+int64_t elapsedRealtime();
 
-class LibUtilsFirstStatics
-{
-public:
-    LibUtilsFirstStatics()
-    {
-        initialize_string8();
-        initialize_string16();
-    }
-    
-    ~LibUtilsFirstStatics()
-    {
-        terminate_string16();
-        terminate_string8();
-    }
-};
+DECLSPEC
+int64_t elapsedRealtimeNano();
 
-static LibUtilsFirstStatics gFirstStatics;
-int gDarwinCantLoadAllObjects = 1;
+}; // namespace android
 
-}   // namespace android
+#endif // ANDROID_UTILS_SYSTEMCLOCK_H
+

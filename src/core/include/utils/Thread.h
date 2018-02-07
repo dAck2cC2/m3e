@@ -17,8 +17,6 @@
 #ifndef _LIBS_UTILS_THREAD_H
 #define _LIBS_UTILS_THREAD_H
 
-#include "utils/UtilsDefine.h"
-
 #include <stdint.h>
 #include <sys/types.h>
 #include <time.h>

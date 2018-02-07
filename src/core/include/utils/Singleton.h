@@ -55,13 +55,13 @@ private:
     static Mutex sLock;
     static TYPE* sInstance;
 };
-#if 0
+
 template <typename TYPE>
 Mutex Singleton<TYPE>::sLock;
 
 template <typename TYPE>
 TYPE* Singleton<TYPE>::sInstance;
-#endif
+
 /*
  * use ANDROID_SINGLETON_STATIC_INSTANCE(TYPE) in your implementation file
  * (eg: <TYPE>.cpp) to create the static instance of Singleton<>'s attributes,

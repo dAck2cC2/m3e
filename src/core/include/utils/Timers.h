@@ -24,8 +24,6 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-#include "utils/UtilsDefine.h"
-
 // ------------------------------------------------------------------
 // C API
 

@@ -19,6 +19,10 @@
 
 #include <gtest/gtest.h>
 
+#if defined(_MSC_VER)
+#include <windows.h>
+#endif // _MSC_VER
+
 static const auto MS_IN_NS = 1000000;
 
 static const int64_t SLEEP_MS = 500;
@@ -44,11 +48,15 @@ TEST(SystemClock, SystemClock) {
     ASSERT_LT(startRealtimeNs, (startRealtimeMs + SLACK_MS) * MS_IN_NS)
             << "elapsedRealtime() and elapsedRealtimeNano() are inconsistent";
 
+#if defined(_MSC_VER)
+	Sleep(SLEEP_MS);
+#else // _MSC_VER
     timespec ts;
     ts.tv_sec = 0;
     ts.tv_nsec = SLEEP_MS * MS_IN_NS;
     auto nanosleepErr = TEMP_FAILURE_RETRY(nanosleep(&ts, nullptr));
     ASSERT_EQ(nanosleepErr, 0) << "nanosleep() failed: " << strerror(errno);
+#endif // _MSC_VER
 
     auto endUptimeMs = android::uptimeMillis();
     auto endRealtimeMs = android::elapsedRealtime();

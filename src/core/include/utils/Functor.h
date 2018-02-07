@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2011 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-// All static variables go here, to control initialization and
-// destruction order in the library.
+#ifndef ANDROID_FUNCTOR_H
+#define ANDROID_FUNCTOR_H
 
-#include "utils/UtilsDefine.h"
-#include "utils/Vector.h"
-//#include "utils/threads.h"
+#include <utils/Errors.h>
 
-namespace android {
+namespace  android {
 
-// For TextStream.cpp
-extern Vector<int32_t> gTextBuffers;
-
-// For String8.cpp
-extern void initialize_string8();
-extern void terminate_string8();
-
-// For String16.cpp
-extern void initialize_string16();
-extern void terminate_string16();
+class Functor {
+public:
+    Functor() {}
+    virtual ~Functor() {}
+    virtual status_t operator ()(int /*what*/, void* /*data*/) { return NO_ERROR; }
+};
 
 }; // namespace android
 
+#endif // ANDROID_FUNCTOR_H

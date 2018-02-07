@@ -17,7 +17,6 @@
 //
 // Timer functions.
 //
-#include "utils/UtilsDefine.h"
 #include "utils/Timers.h"
 #include "utils/Log.h"
 
