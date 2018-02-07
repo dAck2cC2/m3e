@@ -19,6 +19,10 @@ ${STAGEFRIGHT_FOUNDATION_DEPLIB}
 # define
 if(CYGWIN)
 add_definitions(-D_GNU_SOURCE)
+elseif(MSVC)
+add_definitions(-Dstrcasestr=strstr)
+add_definitions(-Dstrncasecmp=_strnicmp)
+add_definitions(-Dstrcasecmp=_stricmp)
 endif()
 
 # include files
@@ -54,6 +58,12 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/foundation/ParsedMessage.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/foundation/base64.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/foundation/hexdump.cpp
 )
+
+if(MSVC)
+set(STAGEFRIGHT_FOUNDATION_SOURCE_FILES ${STAGEFRIGHT_FOUNDATION_SOURCE_FILES}
+${M3E_SOURCE_DIR}/src/core/msvc/vasprintf.c
+)
+endif(MSVC)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

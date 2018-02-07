@@ -18,7 +18,11 @@
 #include <utils/Log.h>
 
 #include <errno.h>
+#if defined(_MSC_VER)
+#include <windows.h>
+#else  // _MSC_VER
 #include <pthread.h>
+#endif // _MSC_VER
 #include <stdlib.h>
 
 #include <media/stagefright/foundation/ABuffer.h>
@@ -109,7 +113,11 @@ void MediaBuffer::release() {
             // See if there is a pending release and there are no observers.
             // Ideally this never happens.
             while (addPendingRelease(-1) > 0) {
+#if defined(_MSC_VER)
+				InterlockedDecrement(&mRefCount);
+#else  // _MSC_VER
                 __sync_fetch_and_sub(&mRefCount, 1);
+#endif // _MSC_VER
             }
             addPendingRelease(1);
         }
@@ -117,8 +125,12 @@ void MediaBuffer::release() {
         delete this;
         return;
     }
-
+#if defined(_MSC_VER)
+	long prevCount = mRefCount;
+	InterlockedDecrement(&mRefCount);
+#else  // _MSC_VER
     int prevCount = __sync_fetch_and_sub(&mRefCount, 1);
+#endif // _MSC_VER
     if (prevCount == 1) {
         if (mObserver == NULL) {
             delete this;
@@ -138,7 +150,11 @@ void MediaBuffer::claim() {
 }
 
 void MediaBuffer::add_ref() {
+#if defined(_MSC_VER)
+	InterlockedIncrement(&mRefCount);
+#else  // _MSC_VER
     (void) __sync_fetch_and_add(&mRefCount, 1);
+#endif // _MSC_VER
 }
 
 void *MediaBuffer::data() const {

@@ -18,7 +18,9 @@
 #define LOG_TAG "ColorUtils"
 
 #include <inttypes.h>
+#if !defined(_MSC_VER)
 #include <arpa/inet.h>
+#endif // _MSC_VER
 #include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/ALookup.h>

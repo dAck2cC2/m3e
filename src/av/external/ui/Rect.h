@@ -24,6 +24,10 @@
 
 #include <android/rect.h>
 
+#if defined(_MSC_VER)
+#define INT32_MAX    _I32_MAX
+#endif // _MSC_VER
+
 namespace android {
 
 class Rect : public ARect, public LightFlattenablePod<Rect>

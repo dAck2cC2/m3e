@@ -63,8 +63,11 @@ public:
     // write a POD structure
     template<typename T>
     static void write(void*& buffer, size_t& size, const T& value) {
+#if __GNUG__ && __GNUC__ < 5
+#else  // __GNUG__
         static_assert(std::is_trivially_copyable<T>::value,
                       "Cannot flatten a non-trivially-copyable type");
+#endif // _GNUG__
         memcpy(buffer, &value, sizeof(T));
         advance(buffer, size, sizeof(T));
     }
@@ -72,8 +75,11 @@ public:
     // read a POD structure
     template<typename T>
     static void read(void const*& buffer, size_t& size, T& value) {
+#if __GNUG__ && __GNUC__ < 5
+#else  // __GNUG__
         static_assert(std::is_trivially_copyable<T>::value,
                       "Cannot unflatten a non-trivially-copyable type");
+#endif // _GNUG__
         memcpy(&value, buffer, sizeof(T));
         advance(buffer, size, sizeof(T));
     }

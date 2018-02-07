@@ -18,6 +18,8 @@
 #define ANDROID_TYPE_HELPERS_H
 
 #include <new>
+#include <type_traits>
+
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
@@ -148,7 +150,7 @@ void destroy_type(TYPE* p, size_t n) {
         }
     }
 }
-#if !defined(_LINUX)
+
 template<typename TYPE>
 typename std::enable_if<traits<TYPE>::has_trivial_copy>::type
 inline
@@ -240,7 +242,7 @@ move_backward_type(TYPE* d, const TYPE* s, size_t n = 1) {
         d++, s++;
     }
 }
-#endif  // _LINUX
+
 // ---------------------------------------------------------------------------
 
 /*

@@ -23,7 +23,7 @@
 #include <utils/Vector.h>
 
 #if defined(_WIN32)
-typedef  int  uid_t;
+//typedef  int  uid_t;
 #endif
 
 // ---------------------------------------------------------------------------

@@ -24,6 +24,10 @@
 #include <media/stagefright/foundation/AString.h>
 #include <utils/Log.h>
 
+#ifndef __unused
+#define __unused __attribute__((__unused__))
+#endif
+
 namespace android {
 
 inline static const char *asString(status_t i, const char *def = "??") {

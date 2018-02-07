@@ -31,7 +31,6 @@
 #define LOG_TAG    __FILE__
 #endif  // LOG_TAG
 
-#include "utils/UtilsDefine.h"
 #include "utils/Log.h"
 #include "utils/Errors.h"
 

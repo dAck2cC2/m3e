@@ -58,7 +58,9 @@ protected:
         inline void setNext(_Node* ptr) { mpNext = ptr; }
     private:
         friend class List;
+#if !defined(_MSC_VER)
         friend class _ListIterator;
+#endif // _MSC_VER
         T           mVal;
         _Node*      mpPrev;
         _Node*      mpNext;

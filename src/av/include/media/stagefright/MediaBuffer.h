@@ -21,9 +21,9 @@
 #include <atomic>
 #include <list>
 #include <media/stagefright/foundation/MediaBufferBase.h>
-
+#if !defined(_MSC_VER)
 #include <pthread.h>
-
+#endif // _MSC_VER
 #include <binder/MemoryDealer.h>
 #include <utils/Errors.h>
 #include <utils/RefBase.h>
@@ -156,8 +156,11 @@ private:
     void claim();
 
     MediaBufferObserver *mObserver;
+#if defined(_MSC_VER)
+	long mRefCount;
+#else  // _MSC_VER
     int mRefCount;
-
+#endif // _MSC_VER
     void *mData;
     size_t mSize, mRangeOffset, mRangeLength;
     sp<GraphicBuffer> mGraphicBuffer;
