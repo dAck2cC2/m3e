@@ -21,7 +21,9 @@
 
 #if defined(_MSC_VER)
 #include <windows.h>
-#endif // _MSC_VER
+#elif defined(__APPLE__)
+#include <utils/Compat.h>
+#endif 
 
 static const auto MS_IN_NS = 1000000;
 

@@ -8,7 +8,7 @@
 #include "log_portability.h"
 #include "logger.h"
 
-#if defined(_LINUX)
+#if defined(_LINUX) || defined(__APPLE__)
 #include <sys/syscall.h>
 #endif
 
@@ -177,6 +177,8 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 	tid = GetCurrentThreadId();
 #elif defined(_LINUX)
 	tid = syscall(__NR_gettid);
+#elif defined(__APPLE__)
+    tid = syscall(SYS_thread_selfid);
 #endif
 
 	/*
@@ -201,7 +203,7 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 	*/
 	size_t prefixLen, suffixLen;
 	prefixLen = snprintf(prefixBuf, sizeof(prefixBuf),
-		"[%s.%03d P%05d:T%05d %c/%-8s] ",
+		"[%s.%03ld P%05d:T%05d %c/%-8s] ",
 		timeBuf, ts->tv_nsec/1000000, pid, tid, priChar, tag);
 	strcpy(suffixBuf, "\n"); suffixLen = 1;
 
