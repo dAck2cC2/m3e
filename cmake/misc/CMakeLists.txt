@@ -17,9 +17,9 @@ set(MISC_DEP ${MISC_DEPLIB})
 
 add_definitions(-DLITTLE_ENDIAN=1)
 add_definitions(-DBIG_ENDIAN=2)
-if(MSVC)
+if(MSVC OR APPLE)
 add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)
-endif(MSVC)
+endif()
 
 # header files
 file(GLOB MISC_HEADER_FILES 

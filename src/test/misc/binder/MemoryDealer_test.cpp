@@ -4,12 +4,12 @@
 
 namespace android {
 
-TEST(libmisc, MemoryDealer_getAllocationAlignment)
+TEST(libbinder, MemoryDealer_getAllocationAlignment)
 {
 	EXPECT_EQ(32, MemoryDealer::getAllocationAlignment());
 }
 
-TEST(libmisc, MemoryDealer_one)
+TEST(libbinder, MemoryDealer_one)
 {
 #define TEST_MEM_SIZE  (4096)
 
@@ -23,7 +23,7 @@ TEST(libmisc, MemoryDealer_one)
 	EXPECT_EQ(TEST_MEM_SIZE, mem->size());
 }
 
-TEST(libmisc, MemoryDealer_multiple)
+TEST(libbinder, MemoryDealer_multiple)
 {
 #define TEST_MEM_PER_SIZE  (4096)
 #define TEST_MEM_COUNT     (6)
@@ -31,7 +31,7 @@ TEST(libmisc, MemoryDealer_multiple)
 	sp<MemoryDealer> memoryDealer = new MemoryDealer(TEST_MEM_PER_SIZE*TEST_MEM_COUNT, "MemoryDealer_multiple");
 	EXPECT_TRUE(memoryDealer != NULL);
 
-	for (int i = 0; i < TEST_MEM_COUNT; ++i) {
+	for (int i = 0; i < TEST_MEM_COUNT * 2; ++i) {
 		sp<IMemory> mem = memoryDealer->allocate(TEST_MEM_PER_SIZE);
 		EXPECT_TRUE(mem != NULL);
 

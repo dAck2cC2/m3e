@@ -18,7 +18,7 @@
 
 #include <atomic>
 #include <utils/misc.h>
-#include <utils/Threads.h>
+#include <utils/threads.h>
 #include <utils/KeyedVector.h>
  //#include <binder/BpBinder.h>
 #include <binder/IInterface.h>

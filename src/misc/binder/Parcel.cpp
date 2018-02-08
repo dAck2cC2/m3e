@@ -482,13 +482,25 @@ status_t Parcel::setDataCapacity(size_t size)
 
 status_t Parcel::setData(const uint8_t* buffer, size_t len)
 {
-    return 0;
+    if (len > INT32_MAX) {
+        // don't accept size_t values which may have come from an
+        // inadvertent conversion from a negative int.
+        return BAD_VALUE;
+    }
+    
+    status_t err = restartWrite(len);
+    if (err == NO_ERROR) {
+        memcpy(const_cast<uint8_t*>(data()), buffer, len);
+        mDataSize = len;
+        mFdsKnown = false;
+    }
+    return err;
 }
 
 status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
 {
     //const sp<ProcessState> proc(ProcessState::self());
-    status_t err = NO_ERROR;
+    status_t err = INVALID_OPERATION;
     const uint8_t *data = parcel->mData;
     const binder_size_t *objects = parcel->mObjects;
     size_t size = parcel->mObjectsSize;
@@ -537,7 +549,7 @@ status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
     mDataPos += len;
     mDataSize += len;
 
-    err = NO_ERROR;
+    err = INVALID_OPERATION;
 
     if (numObjects > 0) {
         // grow objects
@@ -578,7 +590,7 @@ status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
         }
     }
 
-    return err;
+    return INVALID_OPERATION;
 }
 
 bool Parcel::allowFds() const
@@ -1757,6 +1769,52 @@ status_t Parcel::growData(size_t len)
 
 status_t Parcel::restartWrite(size_t desired)
 {
+    if (desired > INT32_MAX) {
+        // don't accept size_t values which may have come from an
+        // inadvertent conversion from a negative int.
+        return BAD_VALUE;
+    }
+    
+    if (mOwner) {
+        freeData();
+        return continueWrite(desired);
+    }
+    
+    uint8_t* data = (uint8_t*)realloc(mData, desired);
+    if (!data && desired > mDataCapacity) {
+        mError = NO_MEMORY;
+        return NO_MEMORY;
+    }
+    
+    releaseObjects();
+    
+    if (data) {
+        LOG_ALLOC("Parcel %p: restart from %zu to %zu capacity", this, mDataCapacity, desired);
+        pthread_mutex_lock(&gParcelGlobalAllocSizeLock);
+        gParcelGlobalAllocSize += desired;
+        gParcelGlobalAllocSize -= mDataCapacity;
+        if (!mData) {
+            gParcelGlobalAllocCount++;
+        }
+        pthread_mutex_unlock(&gParcelGlobalAllocSizeLock);
+        mData = data;
+        mDataCapacity = desired;
+    }
+    
+    mDataSize = mDataPos = 0;
+    ALOGV("restartWrite Setting data size of %p to %zu", this, mDataSize);
+    ALOGV("restartWrite Setting data pos of %p to %zu", this, mDataPos);
+    
+    if (mObjects) {
+        free(mObjects);
+        mObjects = NULL;
+    }
+    mObjectsSize = mObjectsCapacity = 0;
+    mNextObjectHint = 0;
+    mHasFds = false;
+    mFdsKnown = true;
+    mAllowFds = true;
+    
     return NO_ERROR;
 }
 

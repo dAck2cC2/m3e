@@ -19,7 +19,7 @@
 #include <binder/IServiceManager.h>
 
 #include <utils/Log.h>
-#include <utils/Threads.h>
+#include <utils/threads.h>
 //#include <binder/IPCThreadState.h>
 //#include <binder/Parcel.h>
 //#include <utils/String8.h>
