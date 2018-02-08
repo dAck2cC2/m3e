@@ -20,6 +20,8 @@
 #ifndef _LIBS_UTILS_TIMERS_H
 #define _LIBS_UTILS_TIMERS_H
 
+#include <if_def.h>
+
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -110,6 +112,7 @@ enum {
 };
 
 // return the system-time according to the specified clock
+DECLSPEC
 #ifdef __cplusplus
     nsecs_t systemTime(int clock = SYSTEM_TIME_MONOTONIC);
 #else

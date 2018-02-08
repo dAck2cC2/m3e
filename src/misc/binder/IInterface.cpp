@@ -28,7 +28,7 @@ IInterface::IInterface()
 
 IInterface::~IInterface() {
 }
-#if 1
+
 // static
 sp<IBinder> IInterface::asBinder(const IInterface* iface)
 {
@@ -42,7 +42,6 @@ sp<IBinder> IInterface::asBinder(const sp<IInterface>& iface)
     if (iface == NULL) return NULL;
     return iface->onAsBinder();
 }
-#endif
 
 // ---------------------------------------------------------------------------
 

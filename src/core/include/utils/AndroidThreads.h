@@ -17,6 +17,8 @@
 #ifndef _LIBS_UTILS_ANDROID_THREADS_H
 #define _LIBS_UTILS_ANDROID_THREADS_H
 
+#include <if_def.h>
+
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -45,6 +47,7 @@ extern int androidCreateThreadEtc(android_thread_func_t entryFunction,
                                   android_thread_id_t *threadId);
 
 // Get some sort of unique identifier for the current thread.
+DECLSPEC
 extern android_thread_id_t androidGetThreadId();
 
 // Low-level thread creation -- never creates threads that can

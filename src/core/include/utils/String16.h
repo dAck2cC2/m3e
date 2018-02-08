@@ -17,6 +17,8 @@
 #ifndef ANDROID_STRING16_H
 #define ANDROID_STRING16_H
 
+#include <if_def.h>
+
 #include <string> // for std::string
 
 #include <utils/Errors.h>

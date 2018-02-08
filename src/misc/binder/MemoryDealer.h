@@ -17,6 +17,7 @@
 #ifndef ANDROID_MEMORY_DEALER_H
 #define ANDROID_MEMORY_DEALER_H
 
+#include <if_def.h>
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -31,7 +32,7 @@ class SimpleBestFitAllocator;
 
 // ----------------------------------------------------------------------------
 
-class MemoryDealer : public RefBase
+class DECLSPEC MemoryDealer : public RefBase
 {
 public:
     MemoryDealer(size_t size, const char* name = 0,

@@ -6,4 +6,6 @@
 #ifndef _MSC_MMAN_H_ // [
 #define _MSC_MMAN_H_
 
+#define MAP_FAILED  ((void*)(-1))
+
 #endif // _MSC_MMAN_H_

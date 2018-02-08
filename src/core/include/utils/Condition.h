@@ -17,6 +17,8 @@
 #ifndef _LIBS_UTILS_CONDITION_H
 #define _LIBS_UTILS_CONDITION_H
 
+#include <if_def.h>
+
 #include <limits.h>
 #include <stdint.h>
 #include <sys/types.h>
@@ -42,7 +44,7 @@ namespace android {
  * or unlock the mutex and continue.  All threads calling wait() must
  * use the same mutex for a given Condition.
  */
-class Condition {
+class DECLSPEC Condition {
 public:
     enum {
         PRIVATE = 0,

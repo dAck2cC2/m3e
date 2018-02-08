@@ -142,17 +142,15 @@ private:
     //if (base == MAP_FAILED)
     //    return 0;
     //return static_cast<char*>(base) + offset;
-    //return 0;
 //}
 
 void* IMemory::pointer() const {
-    //ssize_t offset;
-    //sp<IMemoryHeap> heap = getMemory(&offset);
-    //void* const base = heap!=0 ? heap->base() : MAP_FAILED;
-    //if (base == MAP_FAILED)
-    //    return 0;
-    //return static_cast<char*>(base) + offset;
-    return 0;
+    ssize_t offset;
+    sp<IMemoryHeap> heap = getMemory(&offset);
+    void* const base = heap!=0 ? heap->base() : MAP_FAILED;
+    if (base == MAP_FAILED)
+        return 0;
+    return static_cast<char*>(base) + offset;
 }
 
 size_t IMemory::size() const {
@@ -166,6 +164,17 @@ ssize_t IMemory::offset() const {
     getMemory(&offset);
     return offset;
 }
+
+/******************************************************************************/
+
+IMPLEMENT_META_INTERFACE(Memory, "android.utils.IMemory");
+
+BnMemory::BnMemory() {
+}
+
+BnMemory::~BnMemory() {
+}
+
 #if 0
 /******************************************************************************/
 
@@ -393,6 +402,17 @@ status_t BnMemoryHeap::onTransact(
     }
 }
 #endif 
+
+// ---------------------------------------------------------------------------
+
+IMPLEMENT_META_INTERFACE(MemoryHeap, "android.utils.IMemoryHeap");
+
+BnMemoryHeap::BnMemoryHeap() {
+}
+
+BnMemoryHeap::~BnMemoryHeap() {
+}
+
 #if 0
 /*****************************************************************************/
 

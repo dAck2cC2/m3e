@@ -17,9 +17,11 @@
 #ifndef ANDROID_IMEMORY_H
 #define ANDROID_IMEMORY_H
 
+#include <if_def.h>
+
 #include <stdint.h>
 #include <sys/types.h>
-#include <sys/mman.h>
+//#include <sys/mman.h>
 
 #include <utils/RefBase.h>
 #include <utils/Errors.h>
@@ -29,7 +31,7 @@ namespace android {
 
 // ----------------------------------------------------------------------------
 
-class IMemoryHeap : public IInterface
+class DECLSPEC IMemoryHeap : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MemoryHeap);
@@ -54,20 +56,14 @@ public:
 class BnMemoryHeap : public BnInterface<IMemoryHeap>
 {
 public:
-    /*virtual status_t onTransact( 
-            uint32_t code,
-            const Parcel& data,
-            Parcel* reply,
-            uint32_t flags = 0);
-    */
-    BnMemoryHeap();
+	BnMemoryHeap();
 protected:
-    virtual ~BnMemoryHeap();
+	virtual ~BnMemoryHeap();
 };
 
 // ----------------------------------------------------------------------------
 
-class IMemory : public IInterface
+class DECLSPEC IMemory : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(Memory);
@@ -84,15 +80,9 @@ public:
 class BnMemory : public BnInterface<IMemory>
 {
 public:
-    /*virtual status_t onTransact(
-            uint32_t code,
-            const Parcel& data,
-            Parcel* reply,
-            uint32_t flags = 0);
-*/
-    BnMemory();
+	BnMemory();
 protected:
-    virtual ~BnMemory();
+	virtual ~BnMemory();
 };
 
 // ----------------------------------------------------------------------------

@@ -4,8 +4,14 @@ if(CFG_NO_DEFAULT)
     set(ENABLE_CORE "TRUE")
   endif(CFG_ENABLE_CORE)
 
+  if(CFG_ENABLE_MISC)
+    set(ENABLE_CORE "TRUE")
+    set(ENABLE_MISC "TRUE")
+  endif(CFG_ENABLE_MISC)
+
   if (CFG_ENABLE_AV_UTILS)
     set(ENABLE_CORE "TRUE")  
+    set(ENABLE_MISC "TRUE")
 	set(ENABLE_AV_UTILS  "TRUE")
   endif (CFG_ENABLE_AV_UTILS)
   
@@ -27,6 +33,7 @@ if(CFG_NO_DEFAULT)
 
 else(CFG_NO_DEFAULT)
   set(ENABLE_CORE  "TRUE")
+    set(ENABLE_MISC "TRUE")
   set(ENABLE_AV_UTILS  "TRUE")  
   set(ENABLE_AV    "TRUE")
   set(ENABLE_APP   "TRUE")  
@@ -48,8 +55,11 @@ if(ENABLE_CORE)
 add_subdirectory(core)
 endif(ENABLE_CORE)
 
-if (ENABLE_AV_UTILS)
+if(ENABLE_MISC)
 add_subdirectory(misc)
+endif(ENABLE_MISC)
+
+if (ENABLE_AV_UTILS)
 add_subdirectory(stagefright_foundation)
 endif (ENABLE_AV_UTILS)
 

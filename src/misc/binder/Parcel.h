@@ -17,6 +17,8 @@
 #ifndef ANDROID_PARCEL_H
 #define ANDROID_PARCEL_H
 
+#include <if_def.h>
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -46,7 +48,7 @@ class ProcessState;
 class String8;
 class TextOutput;
 
-class Parcel {
+class DECLSPEC Parcel {
     friend class IPCThreadState;
 public:
     class ReadableBlob;

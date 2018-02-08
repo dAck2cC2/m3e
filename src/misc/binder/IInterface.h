@@ -18,17 +18,21 @@
 #ifndef ANDROID_IINTERFACE_H
 #define ANDROID_IINTERFACE_H
 
-#include "utils/RefBase.h"
-#include "utils/String16.h"
-#include "utils/Vector.h"
-#include "binder/IBinder.h"
-#include "binder/Parcel.h"
+#include <if_def.h>
+
+#include <binder/Binder.h>
+
+//#include "utils/RefBase.h"
+//#include "utils/String16.h"
+//#include "utils/Vector.h"
+//#include "binder/IBinder.h"
+//#include "binder/Parcel.h"
 
 namespace android {
 
 // ----------------------------------------------------------------------
 
-class IInterface : public virtual RefBase
+class DECLSPEC IInterface : public virtual RefBase
 {
 public:
             IInterface();
@@ -48,34 +52,18 @@ inline sp<INTERFACE> interface_cast(const sp<IBinder>& obj)
     return INTERFACE::asInterface(obj);
 }
 
-
 // ----------------------------------------------------------------------
 
 template<typename INTERFACE>
-class BnInterface : public INTERFACE
+class BnInterface : public INTERFACE, public BBinder
 {
 public:
-    virtual sp<IInterface>      queryLocalInterface(const String16& _descriptor);
-    //virtual const String16&     getInterfaceDescriptor() const;
+	virtual sp<IInterface>      queryLocalInterface(const String16& _descriptor);
+	virtual const String16&     getInterfaceDescriptor() const;
 
 protected:
-    virtual IBinder*            onAsBinder();
+	virtual IBinder*            onAsBinder();
 };
-
-#if 0
-// ----------------------------------------------------------------------
-
-template<typename INTERFACE>
-class BpInterface : public INTERFACE, public BpRefBase
-{
-public:
-                                BpInterface(const sp<IBinder>& remote);
-
-protected:
-    virtual IBinder*            onAsBinder();
-};
-
-#endif
 
 // ----------------------------------------------------------------------
 
@@ -121,38 +109,23 @@ protected:
 
 template<typename INTERFACE>
 inline sp<IInterface> BnInterface<INTERFACE>::queryLocalInterface(
-        const String16& _descriptor)
+	const String16& _descriptor)
 {
-    if (_descriptor == INTERFACE::descriptor) return this;
-    return NULL;
+	if (_descriptor == INTERFACE::descriptor) return this;
+	return NULL;
 }
-#if 0
+
 template<typename INTERFACE>
 inline const String16& BnInterface<INTERFACE>::getInterfaceDescriptor() const
 {
-    return INTERFACE::getInterfaceDescriptor();
+	return INTERFACE::getInterfaceDescriptor();
 }
-#endif
 
 template<typename INTERFACE>
 IBinder* BnInterface<INTERFACE>::onAsBinder()
 {
-    return (IBinder*)(this);
+	return this;
 }
-#if 0
-template<typename INTERFACE>
-inline BpInterface<INTERFACE>::BpInterface(const sp<IBinder>& remote)
-    : BpRefBase(remote)
-{
-}
-
-template<typename INTERFACE>
-inline IBinder* BpInterface<INTERFACE>::onAsBinder()
-{
-    return remote();
-}
-#endif    
-// ----------------------------------------------------------------------
 
 }; // namespace android
 
