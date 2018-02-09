@@ -19,9 +19,9 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-#ifndef _MSC_VER
+//#ifndef _MSC_VER
 #include <cutils/atomic-inline.h>
-#endif  // _MSC_VER
+//#endif  // _MSC_VER
 
 #ifdef __cplusplus
 extern "C" {

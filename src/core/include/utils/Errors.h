@@ -75,7 +75,7 @@ enum {
 #endif    
     FDS_NOT_ALLOWED     = (UNKNOWN_ERROR + 7),
 #if defined(_MSC_VER)
-    //UNEXPECTED_NULL     = (UNKNOWN_ERROR + 8),
+    UNEXPECTED_NULL     = (UNKNOWN_ERROR + 8),
 #endif // _MSC_VER
 };
 

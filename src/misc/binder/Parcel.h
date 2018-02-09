@@ -24,16 +24,16 @@
 #include <memory>
 #include <limits>
 
-//#include <cutils/native_handle.h>
+#include <cutils/native_handle.h>
 //#include <nativehelper/ScopedFd.h>
 #include <utils/Errors.h>
 #include <utils/RefBase.h>
-//#include <utils/String16.h>
+#include <utils/String16.h>
 #include <utils/Vector.h>
-//#include <utils/Flattenable.h>
+#include <utils/Flattenable.h>
 
 #include <binder/IInterface.h>
-//#include <binder/Parcelable.h>
+#include <binder/Parcelable.h>
 
 typedef int binder_size_t;
 
@@ -154,7 +154,7 @@ public:
 
     status_t            writeStrongBinderVector(const std::unique_ptr<std::vector<sp<IBinder>>>& val);
     status_t            writeStrongBinderVector(const std::vector<sp<IBinder>>& val);
-#if ENABLE_PARCELABLE
+
     template<typename T>
     status_t            writeParcelableVector(const std::unique_ptr<std::vector<std::unique_ptr<T>>>& val);
     template<typename T>
@@ -164,7 +164,7 @@ public:
     status_t            writeNullableParcelable(const std::unique_ptr<T>& parcelable);
 
     status_t            writeParcelable(const Parcelable& parcelable);
-#endif
+
     template<typename T>
     status_t            write(const Flattenable<T>& val);
 
@@ -176,7 +176,7 @@ public:
     // descriptors are dup'ed, so it is safe to delete the native_handle
     // when this function returns).
     // Doesn't take ownership of the native_handle.
-    //status_t            writeNativeHandle(const native_handle* handle);
+    status_t            writeNativeHandle(const native_handle* handle);
     
     // Place a file descriptor into the parcel.  The given fd must remain
     // valid for the lifetime of the parcel.
@@ -199,7 +199,7 @@ public:
                             const std::unique_ptr<std::vector<ScopedFd>>& val);
     status_t            writeUniqueFileDescriptorVector(
                             const std::vector<ScopedFd>& val);
-#endif
+
     // Writes a blob to the parcel.
     // If the blob is small, then it is stored in-place, otherwise it is
     // transferred by way of an anonymous shared memory region.  Prefer sending
@@ -207,7 +207,7 @@ public:
     // processes without further copying whereas mutable blobs always need to be copied.
     // The caller should call release() on the blob after writing its contents.
     status_t            writeBlob(size_t len, bool mutableCopy, WritableBlob* outBlob);
-
+#endif
     // Write an existing immutable blob file descriptor to the parcel.
     // This allows the client to send the same blob to multiple processes
     // as long as it keeps a dup of the blob file descriptor handy for later.
@@ -264,12 +264,12 @@ public:
                             std::unique_ptr<std::vector<std::unique_ptr<T>>>* val) const;
     template<typename T>
     status_t            readParcelableVector(std::vector<T>* val) const;
-#if 0
+
     status_t            readParcelable(Parcelable* parcelable) const;
 
     template<typename T>
     status_t            readParcelable(std::unique_ptr<T>* parcelable) const;
-#endif
+
     template<typename T>
     status_t            readStrongBinder(sp<T>* val) const;
 
@@ -316,13 +316,13 @@ public:
     // parcel's native_handle (the caller takes ownership). The caller
     // must free the native_handle with native_handle_close() and 
     // native_handle_delete().
-    //native_handle*     readNativeHandle() const;
+    native_handle*     readNativeHandle() const;
 
     
     // Retrieve a file descriptor from the parcel.  This returns the raw fd
     // in the parcel, which you do not own -- use dup() to get your own copy.
     int                 readFileDescriptor() const;
-#if 0
+#if ENABLE_SCOPEDFD
     // Retrieve a smart file descriptor from the parcel.
     status_t            readUniqueFileDescriptor(
                             ScopedFd* val) const;
@@ -333,13 +333,13 @@ public:
                             std::unique_ptr<std::vector<ScopedFd>>* val) const;
     status_t            readUniqueFileDescriptorVector(
                             std::vector<ScopedFd>* val) const;
-#endif
+
     // Reads a blob from the parcel.
     // The caller should call release() on the blob after reading its contents.
     status_t            readBlob(size_t len, ReadableBlob* outBlob) const;
 
-    //const flat_binder_object* readObject(bool nullMetaData) const;
-
+    const flat_binder_object* readObject(bool nullMetaData) const;
+#endif
     // Explicitly close all file descriptors in the parcel.
     void                closeFileDescriptors();
 
@@ -389,8 +389,8 @@ private:
     template<class T>
     status_t            writeAligned(T val);
 
-//    status_t            writeRawNullableParcelable(const Parcelable*
-//                                                   parcelable);
+    status_t            writeRawNullableParcelable(const Parcelable*
+                                                   parcelable);
 
     template<typename T, typename U>
     status_t            unsafeReadTypedVector(std::vector<T>* val,
@@ -562,7 +562,7 @@ status_t Parcel::read(LightFlattenable<T>& val) const {
     }
     return NO_ERROR;
 }
-#if 0
+
 template<typename T>
 status_t Parcel::readStrongBinder(sp<T>* val) const {
     sp<IBinder> tmp;
@@ -578,7 +578,7 @@ status_t Parcel::readStrongBinder(sp<T>* val) const {
 
     return ret;
 }
-#endif
+
 template<typename T, typename U>
 status_t Parcel::unsafeReadTypedVector(
         std::vector<T>* val,
@@ -606,6 +606,7 @@ status_t Parcel::unsafeReadTypedVector(
 
     return OK;
 }
+
 template<typename T>
 status_t Parcel::readTypedVector(std::vector<T>* val,
                                  status_t(Parcel::*read_func)(T*) const) const {
@@ -691,7 +692,7 @@ status_t Parcel::writeNullableTypedVector(const std::unique_ptr<std::vector<T>>&
 
     return unsafeWriteTypedVector(*val, write_func);
 }
-#if 0
+
 template<typename T>
 status_t Parcel::readParcelableVector(std::vector<T>* val) const {
     return unsafeReadTypedVector<T, Parcelable>(val, &Parcel::readParcelable);
@@ -761,7 +762,7 @@ status_t Parcel::writeParcelableVector(const std::unique_ptr<std::vector<std::un
 
     return unsafeWriteTypedVector(*val, &Parcel::writeParcelable);
 }
-#endif
+
 // ---------------------------------------------------------------------------
 
 inline TextOutput& operator<<(TextOutput& to, const Parcel& parcel)
@@ -769,9 +770,9 @@ inline TextOutput& operator<<(TextOutput& to, const Parcel& parcel)
     parcel.print(to);
     return to;
 }
-
-// ---------------------------------------------------------------------------
 #if 0
+// ---------------------------------------------------------------------------
+
 // Generic acquire and release of objects.
 void acquire_object(const sp<ProcessState>& proc,
                     const flat_binder_object& obj, const void* who);
