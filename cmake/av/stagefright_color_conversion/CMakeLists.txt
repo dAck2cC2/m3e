@@ -4,7 +4,7 @@ project(STAGEFRIGHT_COLOR_CONVERSION)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/stagefright/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/av/stagefright/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/libyuv/include.cmake)
 
 # dependency

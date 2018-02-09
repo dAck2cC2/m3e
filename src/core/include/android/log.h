@@ -67,7 +67,7 @@
  * NOTE: These functions MUST be implemented by /system/lib/liblog.so
  */
 
-#include <if_def.h>
+#include <cutils/compiler.h>
 #include <stdarg.h>
 
 #ifdef __cplusplus
@@ -133,7 +133,8 @@ typedef enum android_LogPriority {
 /*
  * Send a simple string to the log.
  */
-DECLSPEC int __android_log_write(int prio, const char* tag, const char* text);
+ANDROID_API
+int __android_log_write(int prio, const char* tag, const char* text);
 
 #define android_writeLog(prio, tag, text) \
     __android_log_write(prio, tag, text)
@@ -141,7 +142,8 @@ DECLSPEC int __android_log_write(int prio, const char* tag, const char* text);
 /*
  * Send a formatted string to the log, used like printf(fmt,...)
  */
-DECLSPEC int __android_log_print(int prio, const char* tag,  const char* fmt, ...)
+ANDROID_API
+int __android_log_print(int prio, const char* tag,  const char* fmt, ...)
 #if defined(__GNUC__)
 #ifdef __USE_MINGW_ANSI_STDIO
 #if __USE_MINGW_ANSI_STDIO
@@ -200,7 +202,8 @@ int __android_log_vprint(int prio, const char* tag,
  * Log an assertion failure and abort the process to have a chance
  * to inspect it if a debugger is attached. This uses the FATAL priority.
  */
-DECLSPEC void __android_log_assert(const char* cond, const char* tag,
+ANDROID_API
+void __android_log_assert(const char* cond, const char* tag,
                           const char* fmt, ...)
 #if defined(__GNUC__)
     __attribute__ ((__noreturn__))

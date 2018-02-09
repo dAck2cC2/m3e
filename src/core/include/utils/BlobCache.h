@@ -17,7 +17,7 @@
 #ifndef ANDROID_BLOB_CACHE_H
 #define ANDROID_BLOB_CACHE_H
 
-#include "if_def.h"
+#include <cutils/compiler.h>
 
 #include <stddef.h>
 
@@ -35,7 +35,7 @@ namespace android {
 // and then reloaded in a subsequent execution of the program.  This
 // serialization is non-portable and the data should only be used by the device
 // that generated it.
-class DECLSPEC BlobCache : public RefBase {
+class ANDROID_API BlobCache : public RefBase {
 
 public:
 
@@ -120,7 +120,7 @@ private:
     bool isCleanable() const;
 
     // A Blob is an immutable sized unstructured data blob.
-    class Blob : public RefBase {
+    class ANDROID_API Blob : public RefBase {
     public:
         Blob(const void* data, size_t size, bool copyData);
         ~Blob();
@@ -147,7 +147,7 @@ private:
     };
 
     // A CacheEntry is a single key/value pair in the cache.
-    class DECLSPEC CacheEntry {
+    class ANDROID_API CacheEntry {
     public:
         CacheEntry();
         CacheEntry(const sp<Blob>& key, const sp<Blob>& value);

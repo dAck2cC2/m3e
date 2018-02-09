@@ -17,7 +17,7 @@
 #ifndef ANDROID_STRING8_H
 #define ANDROID_STRING8_H
 
-#include <if_def.h>
+#include <cutils/compiler.h>
 
 #include <string> // for std::string
 
@@ -37,7 +37,7 @@ class TextOutput;
 
 //! This is a string holding UTF-8 characters. Does not allow the value more
 // than 0x10FFFF, which is not valid unicode codepoint.
-class DECLSPEC String8
+class ANDROID_API String8
 {
 public:
     /* use String8(StaticLinkage) if you're statically linking against

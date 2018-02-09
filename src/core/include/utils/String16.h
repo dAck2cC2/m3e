@@ -17,7 +17,7 @@
 #ifndef ANDROID_STRING16_H
 #define ANDROID_STRING16_H
 
-#include <if_def.h>
+#include <cutils/compiler.h>
 
 #include <string> // for std::string
 
@@ -42,7 +42,7 @@ class String8;
 class TextOutput;
 
 //! This is a string holding UTF-16 characters.
-class DECLSPEC String16
+class ANDROID_API String16
 {
 public:
     /* use String16(StaticLinkage) if you're statically linking against

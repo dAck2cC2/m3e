@@ -15,12 +15,6 @@ set(MISC_DEP ${MISC_DEPLIB})
 # include files
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)
 
-add_definitions(-DLITTLE_ENDIAN=1)
-add_definitions(-DBIG_ENDIAN=2)
-if(MSVC OR APPLE)
-add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)
-endif()
-
 # header files
 file(GLOB MISC_HEADER_FILES 
 ${M3E_SOURCE_DIR}/src/misc/binder/*.h

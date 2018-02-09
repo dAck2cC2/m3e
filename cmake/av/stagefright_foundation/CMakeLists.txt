@@ -4,7 +4,7 @@ project(STAGEFRIGHT_FOUNDATION)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/stagefright_foundation/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/dummy/include.cmake)
 
 set(STAGEFRIGHT_FOUNDATION_DEPLIB

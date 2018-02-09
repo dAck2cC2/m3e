@@ -21,16 +21,16 @@ cutils
 
 set(TEST_CUTILS_DEP ${TEST_CUTILS_DEPLIB})
 
-# main source
+# test file
 
-set(TEST_CUTILS_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/test/main.cpp
+file(GLOB TEST_CUTILS_SOURCE_FILES
+${M3E_SOURCE_DIR}/src/test/core/cutils/*.cpp
 )
 
-# test log
+# main source
 
 set(TEST_CUTILS_SOURCE_FILES ${TEST_CUTILS_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/test/core/cutils/config_utils_test.cpp
+${M3E_SOURCE_DIR}/src/test/main.cpp
 )
 
 # project

@@ -17,7 +17,7 @@
 #ifndef _LIBS_UTILS_THREAD_H
 #define _LIBS_UTILS_THREAD_H
 
-#include <if_def.h>
+#include <cutils/compiler.h>
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -38,7 +38,7 @@
 namespace android {
 // ---------------------------------------------------------------------------
 
-class DECLSPEC Thread : virtual public RefBase
+class ANDROID_API Thread : virtual public RefBase
 {
 public:
     // Create a Thread object, but doesn't create or start the associated

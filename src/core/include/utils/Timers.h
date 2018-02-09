@@ -20,7 +20,7 @@
 #ifndef _LIBS_UTILS_TIMERS_H
 #define _LIBS_UTILS_TIMERS_H
 
-#include <if_def.h>
+#include <cutils/compiler.h>
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -112,7 +112,7 @@ enum {
 };
 
 // return the system-time according to the specified clock
-DECLSPEC
+ANDROID_API
 #ifdef __cplusplus
     nsecs_t systemTime(int clock = SYSTEM_TIME_MONOTONIC);
 #else

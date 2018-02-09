@@ -22,7 +22,7 @@
 #ifndef ANDROID_JENKINS_HASH_H
 #define ANDROID_JENKINS_HASH_H
 
-#include "if_def.h"
+#include <cutils/compiler.h>
 
 #include <utils/TypeHelpers.h>
 
@@ -41,7 +41,7 @@ inline uint32_t JenkinsHashMix(uint32_t hash, uint32_t data) {
     return hash;
 }
 
-DECLSPEC
+ANDROID_API
 hash_t JenkinsHashWhiten(uint32_t hash);
 
 /* Helpful utility functions for hashing data in 32 bit chunks */

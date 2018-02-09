@@ -4,7 +4,7 @@ project(STAGEFRIGHT_MEDIAFILTER)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/stagefright/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/av/stagefright/include.cmake)
 
 # dependency
 set(STAGEFRIGHT_MEDIAFILTER_DEPLIB

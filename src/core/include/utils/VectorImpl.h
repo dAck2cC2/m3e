@@ -17,7 +17,7 @@
 #ifndef ANDROID_VECTOR_IMPL_H
 #define ANDROID_VECTOR_IMPL_H
 
-#include "if_def.h"
+#include <cutils/compiler.h>
 
 #include <assert.h>
 #include <stdint.h>
@@ -39,7 +39,7 @@ namespace android {
  *
  */
 
-class DECLSPEC VectorImpl
+class ANDROID_API VectorImpl
 {
 public:
     enum { // flags passed to the ctor
@@ -130,7 +130,7 @@ private:
 
 
 
-class DECLSPEC SortedVectorImpl : public VectorImpl
+class ANDROID_API SortedVectorImpl : public VectorImpl
 {
 public:
                             SortedVectorImpl(size_t itemSize, uint32_t flags);

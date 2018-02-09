@@ -17,7 +17,7 @@
 #ifndef NATIVE_HANDLE_H_
 #define NATIVE_HANDLE_H_
 
-#include <if_def.h>
+#include <cutils/compiler.h>
 
 #if defined(_MSC_VER)
 #define alignof __alignof
@@ -57,7 +57,8 @@ typedef struct native_handle
  * return 0 on success, or a negative error code on failure
  * 
  */
-DECLSPEC int native_handle_close(const native_handle_t* h);
+ANDROID_API
+int native_handle_close(const native_handle_t* h);
 
 /*
  * native_handle_init
@@ -66,6 +67,7 @@ DECLSPEC int native_handle_close(const native_handle_t* h);
  * NATIVE_HANDLE_DECLARE_STORAGE.  numFds and numInts must not respectively
  * exceed maxFds and maxInts used to declare the storage.
  */
+ANDROID_API
 native_handle_t* native_handle_init(char* storage, int numFds, int numInts);
 
 /*
@@ -75,7 +77,8 @@ native_handle_t* native_handle_init(char* storage, int numFds, int numInts);
  * native_handle_delete().
  * 
  */
-DECLSPEC native_handle_t* native_handle_create(int numFds, int numInts);
+ANDROID_API
+native_handle_t* native_handle_create(int numFds, int numInts);
 
 /*
  * native_handle_clone
@@ -84,6 +87,7 @@ DECLSPEC native_handle_t* native_handle_create(int numFds, int numInts);
  * Must be destroyed with native_handle_delete().
  *
  */
+ANDROID_API
 native_handle_t* native_handle_clone(const native_handle_t* handle);
 
 /*
@@ -96,7 +100,8 @@ native_handle_t* native_handle_clone(const native_handle_t* handle);
  * return 0 on success, or a negative error code on failure
  * 
  */
-DECLSPEC int native_handle_delete(native_handle_t* h);
+ANDROID_API
+int native_handle_delete(native_handle_t* h);
 
 
 #ifdef __cplusplus

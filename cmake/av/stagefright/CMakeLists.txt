@@ -5,8 +5,8 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/media/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/stagefright_foundation/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/stagefright/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/av/stagefright_foundation/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/av/stagefright/include.cmake)
 
 set(STAGEFRIGHT_DEPLIB
 utils

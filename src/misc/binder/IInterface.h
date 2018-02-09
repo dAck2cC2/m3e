@@ -18,7 +18,7 @@
 #ifndef ANDROID_IINTERFACE_H
 #define ANDROID_IINTERFACE_H
 
-#include <if_def.h>
+#include <cutils/compiler.h>
 
 #include <binder/Binder.h>
 
@@ -32,7 +32,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class DECLSPEC IInterface : public virtual RefBase
+class ANDROID_API IInterface : public virtual RefBase
 {
 public:
             IInterface();

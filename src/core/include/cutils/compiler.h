@@ -38,11 +38,25 @@
  * template <typename TYPE>
  * class ANDROID_API Singleton { }
  */
-#if 0
-#define ANDROID_API __attribute__((visibility("default")))
-#else
-#include <if_def.h>
-#define ANDROID_API  DECLSPEC
-#endif
+/* Some compilers use a special export keyword */
+#ifndef ANDROID_API
+# if defined(WIN32) || defined(__WINRT__)
+#  ifdef __BORLANDC__
+#   ifdef BUILD_SDL
+#    define ANDROID_API
+#   else
+#    define ANDROID_API    __declspec(dllimport)
+#   endif
+#  else
+#   define ANDROID_API __declspec(dllexport)
+#  endif
+# else
+#  if defined(__GNUC__) && __GNUC__ >= 4
+#   define ANDROID_API __attribute__ ((visibility("default")))
+#  else
+#   define ANDROID_API
+#  endif
+# endif
+#endif // ANDROID_API
 
 #endif // ANDROID_CUTILS_COMPILER_H

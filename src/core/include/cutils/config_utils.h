@@ -17,7 +17,7 @@
 #ifndef __CUTILS_CONFIG_UTILS_H
 #define __CUTILS_CONFIG_UTILS_H
 
-#include "if_def.h"
+#include <cutils/compiler.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,35 +36,35 @@ struct cnode
 };
 
 /* parse a text string into a config node tree */
-DECLSPEC 
+ANDROID_API
 void config_load(cnode *root, char *data);
 
 /* parse a file into a config node tree */
-DECLSPEC 
+ANDROID_API
 void config_load_file(cnode *root, const char *fn);
 
 /* create a single config node */
-DECLSPEC 
+ANDROID_API
 cnode* config_node(const char *name, const char *value);
 
 /* locate a named child of a config node */
-DECLSPEC 
+ANDROID_API
 cnode* config_find(cnode *root, const char *name);
 
 /* look up a child by name and return the boolean value */
-DECLSPEC 
+ANDROID_API
 int config_bool(cnode *root, const char *name, int _default);
 
 /* look up a child by name and return the string value */
-DECLSPEC 
+ANDROID_API
 const char* config_str(cnode *root, const char *name, const char *_default);
 
 /* add a named child to a config node (or modify it if it already exists) */
-DECLSPEC 
+ANDROID_API
 void config_set(cnode *root, const char *name, const char *value);
 
 /* free a config node tree */
-DECLSPEC
+ANDROID_API
 void config_free(cnode *root);
 
 #ifdef __cplusplus
