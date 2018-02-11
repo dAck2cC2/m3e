@@ -23,7 +23,6 @@
 #include <string>
 
 #include <android/log.h>
-//#include <android-base/macros.h>
 #include <cutils/properties.h>
 #include <gtest/gtest.h>
 

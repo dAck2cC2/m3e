@@ -6,3 +6,5 @@ endif(ENABLE_CORE)
 if(ENABLE_MISC)
 add_subdirectory(misc)
 endif(ENABLE_MISC)
+
+add_subdirectory(av)

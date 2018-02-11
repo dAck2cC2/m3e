@@ -128,7 +128,7 @@ private:
 	prop_bt *find_prop_bt(prop_bt *const bt, const char *name,
 		uint8_t namelen, bool alloc_if_needed);
 
-	const prop_info *find_property(prop_bt *const trie, const char *name,
+    prop_info *find_property(prop_bt *const trie, const char *name,
 		uint8_t namelen, const char *value,
 		uint8_t valuelen, bool alloc_if_needed);
 
@@ -273,7 +273,7 @@ prop_bt *prop_area::find_prop_bt(prop_bt *const bt, const char *name,
 	}
 }
 
-const prop_info *prop_area::find_property(prop_bt *const trie, const char *name,
+prop_info *prop_area::find_property(prop_bt *const trie, const char *name,
 	uint8_t namelen, const char *value, uint8_t valuelen,
 	bool alloc_if_needed)
 {
@@ -378,30 +378,48 @@ const prop_info *prop_area::find(const char *name) {
 
 bool prop_area::add(const char *name, unsigned int namelen,
 	const char *value, unsigned int valuelen) {
-	return find_property(root_node(), name, namelen, value, valuelen, true);
+    prop_info * info = find_property(root_node(), name, namelen, value, valuelen, true);
+    if (info) {
+        const int ret = cmp_prop_name(value, valuelen, info->value, strlen(info->value));
+        if (ret != 0) {
+            memcpy(info->value, value, valuelen);
+            info->value[valuelen] = '\0';
+        }
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool prop_area::foreach(void(*propfn)(const prop_info* pi, void* cookie), void* cookie) {
 	return foreach_property(root_node(), propfn, cookie);
 }
 
+static const char* EMPTY_PROPERTY = "";
 
 static BionicLock _lock;
 static prop_area  _property(sizeof(prop_bt), sizeof(prop_info));
 
 int __system_property_set(const char *key, const char *value)
 {
-    if (!key || !value) {
-        return 0;
+    if (!key) {
+        return -1;
     }
     
     _lock.lock();
     
-    bool result = _property.add(key, strlen(key), value, strlen(value));
+    bool result = false;
+    if (value) {
+        if (strlen(value) < PROP_VALUE_MAX) {
+            result = _property.add(key, strlen(key), value, strlen(value));
+        }
+    } else {
+        result = _property.add(key, strlen(key), EMPTY_PROPERTY, strlen(EMPTY_PROPERTY));
+    }
     
     _lock.unlock();
     
-    return (result ? 0 : -1);
+    return (result ? 0 : -2);
 }
 
 int __system_property_get(const char *key, char *value)
@@ -418,6 +436,7 @@ int __system_property_get(const char *key, char *value)
         strncpy(value, info->value, PROP_VALUE_MAX);
         len = strlen(value);
     }
+    
     _lock.unlock();
     
     return len;
