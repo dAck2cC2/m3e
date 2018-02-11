@@ -17,12 +17,13 @@ set(CUTILS_DEP ${CUTILS_DEPLIB})
 # header files
 file(GLOB CUTILS_HEADER_FILES
 ${M3E_SOURCE_DIR}/src/core/include/cutils/*.h
+${M3E_SOURCE_DIR}/src/core/libcutils/*.h
 )
 
 # source files
 file(GLOB CUTILS_SOURCE_FILES 
 ${M3E_SOURCE_DIR}/src/core/libcutils/*.c
-#${M3E_SOURCE_DIR}/src/core/libcutils/*.cpp
+${M3E_SOURCE_DIR}/src/core/libcutils/*.cpp
 )
 
 # header and source code for MSVC

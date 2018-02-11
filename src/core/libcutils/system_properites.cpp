@@ -5,72 +5,13 @@
 #include <string.h>
 #include <cutils/stdatomic.h>
 #include <cutils/properties.h>
+#include <system_properties.h>
 
 #include "bionic_macros.h"
 #include "bionic_lock.h"
 
+#define PROPERTY_SIZE  (64)
 #define PROPERTY_FILE  "property_contexts"
-
-#if defined(_MSC_VER)
-// MSVC apparently doesn't have C's getline
-// This is a poor man's implementation of it using fgets.
-// See the man page at
-// http://pubs.opengroup.org/onlinepubs/9699919799/functions/getdelim.html
-size_t getline(char** buf, size_t* bufLen, FILE* f)
-{
-	if (buf == nullptr || bufLen == nullptr)
-	{
-		errno = EINVAL;
-		return -1;
-	}
-
-	if (fgets(*buf, *bufLen, f) != *buf)
-		return -1;
-
-	while (true)
-	{
-		const size_t amountRead = strlen(*buf);
-		// If the length of the string is less than the whole buffer
-		// (minus the last space for \0) or the last character is a newline,
-		// we win. Done.
-		if (amountRead != *bufLen - 1 || (*buf)[amountRead - 1] == '\n')
-			return amountRead;
-
-		// We didn't have enought room, expand with realloc.
-
-		// First make sure we can.
-
-		// If we can't take any more, give up.
-		if (*bufLen == SSIZE_MAX)
-		{
-			errno = EOVERFLOW;
-			return -1;
-		}
-
-		// If the MSB of bufLen is 1, doubling will overflow.
-		const bool willOverflow = (*bufLen >> (sizeof(size_t) * 8 - 1)) == 1;
-		const size_t newSize = willOverflow ? SSIZE_MAX : *bufLen * 2;
-
-		char* newBuf = static_cast<char*>(realloc(*buf, newSize));
-		if (newBuf == nullptr)
-		{
-			errno = ENOMEM;
-			return -1;
-		}
-		// We succeeded in expanding.
-		*buf = newBuf;
-		*bufLen = newSize;
-		// Keep reading where we left off
-		char* const resumePoint = *buf + amountRead;
-		if (fgets(resumePoint, *bufLen - amountRead, f) != resumePoint)
-			return -1;
-	}
-}
-#endif // _MSC_VER
-
-struct prop_info;
-
-static size_t pa_data_size;
 
 /*
 * Properties are stored in a hybrid trie/binary tree structure.
@@ -91,7 +32,7 @@ static size_t pa_data_size;
 
 // Represents a node in the trie.
 struct prop_bt {
-	uint8_t namelen;
+    uint8_t namelen;
 	uint8_t reserved[3];
 
 	// The property trie is updated only by the init process (single threaded) which provides
@@ -116,27 +57,51 @@ struct prop_bt {
 	atomic_uint_least32_t children;
 
 	char name[0];
-
-	prop_bt(const char *name, const uint8_t name_length) {
-		this->namelen = name_length;
-		memcpy(this->name, name, name_length);
-		this->name[name_length] = '\0';
-	}
-
-private:
-	DISALLOW_COPY_AND_ASSIGN(prop_bt);
 };
+
+static prop_bt* prop_bt_new(void* p, const char *name, const uint8_t name_length) {
+    prop_bt* thiz = reinterpret_cast<prop_bt*>(p);
+    thiz->namelen = name_length;
+    memcpy(thiz->name, name, name_length);
+    thiz->name[name_length] = '\0';
+    return thiz;
+};
+
+struct prop_info {
+    atomic_uint_least32_t serial;
+    char value[PROP_VALUE_MAX];
+    char name[0];
+};
+
+static prop_info* prop_info_new(void * p, const char *name, const uint8_t namelen, const char *value,
+                                const uint8_t valuelen) {
+    prop_info* thiz = reinterpret_cast<prop_info*>(p);
+    memcpy(thiz->name, name, namelen);
+    thiz->name[namelen] = '\0';
+    atomic_init(&thiz->serial, valuelen << 24);
+    memcpy(thiz->value, value, valuelen);
+    thiz->value[valuelen] = '\0';
+    
+    return thiz;
+};
+
+static const size_t pa_data_size = BIONIC_ALIGN(sizeof(prop_info) * PROPERTY_SIZE, sizeof(uint_least32_t));
 
 class prop_area {
 public:
-
 	prop_area(const uint32_t magic, const uint32_t version) :
 		magic_(magic), version_(version) {
 		atomic_init(&serial_, 0);
 		memset(reserved_, 0, sizeof(reserved_));
 		// Allocate enough space for the root node.
 		bytes_used_ = sizeof(prop_bt);
+        data_ = new char[pa_data_size];
+        memset(data_, 0x00, pa_data_size);
 	}
+    
+    ~prop_area() {
+        delete [] data_;
+    }
 
 	const prop_info *find(const char *name);
 	bool add(const char *name, unsigned int namelen,
@@ -176,26 +141,9 @@ private:
 	uint32_t magic_;
 	uint32_t version_;
 	uint32_t reserved_[28];
-	char data_[0];
+	char* data_;
 
 	DISALLOW_COPY_AND_ASSIGN(prop_area);
-};
-
-struct prop_info {
-	atomic_uint_least32_t serial;
-	char value[PROP_VALUE_MAX];
-	char name[0];
-
-	prop_info(const char *name, const uint8_t namelen, const char *value,
-		const uint8_t valuelen) {
-		memcpy(this->name, name, namelen);
-		this->name[namelen] = '\0';
-		atomic_init(&this->serial, valuelen << 24);
-		memcpy(this->value, value, valuelen);
-		this->value[valuelen] = '\0';
-	}
-private:
-	DISALLOW_COPY_AND_ASSIGN(prop_info);
 };
 
 void *prop_area::allocate_obj(const size_t size, uint_least32_t *const off)
@@ -215,7 +163,7 @@ prop_bt *prop_area::new_prop_bt(const char *name, uint8_t namelen, uint_least32_
 	uint_least32_t new_offset;
 	void *const p = allocate_obj(sizeof(prop_bt) + namelen + 1, &new_offset);
 	if (p != NULL) {
-		prop_bt* bt = new(p) prop_bt(name, namelen);
+		prop_bt* bt = prop_bt_new(p, name, namelen);
 		*off = new_offset;
 		return bt;
 	}
@@ -229,7 +177,7 @@ prop_info *prop_area::new_prop_info(const char *name, uint8_t namelen,
 	uint_least32_t new_offset;
 	void* const p = allocate_obj(sizeof(prop_info) + namelen + 1, &new_offset);
 	if (p != NULL) {
-		prop_info* info = new(p) prop_info(name, namelen, value, valuelen);
+		prop_info* info = prop_info_new(p, name, namelen, value, valuelen);
 		*off = new_offset;
 		return info;
 	}
@@ -438,320 +386,72 @@ bool prop_area::foreach(void(*propfn)(const prop_info* pi, void* cookie), void* 
 }
 
 
-class context_node {
-public:
-	context_node(context_node* next, const char* context, prop_area* pa)
-		: next(next), context_(strdup(context)), pa_(pa), no_access_(false) {
-		lock_.init(false);
-	}
-	~context_node() {
-		unmap();
-		free(context_);
-	}
-	bool open(bool access_rw, bool* fsetxattr_failed);
-	bool check_access_and_open();
-	void reset_access();
+static BionicLock _lock;
+static prop_area  _property(sizeof(prop_bt), sizeof(prop_info));
 
-	const char* context() const { return context_; }
-	prop_area* pa() { return pa_; }
-
-	context_node* next;
-
-private:
-	bool check_access();
-	void unmap();
-
-	Lock lock_;
-	char* context_;
-	prop_area* pa_;
-	bool no_access_;
-};
-
-struct prefix_node {
-	prefix_node(struct prefix_node* next, const char* prefix, context_node* context)
-		: prefix(strdup(prefix)), prefix_len(strlen(prefix)), context(context), next(next) {
-	}
-	~prefix_node() {
-		free(prefix);
-	}
-	char* prefix;
-	const size_t prefix_len;
-	context_node* context;
-	struct prefix_node* next;
-};
-
-template <typename List, typename... Args>
-static inline void list_add(List** list, Args... args) {
-	*list = new List(*list, args...);
-}
-
-static void list_add_after_len(prefix_node** list, const char* prefix, context_node* context) {
-	size_t prefix_len = strlen(prefix);
-
-	auto next_list = list;
-
-	while (*next_list) {
-		if ((*next_list)->prefix_len < prefix_len || (*next_list)->prefix[0] == '*') {
-			list_add(next_list, prefix, context);
-			return;
-		}
-		next_list = &(*next_list)->next;
-	}
-	list_add(next_list, prefix, context);
-}
-
-template <typename List, typename Func>
-static void list_foreach(List* list, Func func) {
-	while (list) {
-		func(list);
-		list = list->next;
-	}
-}
-
-template <typename List, typename Func>
-static List* list_find(List* list, Func func) {
-	while (list) {
-		if (func(list)) {
-			return list;
-		}
-		list = list->next;
-	}
-	return nullptr;
-}
-
-template <typename List>
-static void list_free(List** list) {
-	while (*list) {
-		auto old_list = *list;
-		*list = old_list->next;
-		delete old_list;
-	}
-}
-
-static prefix_node* prefixes = nullptr;
-static context_node* contexts = nullptr;
-
-#if 0
-/*
-* pthread_mutex_lock() calls into system_properties in the case of contention.
-* This creates a risk of dead lock if any system_properties functions
-* use pthread locks after system_property initialization.
-*
-* For this reason, the below three functions use a bionic Lock and static
-* allocation of memory for each filename.
-*/
-
-bool context_node::open(bool access_rw, bool* fsetxattr_failed) {
-	lock_.lock();
-	if (pa_) {
-		lock_.unlock();
-		return true;
-	}
-
-	char filename[PROP_FILENAME_MAX];
-	int len = __libc_format_buffer(filename, sizeof(filename), "%s/%s",
-		property_filename, context_);
-	if (len < 0 || len > PROP_FILENAME_MAX) {
-		lock_.unlock();
-		return false;
-	}
-
-	if (access_rw) {
-		pa_ = map_prop_area_rw(filename, context_, fsetxattr_failed);
-	}
-	else {
-		pa_ = map_prop_area(filename, false);
-	}
-	lock_.unlock();
-	return pa_;
-}
-
-bool context_node::check_access_and_open() {
-	if (!pa_ && !no_access_) {
-		if (!check_access() || !open(false, nullptr)) {
-			no_access_ = true;
-		}
-	}
-	return pa_;
-}
-
-void context_node::reset_access() {
-	if (!check_access()) {
-		unmap();
-		no_access_ = true;
-	}
-	else {
-		no_access_ = false;
-	}
-}
-
-bool context_node::check_access() {
-	char filename[PROP_FILENAME_MAX];
-	int len = __libc_format_buffer(filename, sizeof(filename), "%s/%s",
-		property_filename, context_);
-	if (len < 0 || len > PROP_FILENAME_MAX) {
-		return false;
-	}
-
-	return access(filename, R_OK) == 0;
-}
-
-void context_node::unmap() {
-	if (!pa_) {
-		return;
-	}
-
-	munmap(pa_, pa_size);
-	if (pa_ == __system_property_area__) {
-		__system_property_area__ = nullptr;
-	}
-	pa_ = nullptr;
-}
-#endif
-
-/*
-* The below two functions are duplicated from label_support.c in libselinux.
-* TODO: Find a location suitable for these functions such that both libc and
-* libselinux can share a common source file.
-*/
-
-/*
-* The read_spec_entries and read_spec_entry functions may be used to
-* replace sscanf to read entries from spec files. The file and
-* property services now use these.
-*/
-
-/* Read an entry from a spec file (e.g. file_contexts) */
-static inline int read_spec_entry(char **entry, char **ptr, int *len)
+int __system_property_set(const char *key, const char *value)
 {
-	*entry = NULL;
-	char *tmp_buf = NULL;
-
-	while (isspace(**ptr) && **ptr != '\0')
-		(*ptr)++;
-
-	tmp_buf = *ptr;
-	*len = 0;
-
-	while (!isspace(**ptr) && **ptr != '\0') {
-		(*ptr)++;
-		(*len)++;
-	}
-
-	if (*len) {
-#if defined(_MSC_VER)
-		*entry = strdup(tmp_buf);
-#else  // _MSC_VER
-		*entry = strndup(tmp_buf, *len);
-#endif // _MSC_VER
-		if (!*entry)
-			return -1;
-	}
-
-	return 0;
+    if (!key || !value) {
+        return 0;
+    }
+    
+    _lock.lock();
+    
+    bool result = _property.add(key, strlen(key), value, strlen(value));
+    
+    _lock.unlock();
+    
+    return (result ? 0 : -1);
 }
 
-/*
-* line_buf - Buffer containing the spec entries .
-* num_args - The number of spec parameter entries to process.
-* ...      - A 'char **spec_entry' for each parameter.
-* returns  - The number of items processed.
-*
-* This function calls read_spec_entry() to do the actual string processing.
-*/
-static int read_spec_entries(char *line_buf, int num_args, ...)
+int __system_property_get(const char *key, char *value)
 {
-	char **spec_entry, *buf_p;
-	int len, rc, items, entry_len = 0;
-	va_list ap;
-
-	len = strlen(line_buf);
-	if (line_buf[len - 1] == '\n')
-		line_buf[len - 1] = '\0';
-	else
-		/* Handle case if line not \n terminated by bumping
-		* the len for the check below (as the line is NUL
-		* terminated by getline(3)) */
-		len++;
-
-	buf_p = line_buf;
-	while (isspace(*buf_p))
-		buf_p++;
-
-	/* Skip comment lines and empty lines. */
-	if (*buf_p == '#' || *buf_p == '\0')
-		return 0;
-
-	/* Process the spec file entries */
-	va_start(ap, num_args);
-
-	items = 0;
-	while (items < num_args) {
-		spec_entry = va_arg(ap, char **);
-
-		if (len - 1 == buf_p - line_buf) {
-			va_end(ap);
-			return items;
-		}
-
-		rc = read_spec_entry(spec_entry, &buf_p, &entry_len);
-		if (rc < 0) {
-			va_end(ap);
-			return rc;
-		}
-		if (entry_len)
-			items++;
-	}
-	va_end(ap);
-	return items;
+    if (!key || !value) {
+        return 0;
+    }
+    
+    _lock.lock();
+    
+    int len = 0;
+    const prop_info* info = _property.find(key);
+    if (info) {
+        strncpy(value, info->value, PROP_VALUE_MAX);
+        len = strlen(value);
+    }
+    _lock.unlock();
+    
+    return len;
 }
 
-static bool initialize_properties() {
-	FILE* file = fopen(PROPERTY_FILE, "re");
+int __system_property_read(const prop_info* info, char* name, char* value)
+{
+    if (!info || !name || !value) {
+        return -1;
+    }
+    
+    _lock.lock();
+    
+    strncpy(name,  info->name,  PROP_NAME_MAX);
+    strncpy(value, info->value, PROP_VALUE_MAX);
+    
+    _lock.unlock();
 
-	if (!file) {
-		return false;
-	}
-
-	char* buffer = nullptr;
-	size_t line_len;
-	char* prop_prefix = nullptr;
-	char* context = nullptr;
-
-	while (getline(&buffer, &line_len, file) > 0) {
-		int items = read_spec_entries(buffer, 2, &prop_prefix, &context);
-		if (items <= 0) {
-			continue;
-		}
-		if (items == 1) {
-			free(prop_prefix);
-			continue;
-		}
-		/*
-		* init uses ctl.* properties as an IPC mechanism and does not write them
-		* to a property file, therefore we do not need to create property files
-		* to store them.
-		*/
-		if (!strncmp(prop_prefix, "ctl.", 4)) {
-			free(prop_prefix);
-			free(context);
-			continue;
-		}
-
-		auto old_context = list_find(
-			contexts, [context](context_node* l) { return !strcmp(l->context(), context); });
-		if (old_context) {
-			list_add_after_len(&prefixes, prop_prefix, old_context);
-		}
-		else {
-			list_add(&contexts, context, nullptr);
-			list_add_after_len(&prefixes, prop_prefix, contexts);
-		}
-		free(prop_prefix);
-		free(context);
-	}
-
-	free(buffer);
-	fclose(file);
-	return true;
+    return 0;
 }
+
+int __system_property_foreach(void (*callback)(const struct prop_info* pi, void* cookie), void* cookie)
+{
+    
+    if (!callback || !cookie) {
+        return -1;
+    }
+    
+    _lock.lock();
+    
+    bool result = _property.foreach(callback, cookie);
+    
+    _lock.unlock();
+    
+    return (result ? 0 : -2);
+}
+

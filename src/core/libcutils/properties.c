@@ -105,19 +105,18 @@ int32_t property_get_int32(const char *key, int32_t default_value) {
 }
 
 //#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
-//#include <sys/_system_properties.h>
+#include <system_properties.h>
 
 int property_set(const char *key, const char *value)
 {
-    //return __system_property_set(key, value);
-    return 0;
+    return __system_property_set(key, value);
 }
 
 int property_get(const char *key, char *value, const char *default_value)
 {
     int len = 0;
 
-    //len = __system_property_get(key, value);
+    len = __system_property_get(key, value);
     if(len > 0) {
         return len;
     }
@@ -138,21 +137,20 @@ struct property_list_callback_data
     void *cookie;
 };
 
-//static void property_list_callback(const prop_info *pi, void *cookie)
-//{
-    //char name[PROP_NAME_MAX];
-    //char value[PROP_VALUE_MAX];
-    //struct property_list_callback_data *data = cookie;
+static void property_list_callback(const struct prop_info *pi, void *cookie)
+{
+    char name[PROP_NAME_MAX];
+    char value[PROP_VALUE_MAX];
+    struct property_list_callback_data *data = cookie;
 
-    //__system_property_read(pi, name, value);
-    //data->propfn(name, value, data->cookie);
-//}
+    __system_property_read(pi, name, value);
+    data->propfn(name, value, data->cookie);
+};
 
 int property_list(
         void (*propfn)(const char *key, const char *value, void *cookie),
         void *cookie)
 {
-    //struct property_list_callback_data data = { propfn, cookie };
-    //return __system_property_foreach(property_list_callback, &data);
-    return 0;
+    struct property_list_callback_data data = { propfn, cookie };
+    return __system_property_foreach(property_list_callback, &data);
 };
