@@ -25,6 +25,9 @@
 #endif
 
 #include <log/event_tag_map.h>
+#include <log/logd.h>
+#include <log/logger.h>
+#include <log/log_read.h>
 #include <private/android_filesystem_config.h>
 #include <private/android_logger.h>
 
@@ -129,20 +132,12 @@ LIBLOG_ABI_PUBLIC int __android_log_dev_available()
     }
     return kLogNotAvailable;
 }
-
-#if defined(__BIONIC__)
-static atomic_uintptr_t tagMap;
-#endif
-
 /*
  * Release any logger resources. A new log write will immediately re-acquire.
  */
 LIBLOG_ABI_PUBLIC void __android_log_close()
 {
     struct android_log_transport_write *transport;
-#if defined(__BIONIC__)
-    EventTagMap *m;
-#endif
 
     __android_log_lock();
 
@@ -170,28 +165,7 @@ LIBLOG_ABI_PUBLIC void __android_log_close()
         }
     }
 
-#if defined(__BIONIC__)
-    /*
-     * Additional risk here somewhat mitigated by immediately unlock flushing
-     * the processor cache. The multi-threaded race that we choose to accept,
-     * to minimize locking, is an atomic_load in a writer picking up a value
-     * just prior to entering this routine. There will be an use after free.
-     *
-     * Again, anyone calling this is doing so to release the logging resources
-     * is most probably going to quiesce then shut down; or to restart after
-     * a fork so the risk should be non-existent. For this reason we
-     * choose a mitigation stance for efficiency instead of incuring the cost
-     * of a lock for every log write.
-     */
-    m = (EventTagMap *)atomic_exchange(&tagMap, (uintptr_t)0);
-#endif
-
     __android_log_unlock();
-
-#if defined(__BIONIC__)
-    if (m != (EventTagMap *)(uintptr_t)-1LL) android_closeEventTagMap(m);
-#endif
-
 }
 
 /* log_init_lock assumed */
@@ -276,8 +250,8 @@ static int __write_to_log_daemon(log_id_t log_id, struct iovec *vec, size_t nr)
             return -EPERM;
         }
     } else if (log_id == LOG_ID_EVENTS) {
+        static atomic_uintptr_t map;
         const char *tag;
-        size_t len;
         EventTagMap *m, *f;
 
         if (vec[0].iov_len < 4) {
@@ -285,13 +259,12 @@ static int __write_to_log_daemon(log_id_t log_id, struct iovec *vec, size_t nr)
         }
 
         tag = NULL;
-        len = 0;
         f = NULL;
-        m = (EventTagMap *)atomic_load(&tagMap);
+        m = (EventTagMap *)atomic_load(&map);
 
         if (!m) {
             ret = __android_log_trylock();
-            m = (EventTagMap *)atomic_load(&tagMap); /* trylock flush cache */
+            m = (EventTagMap *)atomic_load(&map); /* trylock flush cache */
             if (!m) {
                 m = android_openEventTagMap(EVENT_TAG_MAP_FILE);
                 if (ret) { /* trylock failed, use local copy, mark for close */
@@ -300,7 +273,7 @@ static int __write_to_log_daemon(log_id_t log_id, struct iovec *vec, size_t nr)
                     if (!m) { /* One chance to open map file */
                         m = (EventTagMap *)(uintptr_t)-1LL;
                     }
-                    atomic_store(&tagMap, (uintptr_t)m);
+                    atomic_store(&map, (uintptr_t)m);
                 }
             }
             if (!ret) { /* trylock succeeded, unlock */
@@ -308,11 +281,11 @@ static int __write_to_log_daemon(log_id_t log_id, struct iovec *vec, size_t nr)
             }
         }
         if (m && (m != (EventTagMap *)(uintptr_t)-1LL)) {
-            tag = android_lookupEventTag_len(m, &len, get4LE(vec[0].iov_base));
+            tag = android_lookupEventTag(m, get4LE(vec[0].iov_base));
         }
-        ret = __android_log_is_loggable_len(ANDROID_LOG_INFO,
-                                            tag, len,
-                                            ANDROID_LOG_VERBOSE);
+        ret = __android_log_is_loggable(ANDROID_LOG_INFO,
+                                        tag,
+                                        ANDROID_LOG_VERBOSE);
         if (f) { /* local copy marked for close */
             android_closeEventTagMap(f);
         }
@@ -345,9 +318,7 @@ static int __write_to_log_daemon(log_id_t log_id, struct iovec *vec, size_t nr)
             tag = NULL;
         }
 
-        if (!__android_log_is_loggable_len(prio,
-                                           tag, len - 1,
-                                           ANDROID_LOG_VERBOSE)) {
+        if (!__android_log_is_loggable(prio, tag, ANDROID_LOG_VERBOSE)) {
             return -EPERM;
         }
     }

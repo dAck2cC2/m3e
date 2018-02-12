@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "sharedbuffer"
-
 #include <stdlib.h>
 #include <string.h>
 
-#include <android/log.h>
+#include <log/log.h>
 
 #include "SharedBuffer.h"
 
@@ -114,9 +112,8 @@ void SharedBuffer::acquire() const {
 int32_t SharedBuffer::release(uint32_t flags) const
 {
     int32_t prev = 1;
-    if (onlyOwner()
-            || (((prev = mRefs.fetch_sub(1, std::memory_order_release)) == 1)
-                && (atomic_thread_fence(std::memory_order_acquire), true))) {
+    if (onlyOwner() || ((prev = mRefs.fetch_sub(1, std::memory_order_release) == 1)
+            && (atomic_thread_fence(std::memory_order_acquire), true))) {
         mRefs.store(0, std::memory_order_relaxed);
         if ((flags & eKeepStorage) == 0) {
             free(const_cast<SharedBuffer*>(this));

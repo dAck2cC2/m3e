@@ -115,7 +115,7 @@ int property_set(const char *key, const char *value);
 //ANDROID_API
 int property_list(void (*propfn)(const char *key, const char *value, void *cookie), void *cookie);    
 
-#if defined(__BIONIC_FORTIFY) && !defined(__clang__)
+#if defined(__BIONIC_FORTIFY)
 
 extern int __property_get_real(const char *, char *, const char *)
     __asm__(__USER_LABEL_PREFIX__ "property_get");

@@ -18,6 +18,8 @@
 
 #define A_STRING_H_
 
+#include <cutils/compiler.h>
+
 #include <utils/Errors.h>
 #include <sys/types.h>
 
@@ -31,7 +33,7 @@ namespace android {
 class String8;
 class Parcel;
 
-struct AString {
+struct ANDROID_API AString {
     AString();
     AString(const char *s);
     AString(const char *s, size_t size);

@@ -21,8 +21,6 @@
 
 #include <string>
 #include <vector>
-#include <memory>
-#include <limits>
 
 #include <cutils/native_handle.h>
 //#include <nativehelper/ScopedFd.h>
@@ -31,9 +29,13 @@
 #include <utils/String16.h>
 #include <utils/Vector.h>
 #include <utils/Flattenable.h>
+//#include <linux/binder.h>
 
 #include <binder/IInterface.h>
 #include <binder/Parcelable.h>
+
+#include <memory>
+#include <limits>
 
 typedef int binder_size_t;
 
@@ -207,14 +209,14 @@ public:
     // processes without further copying whereas mutable blobs always need to be copied.
     // The caller should call release() on the blob after writing its contents.
     status_t            writeBlob(size_t len, bool mutableCopy, WritableBlob* outBlob);
-#endif
+
     // Write an existing immutable blob file descriptor to the parcel.
     // This allows the client to send the same blob to multiple processes
     // as long as it keeps a dup of the blob file descriptor handy for later.
     status_t            writeDupImmutableBlobFileDescriptor(int fd);
 
-    //status_t            writeObject(const flat_binder_object& val, bool nullMetaData);
-
+    status_t            writeObject(const flat_binder_object& val, bool nullMetaData);
+#endif
     // Like Parcel.java's writeNoException().  Just writes a zero int32.
     // Currently the native implementation doesn't do any of the StrictMode
     // stack gathering and serialization that the Java implementation does.
@@ -591,7 +593,7 @@ status_t Parcel::unsafeReadTypedVector(
     }
 
     if (size < 0) {
-        return -1; //UNEXPECTED_NULL;
+        return UNEXPECTED_NULL;
     }
 
     val->resize(size);

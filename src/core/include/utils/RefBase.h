@@ -373,10 +373,9 @@ protected:
 
 private:
     friend class ReferenceMover;
-    inline static void renameRefs(size_t /*n*/,
-            const ReferenceRenamer& /*renamer*/) { }
-    inline static void renameRefId(T* /*ref*/,
-            const void* /*old_id*/ , const void* /*new_id*/) { }
+    inline static void renameRefs(size_t n, const ReferenceRenamer& renamer) { }
+    inline static void renameRefId(T* ref,
+            const void* old_id, const void* new_id) { }
 
 private:
     mutable std::atomic<int32_t> mCount;
@@ -386,7 +385,7 @@ private:
 // destructor to eliminate the template requirement of LightRefBase
 class VirtualLightRefBase : public LightRefBase<VirtualLightRefBase> {
 public:
-    virtual ~VirtualLightRefBase();
+    virtual ~VirtualLightRefBase() {}
 };
 
 // ---------------------------------------------------------------------------
@@ -399,12 +398,12 @@ public:
     
     inline wp() : m_ptr(0) { }
 
-    wp(T* other);  // NOLINT(implicit)
+    wp(T* other);
     wp(const wp<T>& other);
-    explicit wp(const sp<T>& other);
-    template<typename U> wp(U* other);  // NOLINT(implicit)
-    template<typename U> wp(const sp<U>& other);  // NOLINT(implicit)
-    template<typename U> wp(const wp<U>& other);  // NOLINT(implicit)
+    wp(const sp<T>& other);
+    template<typename U> wp(U* other);
+    template<typename U> wp(const sp<U>& other);
+    template<typename U> wp(const wp<U>& other);
 
     ~wp();
     
@@ -660,42 +659,42 @@ public:
     // a template<typename TYPE inherits RefBase> template...
 
     template<typename TYPE> static inline
-    void move_references(sp<TYPE>* dest, sp<TYPE> const* src, size_t n) {
+    void move_references(sp<TYPE>* d, sp<TYPE> const* s, size_t n) {
 
         class Renamer : public ReferenceRenamer {
-            sp<TYPE>* d_;
-            sp<TYPE> const* s_;
+            sp<TYPE>* d;
+            sp<TYPE> const* s;
             virtual void operator()(size_t i) const {
                 // The id are known to be the sp<>'s this pointer
-                TYPE::renameRefId(d_[i].get(), &s_[i], &d_[i]);
+                TYPE::renameRefId(d[i].get(), &s[i], &d[i]);
             }
         public:
-            Renamer(sp<TYPE>* d, sp<TYPE> const* s) : d_(d), s_(s) { }
+            Renamer(sp<TYPE>* d, sp<TYPE> const* s) : d(d), s(s) { }
             virtual ~Renamer() { }
         };
 
-        memmove(dest, src, n*sizeof(sp<TYPE>));
-        TYPE::renameRefs(n, Renamer(dest, src));
+        memmove(d, s, n*sizeof(sp<TYPE>));
+        TYPE::renameRefs(n, Renamer(d, s));
     }
 
 
     template<typename TYPE> static inline
-    void move_references(wp<TYPE>* dest, wp<TYPE> const* src, size_t n) {
+    void move_references(wp<TYPE>* d, wp<TYPE> const* s, size_t n) {
 
         class Renamer : public ReferenceRenamer {
-            wp<TYPE>* d_;
-            wp<TYPE> const* s_;
+            wp<TYPE>* d;
+            wp<TYPE> const* s;
             virtual void operator()(size_t i) const {
                 // The id are known to be the wp<>'s this pointer
-                TYPE::renameRefId(d_[i].get_refs(), &s_[i], &d_[i]);
+                TYPE::renameRefId(d[i].get_refs(), &s[i], &d[i]);
             }
         public:
-            Renamer(wp<TYPE>* rd, wp<TYPE> const* rs) : d_(rd), s_(rs) { }
+            Renamer(wp<TYPE>* d, wp<TYPE> const* s) : d(d), s(s) { }
             virtual ~Renamer() { }
         };
 
-        memmove(dest, src, n*sizeof(wp<TYPE>));
-        TYPE::renameRefs(n, Renamer(dest, src));
+        memmove(d, s, n*sizeof(wp<TYPE>));
+        TYPE::renameRefs(n, Renamer(d, s));
     }
 };
 
@@ -725,6 +724,7 @@ template<typename TYPE> inline
 void move_backward_type(wp<TYPE>* d, wp<TYPE> const* s, size_t n) {
     ReferenceMover::move_references(d, s, n);
 }
+
 
 }; // namespace android
 

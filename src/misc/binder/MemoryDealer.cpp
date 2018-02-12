@@ -16,15 +16,13 @@
 
 #define LOG_TAG "MemoryDealer"
 
-
 #include <binder/MemoryDealer.h>
-
 //#include <binder/IPCThreadState.h>
 #include <binder/MemoryBase.h>
 
 //#include <utils/Log.h>
 //#include <utils/SortedVector.h>
-//#include <utils/String8.h>
+#include <utils/String8.h>
 #include <utils/threads.h>
 
 //#include <stdint.h>
@@ -164,7 +162,6 @@ public:
     }
 };
 
-
 // ----------------------------------------------------------------------------
 
 class Allocation : public MemoryBase {
@@ -175,7 +172,6 @@ public:
 private:
     sp<MemoryDealer> mDealer;
 };
-
 
 // ----------------------------------------------------------------------------
 
@@ -530,5 +526,6 @@ void SimpleBestFitAllocator::dump_l(String8& result,
             "  size allocated: %u (%u KB)\n", int(size), int(size/1024));
     result.append(buffer);
 }
+
 
 }; // namespace android

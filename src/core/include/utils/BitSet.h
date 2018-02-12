@@ -20,45 +20,8 @@
 #include <stdint.h>
 #include <utils/TypeHelpers.h>
 
-#ifdef _MSC_VER
-#  include <windows.h>
-#  include <intrin.h>
-#  define __builtin_popcountl  __popcnt
-#  define __builtin_popcountll __popcnt
-
-#  define __builtin_ctzl  __builtin_ctz
-#  define __builtin_ctzll __builtin_ctz
-uint32_t __inline __builtin_ctz(uint32_t value)
-{
-	DWORD trailing_zero = 0;
-
-	if (_BitScanForward(&trailing_zero, value))
-	{
-		return trailing_zero;
-	}
-	else
-	{
-		// This is undefined, I better choose 32 than 0
-		return 32;
-	}
-}
-
-#  define __builtin_clzl  __builtin_clz
-#  define __builtin_clzll __builtin_clz
-uint32_t __inline __builtin_clz(uint32_t value)
-{
-	DWORD leading_zero = 0;
-
-	if (_BitScanReverse(&leading_zero, value))
-	{
-		return 31 - leading_zero;
-	}
-	else
-	{
-		// Same remarks as above
-		return 32;
-	}
-}
+#if defined(_MSC_VER)
+#include <cutils/bitops.h>
 #endif // _MSC_VER
 
 /*

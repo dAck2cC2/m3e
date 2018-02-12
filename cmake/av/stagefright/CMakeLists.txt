@@ -24,7 +24,10 @@ endif()
 
 if(CYGWIN)
 add_definitions(-D_GNU_SOURCE)
-endif(CYGWIN)
+elseif(MSVC)
+add_definitions(-Dstrncasecmp=strncmp)
+add_definitions(-Dstrcasecmp=strcmp)
+endif()
 
 # include files
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/media/libstagefright)
@@ -62,8 +65,8 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/AudioPlayer.cpp
 )
 
 # codec selector
-if(ENABLE_CODEC_SELECTOR)
-message(STATUS "ENABLE_CODEC_SELECTOR:${ENABLE_CODEC_SELECTOR}")
+if(ENABLE_AV_CODEC)
+message(STATUS "ENABLE_AV_CODEC:${ENABLE_AV_CODEC}")
 
 set(STAGEFRIGHT_DEPLIB ${STAGEFRIGHT_DEPLIB}
 expat
@@ -91,7 +94,7 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/OMXClient.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/SkipCutBuffer.cpp
 ${M3E_SOURCE_DIR}/src/av/media/libstagefright/FrameRenderTracker.cpp
 )
-endif(ENABLE_CODEC_SELECTOR)
+endif(ENABLE_AV_CODEC)
 
 
 # target files

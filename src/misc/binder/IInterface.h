@@ -22,12 +22,6 @@
 
 #include <binder/Binder.h>
 
-//#include "utils/RefBase.h"
-//#include "utils/String16.h"
-//#include "utils/Vector.h"
-//#include "binder/IBinder.h"
-//#include "binder/Parcel.h"
-
 namespace android {
 
 // ----------------------------------------------------------------------
@@ -58,11 +52,11 @@ template<typename INTERFACE>
 class BnInterface : public INTERFACE, public BBinder
 {
 public:
-	virtual sp<IInterface>      queryLocalInterface(const String16& _descriptor);
-	virtual const String16&     getInterfaceDescriptor() const;
+    virtual sp<IInterface>      queryLocalInterface(const String16& _descriptor);
+    virtual const String16&     getInterfaceDescriptor() const;
 
 protected:
-	virtual IBinder*            onAsBinder();
+    virtual IBinder*            onAsBinder();
 };
 
 // ----------------------------------------------------------------------
@@ -109,22 +103,22 @@ protected:
 
 template<typename INTERFACE>
 inline sp<IInterface> BnInterface<INTERFACE>::queryLocalInterface(
-	const String16& _descriptor)
+        const String16& _descriptor)
 {
-	if (_descriptor == INTERFACE::descriptor) return this;
-	return NULL;
+    if (_descriptor == INTERFACE::descriptor) return this;
+    return NULL;
 }
 
 template<typename INTERFACE>
 inline const String16& BnInterface<INTERFACE>::getInterfaceDescriptor() const
 {
-	return INTERFACE::getInterfaceDescriptor();
+    return INTERFACE::getInterfaceDescriptor();
 }
 
 template<typename INTERFACE>
 IBinder* BnInterface<INTERFACE>::onAsBinder()
 {
-	return this;
+    return this;
 }
 
 }; // namespace android

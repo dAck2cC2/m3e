@@ -28,8 +28,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <android/log.h>
 #include <cutils/qtaguid.h>
+#include <log/log.h>
 #if 0
 static const char* CTRL_PROCPATH = "/proc/net/xt_qtaguid/ctrl";
 static const int CTRL_MAX_INPUT_LEN = 128;
@@ -49,7 +49,10 @@ pthread_once_t resTrackInitDone = PTHREAD_ONCE_INIT;
 
 /* Only call once per process. */
 void qtaguid_resTrack(void) {
-    resTrackFd = TEMP_FAILURE_RETRY(open("/dev/xt_qtaguid", O_RDONLY | O_CLOEXEC));
+    resTrackFd = TEMP_FAILURE_RETRY(open("/dev/xt_qtaguid", O_RDONLY));
+    if (resTrackFd >=0) {
+        TEMP_FAILURE_RETRY(fcntl(resTrackFd, F_SETFD, FD_CLOEXEC));
+    }
 }
 
 /*
@@ -62,7 +65,7 @@ static int write_ctrl(const char *cmd) {
 
     ALOGV("write_ctrl(%s)", cmd);
 
-    fd = TEMP_FAILURE_RETRY(open(CTRL_PROCPATH, O_WRONLY | O_CLOEXEC));
+    fd = TEMP_FAILURE_RETRY(open(CTRL_PROCPATH, O_WRONLY));
     if (fd < 0) {
         return -errno;
     }
@@ -85,7 +88,7 @@ static int write_param(const char *param_path, const char *value) {
     int param_fd;
     int res;
 
-    param_fd = TEMP_FAILURE_RETRY(open(param_path, O_WRONLY | O_CLOEXEC));
+    param_fd = TEMP_FAILURE_RETRY(open(param_path, O_WRONLY));
     if (param_fd < 0) {
         return -errno;
     }

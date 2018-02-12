@@ -30,7 +30,13 @@ ${M3E_SOURCE_DIR}/src/core/libcutils/*.cpp
 if(MSVC)
 set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/stdint.h)
 #set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/sys/time.h)
-#set(CUTILS_SOURCE_FILES ${CUTILS_SOURCE_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/sys/time.c)
+set(CUTILS_SOURCE_FILES ${CUTILS_SOURCE_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/ffs.c)
+elseif(APPLE)
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+elseif(CYGWIN)
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11")
+elseif(UNIX)
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++0x")
 endif()
 
 # target files

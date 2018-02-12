@@ -19,68 +19,55 @@
 
 
 #include <stdint.h>
-#include <string.h>
 #include <sys/types.h>
 #include <utils/Errors.h>
 #include <utils/Debug.h>
-
-#include <type_traits>
 
 namespace android {
 
 
 class FlattenableUtils {
 public:
-    template<size_t N>
+    template<int N>
     static size_t align(size_t size) {
         COMPILE_TIME_ASSERT_FUNCTION_SCOPE( !(N & (N-1)) );
         return (size + (N-1)) & ~(N-1);
     }
 
-    template<size_t N>
+    template<int N>
     static size_t align(void const*& buffer) {
         COMPILE_TIME_ASSERT_FUNCTION_SCOPE( !(N & (N-1)) );
-        uintptr_t b = uintptr_t(buffer);
-        buffer = reinterpret_cast<void*>((uintptr_t(buffer) + (N-1)) & ~(N-1));
-        return size_t(uintptr_t(buffer) - b);
+        intptr_t b = intptr_t(buffer);
+        buffer = (void*)((intptr_t(buffer) + (N-1)) & ~(N-1));
+        return size_t(intptr_t(buffer) - b);
     }
 
-    template<size_t N>
+    template<int N>
     static size_t align(void*& buffer) {
         return align<N>( const_cast<void const*&>(buffer) );
     }
 
     static void advance(void*& buffer, size_t& size, size_t offset) {
-        buffer = reinterpret_cast<void*>( uintptr_t(buffer) + offset );
+        buffer = reinterpret_cast<void*>( intptr_t(buffer) + offset );
         size -= offset;
     }
 
     static void advance(void const*& buffer, size_t& size, size_t offset) {
-        buffer = reinterpret_cast<void const*>( uintptr_t(buffer) + offset );
+        buffer = reinterpret_cast<void const*>( intptr_t(buffer) + offset );
         size -= offset;
     }
 
     // write a POD structure
     template<typename T>
     static void write(void*& buffer, size_t& size, const T& value) {
-#if __GNUG__ && __GNUC__ < 5
-#else  // __GNUG__
-        static_assert(std::is_trivially_copyable<T>::value,
-                      "Cannot flatten a non-trivially-copyable type");
-#endif // _GNUG__
-        memcpy(buffer, &value, sizeof(T));
+        *static_cast<T*>(buffer) = value;
         advance(buffer, size, sizeof(T));
     }
 
     // read a POD structure
     template<typename T>
     static void read(void const*& buffer, size_t& size, T& value) {
-#if __GNUG__ && __GNUC__ < 5
-#else  // __GNUG__
-        static_assert(std::is_trivially_copyable<T>::value,
-                      "Cannot unflatten a non-trivially-copyable type");
-#endif // _GNUG__
-        memcpy(&value, buffer, sizeof(T));
+        value = *static_cast<T const*>(buffer);
         advance(buffer, size, sizeof(T));
     }
 };

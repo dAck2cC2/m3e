@@ -17,17 +17,16 @@
 #ifndef _LOGPRINT_H
 #define _LOGPRINT_H
 
-#include <pthread.h>
-
-#include <android/log.h>
+#include <log/log.h>
+#include <log/logger.h>
 #include <log/event_tag_map.h>
+#include <pthread.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-    /* Verbs */
     FORMAT_OFF = 0,
     FORMAT_BRIEF,
     FORMAT_PROCESS,
@@ -37,7 +36,7 @@ typedef enum {
     FORMAT_TIME,
     FORMAT_THREADTIME,
     FORMAT_LONG,
-    /* Adverbs. The following are modifiers to above format verbs */
+    /* The following are modifiers to above formats */
     FORMAT_MODIFIER_COLOR,     /* converts priority to color */
     FORMAT_MODIFIER_TIME_USEC, /* switches from msec to usec time precision */
     FORMAT_MODIFIER_PRINTABLE, /* converts non-printable to printable escapes */
@@ -46,7 +45,6 @@ typedef enum {
     FORMAT_MODIFIER_EPOCH,     /* Print time as seconds since Jan 1 1970 */
     FORMAT_MODIFIER_MONOTONIC, /* Print cpu time as seconds since start */
     FORMAT_MODIFIER_UID,       /* Adds uid */
-    FORMAT_MODIFIER_DESCRIPT,  /* Adds descriptive */
 } AndroidLogPrintFormat;
 
 typedef struct AndroidLogFormat_t AndroidLogFormat;
@@ -58,24 +56,23 @@ typedef struct AndroidLogEntry_t {
     int32_t uid;
     int32_t pid;
     int32_t tid;
-    const char* tag;
-    size_t tagLen;
+    const char * tag;
     size_t messageLen;
-    const char* message;
+    const char * message;
 } AndroidLogEntry;
 
-AndroidLogFormat* android_log_format_new();
+AndroidLogFormat *android_log_format_new();
 
-void android_log_format_free(AndroidLogFormat* p_format);
+void android_log_format_free(AndroidLogFormat *p_format);
 
 /* currently returns 0 if format is a modifier, 1 if not */
-int android_log_setPrintFormat(AndroidLogFormat* p_format,
+int android_log_setPrintFormat(AndroidLogFormat *p_format,
         AndroidLogPrintFormat format);
 
 /**
  * Returns FORMAT_OFF on invalid string
  */
-AndroidLogPrintFormat android_log_formatFromString(const char* s);
+AndroidLogPrintFormat android_log_formatFromString(const char *s);
 
 /**
  * filterExpression: a single filter expression
@@ -87,8 +84,9 @@ AndroidLogPrintFormat android_log_formatFromString(const char* s);
  *
  */
 
-int android_log_addFilterRule(AndroidLogFormat* p_format,
-        const char* filterExpression);
+int android_log_addFilterRule(AndroidLogFormat *p_format,
+        const char *filterExpression);
+
 
 /**
  * filterString: a whitespace-separated set of filter expressions
@@ -100,15 +98,17 @@ int android_log_addFilterRule(AndroidLogFormat* p_format,
  *
  */
 
-int android_log_addFilterString(AndroidLogFormat* p_format,
-        const char* filterString);
+int android_log_addFilterString(AndroidLogFormat *p_format,
+        const char *filterString);
+
 
 /**
  * returns 1 if this log line should be printed based on its priority
  * and tag, and 0 if it should not
  */
 int android_log_shouldPrintLine (
-        AndroidLogFormat* p_format, const char* tag, android_LogPriority pri);
+        AndroidLogFormat *p_format, const char *tag, android_LogPriority pri);
+
 
 /**
  * Splits a wire-format buffer into an AndroidLogEntry
@@ -117,8 +117,8 @@ int android_log_shouldPrintLine (
  * Returns 0 on success and -1 on invalid wire format (entry will be
  * in unspecified state)
  */
-int android_log_processLogBuffer(struct logger_entry* buf,
-                                 AndroidLogEntry* entry);
+int android_log_processLogBuffer(struct logger_entry *buf,
+                                 AndroidLogEntry *entry);
 
 /**
  * Like android_log_processLogBuffer, but for binary logs.
@@ -126,9 +126,10 @@ int android_log_processLogBuffer(struct logger_entry* buf,
  * If "map" is non-NULL, it will be used to convert the log tag number
  * into a string.
  */
-int android_log_processBinaryLogBuffer(struct logger_entry* buf,
-    AndroidLogEntry* entry, const EventTagMap* map, char* messageBuf,
+int android_log_processBinaryLogBuffer(struct logger_entry *buf,
+    AndroidLogEntry *entry, const EventTagMap* map, char* messageBuf,
     int messageBufLen);
+
 
 /**
  * Formats a log message into a buffer
@@ -138,12 +139,13 @@ int android_log_processBinaryLogBuffer(struct logger_entry* buf,
  * Returns NULL on malloc error
  */
 
-char* android_log_formatLogLine (
-    AndroidLogFormat* p_format,
-    char* defaultBuffer,
+char *android_log_formatLogLine (
+    AndroidLogFormat *p_format,
+    char *defaultBuffer,
     size_t defaultBufferSize,
-    const AndroidLogEntry* p_line,
-    size_t* p_outLength);
+    const AndroidLogEntry *p_line,
+    size_t *p_outLength);
+
 
 /**
  * Either print or do not print log line, based on filter
@@ -152,12 +154,14 @@ char* android_log_formatLogLine (
  *
  */
 int android_log_printLogLine(
-    AndroidLogFormat* p_format,
+    AndroidLogFormat *p_format,
     int fd,
-    const AndroidLogEntry* entry);
+    const AndroidLogEntry *entry);
+
 
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif /*_LOGPRINT_H*/

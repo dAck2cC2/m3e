@@ -28,7 +28,8 @@ do
   fi
   cd $d
   pwd
-  #git pull
+  git checkout .
+  git pull
   git checkout tags/$TARGET_TAG
   cd -
 done

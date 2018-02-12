@@ -17,12 +17,13 @@
 #ifndef _LIBLOG_LOGGER_H__
 #define _LIBLOG_LOGGER_H__
 
-//#include <stdatomic.h>
 #include <stdbool.h>
+#include <log/uio.h>
 
 #include <cutils/list.h>
 #include <log/log.h>
-#include <log/uio.h>
+#include <log/log_read.h>
+#include <log/logger.h>
 
 #include "log_portability.h"
 
@@ -31,10 +32,9 @@ __BEGIN_DECLS
 /* Union, sock or fd of zero is not allowed unless static initialized */
 union android_log_context {
   void *private;
-  //atomic_int sock;
-  //atomic_int fd;
+  int sock;
+  int fd;
   struct listnode *node;
-  //atomic_uintptr_t atomic_pointer;
 };
 
 struct android_log_transport_write {
@@ -124,23 +124,23 @@ struct android_log_transport_context {
 
 /* assumes caller has structures read-locked, single threaded, or fenced */
 #define transport_context_for_each(transp, logger_list)              \
-  for ((transp) = node_to_item((logger_list)->transport.next,        \
+  for (transp = node_to_item((logger_list)->transport.next,          \
                              struct android_log_transport_context,   \
                              node);                                  \
-       ((transp) != node_to_item(&(logger_list)->transport,          \
+       (transp != node_to_item(&(logger_list)->transport,            \
                                struct android_log_transport_context, \
                                node)) &&                             \
-           ((transp)->parent == (logger_list));                      \
-       (transp) = node_to_item((transp)->node.next,                  \
+           (transp->parent == (logger_list));                        \
+       transp = node_to_item(transp->node.next,                      \
                              struct android_log_transport_context, node))
 
 #define logger_for_each(logp, logger_list)                          \
-    for ((logp) = node_to_item((logger_list)->logger.next,          \
+    for (logp = node_to_item((logger_list)->logger.next,            \
                              struct android_log_logger, node);      \
-         ((logp) != node_to_item(&(logger_list)->logger,            \
+         (logp != node_to_item(&(logger_list)->logger,              \
                                struct android_log_logger, node)) && \
-             ((logp)->parent == (logger_list));                     \
-         (logp) = node_to_item((logp)->node.next,                   \
+             (logp->parent == (logger_list));                       \
+         logp = node_to_item((logp)->node.next,                     \
                              struct android_log_logger, node))
 
 /* OS specific dribs and drabs */
@@ -156,6 +156,7 @@ static inline uid_t __android_log_uid() { return getuid(); }
 LIBLOG_HIDDEN void __android_log_lock();
 LIBLOG_HIDDEN int __android_log_trylock();
 LIBLOG_HIDDEN void __android_log_unlock();
+LIBLOG_HIDDEN int __android_log_is_debuggable();
 
 __END_DECLS
 

@@ -16,6 +16,7 @@
 
 #define LOG_TAG "Properties_test"
 
+#define __STDC_CONSTANT_MACROS
 #include <limits.h>
 
 #include <iostream>

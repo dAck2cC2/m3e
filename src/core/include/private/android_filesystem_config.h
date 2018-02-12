@@ -94,8 +94,6 @@
 #define AID_NVRAM         1050  /* Access-controlled NVRAM */
 #define AID_DNS           1051  /* DNS resolution daemon (system: netd) */
 #define AID_DNS_TETHER    1052  /* DNS resolution daemon (tether: dnsmasq) */
-#define AID_WEBVIEW_ZYGOTE 1053 /* WebView zygote process */
-#define AID_VEHICLE_NETWORK 1054 /* Vehicle network service */
 /* Changes to this file must be made in AOSP, *not* in internal branches. */
 
 #define AID_SHELL         2000  /* adb and debug shell user */
@@ -116,6 +114,7 @@
 #define AID_NET_ADMIN     3005  /* can configure interfaces and routing tables. */
 #define AID_NET_BW_STATS  3006  /* read bandwidth statistics */
 #define AID_NET_BW_ACCT   3007  /* change bandwidth statistics accounting */
+#define AID_NET_BT_STACK  3008  /* bluetooth: access config files */
 #define AID_READPROC      3009  /* Allow /proc read access */
 #define AID_WAKELOCK      3010  /* Allow system wakelock read/write access */
 
@@ -208,8 +207,6 @@ static const struct android_id_info android_ids[] = {
     { "nvram",         AID_NVRAM, },
     { "dns",           AID_DNS, },
     { "dns_tether",    AID_DNS_TETHER, },
-    { "webview_zygote", AID_WEBVIEW_ZYGOTE, },
-    { "vehicle_network", AID_VEHICLE_NETWORK, },
 
     { "shell",         AID_SHELL, },
     { "cache",         AID_CACHE, },
@@ -222,6 +219,7 @@ static const struct android_id_info android_ids[] = {
     { "net_admin",     AID_NET_ADMIN, },
     { "net_bw_stats",  AID_NET_BW_STATS, },
     { "net_bw_acct",   AID_NET_BW_ACCT, },
+    { "net_bt_stack",  AID_NET_BT_STACK, },
     { "readproc",      AID_READPROC, },
     { "wakelock",      AID_WAKELOCK, },
 

@@ -19,7 +19,6 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-#include <utils/Mutex.h>
 #include <utils/threads.h>
 #include <cutils/compiler.h>
 
@@ -46,8 +45,8 @@ public:
     }
     
 protected:
-    ~Singleton() { }
-    Singleton() { }
+    ~Singleton() { };
+    Singleton() { };
 
 private:
     Singleton(const Singleton&);
@@ -55,12 +54,6 @@ private:
     static Mutex sLock;
     static TYPE* sInstance;
 };
-
-template <typename TYPE>
-Mutex Singleton<TYPE>::sLock;
-
-template <typename TYPE>
-TYPE* Singleton<TYPE>::sInstance;
 
 /*
  * use ANDROID_SINGLETON_STATIC_INSTANCE(TYPE) in your implementation file

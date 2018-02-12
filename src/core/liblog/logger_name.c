@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include <log/log.h>
+#include <log/logger.h>
 
 #include "log_portability.h"
 

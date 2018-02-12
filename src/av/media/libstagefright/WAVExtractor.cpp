@@ -70,6 +70,8 @@ struct WAVSource : public MediaSource {
     virtual status_t read(
             MediaBuffer **buffer, const ReadOptions *options = NULL);
 
+    virtual bool supportNonblockingRead() { return true; }
+
 protected:
     virtual ~WAVSource();
 

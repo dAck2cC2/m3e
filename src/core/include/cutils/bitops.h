@@ -19,10 +19,57 @@
 
 #include <stdbool.h>
 #include <string.h>
-//#include <strings.h>
+#if !defined(_MSC_VER)
+#include <strings.h>
+#endif // _MSC_VER
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS
+
+#if defined(_MSC_VER)
+#  include <windows.h>
+#  include <intrin.h>
+#  define __builtin_popcount   __popcnt
+#  define __builtin_popcountl  __popcnt
+#  define __builtin_popcountll __popcnt
+
+#  define __builtin_ctzl  __builtin_ctz
+#  define __builtin_ctzll __builtin_ctz
+uint32_t __inline __builtin_ctz(uint32_t value)
+{
+	DWORD trailing_zero = 0;
+
+	if (_BitScanForward(&trailing_zero, value))
+	{
+		return trailing_zero;
+	}
+	else
+	{
+		// This is undefined, I better choose 32 than 0
+		return 32;
+	}
+}
+
+#  define __builtin_clzl  __builtin_clz
+#  define __builtin_clzll __builtin_clz
+uint32_t __inline __builtin_clz(uint32_t value)
+{
+	DWORD leading_zero = 0;
+
+	if (_BitScanReverse(&leading_zero, value))
+	{
+		return 31 - leading_zero;
+	}
+	else
+	{
+		// Same remarks as above
+		return 32;
+	}
+}
+
+extern int ffs(int valu);
+
+#endif // _MSC_VER
 
 /*
  * Bitmask Operations

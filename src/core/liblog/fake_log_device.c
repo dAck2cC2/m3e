@@ -25,14 +25,10 @@
 #if !defined(_WIN32)
 #include <pthread.h>
 #endif
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
-#include <android/log.h>
-#include <log/uio.h>
+#include <log/logd.h>
 
 #include "fake_log_device.h"
 #include "log_portability.h"
@@ -725,18 +721,4 @@ LIBLOG_ABI_PUBLIC int __android_log_is_loggable(int prio,
 {
     int logLevel = def;
     return logLevel >= 0 && prio >= logLevel;
-}
-
-LIBLOG_ABI_PUBLIC int __android_log_is_loggable_len(int prio,
-                                                    const char *tag __unused,
-                                                    size_t len __unused,
-                                                    int def)
-{
-    int logLevel = def;
-    return logLevel >= 0 && prio >= logLevel;
-}
-
-LIBLOG_ABI_PRIVATE int __android_log_is_debuggable()
-{
-    return 1;
 }

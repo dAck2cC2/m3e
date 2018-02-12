@@ -18,8 +18,6 @@
 #define ANDROID_TYPE_HELPERS_H
 
 #include <new>
-#include <type_traits>
-
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
@@ -151,21 +149,16 @@ void destroy_type(TYPE* p, size_t n) {
     }
 }
 
-template<typename TYPE>
-typename std::enable_if<traits<TYPE>::has_trivial_copy>::type
-inline
-copy_type(TYPE* d, const TYPE* s, size_t n) {
-    memcpy(d,s,n*sizeof(TYPE));
-}
-
-template<typename TYPE>
-typename std::enable_if<!traits<TYPE>::has_trivial_copy>::type
-inline
-copy_type(TYPE* d, const TYPE* s, size_t n) {
-    while (n > 0) {
-        n--;
-        new(d) TYPE(*s);
-        d++, s++;
+template<typename TYPE> inline
+void copy_type(TYPE* d, const TYPE* s, size_t n) {
+    if (!traits<TYPE>::has_trivial_copy) {
+        while (n > 0) {
+            n--;
+            new(d) TYPE(*s);
+            d++, s++;
+        }
+    } else {
+        memcpy(d,s,n*sizeof(TYPE));
     }
 }
 
@@ -185,61 +178,49 @@ void splat_type(TYPE* where, const TYPE* what, size_t n) {
     }
 }
 
-template<typename TYPE>
-struct use_trivial_move : public std::integral_constant<bool,
-    (traits<TYPE>::has_trivial_dtor && traits<TYPE>::has_trivial_copy)
-    || traits<TYPE>::has_trivial_move
-> {};
-
-template<typename TYPE>
-typename std::enable_if<use_trivial_move<TYPE>::value>::type
-inline
-move_forward_type(TYPE* d, const TYPE* s, size_t n = 1) {
-    memmove(d, s, n*sizeof(TYPE));
-}
-
-template<typename TYPE>
-typename std::enable_if<!use_trivial_move<TYPE>::value>::type
-inline
-move_forward_type(TYPE* d, const TYPE* s, size_t n = 1) {
-    d += n;
-    s += n;
-    while (n > 0) {
-        n--;
-        --d, --s;
-        if (!traits<TYPE>::has_trivial_copy) {
-            new(d) TYPE(*s);
-        } else {
-            *d = *s;
-        }
-        if (!traits<TYPE>::has_trivial_dtor) {
-            s->~TYPE();
+template<typename TYPE> inline
+void move_forward_type(TYPE* d, const TYPE* s, size_t n = 1) {
+    if ((traits<TYPE>::has_trivial_dtor && traits<TYPE>::has_trivial_copy) 
+            || traits<TYPE>::has_trivial_move) 
+    {
+        memmove(d,s,n*sizeof(TYPE));
+    } else {
+        d += n;
+        s += n;
+        while (n > 0) {
+            n--;
+            --d, --s;
+            if (!traits<TYPE>::has_trivial_copy) {
+                new(d) TYPE(*s);
+            } else {
+                *d = *s;   
+            }
+            if (!traits<TYPE>::has_trivial_dtor) {
+                s->~TYPE();
+            }
         }
     }
 }
 
-template<typename TYPE>
-typename std::enable_if<use_trivial_move<TYPE>::value>::type
-inline
-move_backward_type(TYPE* d, const TYPE* s, size_t n = 1) {
-    memmove(d, s, n*sizeof(TYPE));
-}
-
-template<typename TYPE>
-typename std::enable_if<!use_trivial_move<TYPE>::value>::type
-inline
-move_backward_type(TYPE* d, const TYPE* s, size_t n = 1) {
-    while (n > 0) {
-        n--;
-        if (!traits<TYPE>::has_trivial_copy) {
-            new(d) TYPE(*s);
-        } else {
-            *d = *s;
+template<typename TYPE> inline
+void move_backward_type(TYPE* d, const TYPE* s, size_t n = 1) {
+    if ((traits<TYPE>::has_trivial_dtor && traits<TYPE>::has_trivial_copy) 
+            || traits<TYPE>::has_trivial_move) 
+    {
+        memmove(d,s,n*sizeof(TYPE));
+    } else {
+        while (n > 0) {
+            n--;
+            if (!traits<TYPE>::has_trivial_copy) {
+                new(d) TYPE(*s);
+            } else {
+                *d = *s;   
+            }
+            if (!traits<TYPE>::has_trivial_dtor) {
+                s->~TYPE();
+            }
+            d++, s++;
         }
-        if (!traits<TYPE>::has_trivial_dtor) {
-            s->~TYPE();
-        }
-        d++, s++;
     }
 }
 
@@ -258,13 +239,8 @@ struct key_value_pair_t {
     VALUE   value;
     key_value_pair_t() { }
     key_value_pair_t(const key_value_pair_t& o) : key(o.key), value(o.value) { }
-    key_value_pair_t& operator=(const key_value_pair_t& o) {
-        key = o.key;
-        value = o.value;
-        return *this;
-    }
     key_value_pair_t(const KEY& k, const VALUE& v) : key(k), value(v)  { }
-    explicit key_value_pair_t(const KEY& k) : key(k) { }
+    key_value_pair_t(const KEY& k) : key(k) { }
     inline bool operator < (const key_value_pair_t& o) const {
         return strictly_order_type(key, o.key);
     }
@@ -299,7 +275,8 @@ typedef uint32_t hash_t;
 template <typename TKey>
 hash_t hash_type(const TKey& key);
 
-/* Built-in hash code specializations */
+/* Built-in hash code specializations.
+ * Assumes pointers are 32bit. */
 #define ANDROID_INT32_HASH(T) \
         template <> inline hash_t hash_type(const T& value) { return hash_t(value); }
 #define ANDROID_INT64_HASH(T) \
@@ -307,11 +284,7 @@ hash_t hash_type(const TKey& key);
                 return hash_t((value >> 32) ^ value); }
 #define ANDROID_REINTERPRET_HASH(T, R) \
         template <> inline hash_t hash_type(const T& value) { \
-            R newValue; \
-            static_assert(sizeof(newValue) == sizeof(value), "size mismatch"); \
-            memcpy(&newValue, &value, sizeof(newValue)); \
-            return hash_type(newValue); \
-        }
+                return hash_type(*reinterpret_cast<const R*>(&value)); }
 
 ANDROID_INT32_HASH(bool)
 ANDROID_INT32_HASH(int8_t)

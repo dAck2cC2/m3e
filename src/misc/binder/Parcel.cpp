@@ -51,6 +51,11 @@
 //#include <private/binder/binder_module.h>
 //#include <private/binder/Static.h>
 
+#ifndef SIZE_T_MAX
+#include <limits.h>
+#define SIZE_T_MAX  SIZE_MAX
+#endif // SIZE_T_MAX
+
 #ifndef INT32_MAX
 #define INT32_MAX ((int32_t)(2147483647))
 #endif
@@ -68,10 +73,10 @@
 #define PAD_SIZE_UNSAFE(s) (((s)+3)&~3)
 
 static size_t pad_size(size_t s) {
-	if (s > (SIZE_T_MAX - 3)) {
-		abort();
-	}
-	return PAD_SIZE_UNSAFE(s);
+    if (s > (SIZE_T_MAX - 3)) {
+        abort();
+    }
+    return PAD_SIZE_UNSAFE(s);
 }
 
 // Note: must be kept in sync with android/os/StrictMode.java's PENALTY_GATHER
@@ -818,7 +823,7 @@ status_t Parcel::writeUtf8AsUtf16(const std::string& str) {
         return NO_MEMORY;
     }
 
-	utf8_to_utf16(strData, strLen, (char16_t*)dst, (utf16Len + 1) * sizeof(char16_t));
+    utf8_to_utf16(strData, strLen, (char16_t*)dst);
 
     return NO_ERROR;
 }
@@ -1269,7 +1274,7 @@ status_t Parcel::writeBlob(size_t len, bool mutableCopy, WritableBlob* outBlob)
     ::close(fd);
     return status;
 }
-#endif
+
 status_t Parcel::writeDupImmutableBlobFileDescriptor(int fd)
 {
     // Must match up with what's done in writeBlob.
@@ -1278,7 +1283,7 @@ status_t Parcel::writeDupImmutableBlobFileDescriptor(int fd)
     if (status) return status;
     return writeDupFileDescriptor(fd);
 }
-
+#endif
 status_t Parcel::write(const FlattenableHelperInterface& val)
 {
     status_t err;

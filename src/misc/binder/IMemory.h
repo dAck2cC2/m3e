@@ -56,9 +56,9 @@ public:
 class BnMemoryHeap : public BnInterface<IMemoryHeap>
 {
 public:
-	BnMemoryHeap();
+    BnMemoryHeap();
 protected:
-	virtual ~BnMemoryHeap();
+    virtual ~BnMemoryHeap();
 };
 
 // ----------------------------------------------------------------------------
@@ -80,9 +80,9 @@ public:
 class BnMemory : public BnInterface<IMemory>
 {
 public:
-	BnMemory();
+    BnMemory();
 protected:
-	virtual ~BnMemory();
+    virtual ~BnMemory();
 };
 
 // ----------------------------------------------------------------------------

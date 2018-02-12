@@ -17,11 +17,13 @@
 #ifndef A_STRING_UTILS_H_
 #define A_STRING_UTILS_H_
 
+#include <cutils/compiler.h>
+
 #include <stdlib.h>
 
 namespace android {
 
-struct AStringUtils {
+struct ANDROID_API AStringUtils {
     // similar to strncmp or strcasecmp, but case sensitivity is parametric
     static int Compare(const char *a, const char *b, size_t len, bool ignoreCase);
 

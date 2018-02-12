@@ -17,14 +17,14 @@
 #ifndef ANDROID_VECTOR_H
 #define ANDROID_VECTOR_H
 
+#include <new>
 #include <stdint.h>
 #include <sys/types.h>
 
-#include <new>
+#include <cutils/log.h>
 
-#include <log/log.h>
-#include <utils/TypeHelpers.h>
 #include <utils/VectorImpl.h>
+#include <utils/TypeHelpers.h>
 
 // ---------------------------------------------------------------------------
 
@@ -194,7 +194,7 @@ public:
      inline void push_back(const TYPE& item)  { insertAt(item, size(), 1); }
      inline void push_front(const TYPE& item) { insertAt(item, 0, 1); }
      inline iterator erase(iterator pos) {
-         ssize_t index = removeItemsAt(static_cast<size_t>(pos-array()));
+         ssize_t index = removeItemsAt(pos-array());
          return begin() + index;
      }
 
@@ -206,6 +206,10 @@ protected:
     virtual void    do_move_forward(void* dest, const void* from, size_t num) const;
     virtual void    do_move_backward(void* dest, const void* from, size_t num) const;
 };
+
+// Vector<T> can be trivially moved using memcpy() because moving does not
+// require any change to the underlying SharedBuffer contents or reference count.
+template<typename T> struct trait_trivial_move<Vector<T> > { enum { value = true }; };
 
 // ---------------------------------------------------------------------------
 // No user serviceable parts from here...
@@ -371,12 +375,12 @@ ssize_t Vector<TYPE>::removeItemsAt(size_t index, size_t count) {
 
 template<class TYPE> inline
 status_t Vector<TYPE>::sort(typename Vector<TYPE>::compar_t cmp) {
-    return VectorImpl::sort(reinterpret_cast<VectorImpl::compar_t>(cmp));
+    return VectorImpl::sort((VectorImpl::compar_t)cmp);
 }
 
 template<class TYPE> inline
 status_t Vector<TYPE>::sort(typename Vector<TYPE>::compar_r_t cmp, void* state) {
-    return VectorImpl::sort(reinterpret_cast<VectorImpl::compar_r_t>(cmp), state);
+    return VectorImpl::sort((VectorImpl::compar_r_t)cmp, state);
 }
 
 // ---------------------------------------------------------------------------

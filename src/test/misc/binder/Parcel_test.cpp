@@ -1,6 +1,7 @@
 
 #include <gtest/gtest.h>
 #include <binder/Parcel.h>
+#include <utils/String8.h>
 
 namespace android {
 

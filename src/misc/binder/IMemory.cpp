@@ -63,15 +63,15 @@ private:
     Mutex mHeapCacheLock;
     KeyedVector< wp<IBinder>, heap_info_t > mHeapCache;
 };
-
-//static sp<HeapCache> gHeapCache = new HeapCache();
+#if 0
+static sp<HeapCache> gHeapCache = new HeapCache();
 
 /******************************************************************************/
 
 enum {
     HEAP_ID = IBinder::FIRST_CALL_TRANSACTION
 };
-#if 0
+
 class BpMemoryHeap : public BpInterface<IMemoryHeap>
 {
 public:
@@ -165,16 +165,6 @@ ssize_t IMemory::offset() const {
     return offset;
 }
 
-/******************************************************************************/
-
-IMPLEMENT_META_INTERFACE(Memory, "android.utils.IMemory");
-
-BnMemory::BnMemory() {
-}
-
-BnMemory::~BnMemory() {
-}
-
 #if 0
 /******************************************************************************/
 
@@ -220,7 +210,7 @@ sp<IMemoryHeap> BpMemory::getMemory(ssize_t* offset, size_t* size) const
     if (size) *size = mSize;
     return (mSize > 0) ? mHeap : 0;
 }
-
+#endif 
 // ---------------------------------------------------------------------------
 
 IMPLEMENT_META_INTERFACE(Memory, "android.utils.IMemory");
@@ -230,7 +220,7 @@ BnMemory::BnMemory() {
 
 BnMemory::~BnMemory() {
 }
-
+#if 0
 status_t BnMemory::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
@@ -374,7 +364,7 @@ uint32_t BpMemoryHeap::getOffset() const {
     assertMapped();
     return mOffset;
 }
-
+#endif 
 // ---------------------------------------------------------------------------
 
 IMPLEMENT_META_INTERFACE(MemoryHeap, "android.utils.IMemoryHeap");
@@ -384,7 +374,7 @@ BnMemoryHeap::BnMemoryHeap() {
 
 BnMemoryHeap::~BnMemoryHeap() {
 }
-
+#if 0
 status_t BnMemoryHeap::onTransact(
         uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
@@ -401,19 +391,7 @@ status_t BnMemoryHeap::onTransact(
             return BBinder::onTransact(code, data, reply, flags);
     }
 }
-#endif 
 
-// ---------------------------------------------------------------------------
-
-IMPLEMENT_META_INTERFACE(MemoryHeap, "android.utils.IMemoryHeap");
-
-BnMemoryHeap::BnMemoryHeap() {
-}
-
-BnMemoryHeap::~BnMemoryHeap() {
-}
-
-#if 0
 /*****************************************************************************/
 
 HeapCache::HeapCache()

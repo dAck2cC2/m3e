@@ -26,6 +26,10 @@
 
 #include <algorithm>
 
+#if defined(_MSC_VER)
+#undef min
+#endif // _MSC_VER
+
 namespace android {
 
 CallbackDataSource::CallbackDataSource(

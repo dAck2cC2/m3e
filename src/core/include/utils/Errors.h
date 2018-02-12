@@ -23,7 +23,7 @@
 namespace android {
 
 // use this type to return error codes
-#ifdef HAVE_MS_C_RUNTIME
+#ifdef _WIN32
 typedef int         status_t;
 #elif defined(_MACOSX)
 typedef int64_t     status_t;
@@ -60,7 +60,7 @@ enum {
     ALREADY_EXISTS      = -EEXIST,
     DEAD_OBJECT         = -EPIPE,
     FAILED_TRANSACTION  = (UNKNOWN_ERROR + 2),
-#if !defined(HAVE_MS_C_RUNTIME)
+#if !defined(_WIN32)
     BAD_INDEX           = -EOVERFLOW,
     NOT_ENOUGH_DATA     = -ENODATA,
     WOULD_BLOCK         = -EWOULDBLOCK, 

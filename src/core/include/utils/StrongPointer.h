@@ -60,12 +60,12 @@ class sp {
 public:
     inline sp() : m_ptr(0) { }
 
-    sp(T* other);  // NOLINT(implicit)
+    sp(T* other);
     sp(const sp<T>& other);
     sp(sp<T>&& other);
-    template<typename U> sp(U* other);  // NOLINT(implicit)
-    template<typename U> sp(const sp<U>& other);  // NOLINT(implicit)
-    template<typename U> sp(sp<U>&& other);  // NOLINT(implicit)
+    template<typename U> sp(U* other);
+    template<typename U> sp(const sp<U>& other);
+    template<typename U> sp(sp<U>&& other);
 
     ~sp();
 
@@ -137,7 +137,7 @@ template<typename T> template<typename U>
 sp<T>::sp(U* other)
         : m_ptr(other) {
     if (other)
-        (static_cast<T*>(other))->incStrong(this);
+        ((T*) other)->incStrong(this);
 }
 
 template<typename T> template<typename U>
@@ -212,7 +212,7 @@ sp<T>& sp<T>::operator =(sp<U>&& other) {
 template<typename T> template<typename U>
 sp<T>& sp<T>::operator =(U* other) {
     if (other)
-        (static_cast<T*>(other))->incStrong(this);
+        ((T*) other)->incStrong(this);
     if (m_ptr)
         m_ptr->decStrong(this);
     m_ptr = other;

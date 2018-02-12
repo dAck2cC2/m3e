@@ -14,6 +14,7 @@ static const char * TEST_FILE[TEST_FDS] = {
     "test_file_2"
 };
 
+#if 0
 TEST(libcutils, native_handle_init)
 {
     void* storage = malloc(sizeof(native_handle_t) + sizeof(int) * (TEST_FDS + TEST_INTS));
@@ -26,6 +27,7 @@ TEST(libcutils, native_handle_init)
     
     native_handle_delete(handle);
 }
+#endif 
 
 TEST(libcutils, native_handle_create)
 {
@@ -57,6 +59,7 @@ TEST(libcutils, native_handle_close)
     }
 }
 
+#if 0
 TEST(libcutils, native_handle_clone)
 {
     native_handle_t* handle = native_handle_create(TEST_FDS, TEST_INTS);
@@ -92,4 +95,4 @@ TEST(libcutils, native_handle_clone)
         remove(TEST_FILE[i]);
     }
 }
-
+#endif

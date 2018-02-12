@@ -21,24 +21,13 @@
 
 /* Android private interfaces */
 
-#include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
 
-#if (defined(__cplusplus) && defined(_USING_LIBCXX))
-extern "C++" {
-#include <string>
-}
-#endif
-
-#include <log/log_event_list.h>
 #include <log/log.h>
+#include <log/log_read.h>
 
 #define LOGGER_MAGIC 'l'
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
 
 /* Header Structure to pstore */
 typedef struct __attribute__((__packed__)) {
@@ -95,7 +84,6 @@ typedef struct __attribute__((__packed__)) {
  * in C++.
  * http://stackoverflow.com/questions/4412749/are-flexible-array-members-valid-in-c
  */
-
 typedef struct __attribute__((__packed__)) {
     int8_t type;    // EVENT_TYPE_STRING;
     int32_t length; // Little Endian Order
@@ -110,14 +98,18 @@ typedef struct __attribute__((__packed__)) {
     char data[];
 } android_log_event_string_t;
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define ANDROID_LOG_PMSG_FILE_MAX_SEQUENCE 256 /* 1MB file */
 #define ANDROID_LOG_PMSG_FILE_SEQUENCE     1000
 
 ssize_t __android_log_pmsg_file_write(
         log_id_t logId,
         char prio,
-        const char* filename,
-        const char* buf, size_t len);
+        const char *filename,
+        const char *buf, size_t len);
 
 #define LOG_ID_ANY      ((log_id_t)-1)
 #define ANDROID_LOG_ANY ANDROID_LOG_UNKNOWN
@@ -126,66 +118,12 @@ ssize_t __android_log_pmsg_file_write(
 typedef ssize_t (*__android_log_pmsg_file_read_fn)(
         log_id_t logId,
         char prio,
-        const char* filename,
-        const char* buf, size_t len, void* arg);
+        const char *filename,
+        const char *buf, size_t len, void *arg);
 
 ssize_t __android_log_pmsg_file_read(
-        log_id_t logId, char prio, const char* prefix,
-        __android_log_pmsg_file_read_fn fn, void* arg);
-
-int __android_log_security_bwrite(int32_t tag, const void* payload, size_t len);
-int __android_log_security_bswrite(int32_t tag, const char* payload);
-int __android_log_security(); /* Device Owner is present */
-
-int __android_log_is_debuggable();
-
-#define BOOL_DEFAULT_FLAG_TRUE_FALSE 0x1
-#define BOOL_DEFAULT_FALSE       0x0     /* false if property not present   */
-#define BOOL_DEFAULT_TRUE        0x1     /* true if property not present    */
-#define BOOL_DEFAULT_FLAG_PERSIST    0x2 /* <key>, persist.<key>, ro.<key>  */
-#define BOOL_DEFAULT_FLAG_ENG        0x4 /* off for user                    */
-#define BOOL_DEFAULT_FLAG_SVELTE     0x8 /* off for low_ram                 */
-bool __android_logger_property_get_bool(const char* key, int flag);
-
-#define LOG_BUFFER_SIZE (256 * 1024) /* Tuned with ro.logd.size per-platform */
-#define LOG_BUFFER_MIN_SIZE (64 * 1024UL)
-#define LOG_BUFFER_MAX_SIZE (256 * 1024 * 1024UL)
-unsigned long __android_logger_get_buffer_size(log_id_t logId);
-bool __android_logger_valid_buffer_size(unsigned long value);
-
-/* Retrieve the composed event buffer */
-int android_log_write_list_buffer(android_log_context ctx, const char** msg);
-
-#ifdef __cplusplus
-#ifdef __class_android_log_event_list_defined
-#ifndef __class_android_log_event_list_private_defined
-#define __class_android_log_event_list_private_defined
-/* android_log_context C++ helpers */
-extern "C++" {
-class __android_log_event_list : public android_log_event_list {
-    __android_log_event_list(const android_log_event_list&) = delete;
-    void operator =(const __android_log_event_list&) = delete;
-
-public:
-    explicit __android_log_event_list(int tag) : android_log_event_list(tag) { }
-    explicit __android_log_event_list(log_msg& log_msg) : android_log_event_list(log_msg) { }
-
-#if defined(_USING_LIBCXX)
-    operator std::string() {
-        if (ret) return std::string("");
-        const char* cp = NULL;
-        ssize_t len = android_log_write_list_buffer(ctx, &cp);
-        if (len < 0) ret = len;
-        if (!cp || (len <= 0)) return std::string("");
-        return std::string(cp, len);
-    }
-#endif
-
-};
-}
-#endif
-#endif
-#endif
+        log_id_t logId, char prio, const char *prefix,
+        __android_log_pmsg_file_read_fn fn, void *arg);
 
 #if defined(__cplusplus)
 }

@@ -60,8 +60,8 @@ add_subdirectory(misc)
 endif(ENABLE_MISC)
 
 if(ENABLE_AV_BASE)
-add_subdirectory(media)
-add_subdirectory(audio)
+#add_subdirectory(media)
+#add_subdirectory(audio)
 endif(ENABLE_AV_BASE)
 
 if(ENABLE_APP)

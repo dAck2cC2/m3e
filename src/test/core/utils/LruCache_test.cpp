@@ -15,11 +15,10 @@
  */
 
 #include <stdlib.h>
-
-#include <android/log.h>
-#include <gtest/gtest.h>
 #include <utils/JenkinsHash.h>
 #include <utils/LruCache.h>
+#include <cutils/log.h>
+#include <gtest/gtest.h>
 
 #if defined(_MSC_VER)
 #define srandom  srand
@@ -86,14 +85,6 @@ struct KeyWithPointer {
     }
 };
 
-struct KeyFailsOnCopy : public ComplexKey {
-    public:
-    KeyFailsOnCopy(const KeyFailsOnCopy& key) : ComplexKey(key) {
-        ADD_FAILURE();
-    }
-    KeyFailsOnCopy(int key) : ComplexKey(key) { }
-};
-
 } // namespace
 
 
@@ -107,10 +98,6 @@ template<> inline android::hash_t hash_type(const ComplexKey& value) {
 
 template<> inline android::hash_t hash_type(const KeyWithPointer& value) {
     return hash_type(*value.ptr);
-}
-
-template<> inline android::hash_t hash_type(const KeyFailsOnCopy& value) {
-    return hash_type<ComplexKey>(value);
 }
 
 class EntryRemovedCallback : public OnEntryRemoved<SimpleKey, StringValue> {
@@ -453,12 +440,6 @@ TEST_F(LruCacheTest, RemoveNonMember) {
         returnedValues.insert(it.value());
     }
     EXPECT_EQ(std::unordered_set<int>({ 4, 5, 6 }), returnedValues);
-}
-
-TEST_F(LruCacheTest, DontCopyKeyInGet) {
-    LruCache<KeyFailsOnCopy, KeyFailsOnCopy> cache(1);
-    // Check that get doesn't copy the key
-    cache.get(KeyFailsOnCopy(0));
 }
 
 }
