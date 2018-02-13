@@ -613,13 +613,19 @@ int android_log_destroy(android_log_context *ctx);
  *
  * The stuff in the rest of this file should not be used directly.
  */
-
+#if defined(_MSC_VER)
 #define android_printLog(prio, tag, fmt, ...) \
     __android_log_print(prio, tag, fmt)
 
 #define android_vprintLog(prio, cond, tag, fmt, ...) \
     __android_log_vprint(prio, tag, fmt)
+#else  // _MSC_VER
+#define android_printLog(prio, tag, fmt...) \
+    __android_log_print(prio, tag, fmt)
 
+#define android_vprintLog(prio, cond, tag, fmt...) \
+    __android_log_vprint(prio, tag, fmt)
+#endif // _MSC_VER
 /* XXX Macros to work around syntax errors in places where format string
  * arg is not passed to ALOG_ASSERT, LOG_ALWAYS_FATAL or LOG_ALWAYS_FATAL_IF
  * (happens only in debug builds).
@@ -634,11 +640,15 @@ int android_log_destroy(android_log_context *ctx);
  * returns nothing.
  */
 #define __android_rest(first, ...)               , ## __VA_ARGS__
-
+#if defined(_MSC_VER)
 #define android_printAssert(cond, tag, fmt, ...) \
     __android_log_assert(cond, tag, \
         __android_second(0, ## fmt, NULL) __android_rest(fmt))
-
+#else  // _MSC_VER
+#define android_printAssert(cond, tag, fmt...) \
+    __android_log_assert(cond, tag, \
+        __android_second(0, ## fmt, NULL) __android_rest(fmt))
+#endif // _MSC_VER
 #define android_writeLog(prio, tag, text) \
     __android_log_write(prio, tag, text)
 

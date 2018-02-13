@@ -8,3 +8,4 @@ add_subdirectory(misc)
 endif(ENABLE_MISC)
 
 add_subdirectory(av)
+add_subdirectory(external)
