@@ -9,32 +9,42 @@ endif()
 
 # skia
 if(ENABLE_SKIA)
-add_subdirectory(skia)
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
 message(STATUS "Download\tskia")
 exec_program("git clone https://skia.googlesource.com/skia.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
 exec_program("git checkout chrome/m65" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
 endif()
+add_subdirectory(skia)
 
-add_subdirectory(imgui)
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/imgui)
 message(STATUS "Download\timgui")
 exec_program("git clone https://skia.googlesource.com/external/github.com/ocornut/imgui.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
 exec_program("git reset --hard 6384eee34f08cb7eab8d835043e1738e4adcdf75" ${M3E_SOURCE_DIR}/${EXT_PATH}/imgui)
 endif()
+add_subdirectory(imgui)
 
-add_subdirectory(jsoncpp)
 set(EXT_MODULES ${EXT_MODULES} jsoncpp)
+add_subdirectory(jsoncpp)
+
+if (APPLE)
+if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/sdl)
+message(STATUS "Download\tsdl")
+exec_program("git clone https://skia.googlesource.com/third_party/sdl" ${M3E_SOURCE_DIR}/${EXT_PATH})
+exec_program("git reset --hard 5d7cfcca344034aff9327f77fc181ae3754e7a90" ${M3E_SOURCE_DIR}/${EXT_PATH}/sdl)
+endif()
+add_subdirectory(sdl)
+endif(APPLE)
+
 endif(ENABLE_SKIA)
 
 # freeglut
 if(ENABLE_GLUT)
-add_subdirectory(freeglut)
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
-message(STATUS "Download\timgui")
+message(STATUS "Download\tFreeGLUT")
 exec_program("git clone https://github.com/dcnieho/FreeGLUT.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
 #exec_program("git reset --hard 6384eee34f08cb7eab8d835043e1738e4adcdf75" ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
 endif()
+add_subdirectory(freeglut)
 endif(ENABLE_GLUT)
 
 # external module from android

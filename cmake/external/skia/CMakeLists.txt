@@ -12,7 +12,6 @@ set(SKIA_DEPLIB
 jsoncpp
 imgui
 )
-set(SKIA_DEP ${SKIA_DEPLIB})
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/config)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/utils)
@@ -88,6 +87,7 @@ ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/src/image/SkSurface_Raster.cpp
 )
 
 if(MSVC)
+
 add_definitions(-DNOMINMAX)
 
 set(SKIA_HEADER_FILES ${SKIA_HEADER_FILES}
@@ -106,6 +106,24 @@ ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/src/gpu/gl/win/GrGLMakeNativeInterface_win.cp
 ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/src/utils/win/SkWGL_win.cpp
 
 ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/src/ports/SkDebug_win.cpp
+)
+
+elseif(APPLE)
+
+include(${M3E_SOURCE_DIR}/cmake/external/sdl/include.cmake)
+set(SKIA_DEPLIB ${SKIA_DEPLIB} sdl)
+
+set(SKIA_HEADER_FILES ${SKIA_HEADER_FILES}
+${M3E_SOURCE_DIR}/${EXT_PATH}/skia/tools/sk_app/mac/Window_mac.h
+${M3E_SOURCE_DIR}/${EXT_PATH}/skia/tools/sk_app/mac/WindowContextFactory_mac.h
+)
+
+set(SKIA_SOURCE_FILES ${SKIA_SOURCE_FILES}
+${M3E_SOURCE_DIR}/${EXT_PATH}/skia/tools/sk_app/mac/GLWindowContext_mac.cpp
+${M3E_SOURCE_DIR}/${EXT_PATH}/skia/tools/sk_app/mac/main_mac.cpp
+${M3E_SOURCE_DIR}/${EXT_PATH}/skia/tools/sk_app/mac/RasterWindowContext_mac.cpp
+${M3E_SOURCE_DIR}/${EXT_PATH}/skia/tools/sk_app/mac/Window_mac.cpp
+
 )
 endif()
 
