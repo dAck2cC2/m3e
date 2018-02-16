@@ -20,7 +20,7 @@
     //fgDestroyWindow ( window );
 }
 
-static int s_bShouldHandleEventsInApplication = 0;
+static GLboolean s_bShouldHandleEventsInApplication = GL_FALSE;
 
 static void Cocoa_DispatchEvent(NSEvent *theEvent)
 {
@@ -345,7 +345,7 @@ Cocoa_RegisterApp(void)
             [GLUTApplication sharedApplication];
             //SDL_assert(NSApp != nil);
             
-            s_bShouldHandleEventsInApplication = 1;
+            s_bShouldHandleEventsInApplication = GL_TRUE;
             
             //if (!SDL_GetHintBoolean(SDL_HINT_MAC_BACKGROUND_APP, SDL_FALSE))
             {
@@ -377,4 +377,39 @@ Cocoa_RegisterApp(void)
             }
         }
     }
+}
+
+/*
+ * main
+ */
+void fgPlatformInitWork(SFG_Window* window)
+{
+}
+void fgPlatformMainLoopPreliminaryWork ( void )
+{
+}
+void fgPlatformPosResZordWork(SFG_Window* window, unsigned int workMask)
+{
+}
+void fgPlatformProcessSingleEvent ( void )
+{
+}
+void fgPlatformSleepForEvents( fg_time_t msec )
+{
+}
+void fgPlatformVisibilityWork(SFG_Window* window)
+{
+}
+
+fg_time_t fgPlatformSystemTime ( void )
+{
+#ifdef CLOCK_MONOTONIC
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return now.tv_nsec/1000000 + now.tv_sec*1000;
+#elif defined(HAVE_GETTIMEOFDAY)
+    struct timeval now;
+    gettimeofday( &now, NULL );
+    return now.tv_usec/1000 + now.tv_sec*1000;
+#endif
 }

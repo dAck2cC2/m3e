@@ -1,11 +1,13 @@
 #ifndef  FREEGLUT_INTERNAL_OSX_H
 #define  FREEGLUT_INTERNAL_OSX_H
 
+#include <CoreGraphics/CGDirectDisplay.h>
+
 /* Switch of unsupported feature */
 
-#define TARGET_NO_MAIN       1
+#define TARGET_NO_MAIN       0
 #define TARGET_NO_INIT       0
-#define TARGET_NO_WINDOW     1
+#define TARGET_NO_WINDOW     0
 #define TARGET_NO_DISPLAY    1
 #define TARGET_NO_JOYSTICK   1
 #define TARGET_NO_SPACEBALL  1
@@ -22,7 +24,11 @@
 typedef struct tagSFG_PlatformDisplay SFG_PlatformDisplay;
 struct tagSFG_PlatformDisplay
 {
-    char           *DisplayName;        /* Display name for multi display support*/ 
+    CGDirectDisplayID  display;
+    CGDisplayModeRef   moderef;
+    int                refreshRate;
+    int                bpp;         /* Bits Per Pixel */
+    char*              name;        /* Display name for multi display support*/
 };
 
 /*

@@ -132,13 +132,17 @@ ELSE()
     ELSEIF(APPLE)
         FIND_LIBRARY(COCOA_LIBRARY Cocoa)
         LIST(APPEND LIBS ${COCOA_LIBRARY})
+        FIND_LIBRARY(COREVIDEO_LIBRARY CoreVideo)
+        LIST(APPEND LIBS ${COREVIDEO_LIBRARY})
+        FIND_LIBRARY(IOKIT_LIBRARY IOKit)
+        LIST(APPEND LIBS ${IOKIT_LIBRARY})   
         INCLUDE_DIRECTORIES(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut)
         LIST(APPEND FREEGLUT_SRCS
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/fg_empty.c
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_internal_osx.h
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_init_osx.m
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_main_osx.m
-            #${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_window_osx.m
+            ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_window_osx.m
             ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/x11/fg_glutfont_definitions_x11.c
             ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/x11/fg_input_devices_x11.c              
         )
@@ -263,7 +267,7 @@ ELSEIF(BLACKBERRY)
     # -screen for native screen
     LIST(APPEND LIBS bps screen)
 
-    if(NOT PLAYBOOK)
+    IF(NOT PLAYBOOK)
         # -lslog2 for logging
         # -pps for low-level screen manipulation
         LIST(APPEND LIBS slog2 pps)
@@ -272,8 +276,10 @@ ENDIF()
 
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckTypeSize)
-CHECK_INCLUDE_FILES(sys/types.h HAVE_SYS_TYPES_H)
+IF (NOT APPLE)
 CHECK_INCLUDE_FILES(unistd.h 	HAVE_UNISTD_H)
+ENDIF()
+CHECK_INCLUDE_FILES(sys/types.h HAVE_SYS_TYPES_H)
 CHECK_INCLUDE_FILES(sys/time.h 	HAVE_SYS_TIME_H)
 CHECK_INCLUDE_FILES(stdbool.h 	HAVE_STDBOOL_H)
 CHECK_INCLUDE_FILES(sys/param.h HAVE_SYS_PARAM_H)
