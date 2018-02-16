@@ -15,9 +15,10 @@ freeglut
 # test file
 
 set(TEST_GLUT_SOURCE_FILES 
-${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/shapes/shapes.c
-${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/shapes/glmatrix.h
-${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/shapes/glmatrix.c
+${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/Lorenz/lorenz.c
+#${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/shapes/shapes.c
+#${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/shapes/glmatrix.h
+#${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/shapes/glmatrix.c
 )
 
 # project

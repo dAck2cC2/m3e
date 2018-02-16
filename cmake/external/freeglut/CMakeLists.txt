@@ -130,7 +130,18 @@ ELSE()
         )
     # Mac OSX
     ELSEIF(APPLE)
-
+        FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+        LIST(APPEND LIBS ${COCOA_LIBRARY})
+        INCLUDE_DIRECTORIES(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut)
+        LIST(APPEND FREEGLUT_SRCS
+            ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/fg_empty.c
+            ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_internal_osx.h
+            ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_init_osx.m
+            ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_main_osx.m
+            #${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_window_osx.m
+            ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/x11/fg_glutfont_definitions_x11.c
+            ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/x11/fg_input_devices_x11.c              
+        )
     # UNIX (X11)
     ELSE()
         LIST(APPEND FREEGLUT_SRCS

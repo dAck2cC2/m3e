@@ -39,11 +39,16 @@ endif(ENABLE_SKIA)
 
 # freeglut
 if(ENABLE_GLUT)
+
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
 message(STATUS "Download\tFreeGLUT")
 exec_program("git clone https://github.com/dcnieho/FreeGLUT.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-#exec_program("git reset --hard 6384eee34f08cb7eab8d835043e1738e4adcdf75" ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
+exec_program("git reset --hard cd7f5e9964f5334149cbae35ff3496137f9f9611" ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
+if (APPLE)
+exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/freeglut.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
+endif(APPLE)
 endif()
+
 add_subdirectory(freeglut)
 endif(ENABLE_GLUT)
 
@@ -72,7 +77,7 @@ add_subdirectory(jpeg)
 add_subdirectory(libyuv)
 endif(ENABLE_AV_CODEC)
 
-# download the source code of external module
+# download the source code of external module from Android
 foreach(MOD ${EXT_MODULES})
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/${MOD})
 message(STATUS "Download\t${MOD}")
