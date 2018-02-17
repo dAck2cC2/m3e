@@ -1,7 +1,9 @@
 #ifndef  FREEGLUT_INTERNAL_OSX_H
 #define  FREEGLUT_INTERNAL_OSX_H
 
-#include <CoreGraphics/CGDirectDisplay.h>
+#import <Cocoa/Cocoa.h>
+#import <CoreGraphics/CGDirectDisplay.h>
+#import <AppKit/NSWindow.h>
 
 /* Switch of unsupported feature */
 
@@ -35,25 +37,125 @@ struct tagSFG_PlatformDisplay
  * Make "freeglut" window handle and context types so that we don't need so
  * much conditionally-compiled code later in the library.
  */
-typedef int    SFG_WindowHandleType;
-typedef int   SFG_WindowContextType;
+
+typedef NSWindow * SFG_WindowHandleType;
+typedef int  SFG_WindowContextType;
+
+typedef enum
+{
+    PENDING_OPERATION_NONE,
+    PENDING_OPERATION_ENTER_FULLSCREEN,
+    PENDING_OPERATION_LEAVE_FULLSCREEN,
+    PENDING_OPERATION_MINIMIZE
+} PendingWindowOperation;
+
+@interface Cocoa_WindowListener : NSResponder <NSWindowDelegate> {
+    SFG_WindowHandleType _window;
+    BOOL observingVisible;
+    BOOL wasCtrlLeft;
+    BOOL wasVisible;
+    BOOL isFullscreenSpace;
+    BOOL inFullscreenTransition;
+    PendingWindowOperation pendingWindowOperation;
+    BOOL isMoving;
+    int pendingWindowWarpX, pendingWindowWarpY;
+    BOOL isDragAreaRunning;
+}
+
+-(void) listen:(SFG_WindowHandleType) data;
+-(void) pauseVisibleObservation;
+-(void) resumeVisibleObservation;
+-(BOOL) setFullscreenSpace:(BOOL) state;
+-(BOOL) isInFullscreenSpace;
+-(BOOL) isInFullscreenSpaceTransition;
+-(void) addPendingWindowOperation:(PendingWindowOperation) operation;
+-(void) close;
+
+-(BOOL) isMoving;
+-(void) setPendingMoveX:(int)x Y:(int)y;
+-(void) windowDidFinishMoving;
+
+/* Window delegate functionality */
+-(BOOL) windowShouldClose:(id) sender;
+-(void) windowDidExpose:(NSNotification *) aNotification;
+-(void) windowDidMove:(NSNotification *) aNotification;
+-(void) windowDidResize:(NSNotification *) aNotification;
+-(void) windowDidMiniaturize:(NSNotification *) aNotification;
+-(void) windowDidDeminiaturize:(NSNotification *) aNotification;
+-(void) windowDidBecomeKey:(NSNotification *) aNotification;
+-(void) windowDidResignKey:(NSNotification *) aNotification;
+-(void) windowDidChangeBackingProperties:(NSNotification *) aNotification;
+-(void) windowWillEnterFullScreen:(NSNotification *) aNotification;
+-(void) windowDidEnterFullScreen:(NSNotification *) aNotification;
+-(void) windowWillExitFullScreen:(NSNotification *) aNotification;
+-(void) windowDidExitFullScreen:(NSNotification *) aNotification;
+-(NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions;
+
+/* See if event is in a drag area, toggle on window dragging. */
+-(BOOL) processHitTest:(NSEvent *)theEvent;
+
+/* Window event handling */
+-(void) mouseDown:(NSEvent *) theEvent;
+-(void) rightMouseDown:(NSEvent *) theEvent;
+-(void) otherMouseDown:(NSEvent *) theEvent;
+-(void) mouseUp:(NSEvent *) theEvent;
+-(void) rightMouseUp:(NSEvent *) theEvent;
+-(void) otherMouseUp:(NSEvent *) theEvent;
+-(void) mouseMoved:(NSEvent *) theEvent;
+-(void) mouseDragged:(NSEvent *) theEvent;
+-(void) rightMouseDragged:(NSEvent *) theEvent;
+-(void) otherMouseDragged:(NSEvent *) theEvent;
+-(void) scrollWheel:(NSEvent *) theEvent;
+-(void) touchesBeganWithEvent:(NSEvent *) theEvent;
+-(void) touchesMovedWithEvent:(NSEvent *) theEvent;
+-(void) touchesEndedWithEvent:(NSEvent *) theEvent;
+-(void) touchesCancelledWithEvent:(NSEvent *) theEvent;
+
+/* Touch event handling */
+-(void) handleTouches:(NSTouchPhase) phase withEvent:(NSEvent*) theEvent;
+
+@end /* Cocoa_WindowListener */
+
 typedef struct tagSFG_PlatformContext SFG_PlatformContext;
 struct tagSFG_PlatformContext
 {
-    int device;
+    SFG_WindowHandleType nswindow;
+    NSMutableArray *nscontexts;
+    GLboolean created;
+    GLboolean is_destroying;
+    Cocoa_WindowListener *listener;
 };
+
+@interface GLUTOpenGLContext : NSOpenGLContext {
+    int dirty;
+    SFG_PlatformContext* window;
+}
+
+- (id)initWithFormat:(NSOpenGLPixelFormat *)format
+        shareContext:(NSOpenGLContext *)share;
+- (void)scheduleUpdate;
+- (void)updateIfNeeded;
+- (void)setWindow:(SFG_PlatformContext *)window;
+
+@end /* GLUTOpenGLContext */
+
 
 /* Window's state description. This structure should be kept portable. */
 typedef struct tagSFG_PlatformWindowState SFG_PlatformWindowState;
 struct tagSFG_PlatformWindowState
 {
+    unsigned long style;
+    GLboolean isMaximized;
+    GLboolean isMinimized;
+    GLboolean isKeyWindow;
+    
     /* Need to store window titles to emulate
      * glutSetIconTitle/glutSetWindowTitle as Windows has only
      * one title associated with a window and we need to swap
      * them out based on the window's iconic state
      */
-    char*           WindowTitle;
-    char*           IconTitle;
+    char*           title;
+    char*           iconic;
 };
 
 

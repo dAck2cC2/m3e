@@ -343,7 +343,7 @@ Cocoa_RegisterApp(void)
         
         if (NSApp == nil) {
             [GLUTApplication sharedApplication];
-            //SDL_assert(NSApp != nil);
+            FREEGLUT_INTERNAL_ERROR_EXIT((NSApp != nil), "create GLUTApplication failed", "Cocoa_RegisterApp");
             
             s_bShouldHandleEventsInApplication = GL_TRUE;
             

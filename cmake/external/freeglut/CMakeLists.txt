@@ -130,6 +130,7 @@ ELSE()
         )
     # Mac OSX
     ELSEIF(APPLE)
+        SET(CMAKE_C_FLAGS "-x objective-c")
         FIND_LIBRARY(COCOA_LIBRARY Cocoa)
         LIST(APPEND LIBS ${COCOA_LIBRARY})
         FIND_LIBRARY(COREVIDEO_LIBRARY CoreVideo)
@@ -143,6 +144,7 @@ ELSE()
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_init_osx.m
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_main_osx.m
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_window_osx.m
+            ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/osx/fg_window_osx_gl.m
             ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/x11/fg_glutfont_definitions_x11.c
             ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/x11/fg_input_devices_x11.c              
         )
