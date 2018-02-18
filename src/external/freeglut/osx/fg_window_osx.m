@@ -4,6 +4,60 @@
 
 #include <Cocoa/Cocoa.h>
 
+/* -- PRIVATE FUNCTION DECLARATIONS ---------------------------------------- */
+
+extern SFG_WindowContextType Cocoa_GL_CreateContext(SFG_Window * window);  /* fg_window_osx_gl.m */
+extern int
+Cocoa_GL_MakeCurrent(SFG_Window * window, GLUTOpenGLContext* context);
+
+extern void fghOnReshapeNotify(SFG_Window *window, int width, int height, GLboolean forceNotify);
+extern void fghOnPositionNotify(SFG_Window *window, int x, int y, GLboolean forceNotify);
+
+/* -- FUNCTION DEFINITION ---------------------------------------- */
+
+void fghPlatformOnWindowStatusNotify(SFG_Window *window, GLboolean visState, GLboolean forceNotify)
+{
+    GLboolean notify = GL_FALSE;
+    SFG_Window* child;
+    
+    if (window->State.Visible != visState)
+    {
+        window->State.Visible = visState;
+#if 0
+        /* If top level window (not a subwindow/child), and icon title text available, switch titles based on visibility state */
+        if (!window->Parent && window->State.pWState.IconTitle)
+        {
+            if (visState)
+            /* visible, set window title */
+                SetWindowText( window->Window.Handle, window->State.pWState.WindowTitle );
+            else
+            /* not visible, set icon title */
+                SetWindowText( window->Window.Handle, window->State.pWState.IconTitle );
+        }
+#endif
+        notify = GL_TRUE;
+    }
+    
+    if (notify || forceNotify)
+    {
+        SFG_Window *saved_window = fgStructure.CurrentWindow;
+        
+        /* On win32 we only have two states, window displayed and window not displayed (iconified)
+         * We map these to GLUT_FULLY_RETAINED and GLUT_HIDDEN respectively.
+         */
+        INVOKE_WCB( *window, WindowStatus, ( visState ? GLUT_FULLY_RETAINED:GLUT_HIDDEN ) );
+        fgSetWindow( saved_window );
+    }
+    
+    /* Also set windowStatus/visibility state for children */
+    for( child = ( SFG_Window * )window->Children.First;
+        child;
+        child = ( SFG_Window * )child->Node.Next )
+    {
+        fghPlatformOnWindowStatusNotify(child, visState, GL_FALSE); /* No need to propagate forceNotify. Childs get this from their own INIT_WORK */
+    }
+}
+
 void
 Cocoa_ShowWindow(SFG_Window * window)
 { @autoreleasepool
@@ -208,12 +262,9 @@ GetWindowStyle(SFG_Window * window)
 {
     NSUInteger style = 0;
     
-    /*
-    if (gameMode) {
+    if (window->State.IsFullscreen) {
         style = NSWindowStyleMaskBorderless;
-    } else
-     */
-    {
+    } else {
         if (window->IsMenu) {
             style = NSWindowStyleMaskBorderless;
         } else {
@@ -308,6 +359,8 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
                         change:(NSDictionary *)change
                        context:(void *)context
 {
+    SFG_Window *window = fgWindowByHandle(_window);
+
     if (!observingVisible) {
         return;
     }
@@ -315,9 +368,11 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
     if (object == _window && [keyPath isEqualToString:@"visible"]) {
         int newVisibility = [[change objectForKey:@"new"] intValue];
         if (newVisibility) {
-            //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_SHOWN, 0, 0);
+            fghPlatformOnWindowStatusNotify(window, GL_TRUE, GL_FALSE);
+            window->State.WorkMask |= GLUT_DISPLAY_WORK;
         } else {
-            //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_HIDDEN, 0, 0);
+            fghPlatformOnWindowStatusNotify(window, GL_FALSE, GL_FALSE);
+            window->State.WorkMask &= ~GLUT_DISPLAY_WORK;
         }
     }
 }
@@ -330,13 +385,17 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
 -(void) resumeVisibleObservation
 {
+    SFG_Window *window = fgWindowByHandle(_window);
+
     BOOL isVisible = [_window isVisible];
     observingVisible = YES;
     if (wasVisible != isVisible) {
         if (isVisible) {
-            //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_SHOWN, 0, 0);
+            fghPlatformOnWindowStatusNotify(window, GL_TRUE, GL_FALSE);
+            window->State.WorkMask |= GLUT_DISPLAY_WORK;
         } else {
-            //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_HIDDEN, 0, 0);
+            fghPlatformOnWindowStatusNotify(window, GL_FALSE, GL_FALSE);
+            window->State.WorkMask &= ~GLUT_DISPLAY_WORK;
         }
         
         wasVisible = isVisible;
@@ -460,8 +519,13 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_CLOSE, 0, 0);
-    return NO;
+    SFG_Window *window = fgWindowByHandle(_window);
+    fgDestroyWindow(window);
+    if ( fgState.ActionOnWindowClose != GLUT_ACTION_CONTINUE_EXECUTION ) {
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 - (void)windowDidExpose:(NSNotification *)aNotification
@@ -510,7 +574,7 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
     
     ScheduleContextUpdates(window);
     
-    //SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MOVED, x, y);
+    fghOnPositionNotify(window, x, y, GL_FALSE);
 }
 
 - (void)windowDidResize:(NSNotification *)aNotification
@@ -538,25 +602,27 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
     
     /* The window can move during a resize event, such as when maximizing
      or resizing from a corner */
-    //SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MOVED, x, y);
-    //SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, w, h);
+    fghOnPositionNotify(window, x, y, GL_FALSE);
+    fghOnReshapeNotify(window, w, h, GL_FALSE);
     
     const BOOL zoomed = [nswindow isZoomed];
-    if (!zoomed) {
-        //SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESTORED, 0, 0);
-    } else if (zoomed) {
-        //SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MAXIMIZED, 0, 0);
+    if (!zoomed && !window->State.Visible) {
+        fghPlatformOnWindowStatusNotify(window,GL_TRUE,GL_FALSE);
     }
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)aNotification
 {
-    //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_MINIMIZED, 0, 0);
+    SFG_Window *window = fgWindowByHandle(_window);
+    fghPlatformOnWindowStatusNotify(window,GL_FALSE,GL_FALSE);
 }
 
 - (void)windowDidDeminiaturize:(NSNotification *)aNotification
 {
-    //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_RESTORED, 0, 0);
+    SFG_Window *window = fgWindowByHandle(_window);
+    if (!window->State.Visible) {
+        fghPlatformOnWindowStatusNotify(window,GL_TRUE,GL_FALSE);
+    }
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)aNotification
@@ -776,7 +842,7 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
             s_moveHack = 0;
             [nswindow setContentSize:rect.size];
             [nswindow setFrameOrigin:rect.origin];
-            s_moveHack = SDL_GetTicks();
+            s_moveHack = fgSystemTime() - fgState.Time;
         }
 #endif /* 0 */
         
@@ -1259,12 +1325,13 @@ Cocoa_CreateWindow(SFG_Window * window,
         NSArray *screens = [NSScreen screens];
         
         if( ! positionUse )
-            x = y = 0; /* default window position */
+            x = y = -1; /* default window position */
         if( ! sizeUse )
             w = h = 300; /* default window size */
 
-        //if( gameMode ) {
-        //}
+        if( gameMode ) {
+            window->State.IsFullscreen = GL_TRUE;
+        }
 
         rect.origin.x = x;
         rect.origin.y = y;
@@ -1292,7 +1359,7 @@ Cocoa_CreateWindow(SFG_Window * window,
             nswindow = [[GLUTWindow alloc] initWithContentRect:rect styleMask:style backing:NSBackingStoreBuffered defer:NO screen:screen];
         }
         @catch (NSException *e) {
-            //return glError("%s", [[e reason] UTF8String]);
+            fgError("%s", [[e reason] UTF8String]);
             return -1;
         }
         [nswindow setBackgroundColor:[NSColor blackColor]];
@@ -1373,6 +1440,205 @@ Cocoa_SetWindowTitle(SFG_Window * window)
     
 }
 
+void
+Cocoa_SetWindowPosition(SFG_Window * window)
+{ @autoreleasepool
+    {
+        NSWindow *nswindow = window->Window.Handle;
+        NSRect rect;
+        fg_time_t moveHack;
+        
+        rect.origin.x = window->State.DesiredXpos;
+        rect.origin.y = window->State.DesiredYpos;
+        rect.size.width = window->State.Width;
+        rect.size.height = window->State.Height;
+        ConvertNSRect([nswindow screen], &rect);
+        
+        moveHack = s_moveHack;
+        s_moveHack = 0;
+        [nswindow setFrameOrigin:rect.origin];
+        s_moveHack = moveHack;
+        
+        ScheduleContextUpdates(window);
+    }}
+
+void
+Cocoa_SetWindowSize(SFG_Window * window)
+{ @autoreleasepool
+    {
+        NSWindow *nswindow = window->Window.Handle;
+        NSRect rect;
+        fg_time_t moveHack;
+        
+        /* Cocoa will resize the window from the bottom-left rather than the
+         * top-left when -[nswindow setContentSize:] is used, so we must set the
+         * entire frame based on the new size, in order to preserve the position.
+         */
+        rect.origin.x = window->State.Xpos;
+        rect.origin.y = window->State.Ypos;
+        rect.size.width = window->State.DesiredWidth;
+        rect.size.height = window->State.DesiredHeight;
+        ConvertNSRect([nswindow screen], &rect);
+        
+        moveHack = s_moveHack;
+        s_moveHack = 0;
+        [nswindow setFrame:[nswindow frameRectForContentRect:rect] display:YES];
+        s_moveHack = moveHack;
+        
+        ScheduleContextUpdates(window);
+    }
+}
+
+
+
+void
+Cocoa_RaiseWindow(SFG_Window * window)
+{ @autoreleasepool
+    {
+        SFG_PlatformContext *windowData = &window->Window.pContext;
+        NSWindow *nswindow = windowData->nswindow;
+        
+        /* makeKeyAndOrderFront: has the side-effect of deminiaturizing and showing
+         a minimized or hidden window, so check for that before showing it.
+         */
+        [windowData->listener pauseVisibleObservation];
+        if (![nswindow isMiniaturized] && [nswindow isVisible]) {
+            [NSApp activateIgnoringOtherApps:YES];
+            [nswindow makeKeyAndOrderFront:nil];
+        }
+        [windowData->listener resumeVisibleObservation];
+    }
+}
+
+void
+Cocoa_MaximizeWindow(SFG_Window * window)
+{ @autoreleasepool
+    {
+        NSWindow *nswindow = window->Window.Handle;
+        
+        [nswindow zoom:nil];
+        
+        ScheduleContextUpdates(window);
+    }
+}
+
+void
+Cocoa_MinimizeWindow(SFG_Window * window)
+{ @autoreleasepool
+    {
+        SFG_PlatformContext *data = &window->Window.pContext;
+        NSWindow *nswindow = data->nswindow;
+        
+        if ([data->listener isInFullscreenSpaceTransition]) {
+            [data->listener addPendingWindowOperation:PENDING_OPERATION_MINIMIZE];
+        } else {
+            [nswindow miniaturize:nil];
+        }
+    }
+}
+
+void
+Cocoa_RestoreWindow(SFG_Window * window)
+{ @autoreleasepool
+    {
+        NSWindow *nswindow = window->Window.Handle;
+        
+        if ([nswindow isMiniaturized]) {
+            [nswindow deminiaturize:nil];
+        } else if ([nswindow isZoomed]) {
+            [nswindow zoom:nil];
+        }
+    }
+}
+
+void
+Cocoa_SetWindowFullscreen(SFG_Window * window, SFG_PlatformDisplay * display, GLboolean fullscreen)
+{ @autoreleasepool
+    {
+        SFG_PlatformContext *data = &window->Window.pContext;
+        NSWindow *nswindow = data->nswindow;
+        NSRect rect;
+        
+        /* The view responder chain gets messed with during setStyleMask */
+        if ([[nswindow contentView] nextResponder] == data->listener) {
+            [[nswindow contentView] setNextResponder:nil];
+        }
+        
+        if (fullscreen) {
+            CGRect cgrect;
+            cgrect = CGDisplayBounds(fgDisplay.pDisplay.display);
+            rect.origin.x = cgrect.origin.x;
+            rect.origin.y = cgrect.origin.y;
+            rect.size.width = cgrect.size.width;
+            rect.size.height = cgrect.size.width;
+            ConvertNSRect([nswindow screen], &rect);
+            
+            /* Hack to fix origin on Mac OS X 10.4 */
+            NSRect screenRect = [[nswindow screen] frame];
+            if (screenRect.size.height >= 1.0f) {
+                rect.origin.y += (screenRect.size.height - rect.size.height);
+            }
+            
+            [nswindow setStyleMask:NSWindowStyleMaskBorderless];
+        } else {
+            rect.origin.x = window->State.Xpos;
+            rect.origin.y = window->State.Ypos;
+            rect.size.width = window->State.Width;
+            rect.size.height = window->State.Height;
+            ConvertNSRect([nswindow screen], &rect);
+            
+            [nswindow setStyleMask:GetWindowStyle(window)];
+            
+            /* Hack to restore window decorations on Mac OS X 10.10 */
+            NSRect frameRect = [nswindow frame];
+            [nswindow setFrame:NSMakeRect(frameRect.origin.x, frameRect.origin.y, frameRect.size.width + 1, frameRect.size.height) display:NO];
+            [nswindow setFrame:frameRect display:NO];
+        }
+        
+        /* The view responder chain gets messed with during setStyleMask */
+        if ([[nswindow contentView] nextResponder] != data->listener) {
+            [[nswindow contentView] setNextResponder:data->listener];
+        }
+        
+        s_moveHack = 0;
+        [nswindow setContentSize:rect.size];
+        [nswindow setFrameOrigin:rect.origin];
+        s_moveHack = fgSystemTime() - fgState.Time;
+        
+        /* When the window style changes the title is cleared */
+        if (!fullscreen) {
+            Cocoa_SetWindowTitle(window);
+        }
+        
+        if (fullscreen) {
+            /* OpenGL is rendering to the window, so make it visible! */
+            [nswindow setLevel:CGShieldingWindowLevel()];
+        } else {
+            [nswindow setLevel:kCGNormalWindowLevel];
+        }
+        
+        if ([nswindow isVisible] || fullscreen) {
+            [data->listener pauseVisibleObservation];
+            [nswindow makeKeyAndOrderFront:nil];
+            [data->listener resumeVisibleObservation];
+        }
+        
+        ScheduleContextUpdates(window);
+    }
+}
+
+GLboolean Cocoa_IsWindowVisible(SFG_Window* window)
+{ @autoreleasepool
+    {
+        NSWindow *nswindow = window->Window.Handle;
+        if ([nswindow isVisible]) {
+            return GL_TRUE;
+        } else {
+            return GL_FALSE;
+        }
+    }
+}
+
 /*
  * window
  */
@@ -1419,8 +1685,15 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
     
     /* Show Window */
     Cocoa_ShowWindow(window);
+    
+    /* Create OpenGL Contextß */
+    Cocoa_GL_CreateContext(window);
 }
+
 void fgPlatformSetWindow ( SFG_Window *window )
 {
+    if ( window != fgStructure.CurrentWindow && window) {
+        Cocoa_GL_MakeCurrent(window, window->Window.Context);
+    }
 }
 

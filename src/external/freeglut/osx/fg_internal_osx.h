@@ -39,7 +39,7 @@ struct tagSFG_PlatformDisplay
  */
 
 typedef NSWindow * SFG_WindowHandleType;
-typedef int  SFG_WindowContextType;
+typedef void *     SFG_WindowContextType;
 
 typedef enum
 {
@@ -175,5 +175,6 @@ struct tagSFG_PlatformJoystick
 #define  FREEGLUT_MENU_PEN_BACK_COLORS   {0.85f, 0.85f, 0.85f, 1.0f}
 #define  FREEGLUT_MENU_PEN_HFORE_COLORS  {1.0f,  1.0f,  1.0f,  1.0f}
 #define  FREEGLUT_MENU_PEN_HBACK_COLORS  {0.15f, 0.15f, 0.45f, 1.0f}
+
 
 #endif // FREEGLUT_INTERNAL_OSX_H

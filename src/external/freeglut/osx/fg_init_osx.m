@@ -11,7 +11,11 @@
 #include <CoreVideo/CVBase.h>
 #include <CoreVideo/CVDisplayLink.h>
 
-extern void Cocoa_RegisterApp(void);
+/* -- PRIVATE FUNCTION DECLARATIONS ---------------------------------------- */
+
+extern void Cocoa_RegisterApp(void);  /* fg_main_osx.m */
+
+/* -- FUNCTION DEFINITION ---------------------------------------- */
 
 static const char *
 Cocoa_GetDisplayName(CGDirectDisplayID displayID)
@@ -208,6 +212,9 @@ void fgPlatformCloseDisplay ( void )
 
 void fgPlatformDeinitialiseInputDevices ( void )
 {
+    fgInputDeviceClose();
+    
+    fgState.InputDevsInitialised = GL_FALSE;
 }
 
 void fgPlatformDestroyContext ( SFG_PlatformDisplay pDisplay, SFG_WindowContextType MContext )

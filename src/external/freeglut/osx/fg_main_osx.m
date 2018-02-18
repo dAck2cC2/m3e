@@ -4,6 +4,18 @@
 
 #include <Cocoa/Cocoa.h>
 
+extern void fghPlatformOnWindowStatusNotify(SFG_Window *window, GLboolean visState, GLboolean forceNotify);
+extern void Cocoa_RestoreWindow(SFG_Window * window);
+extern void Cocoa_RaiseWindow(SFG_Window * window);
+extern void Cocoa_ShowWindow(SFG_Window * window);
+extern void Cocoa_HideWindow(SFG_Window * window);
+extern void Cocoa_MinimizeWindow(SFG_Window * window);
+extern void Cocoa_SetWindowFullscreen(SFG_Window * window, SFG_PlatformDisplay * display, GLboolean fullscreen);
+extern void Cocoa_SetWindowPosition(SFG_Window * window);
+extern void Cocoa_SetWindowSize(SFG_Window * window);
+extern GLboolean Cocoa_IsWindowVisible(SFG_Window* window);
+
+
 
 @interface GLUTApplication : NSApplication
 
@@ -17,7 +29,9 @@
 // Override terminate to handle Quit and System Shutdown smoothly.
 - (void)terminate:(id)sender
 {
-    //fgDestroyWindow ( window );
+    /*
+     * The window already got destroyed, so don't bother with it.
+     */
 }
 
 static GLboolean s_bShouldHandleEventsInApplication = GL_FALSE;
@@ -162,28 +176,27 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         return;
     }
     
-    /*
-     SDL_VideoDevice *device = SDL_GetVideoDevice();
-     if (device && device->windows) {
-     SDL_Window *window = device->windows;
-     int i;
-     for (i = 0; i < device->num_displays; ++i) {
-     SDL_Window *fullscreen_window = device->displays[i].fullscreen_window;
-     if (fullscreen_window) {
-     if (fullscreen_window->flags & SDL_WINDOW_MINIMIZED) {
-     SDL_RestoreWindow(fullscreen_window);
+    if (fgDisplay.pDisplay.display && fgStructure.CurrentWindow) {
+        SFG_Window *window = fgStructure.CurrentWindow;
+        /*
+        int i;
+        for (i = 0; i < device->num_displays; ++i) {
+            SDL_Window *fullscreen_window = device->displays[i].fullscreen_window;
+            if (fullscreen_window) {
+                if (fullscreen_window->flags & SDL_WINDOW_MINIMIZED) {
+                    SDL_RestoreWindow(fullscreen_window);
+                }
+                return;
+            }
+        }
+        */
+        if (!window->State.Visible) {
+            Cocoa_RestoreWindow(window);
+            
+        } else {
+            Cocoa_RaiseWindow(window);
+        }
      }
-     return;
-     }
-     }
-     
-     if (window->flags & SDL_WINDOW_MINIMIZED) {
-     SDL_RestoreWindow(window);
-     } else {
-     SDL_RaiseWindow(window);
-     }
-     }
-     */
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
@@ -379,26 +392,115 @@ Cocoa_RegisterApp(void)
     }
 }
 
+void
+Cocoa_PumpEvents()
+{ @autoreleasepool
+    {
+        FREEGLUT_EXIT_IF_NOT_INITIALISED ( "glutMainLoopEvent" );
+
+#if 0 //MAC_OS_X_VERSION_MIN_REQUIRED < 1070
+        /* Update activity every 30 seconds to prevent screensaver */
+        SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+        if (_this->suspend_screensaver && !data->screensaver_use_iopm) {
+            Uint32 now = SDL_GetTicks();
+            if (!data->screensaver_activity ||
+                SDL_TICKS_PASSED(now, data->screensaver_activity + 30000)) {
+                UpdateSystemActivity(UsrActivity);
+                data->screensaver_activity = now;
+            }
+        }
+#endif
+        
+        for ( ; ; ) {
+            NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES ];
+            if ( event == nil ) {
+                break;
+            }
+            
+            if (!s_bShouldHandleEventsInApplication) {
+                Cocoa_DispatchEvent(event);
+            }
+            
+            // Pass events down to Application to be handled in sendEvent:
+            [NSApp sendEvent:event];
+        }
+    }
+}
+
+
 /*
  * main
  */
 void fgPlatformInitWork(SFG_Window* window)
 {
+    /* Notify windowStatus/visibility */
+    fghPlatformOnWindowStatusNotify(window, Cocoa_IsWindowVisible(window), GL_TRUE);
+
+    fghOnPositionNotify(window, window->State.Xpos, window->State.Ypos, GL_TRUE);
+    fghOnReshapeNotify(window, window->State.Width, window->State.Height, GL_TRUE);
+    
 }
+
 void fgPlatformMainLoopPreliminaryWork ( void )
 {
+    /* no-op */
 }
+
 void fgPlatformPosResZordWork(SFG_Window* window, unsigned int workMask)
 {
+    if (workMask & GLUT_FULL_SCREEN_WORK) {
+        window->State.IsFullscreen = !window->State.IsFullscreen;
+        Cocoa_SetWindowFullscreen(window, &fgDisplay.pDisplay, window->State.IsFullscreen);
+    }
+    
+    if (workMask & GLUT_POSITION_WORK) {
+        Cocoa_SetWindowPosition(window);
+    }
+    
+    if (workMask & GLUT_SIZE_WORK) {
+        Cocoa_SetWindowSize(window);
+    }
+    
+    if (workMask & GLUT_ZORDER_WORK)
+    {
+        if (window->State.DesiredZOrder < 0) {
+            //fgPlatformPushWindow( window );
+        } else {
+            //fgPlatformPopWindow( window );
+        }
+    }
 }
+
 void fgPlatformProcessSingleEvent ( void )
 {
+    Cocoa_PumpEvents();
 }
+
 void fgPlatformSleepForEvents( fg_time_t msec )
 {
+
 }
+
 void fgPlatformVisibilityWork(SFG_Window* window)
 {
+    /* Visibility status of window gets updated in the window message handlers above
+     */
+    SFG_Window *win = window;
+    switch (window->State.DesiredVisibility)
+    {
+        case DesireHiddenState:
+            Cocoa_HideWindow( window );
+            break;
+        case DesireIconicState:
+            /* Call on top-level window */
+            while (win->Parent)
+                win = win->Parent;
+            Cocoa_MinimizeWindow( win );
+            break;
+        case DesireNormalState:
+            Cocoa_ShowWindow( window );
+            break;
+    }
 }
 
 fg_time_t fgPlatformSystemTime ( void )

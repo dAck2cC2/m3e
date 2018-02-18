@@ -156,6 +156,9 @@ void fgPlatformRestoreState( void )
  */
 void fgPlatformCreateWindow ( SFG_Window *window )
 {
+    if (window) {
+        memset(window, 0x00, sizeof(SFG_Window));
+    }
 }
 #endif // TARGET_NO_STRUCTURE
 
