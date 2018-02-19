@@ -1,10 +1,10 @@
+
 #define FREEGLUT_BUILDING_LIB
 #include <GL/freeglut.h>
 #include "fg_internal.h"
 
-#include <Cocoa/Cocoa.h>
+/* -- PRIVATE FUNCTION DECLARATIONS ---------------------------------------- */
 
-extern void fghPlatformOnWindowStatusNotify(SFG_Window *window, GLboolean visState, GLboolean forceNotify);
 extern void Cocoa_RestoreWindow(SFG_Window * window);
 extern void Cocoa_RaiseWindow(SFG_Window * window);
 extern void Cocoa_ShowWindow(SFG_Window * window);
@@ -14,8 +14,18 @@ extern void Cocoa_SetWindowFullscreen(SFG_Window * window, SFG_PlatformDisplay *
 extern void Cocoa_SetWindowPosition(SFG_Window * window);
 extern void Cocoa_SetWindowSize(SFG_Window * window);
 extern GLboolean Cocoa_IsWindowVisible(SFG_Window* window);
+extern void Cocoa_PushWindow(SFG_Window* window);
+extern void Cocoa_PopWindow(SFG_Window* window);
+extern void fghPlatformOnWindowStatusNotify(SFG_Window *window, GLboolean visState, GLboolean forceNotify);
+
+extern void Cocoa_HandleKeyEvent(NSEvent *event);
+extern void Cocoa_HandleMouseEvent(NSEvent *event);
+
+extern void fghOnReshapeNotify(SFG_Window *window, int width, int height, GLboolean forceNotify);
+extern void fghOnPositionNotify(SFG_Window *window, int x, int y, GLboolean forceNotify);
 
 
+/* -- FUNCTION DEFINITION ---------------------------------------- */
 
 @interface GLUTApplication : NSApplication
 
@@ -37,9 +47,7 @@ extern GLboolean Cocoa_IsWindowVisible(SFG_Window* window);
 static GLboolean s_bShouldHandleEventsInApplication = GL_FALSE;
 
 static void Cocoa_DispatchEvent(NSEvent *theEvent)
-{
-    //DL_VideoDevice *_this = SDL_GetVideoDevice();
-    
+{    
     switch ([theEvent type]) {
         case NSEventTypeLeftMouseDown:
         case NSEventTypeOtherMouseDown:
@@ -52,12 +60,12 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         case NSEventTypeOtherMouseDragged: /* usually middle mouse dragged */
         case NSEventTypeMouseMoved:
         case NSEventTypeScrollWheel:
-            //Cocoa_HandleMouseEvent(_this, theEvent);
+            Cocoa_HandleMouseEvent(theEvent);
             break;
         case NSEventTypeKeyDown:
         case NSEventTypeKeyUp:
         case NSEventTypeFlagsChanged:
-            //Cocoa_HandleKeyEvent(_this, theEvent);
+            Cocoa_HandleKeyEvent(theEvent);
             break;
         default:
             break;
@@ -433,9 +441,14 @@ Cocoa_PumpEvents()
  */
 void fgPlatformInitWork(SFG_Window* window)
 {
+    if (!window) {
+        return;
+    }
+    
     /* Notify windowStatus/visibility */
     fghPlatformOnWindowStatusNotify(window, Cocoa_IsWindowVisible(window), GL_TRUE);
 
+    /* It is saved to SFG_Window by Cocoa_CreateWindow/SetupWindowData, just notify it here. */
     fghOnPositionNotify(window, window->State.Xpos, window->State.Ypos, GL_TRUE);
     fghOnReshapeNotify(window, window->State.Width, window->State.Height, GL_TRUE);
     
@@ -448,6 +461,10 @@ void fgPlatformMainLoopPreliminaryWork ( void )
 
 void fgPlatformPosResZordWork(SFG_Window* window, unsigned int workMask)
 {
+    if (!window) {
+        return;
+    }
+    
     if (workMask & GLUT_FULL_SCREEN_WORK) {
         window->State.IsFullscreen = !window->State.IsFullscreen;
         Cocoa_SetWindowFullscreen(window, &fgDisplay.pDisplay, window->State.IsFullscreen);
@@ -464,9 +481,9 @@ void fgPlatformPosResZordWork(SFG_Window* window, unsigned int workMask)
     if (workMask & GLUT_ZORDER_WORK)
     {
         if (window->State.DesiredZOrder < 0) {
-            //fgPlatformPushWindow( window );
+            Cocoa_PushWindow( window );
         } else {
-            //fgPlatformPopWindow( window );
+            Cocoa_PopWindow( window );
         }
     }
 }
@@ -483,6 +500,10 @@ void fgPlatformSleepForEvents( fg_time_t msec )
 
 void fgPlatformVisibilityWork(SFG_Window* window)
 {
+    if (!window) {
+        return;
+    }
+    
     /* Visibility status of window gets updated in the window message handlers above
      */
     SFG_Window *win = window;

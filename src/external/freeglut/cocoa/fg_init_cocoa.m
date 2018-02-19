@@ -3,8 +3,6 @@
 #include <GL/freeglut.h>
 #include "fg_internal.h"
 
-#include <Cocoa/Cocoa.h>
-
 /* We need this for IODisplayCreateInfoDictionary and kIODisplayOnlyPreferredName */
 #include <IOKit/graphics/IOGraphicsLib.h>
 
@@ -14,6 +12,7 @@
 /* -- PRIVATE FUNCTION DECLARATIONS ---------------------------------------- */
 
 extern void Cocoa_RegisterApp(void);  /* fg_main_osx.m */
+extern void Cocoa_InitKeyboard(void);
 
 /* -- FUNCTION DEFINITION ---------------------------------------- */
 
@@ -201,6 +200,7 @@ void
 Cocoa_VideoInit()
 {
     Cocoa_InitModes();
+    Cocoa_InitKeyboard();
 }
 
 /*
@@ -229,6 +229,8 @@ void fgPlatformInitialize( const char* displayName )
     /* Get start time */
     fgState.Time = fgSystemTime();
     fgState.Initialised = GL_TRUE;
+    
+    atexit(fgDeinitialize);
     
     /* InputDevice uses GlutTimerFunc(), so fgState.Initialised must be TRUE */
     fgInitialiseInputDevices();

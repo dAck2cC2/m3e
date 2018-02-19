@@ -1,14 +1,14 @@
+
 #define FREEGLUT_BUILDING_LIB
 #include <GL/freeglut.h>
 #include "fg_internal.h"
 
-#include <Cocoa/Cocoa.h>
-
 /* -- PRIVATE FUNCTION DECLARATIONS ---------------------------------------- */
 
+extern void Cocoa_InitMouse(SFG_Window* window);
+extern void Cocoa_HandleMouseWheel(SFG_Window *window, NSEvent *event);
 extern SFG_WindowContextType Cocoa_GL_CreateContext(SFG_Window * window);  /* fg_window_osx_gl.m */
-extern int
-Cocoa_GL_MakeCurrent(SFG_Window * window, GLUTOpenGLContext* context);
+extern int Cocoa_GL_MakeCurrent(SFG_Window * window, GLUTOpenGLContext* context);
 
 extern void fghOnReshapeNotify(SFG_Window *window, int width, int height, GLboolean forceNotify);
 extern void fghOnPositionNotify(SFG_Window *window, int x, int y, GLboolean forceNotify);
@@ -1097,7 +1097,7 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-    //Cocoa_HandleMouseWheel(_data->window, theEvent);
+    Cocoa_HandleMouseWheel(fgWindowByHandle(_window), theEvent);
 }
 
 - (void)touchesBeganWithEvent:(NSEvent *) theEvent
@@ -1110,19 +1110,7 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
             existingTouchCount++;
         }
     }
-#if 0
-    if (existingTouchCount == 0) {
-        SDL_TouchID touchID = (SDL_TouchID)(intptr_t)[[touches anyObject] device];
-        int numFingers = SDL_GetNumTouchFingers(touchID);
-        DLog("Reset Lost Fingers: %d", numFingers);
-        for (--numFingers; numFingers >= 0; --numFingers) {
-            SDL_Finger* finger = SDL_GetTouchFinger(touchID, numFingers);
-            SDL_SendTouch(touchID, finger->id, SDL_FALSE, 0, 0, 0);
-        }
-    }
-    
-    DLog("Began Fingers: %lu .. existing: %d", (unsigned long)[touches count], existingTouchCount);
-#endif
+
     [self handleTouches:NSTouchPhaseBegan withEvent:theEvent];
 }
 
@@ -1143,37 +1131,37 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
 - (void)handleTouches:(NSTouchPhase) phase withEvent:(NSEvent *) theEvent
 {
-#if 0
+    SFG_Window *window = fgWindowByHandle(_window);
+    if (!window) {
+        return;
+    }
+    
     NSSet *touches = [theEvent touchesMatchingPhase:phase inView:nil];
     
     for (NSTouch *touch in touches) {
-        const SDL_TouchID touchId = (SDL_TouchID)(intptr_t)[touch device];
-        if (SDL_AddTouch(touchId, "") < 0) {
-            return;
-        }
-        
-        const SDL_FingerID fingerId = (SDL_FingerID)(intptr_t)[touch identity];
+        int touchID = [touch device];
         float x = [touch normalizedPosition].x;
         float y = [touch normalizedPosition].y;
         /* Make the origin the upper left instead of the lower left */
         y = 1.0f - y;
         
         switch (phase) {
+            case NSTouchPhaseMoved:
+                INVOKE_WCB( *window, MultiMotion, ( touchID, x, y ) );
+                break;
             case NSTouchPhaseBegan:
-                SDL_SendTouch(touchId, fingerId, SDL_TRUE, x, y, 1.0f);
+                INVOKE_WCB( *window, MultiEntry,  ( touchID, GLUT_ENTERED ) );
+                INVOKE_WCB( *window, MultiButton, ( touchID, x, y, 0, GLUT_DOWN ) );
                 break;
             case NSTouchPhaseEnded:
+                INVOKE_WCB( *window, MultiButton, ( touchID, x, y, 0, GLUT_UP ) );
+                INVOKE_WCB( *window, MultiEntry,  ( touchID, GLUT_LEFT ) );
+                break;
             case NSTouchPhaseCancelled:
-                SDL_SendTouch(touchId, fingerId, SDL_FALSE, x, y, 1.0f);
-                break;
-            case NSTouchPhaseMoved:
-                SDL_SendTouchMotion(touchId, fingerId, x, y, 1.0f);
-                break;
             default:
                 break;
         }
     }
-#endif
 }
 
 @end  // Cocoa_WindowListener
@@ -1219,28 +1207,17 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 - (void)resetCursorRects
 {
     [super resetCursorRects];
-    /*
-    SDL_Mouse *mouse = SDL_GetMouse();
-    
-    if (mouse->cursor_shown && mouse->cur_cursor && !mouse->relative_mode) {
+    if (_Window->Window.pContext.cursor) {
         [self addCursorRect:[self bounds]
-                     cursor:mouse->cur_cursor->driverdata];
+                     cursor:_Window->Window.pContext.cursor];
     } else {
         [self addCursorRect:[self bounds]
                      cursor:[NSCursor invisibleCursor]];
     }
-     */
 }
 
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent
 {
-    /*
-    if (SDL_GetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH)) {
-        return SDL_GetHintBoolean(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, SDL_FALSE);
-    } else {
-        return SDL_GetHintBoolean("SDL_MAC_MOUSE_FOCUS_CLICKTHROUGH", SDL_FALSE);
-    }
-     */
     return NO;
 }
 @end // GLUTView
@@ -1249,6 +1226,10 @@ static int
 SetupWindowData(SFG_Window * window, NSWindow *nswindow, GLboolean created)
 { @autoreleasepool
     {
+        if (!window) {
+            return -1;
+        }
+        
         SFG_PlatformContext *context = (SFG_PlatformContext *) &(window->Window.pContext);
         
         window->Window.Handle = nswindow;
@@ -1319,6 +1300,10 @@ Cocoa_CreateWindow(SFG_Window * window,
                   GLboolean gameMode, GLboolean isSubWindow)
 { @autoreleasepool
     {
+        if (!window) {
+            return -1;
+        }
+        
         NSWindow *nswindow;
         NSRect rect;
         NSUInteger style;
@@ -1404,6 +1389,10 @@ void
 Cocoa_DestroyWindow(SFG_Window * window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         SFG_PlatformContext *data = (&window->Window.pContext);
         
         if (data) {
@@ -1431,6 +1420,10 @@ void
 Cocoa_SetWindowTitle(SFG_Window * window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         const char *title = window->State.pWState.title ? window->State.pWState.title : "";
         NSWindow *nswindow = window->Window.Handle;
         NSString *string = [[NSString alloc] initWithUTF8String:title];
@@ -1444,6 +1437,10 @@ void
 Cocoa_SetWindowPosition(SFG_Window * window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         NSWindow *nswindow = window->Window.Handle;
         NSRect rect;
         fg_time_t moveHack;
@@ -1466,6 +1463,10 @@ void
 Cocoa_SetWindowSize(SFG_Window * window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         NSWindow *nswindow = window->Window.Handle;
         NSRect rect;
         fg_time_t moveHack;
@@ -1495,6 +1496,10 @@ void
 Cocoa_RaiseWindow(SFG_Window * window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         SFG_PlatformContext *windowData = &window->Window.pContext;
         NSWindow *nswindow = windowData->nswindow;
         
@@ -1514,6 +1519,10 @@ void
 Cocoa_MaximizeWindow(SFG_Window * window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         NSWindow *nswindow = window->Window.Handle;
         
         [nswindow zoom:nil];
@@ -1526,6 +1535,10 @@ void
 Cocoa_MinimizeWindow(SFG_Window * window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         SFG_PlatformContext *data = &window->Window.pContext;
         NSWindow *nswindow = data->nswindow;
         
@@ -1541,6 +1554,10 @@ void
 Cocoa_RestoreWindow(SFG_Window * window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         NSWindow *nswindow = window->Window.Handle;
         
         if ([nswindow isMiniaturized]) {
@@ -1555,6 +1572,10 @@ void
 Cocoa_SetWindowFullscreen(SFG_Window * window, SFG_PlatformDisplay * display, GLboolean fullscreen)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         SFG_PlatformContext *data = &window->Window.pContext;
         NSWindow *nswindow = data->nswindow;
         NSRect rect;
@@ -1630,6 +1651,10 @@ Cocoa_SetWindowFullscreen(SFG_Window * window, SFG_PlatformDisplay * display, GL
 GLboolean Cocoa_IsWindowVisible(SFG_Window* window)
 { @autoreleasepool
     {
+        if (!window) {
+            return;
+        }
+        
         NSWindow *nswindow = window->Window.Handle;
         if ([nswindow isVisible]) {
             return GL_TRUE;
@@ -1639,11 +1664,39 @@ GLboolean Cocoa_IsWindowVisible(SFG_Window* window)
     }
 }
 
+void Cocoa_PushWindow(SFG_Window* window)
+{ @autoreleasepool
+    {
+        if (!window) {
+            return;
+        }
+        
+        NSWindow *nswindow = window->Window.Handle;
+        [nswindow orderBack:nil];
+    }
+}
+
+void Cocoa_PopWindow(SFG_Window* window)
+{ @autoreleasepool
+    {
+        if (!window) {
+            return;
+        }
+        
+        NSWindow *nswindow = window->Window.Handle;
+        [nswindow orderFront:nil];
+    }
+}
+
 /*
  * window
  */
 void fgPlatformCloseWindow( SFG_Window* window )
 {
+    if (!window) {
+        return;
+    }
+    
     Cocoa_DestroyWindow(window);
 }
 
@@ -1675,6 +1728,10 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
                           GLboolean sizeUse, int w, int h,
                           GLboolean gameMode, GLboolean isSubWindow )
 {
+    if (!window) {
+        return;
+    }
+    
     /* Create Window */
     Cocoa_CreateWindow(window, positionUse, x, y, sizeUse, w, h, gameMode, isSubWindow);
     
@@ -1686,8 +1743,11 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
     /* Show Window */
     Cocoa_ShowWindow(window);
     
-    /* Create OpenGL Contextß */
+    /* Create OpenGL Context */
     Cocoa_GL_CreateContext(window);
+    
+    /* Create default cursor */
+    Cocoa_InitMouse(window);
 }
 
 void fgPlatformSetWindow ( SFG_Window *window )

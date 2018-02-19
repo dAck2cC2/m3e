@@ -18,7 +18,7 @@
 #define TARGET_NO_EXT        1
 #define TARGET_NO_MENU       1
 #define TARGET_NO_STATE      1
-#define TARGET_NO_CURSOR     1
+#define TARGET_NO_CURSOR     0
 #define TARGET_NO_SERIAL     0
 
 /* Structure Definitions */
@@ -116,6 +116,12 @@ typedef enum
 
 @end /* Cocoa_WindowListener */
 
+
+@interface NSCursor (InvisibleCursor)
++ (NSCursor *)invisibleCursor;
+@end /*InvisibleCursor*/
+
+
 typedef struct tagSFG_PlatformContext SFG_PlatformContext;
 struct tagSFG_PlatformContext
 {
@@ -124,6 +130,7 @@ struct tagSFG_PlatformContext
     GLboolean created;
     GLboolean is_destroying;
     Cocoa_WindowListener *listener;
+    NSCursor * cursor;
 };
 
 @interface GLUTOpenGLContext : NSOpenGLContext {
