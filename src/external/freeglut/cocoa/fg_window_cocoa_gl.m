@@ -3,6 +3,8 @@
 #include <GL/freeglut.h>
 #include "fg_internal.h"
 
+#include <dlfcn.h>
+
 
 @implementation GLUTOpenGLContext : NSOpenGLContext
 
@@ -261,6 +263,139 @@ Cocoa_GL_CreateContext(SFG_Window * window)
         window->Window.Context = context;
         
         return context;
+    }
+}
+
+int
+Cocoa_GL_GetAtrr(int what)
+{
+    int returnValue = (-1);
+    GLboolean boolValue = GL_FALSE;
+    
+    switch( what )
+    {
+            /* The same as NSOpenGLPFAColorSize in Cocoa_GL_CreateContext */
+        case GLUT_WINDOW_COLORMAP_SIZE:
+        case GLUT_WINDOW_BUFFER_SIZE:
+            return 32;
+            /* Handle the OpenGL inquiries */
+        case GLUT_WINDOW_NUM_SAMPLES:
+            glGetIntegerv(GL_SAMPLES, &returnValue);
+            return returnValue;
+        case GLUT_WINDOW_RGBA:
+            glGetBooleanv ( GL_RGBA_MODE, &boolValue );
+            return (boolValue ? 1 : 0);
+        case GLUT_WINDOW_DOUBLEBUFFER:
+            glGetBooleanv ( GL_DOUBLEBUFFER, &boolValue );
+            return (boolValue ? 1 : 0);
+        case GLUT_WINDOW_STEREO:
+            glGetBooleanv ( GL_STEREO, &boolValue );
+            return (boolValue ? 1 : 0);
+        case GLUT_WINDOW_RED_SIZE:
+            glGetIntegerv ( GL_RED_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_GREEN_SIZE:
+            glGetIntegerv ( GL_GREEN_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_BLUE_SIZE:
+            glGetIntegerv ( GL_BLUE_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_ALPHA_SIZE:
+            glGetIntegerv ( GL_ALPHA_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_ACCUM_RED_SIZE:
+            glGetIntegerv ( GL_ACCUM_RED_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_ACCUM_GREEN_SIZE:
+            glGetIntegerv ( GL_ACCUM_GREEN_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_ACCUM_BLUE_SIZE:
+            glGetIntegerv ( GL_ACCUM_BLUE_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_ACCUM_ALPHA_SIZE:
+            glGetIntegerv ( GL_ACCUM_ALPHA_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_DEPTH_SIZE:
+            glGetIntegerv ( GL_DEPTH_BITS, &returnValue );
+            return returnValue;
+        case GLUT_WINDOW_STENCIL_SIZE:
+            glGetIntegerv ( GL_STENCIL_BITS, &returnValue );
+            return returnValue;
+        default:
+            fgWarning( "glutGet(): missing enum handle %d", what );
+            break;
+    }
+    
+    return -1;
+}
+
+/*
+ * ext
+ */
+#define DEFAULT_OPENGL  "/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib"
+static void * gl_dll_handle = NULL;
+
+void
+Cocoa_GL_LoadLibrary(void)
+{
+    const char *loaderror;
+    gl_dll_handle = dlopen(DEFAULT_OPENGL, RTLD_NOW|RTLD_LOCAL);
+    loaderror = (char *) dlerror();
+    if (gl_dll_handle == NULL) {
+        fgError("Failed loading %s: %s", DEFAULT_OPENGL, loaderror);
+    }
+}
+
+GLUTproc fgPlatformGetGLUTProcAddress( const char* procName )
+{
+    if (!procName) {
+        return NULL;
+    }
+    
+    /* optimization: quick initial check */
+    if( strncmp( procName, "glut", 4 ) != 0 )
+        return NULL;
+    
+#define CHECK_NAME(x) if( strcmp( procName, #x ) == 0) return (GLUTproc)x;
+    CHECK_NAME(glutJoystickFunc);
+    CHECK_NAME(glutForceJoystickFunc);
+    CHECK_NAME(glutGameModeString);
+    CHECK_NAME(glutEnterGameMode);
+    CHECK_NAME(glutLeaveGameMode);
+    CHECK_NAME(glutGameModeGet);
+#undef CHECK_NAME
+    
+    return NULL;
+}
+
+SFG_Proc fgPlatformGetProcAddress( const char *procName )
+{
+    if (gl_dll_handle && procName) {
+        return dlsym(gl_dll_handle, procName);
+    } else {
+        return NULL;
+    }
+}
+
+/*
+ * display
+ */
+int
+Cocoa_GL_SwapWindow(GLUTOpenGLContext* nscontext)
+{ @autoreleasepool
+    {
+        if (nscontext) {
+            [nscontext flushBuffer];
+            [nscontext updateIfNeeded];
+        }
+        return 0;
+    }
+}
+
+void fgPlatformGlutSwapBuffers( SFG_PlatformDisplay *pDisplayPtr, SFG_Window* CurrentWindow )
+{
+    if (CurrentWindow) {
+        Cocoa_GL_SwapWindow((GLUTOpenGLContext* )(CurrentWindow->Window.Context));
     }
 }
 

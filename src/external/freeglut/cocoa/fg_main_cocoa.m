@@ -60,7 +60,7 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         case NSEventTypeOtherMouseDragged: /* usually middle mouse dragged */
         case NSEventTypeMouseMoved:
         case NSEventTypeScrollWheel:
-            Cocoa_HandleMouseEvent(theEvent);
+            //Cocoa_HandleMouseEvent(theEvent);
             break;
         case NSEventTypeKeyDown:
         case NSEventTypeKeyUp:
@@ -441,9 +441,7 @@ Cocoa_PumpEvents()
  */
 void fgPlatformInitWork(SFG_Window* window)
 {
-    if (!window) {
-        return;
-    }
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
     
     /* Notify windowStatus/visibility */
     fghPlatformOnWindowStatusNotify(window, Cocoa_IsWindowVisible(window), GL_TRUE);
@@ -461,9 +459,7 @@ void fgPlatformMainLoopPreliminaryWork ( void )
 
 void fgPlatformPosResZordWork(SFG_Window* window, unsigned int workMask)
 {
-    if (!window) {
-        return;
-    }
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
     
     if (workMask & GLUT_FULL_SCREEN_WORK) {
         window->State.IsFullscreen = !window->State.IsFullscreen;
@@ -500,9 +496,7 @@ void fgPlatformSleepForEvents( fg_time_t msec )
 
 void fgPlatformVisibilityWork(SFG_Window* window)
 {
-    if (!window) {
-        return;
-    }
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
     
     /* Visibility status of window gets updated in the window message handlers above
      */

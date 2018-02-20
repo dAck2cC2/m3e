@@ -13,6 +13,7 @@
 
 extern void Cocoa_RegisterApp(void);  /* fg_main_osx.m */
 extern void Cocoa_InitKeyboard(void);
+extern void Cocoa_GL_LoadLibrary(void);
 
 /* -- FUNCTION DEFINITION ---------------------------------------- */
 
@@ -225,6 +226,7 @@ void fgPlatformInitialize( const char* displayName )
 {
     Cocoa_RegisterApp();
     Cocoa_VideoInit();
+    Cocoa_GL_LoadLibrary();
     
     /* Get start time */
     fgState.Time = fgSystemTime();
@@ -234,4 +236,13 @@ void fgPlatformInitialize( const char* displayName )
     
     /* InputDevice uses GlutTimerFunc(), so fgState.Initialised must be TRUE */
     fgInitialiseInputDevices();
+}
+
+/*
+ * menu
+ */
+GLvoid fgPlatformGetGameModeVMaxExtent( SFG_Window* window, int* x, int* y )
+{
+    *x = glutGet ( GLUT_SCREEN_WIDTH );
+    *y = glutGet ( GLUT_SCREEN_HEIGHT );
 }

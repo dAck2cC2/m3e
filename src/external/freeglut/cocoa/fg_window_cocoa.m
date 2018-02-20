@@ -15,26 +15,111 @@ extern void fghOnPositionNotify(SFG_Window *window, int x, int y, GLboolean forc
 
 /* -- FUNCTION DEFINITION ---------------------------------------- */
 
+static fg_time_t s_moveHack;
+
+static void ConvertNSRect(NSScreen *screen, NSRect *r)
+{
+    r->origin.y = CGDisplayPixelsHigh(kCGDirectMainDisplay) - r->origin.y - r->size.height;
+}
+
+static void
+ScheduleContextUpdates(SFG_Window *window)
+{
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+    
+    NSOpenGLContext *currentContext = [NSOpenGLContext currentContext];
+    NSMutableArray *contexts = window->Window.pContext.nscontexts;
+    @synchronized (contexts) {
+        for (GLUTOpenGLContext *context in contexts) {
+            if (context == currentContext) {
+                [context update];
+            } else {
+                [context scheduleUpdate];
+            }
+        }
+    }
+}
+
+static NSUInteger
+GetWindowStyle(SFG_Window * window)
+{
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+    
+    NSUInteger style = 0;
+    
+    if (window->State.IsFullscreen) {
+        style = NSWindowStyleMaskBorderless;
+    } else if (window->IsMenu) {
+        style = NSWindowStyleMaskBorderless;
+    } else  if (window->Parent) {
+        style = NSWindowStyleMaskBorderless;
+    } else {
+        style = (NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable);
+        style |= NSWindowStyleMaskResizable;
+    }
+    return style;
+}
+
+static GLboolean
+SetWindowStyle(SFG_Window * window, NSUInteger style)
+{
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+    
+    SFG_PlatformContext *data = &(window->Window.pContext);
+    NSWindow *nswindow = data->nswindow;
+    
+    /* The view responder chain gets messed with during setStyleMask */
+    if ([[nswindow contentView] nextResponder] == data->listener) {
+        [[nswindow contentView] setNextResponder:nil];
+    }
+    
+    [nswindow setStyleMask:style];
+    
+    /* The view responder chain gets messed with during setStyleMask */
+    if ([[nswindow contentView] nextResponder] != data->listener) {
+        [[nswindow contentView] setNextResponder:data->listener];
+    }
+    
+    return GL_TRUE;
+}
+
+void
+Cocoa_SetWindowTitleString(SFG_Window * window, const char* str)
+{ @autoreleasepool
+    {
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+        
+        const char *title = str ? str : "";
+        NSWindow *nswindow = window->Window.Handle;
+        NSString *string = [[NSString alloc] initWithUTF8String:title];
+        [nswindow setTitle:string];
+        [string release];
+    }
+    
+}
+
 void fghPlatformOnWindowStatusNotify(SFG_Window *window, GLboolean visState, GLboolean forceNotify)
 {
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+    
     GLboolean notify = GL_FALSE;
     SFG_Window* child;
     
     if (window->State.Visible != visState)
     {
         window->State.Visible = visState;
-#if 0
+
         /* If top level window (not a subwindow/child), and icon title text available, switch titles based on visibility state */
-        if (!window->Parent && window->State.pWState.IconTitle)
+        if (!window->Parent && window->State.pWState.iconicTitle)
         {
             if (visState)
             /* visible, set window title */
-                SetWindowText( window->Window.Handle, window->State.pWState.WindowTitle );
+                Cocoa_SetWindowTitleString( window, window->State.pWState.windowTitle );
             else
             /* not visible, set icon title */
-                SetWindowText( window->Window.Handle, window->State.pWState.IconTitle );
+                Cocoa_SetWindowTitleString( window, window->State.pWState.iconicTitle );
         }
-#endif
+
         notify = GL_TRUE;
     }
     
@@ -62,6 +147,8 @@ void
 Cocoa_ShowWindow(SFG_Window * window)
 { @autoreleasepool
     {
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+        
         SFG_PlatformContext *windowData = (&window->Window.pContext);
         NSWindow *nswindow = windowData->nswindow;
         
@@ -77,6 +164,8 @@ void
 Cocoa_HideWindow(SFG_Window * window)
 { @autoreleasepool
     {
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+        
         NSWindow *nswindow = window->Window.Handle;
         
         [nswindow orderOut:nil];
@@ -111,13 +200,14 @@ Cocoa_HideWindow(SFG_Window * window)
         SFG_Window *window = [self findWindow];
         if (window == NULL) {
             return NO;
-            /*
-             } else if ((window->flags & (SDL_WINDOW_FULLSCREEN|SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0) {
+        } else if (window->State.IsFullscreen) {
              return NO;
-             } else if ((window->flags & SDL_WINDOW_RESIZABLE) == 0) {
-             return NO;
-             */
         }
+        /*
+        else if ((window->flags & SDL_WINDOW_RESIZABLE) == 0) {
+             return NO;
+        }
+        */
     }
     return [super validateMenuItem:menuItem];
 }
@@ -234,73 +324,11 @@ Cocoa_HideWindow(SFG_Window * window)
 @end // GLUTWindow
 
 
-static fg_time_t s_moveHack;
-
-static void ConvertNSRect(NSScreen *screen, NSRect *r)
-{
-    r->origin.y = CGDisplayPixelsHigh(kCGDirectMainDisplay) - r->origin.y - r->size.height;
-}
-
-static void
-ScheduleContextUpdates(SFG_Window *data)
-{
-    NSOpenGLContext *currentContext = [NSOpenGLContext currentContext];
-    NSMutableArray *contexts = data->Window.pContext.nscontexts;
-    @synchronized (contexts) {
-        for (GLUTOpenGLContext *context in contexts) {
-            if (context == currentContext) {
-                [context update];
-            } else {
-                [context scheduleUpdate];
-            }
-        }
-    }
-}
-
-static NSUInteger
-GetWindowStyle(SFG_Window * window)
-{
-    NSUInteger style = 0;
-    
-    if (window->State.IsFullscreen) {
-        style = NSWindowStyleMaskBorderless;
-    } else {
-        if (window->IsMenu) {
-            style = NSWindowStyleMaskBorderless;
-        } else {
-            style = (NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable);
-            
-            style |= NSWindowStyleMaskResizable;
-        }
-    }
-    return style;
-}
-
-static GLboolean
-SetWindowStyle(SFG_Window * window, NSUInteger style)
-{
-    SFG_PlatformContext *data = &(window->Window.pContext);
-    NSWindow *nswindow = data->nswindow;
-    
-    /* The view responder chain gets messed with during setStyleMask */
-    if ([[nswindow contentView] nextResponder] == data->listener) {
-        [[nswindow contentView] setNextResponder:nil];
-    }
-    
-    [nswindow setStyleMask:style];
-    
-    /* The view responder chain gets messed with during setStyleMask */
-    if ([[nswindow contentView] nextResponder] != data->listener) {
-        [[nswindow contentView] setNextResponder:data->listener];
-    }
-    
-    return GL_TRUE;
-}
 
 
 @implementation Cocoa_WindowListener
 
-- (void)listen:(SFG_WindowHandleType)data
+- (void)listen:(NSWindow*)data
 {
     NSNotificationCenter *center;
     NSWindow *window = data;
@@ -417,7 +445,7 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
         return NO;  /* we only handle leaving the Space on windows that were previously FULLSCREEN_DESKTOP. */
     } else
 #endif
-        if (state == isFullscreenSpace) {
+    if (state == isFullscreenSpace) {
         return YES;  /* already there. */
     }
     
@@ -627,8 +655,13 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
 - (void)windowDidBecomeKey:(NSNotification *)aNotification
 {
-#if 0
     SFG_Window *window = fgWindowByHandle(_window);
+    if (window) {
+        fghPlatformOnWindowStatusNotify(window, GL_TRUE, GL_FALSE);
+        window->State.WorkMask |= GLUT_DISPLAY_WORK;
+    }
+    
+#if 0
     SDL_Mouse *mouse = SDL_GetMouse();
     
     /* We're going to get keyboard events, since we're key. */
@@ -666,8 +699,14 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 #endif
 }
 
-- (void)windowDidResignKey:(NSNotification *)aNotification
+-
+(void)windowDidResignKey:(NSNotification *)aNotification
 {
+    SFG_Window *window = fgWindowByHandle(_window);
+    if (window) {
+        fghPlatformOnWindowStatusNotify(window, GL_FALSE, GL_FALSE);
+        window->State.WorkMask &= ~GLUT_DISPLAY_WORK;
+    }
 #if 0
     SDL_Mouse *mouse = SDL_GetMouse();
     if (mouse->relative_mode && !mouse->relative_mode_warp) {
@@ -748,11 +787,9 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
          This is a workaround for https://bugzilla.libsdl.org/show_bug.cgi?id=3697
          */
         SetWindowStyle(window, [nswindow styleMask] & (~NSWindowStyleMaskResizable));
-        /*
-        if ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+        if (window->State.IsFullscreen) {
             [NSMenu setMenuBarVisible:NO];
         }
-        */
         pendingWindowOperation = PENDING_OPERATION_NONE;
         /* Force the size change event in case it was delivered earlier
          while the window was still animating into place.
@@ -861,12 +898,13 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
     }
 }
 
--(NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
+-(NSApplicationPresentationOptions)window:(NSWindow *)nswindow willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {
-    /*
-    if ((_data->window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+    SFG_Window *window = fgWindowByHandle(_window);
+    
+    if (window->State.IsFullscreen) {
         return NSApplicationPresentationFullScreen | NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
-    } else */ {
+    } else  {
         return proposedOptions;
     }
 }
@@ -925,7 +963,21 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
 - (void)mouseDown:(NSEvent *)theEvent
 {
-#if 0
+    /*
+    NSMenu *theMenu = [[NSMenu alloc] initWithTitle:@"Contextual Menu"];
+    [theMenu insertItemWithTitle:@"Beep" action:@selector(beep:) keyEquivalent:@"" atIndex:0];
+    [theMenu insertItemWithTitle:@"Honk" action:@selector(honk:) keyEquivalent:@"" atIndex:1];
+    
+    NSWindow *nswindow = _window;
+    NSView *view = [nswindow contentView];
+    [NSMenu popUpContextMenu:theMenu withEvent:theEvent forView:view];
+    */
+    
+    SFG_Window *window = fgWindowByHandle(_window);
+    if((!window) || ( ! FETCH_WCB( *window, Mouse ))) {
+        return;
+    }
+       
     int button;
     int clicks;
     
@@ -944,29 +996,44 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
     switch ([theEvent buttonNumber]) {
         case 0:
-            if (([theEvent modifierFlags] & NSEventModifierFlagControl) &&
-                GetHintCtrlClickEmulateRightClick()) {
+            if (([theEvent modifierFlags] & NSEventModifierFlagControl)) {
                 wasCtrlLeft = YES;
-                button = SDL_BUTTON_RIGHT;
+                button = GLUT_RIGHT_BUTTON;
             } else {
                 wasCtrlLeft = NO;
-                button = SDL_BUTTON_LEFT;
+                button = GLUT_LEFT_BUTTON;
             }
             break;
         case 1:
-            button = SDL_BUTTON_RIGHT;
+            button = GLUT_RIGHT_BUTTON;
             break;
         case 2:
-            button = SDL_BUTTON_MIDDLE;
+            button = GLUT_MIDDLE_BUTTON;
             break;
         default:
             button = (int) [theEvent buttonNumber] + 1;
             break;
     }
-    
     clicks = (int) [theEvent clickCount];
-    SDL_SendMouseButtonClicks(_data->window, 0, SDL_PRESSED, button, clicks);
-#endif
+    
+    /*
+     * Do not execute the application's mouse callback if a menu
+     * is hooked to this button.  In that case an appropriate
+     * private call should be generated.
+     */
+    if( fgCheckActiveMenu( window, button, GL_TRUE,
+                          window->State.MouseX, window->State.MouseY ) ) {
+        return;
+    }
+    
+    INVOKE_WCB(
+               *window, Mouse,
+               ( button,
+                GLUT_DOWN,
+                window->State.MouseX,
+                window->State.MouseY
+                )
+               );
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent
@@ -981,7 +1048,11 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
 - (void)mouseUp:(NSEvent *)theEvent
 {
-#if 0
+    SFG_Window *window = fgWindowByHandle(_window);
+    if((!window) || ( ! FETCH_WCB( *window, Mouse ))) {
+        return;
+    }
+    
     int button;
     int clicks;
     
@@ -993,17 +1064,17 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
     switch ([theEvent buttonNumber]) {
         case 0:
             if (wasCtrlLeft) {
-                button = SDL_BUTTON_RIGHT;
+                button = GLUT_RIGHT_BUTTON;
                 wasCtrlLeft = NO;
             } else {
-                button = SDL_BUTTON_LEFT;
+                button = GLUT_LEFT_BUTTON;
             }
             break;
         case 1:
-            button = SDL_BUTTON_RIGHT;
+            button = GLUT_RIGHT_BUTTON;
             break;
         case 2:
-            button = SDL_BUTTON_MIDDLE;
+            button = GLUT_MIDDLE_BUTTON;
             break;
         default:
             button = (int) [theEvent buttonNumber] + 1;
@@ -1011,8 +1082,25 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
     }
     
     clicks = (int) [theEvent clickCount];
-    SDL_SendMouseButtonClicks(_data->window, 0, SDL_RELEASED, button, clicks);
-#endif
+    
+    /*
+     * Do not execute the application's mouse callback if a menu
+     * is hooked to this button.  In that case an appropriate
+     * private call should be generated.
+     */
+    if( fgCheckActiveMenu( window, button, GL_FALSE,
+                          window->State.MouseX, window->State.MouseY ) ) {
+        return;
+    }
+    
+    INVOKE_WCB(
+               *window, Mouse,
+               ( button,
+                GLUT_UP,
+                window->State.MouseX,
+                window->State.MouseY
+                )
+               );
 }
 
 - (void)rightMouseUp:(NSEvent *)theEvent
@@ -1027,72 +1115,79 @@ SetWindowStyle(SFG_Window * window, NSUInteger style)
 
 - (void)mouseMoved:(NSEvent *)theEvent
 {
-#if 0
-    SDL_Mouse *mouse = SDL_GetMouse();
-    SDL_Window *window = _data->window;
+    SFG_Window *window = fgWindowByHandle(_window);
+    if((!window) || ( ! FETCH_WCB( *window, Passive )) ) {
+        return;
+    }
+
     NSPoint point;
     int x, y;
     
     if ([self processHitTest:theEvent]) {
-        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIT_TEST, 0, 0);
+        //SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIT_TEST, 0, 0);
         return;  /* dragging, drop event. */
     }
     
+    /*
     if (mouse->relative_mode) {
         return;
     }
+    */
     
     point = [theEvent locationInWindow];
     x = (int)point.x;
-    y = (int)(window->h - point.y);
+    y = (int)(window->State.Height - point.y);
     
-    if (window->flags & SDL_WINDOW_INPUT_GRABBED) {
-        if (x < 0 || x >= window->w || y < 0 || y >= window->h) {
-            if (x < 0) {
-                x = 0;
-            } else if (x >= window->w) {
-                x = window->w - 1;
-            }
-            if (y < 0) {
-                y = 0;
-            } else if (y >= window->h) {
-                y = window->h - 1;
-            }
-            
-#if !SDL_MAC_NO_SANDBOX
-            CGPoint cgpoint;
-            
-            /* When SDL_MAC_NO_SANDBOX is set, this is handled by
-             * SDL_cocoamousetap.m.
-             */
-            
-            cgpoint.x = window->x + x;
-            cgpoint.y = window->y + y;
-            
-            CGDisplayMoveCursorToPoint(kCGDirectMainDisplay, cgpoint);
-            CGAssociateMouseAndMouseCursorPosition(YES);
-            
-            Cocoa_HandleMouseWarp(cgpoint.x, cgpoint.y);
-#endif
-        }
+    window->State.MouseX = x;
+    window->State.MouseY = y;
+    
+    if ( window->ActiveMenu )
+    {
+        fgUpdateMenuHighlight( window->ActiveMenu );
+        return;
     }
-    SDL_SendMouseMotion(window, 0, 0, x, y);
-#endif
+    
+    INVOKE_WCB( *window, Passive, ( x,
+                                    y) );
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent
 {
-    [self mouseMoved:theEvent];
+    SFG_Window *window = fgWindowByHandle(_window);
+    if((!window) || ( ! FETCH_WCB( *window, Motion )) ) {
+        return;
+    }
+    
+    NSPoint point;
+    int x, y;
+    
+    point = [theEvent locationInWindow];
+    x = (int)point.x;
+    y = (int)(window->State.Height - point.y);
+    
+    
+    window->State.MouseX = x;
+    window->State.MouseY = y;
+    
+    if ( window->ActiveMenu )
+    {
+        fgUpdateMenuHighlight( window->ActiveMenu );
+        return;
+    }
+    
+    
+    INVOKE_WCB( *window, Motion, ( x,
+                                   y) );
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent
 {
-    [self mouseMoved:theEvent];
+    [self mouseDragged:theEvent];
 }
 
 - (void)otherMouseDragged:(NSEvent *)theEvent
 {
-    [self mouseMoved:theEvent];
+    [self mouseDragged:theEvent];
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent
@@ -1226,9 +1321,7 @@ static int
 SetupWindowData(SFG_Window * window, NSWindow *nswindow, GLboolean created)
 { @autoreleasepool
     {
-        if (!window) {
-            return -1;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         SFG_PlatformContext *context = (SFG_PlatformContext *) &(window->Window.pContext);
         
@@ -1300,9 +1393,7 @@ Cocoa_CreateWindow(SFG_Window * window,
                   GLboolean gameMode, GLboolean isSubWindow)
 { @autoreleasepool
     {
-        if (!window) {
-            return -1;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         NSWindow *nswindow;
         NSRect rect;
@@ -1318,13 +1409,19 @@ Cocoa_CreateWindow(SFG_Window * window,
             window->State.IsFullscreen = GL_TRUE;
         }
 
-        rect.origin.x = x;
-        rect.origin.y = y;
-        rect.size.width = w;
-        rect.size.height = h;
-        ConvertNSRect([screens objectAtIndex:0], &rect);
-        
-        style = GetWindowStyle(window);
+        if (isSubWindow && window->Parent) {
+            rect.origin.x = x + window->Parent->State.Xpos;
+            rect.origin.y = y + window->Parent->State.Ypos;
+            rect.size.width = w;
+            rect.size.height = h;
+            ConvertNSRect([screens objectAtIndex:0], &rect);
+        } else {
+            rect.origin.x = x;
+            rect.origin.y = y;
+            rect.size.width = w;
+            rect.size.height = h;
+            ConvertNSRect([screens objectAtIndex:0], &rect);
+        }
         
         /* Figure out which screen to place this window */
         NSScreen *screen = nil;
@@ -1339,6 +1436,9 @@ Cocoa_CreateWindow(SFG_Window * window,
                 rect.origin.y -= screenRect.origin.y;
             }
         }
+
+            
+        style = GetWindowStyle(window);
         
         @try {
             nswindow = [[GLUTWindow alloc] initWithContentRect:rect styleMask:style backing:NSBackingStoreBuffered defer:NO screen:screen];
@@ -1381,6 +1481,12 @@ Cocoa_CreateWindow(SFG_Window * window,
             [nswindow release];
             return -1;
         }
+        
+        if (isSubWindow && window->Parent) {
+            NSWindow* parent = window->Parent->Window.Handle;
+            [parent addChildWindow:nswindow ordered:NSWindowAbove];
+        }
+        
         return 0;
     }
 } 
@@ -1389,9 +1495,7 @@ void
 Cocoa_DestroyWindow(SFG_Window * window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         SFG_PlatformContext *data = (&window->Window.pContext);
         
@@ -1420,11 +1524,9 @@ void
 Cocoa_SetWindowTitle(SFG_Window * window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
-        const char *title = window->State.pWState.title ? window->State.pWState.title : "";
+        const char *title = window->State.pWState.windowTitle ? window->State.pWState.windowTitle : "";
         NSWindow *nswindow = window->Window.Handle;
         NSString *string = [[NSString alloc] initWithUTF8String:title];
         [nswindow setTitle:string];
@@ -1437,18 +1539,23 @@ void
 Cocoa_SetWindowPosition(SFG_Window * window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         NSWindow *nswindow = window->Window.Handle;
         NSRect rect;
         fg_time_t moveHack;
         
-        rect.origin.x = window->State.DesiredXpos;
-        rect.origin.y = window->State.DesiredYpos;
-        rect.size.width = window->State.Width;
-        rect.size.height = window->State.Height;
+        if (window->IsMenu && window->Parent) {
+            rect.origin.x = window->State.DesiredXpos + window->Parent->State.Xpos;
+            rect.origin.y = window->State.DesiredYpos + window->Parent->State.Ypos;
+            rect.size.width = window->State.Width;
+            rect.size.height = window->State.Height;
+        } else {
+            rect.origin.x = window->State.DesiredXpos;
+            rect.origin.y = window->State.DesiredYpos;
+            rect.size.width = window->State.Width;
+            rect.size.height = window->State.Height;
+        }
         ConvertNSRect([nswindow screen], &rect);
         
         moveHack = s_moveHack;
@@ -1463,9 +1570,7 @@ void
 Cocoa_SetWindowSize(SFG_Window * window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         NSWindow *nswindow = window->Window.Handle;
         NSRect rect;
@@ -1496,9 +1601,7 @@ void
 Cocoa_RaiseWindow(SFG_Window * window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         SFG_PlatformContext *windowData = &window->Window.pContext;
         NSWindow *nswindow = windowData->nswindow;
@@ -1519,9 +1622,7 @@ void
 Cocoa_MaximizeWindow(SFG_Window * window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         NSWindow *nswindow = window->Window.Handle;
         
@@ -1535,9 +1636,7 @@ void
 Cocoa_MinimizeWindow(SFG_Window * window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         SFG_PlatformContext *data = &window->Window.pContext;
         NSWindow *nswindow = data->nswindow;
@@ -1554,9 +1653,7 @@ void
 Cocoa_RestoreWindow(SFG_Window * window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         NSWindow *nswindow = window->Window.Handle;
         
@@ -1572,9 +1669,7 @@ void
 Cocoa_SetWindowFullscreen(SFG_Window * window, SFG_PlatformDisplay * display, GLboolean fullscreen)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         SFG_PlatformContext *data = &window->Window.pContext;
         NSWindow *nswindow = data->nswindow;
@@ -1651,9 +1746,7 @@ Cocoa_SetWindowFullscreen(SFG_Window * window, SFG_PlatformDisplay * display, GL
 GLboolean Cocoa_IsWindowVisible(SFG_Window* window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         NSWindow *nswindow = window->Window.Handle;
         if ([nswindow isVisible]) {
@@ -1667,9 +1760,7 @@ GLboolean Cocoa_IsWindowVisible(SFG_Window* window)
 void Cocoa_PushWindow(SFG_Window* window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         NSWindow *nswindow = window->Window.Handle;
         [nswindow orderBack:nil];
@@ -1679,9 +1770,7 @@ void Cocoa_PushWindow(SFG_Window* window)
 void Cocoa_PopWindow(SFG_Window* window)
 { @autoreleasepool
     {
-        if (!window) {
-            return;
-        }
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
         
         NSWindow *nswindow = window->Window.Handle;
         [nswindow orderFront:nil];
@@ -1693,33 +1782,33 @@ void Cocoa_PopWindow(SFG_Window* window)
  */
 void fgPlatformCloseWindow( SFG_Window* window )
 {
-    if (!window) {
-        return;
-    }
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
     
     Cocoa_DestroyWindow(window);
 }
 
 void fgPlatformGlutSetIconTitle( const char* title )
 {
-    if (fgStructure.CurrentWindow->State.pWState.iconic) {
-        free(fgStructure.CurrentWindow->State.pWState.iconic);
+    if (fgStructure.CurrentWindow->State.pWState.iconicTitle) {
+        free(fgStructure.CurrentWindow->State.pWState.iconicTitle);
     }
-    fgStructure.CurrentWindow->State.pWState.iconic = strdup(title ? title : "");
+    fgStructure.CurrentWindow->State.pWState.iconicTitle = strdup(title ? title : "");
 }
 
 void fgPlatformGlutSetWindowTitle( const char* title )
 {
-    if (fgStructure.CurrentWindow->State.pWState.title) {
-        free(fgStructure.CurrentWindow->State.pWState.title);
+    if (fgStructure.CurrentWindow->State.pWState.windowTitle) {
+        free(fgStructure.CurrentWindow->State.pWState.windowTitle);
     }
-    fgStructure.CurrentWindow->State.pWState.title = strdup(title ? title : "");
+    fgStructure.CurrentWindow->State.pWState.windowTitle = strdup(title ? title : "");
     
     Cocoa_SetWindowTitle(fgStructure.CurrentWindow);
 }
 
 void fgPlatformHideWindow( SFG_Window* window )
 {
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+    
     Cocoa_HideWindow(window);
 }
 
@@ -1728,20 +1817,21 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
                           GLboolean sizeUse, int w, int h,
                           GLboolean gameMode, GLboolean isSubWindow )
 {
-    if (!window) {
-        return;
-    }
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+    
     
     /* Create Window */
     Cocoa_CreateWindow(window, positionUse, x, y, sizeUse, w, h, gameMode, isSubWindow);
     
     /* Set Title */
-    window->State.pWState.title  = strdup(title ? title : "");
-    window->State.pWState.iconic = NULL;
+    window->State.pWState.windowTitle = strdup(title ? title : "");
+    window->State.pWState.iconicTitle = NULL;
     Cocoa_SetWindowTitle(window);
     
-    /* Show Window */
-    Cocoa_ShowWindow(window);
+    if (!window->IsMenu) {
+        /* Show Window */
+        Cocoa_ShowWindow(window);
+    }
     
     /* Create OpenGL Context */
     Cocoa_GL_CreateContext(window);
@@ -1752,6 +1842,8 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
 
 void fgPlatformSetWindow ( SFG_Window *window )
 {
+    freeglut_return_if_fail(window);
+    
     if ( window != fgStructure.CurrentWindow && window) {
         Cocoa_GL_MakeCurrent(window, window->Window.Context);
     }

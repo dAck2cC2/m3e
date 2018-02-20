@@ -269,6 +269,16 @@ Cocoa_QuitKeyboard(void)
     QuitHIDCallback();
 }
 
+GLboolean
+Cocoa_HasKeyboard(void)
+{
+    if (s_hidManager) {
+        return GL_TRUE;
+    } else {
+        return GL_FALSE;
+    }
+}
+
 void
 Cocoa_HandleKeyEvent(NSEvent *event)
 {

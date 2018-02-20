@@ -273,6 +273,9 @@ void fghPlatformGetCursorPos(const SFG_Window *window, GLboolean client, SFG_XYU
     if (client && window) {
         mouse_pos->X = window->State.MouseX;
         mouse_pos->Y = window->State.MouseY;
+    } else if (fgStructure.CurrentWindow) {
+        mouse_pos->X = fgStructure.CurrentWindow->State.MouseX;
+        mouse_pos->Y = fgStructure.CurrentWindow->State.MouseY;
     } else {
         const NSPoint location =  [NSEvent mouseLocation];
         mouse_pos->X = location.x;

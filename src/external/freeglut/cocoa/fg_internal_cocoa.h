@@ -10,14 +10,14 @@
 #define TARGET_NO_MAIN       0
 #define TARGET_NO_INIT       0
 #define TARGET_NO_WINDOW     0
-#define TARGET_NO_DISPLAY    1
+#define TARGET_NO_DISPLAY    0
 #define TARGET_NO_JOYSTICK   1
 #define TARGET_NO_SPACEBALL  1
 #define TARGET_NO_GAMEMODE   1
 #define TARGET_NO_STRUCTURE  1
-#define TARGET_NO_EXT        1
-#define TARGET_NO_MENU       1
-#define TARGET_NO_STATE      1
+#define TARGET_NO_EXT        0
+#define TARGET_NO_MENU       0
+#define TARGET_NO_STATE      0
 #define TARGET_NO_CURSOR     0
 #define TARGET_NO_SERIAL     0
 
@@ -38,8 +38,8 @@ struct tagSFG_PlatformDisplay
  * much conditionally-compiled code later in the library.
  */
 
-typedef NSWindow * SFG_WindowHandleType;
-typedef void *     SFG_WindowContextType;
+typedef void * SFG_WindowHandleType;   /* It can be pointer of NSWindow for window, or NSMenu for menu */
+typedef void * SFG_WindowContextType;  /* It can be pointer of GLUTOpenGLContext */
 
 typedef enum
 {
@@ -50,7 +50,7 @@ typedef enum
 } PendingWindowOperation;
 
 @interface Cocoa_WindowListener : NSResponder <NSWindowDelegate> {
-    SFG_WindowHandleType _window;
+    NSWindow* _window;
     BOOL observingVisible;
     BOOL wasCtrlLeft;
     BOOL wasVisible;
@@ -62,7 +62,7 @@ typedef enum
     BOOL isDragAreaRunning;
 }
 
--(void) listen:(SFG_WindowHandleType) data;
+-(void) listen:(NSWindow*) data;
 -(void) pauseVisibleObservation;
 -(void) resumeVisibleObservation;
 -(BOOL) setFullscreenSpace:(BOOL) state;
@@ -125,7 +125,7 @@ typedef enum
 typedef struct tagSFG_PlatformContext SFG_PlatformContext;
 struct tagSFG_PlatformContext
 {
-    SFG_WindowHandleType nswindow;
+    NSWindow* nswindow;
     NSMutableArray *nscontexts;
     GLboolean created;
     GLboolean is_destroying;
@@ -161,8 +161,8 @@ struct tagSFG_PlatformWindowState
      * one title associated with a window and we need to swap
      * them out based on the window's iconic state
      */
-    char*           title;
-    char*           iconic;
+    char*           windowTitle;
+    char*           iconicTitle;
 };
 
 
