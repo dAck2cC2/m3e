@@ -150,30 +150,63 @@ Cocoa_FreeCursor(NSCursor * cursor)
     }
 }
 
+static GLboolean
+Cocoa_IsInWindow(SFG_Window* window, int x, int y)
+{
+    if ((x >= window->State.Xpos)
+    &&  (x <= (window->State.Xpos + window->State.Width))
+    &&  (y >= window->State.Ypos)
+    &&  (y <= (window->State.Ypos + window->State.Height))) {
+        return GL_TRUE;
+    } else {
+        return GL_FALSE;
+    }
+
+}
+
+static SFG_Window*
+Cocoa_FindFocusWindow(SFG_List* windowList, int x, int y)
+{
+    SFG_Window* window = NULL;
+    
+    /* Check every of the top-level windows */
+    for(window = ( SFG_Window * )windowList->First;
+        window;
+        window = ( SFG_Window * )window->Node.Next )
+    {
+        if (Cocoa_IsInWindow(window, x, y)) {
+            return window;
+        }
+    }
+    
+    return NULL;
+}
+
 static void
 Cocoa_MouseMove(NSEvent *event)
 { @autoreleasepool
     {
-        SFG_Window* window = fgStructure.CurrentWindow;
-        if (!window) {
-            return;
+        int x = 0;
+        int y = 0;
+        
+        const NSPoint cocoaLocation = [NSEvent mouseLocation];
+        for (NSScreen *screen in [NSScreen screens]) {
+            NSRect frame = [screen frame];
+            if (NSMouseInRect(cocoaLocation, frame, NO)) {
+                x = (int) cocoaLocation.x;
+                y = (int) ((frame.origin.y + frame.size.height) - cocoaLocation.y);
+                break;
+            }
         }
         
-        if( window->ActiveMenu ) {
-            fgUpdateMenuHighlight(window->ActiveMenu);
-            return;
-        }
-        
-        const NSPoint location =  [NSEvent mouseLocation];
-        window->State.MouseX = location.x;
-        window->State.MouseY = location.y;
-        
-        if( NSEventTypeMouseMoved == [event type] ) {
-            INVOKE_WCB( *window, Motion, ( window->State.MouseX,
-                                          window->State.MouseY ) );
-        } else {
-            INVOKE_WCB( *window, Passive, ( window->State.MouseX,
-                                           window->State.MouseY ) );
+        SFG_Window* window = Cocoa_FindFocusWindow(&(fgStructure.Windows), x, y);
+        if (window) {
+            SFG_Window* subwin = Cocoa_FindFocusWindow(&(window->Children), x, y);
+            if (subwin) {
+                fgSetWindow(subwin);
+            } else {
+                fgSetWindow(window);
+            }
         }
     }
 }
@@ -275,7 +308,6 @@ void fghPlatformGetCursorPos(const SFG_Window *window, GLboolean client, SFG_XYU
         mouse_pos->Y = window->State.MouseY;
     } else {
         const NSPoint cocoaLocation = [NSEvent mouseLocation];
-        
         for (NSScreen *screen in [NSScreen screens]) {
             NSRect frame = [screen frame];
             if (NSMouseInRect(cocoaLocation, frame, NO)) {

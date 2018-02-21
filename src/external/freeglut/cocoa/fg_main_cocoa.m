@@ -60,7 +60,7 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         case NSEventTypeOtherMouseDragged: /* usually middle mouse dragged */
         case NSEventTypeMouseMoved:
         case NSEventTypeScrollWheel:
-            //Cocoa_HandleMouseEvent(theEvent);
+            Cocoa_HandleMouseEvent(theEvent);
             break;
         case NSEventTypeKeyDown:
         case NSEventTypeKeyUp:
