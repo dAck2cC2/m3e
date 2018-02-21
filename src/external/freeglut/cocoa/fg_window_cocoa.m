@@ -1134,6 +1134,14 @@ Cocoa_HideWindow(SFG_Window * window)
     }
     */
     
+    /* Ignore events that aren't inside the client area (i.e. title bar.) */
+    if ([theEvent window]) {
+        NSRect windowRect = [[[theEvent window] contentView] frame];
+        if (!NSMouseInRect([theEvent locationInWindow], windowRect, NO)) {
+            return;
+        }
+    }
+    
     point = [theEvent locationInWindow];
     x = (int)point.x;
     y = (int)(window->State.Height - point.y);
