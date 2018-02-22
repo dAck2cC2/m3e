@@ -253,7 +253,7 @@ CreateApplicationMenus(void)
     NSString *appName;
     NSString *title;
     NSMenu *appleMenu;
-    NSMenu *serviceMenu;
+    //NSMenu *serviceMenu;
     NSMenu *windowMenu;
     NSMenu *viewMenu;
     NSMenuItem *menuItem;
@@ -280,7 +280,7 @@ CreateApplicationMenus(void)
     [appleMenu addItemWithTitle:title action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
     
     [appleMenu addItem:[NSMenuItem separatorItem]];
-    
+#if 0
     [appleMenu addItemWithTitle:@"Preferences…" action:nil keyEquivalent:@","];
     
     [appleMenu addItem:[NSMenuItem separatorItem]];
@@ -303,7 +303,7 @@ CreateApplicationMenus(void)
     [appleMenu addItemWithTitle:@"Show All" action:@selector(unhideAllApplications:) keyEquivalent:@""];
     
     [appleMenu addItem:[NSMenuItem separatorItem]];
-    
+#endif
     title = [@"Quit " stringByAppendingString:appName];
     [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
     

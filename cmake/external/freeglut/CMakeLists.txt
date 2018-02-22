@@ -146,7 +146,7 @@ ELSE()
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/cocoa/fg_window_cocoa.m
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/cocoa/fg_window_cocoa_gl.m
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/cocoa/fg_keyboard_cocoa.m
-            ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/cocoa/fg_cursor_cocoa.m  
+            ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/cocoa/fg_mouse_cocoa.m  
             ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/cocoa/fg_state_cocoa.m           
             ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/x11/fg_glutfont_definitions_x11.c
             ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/x11/fg_input_devices_x11.c              

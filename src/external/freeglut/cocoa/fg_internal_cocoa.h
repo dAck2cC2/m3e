@@ -38,7 +38,7 @@ struct tagSFG_PlatformDisplay
  * much conditionally-compiled code later in the library.
  */
 
-typedef void * SFG_WindowHandleType;   /* It can be pointer of NSWindow for window, or NSMenu for menu */
+typedef void * SFG_WindowHandleType;   /* It can be pointer of NSWindow */
 typedef void * SFG_WindowContextType;  /* It can be pointer of GLUTOpenGLContext */
 
 typedef enum

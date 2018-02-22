@@ -5,7 +5,7 @@
 
 /* -- PRIVATE FUNCTION DECLARATIONS ---------------------------------------- */
 
-extern void Cocoa_InitMouse(SFG_Window* window);
+extern void Cocoa_InitCursor(SFG_Window* window);
 extern void Cocoa_HandleMouseWheel(SFG_Window *window, NSEvent *event);
 extern SFG_WindowContextType Cocoa_GL_CreateContext(SFG_Window * window);  /* fg_window_osx_gl.m */
 extern int Cocoa_GL_MakeCurrent(SFG_Window * window, GLUTOpenGLContext* context);
@@ -1115,6 +1115,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)mouseMoved:(NSEvent *)theEvent
 {
+#if 0
     SFG_Window *window = fgWindowByHandle(_window);
     if((!window) || ( ! FETCH_WCB( *window, Passive )) ) {
         return;
@@ -1157,10 +1158,12 @@ Cocoa_HideWindow(SFG_Window * window)
     
     INVOKE_WCB( *window, Passive, ( x,
                                     y) );
+#endif
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent
 {
+#if 0
     SFG_Window *window = fgWindowByHandle(_window);
     if((!window) || ( ! FETCH_WCB( *window, Motion )) ) {
         return;
@@ -1186,6 +1189,7 @@ Cocoa_HideWindow(SFG_Window * window)
     
     INVOKE_WCB( *window, Motion, ( x,
                                    y) );
+#endif
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent
@@ -1491,6 +1495,12 @@ Cocoa_CreateWindow(SFG_Window * window,
         }
         
         if (isSubWindow && window->Parent) {
+            /*
+            SFG_Window * parentWin = window->Parent;
+            while (parentWin->Parent) {
+                parentWin = parentWin->Parent;
+            }
+            */
             NSWindow* parent = window->Parent->Window.Handle;
             [parent addChildWindow:nswindow ordered:NSWindowAbove];
         }
@@ -1845,7 +1855,7 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
     Cocoa_GL_CreateContext(window);
     
     /* Create default cursor */
-    Cocoa_InitMouse(window);
+    Cocoa_InitCursor(window);
 }
 
 void fgPlatformSetWindow ( SFG_Window *window )
