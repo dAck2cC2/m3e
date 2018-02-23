@@ -10,6 +10,12 @@ extern void Cocoa_HandleMouseWheel(SFG_Window *window, NSEvent *event);
 extern SFG_WindowContextType Cocoa_GL_CreateContext(SFG_Window * window);  /* fg_window_osx_gl.m */
 extern int Cocoa_GL_MakeCurrent(SFG_Window * window, GLUTOpenGLContext* context);
 
+extern void Cocoa_MouseMoved(SFG_Window* window);
+extern void Cocoa_MouseDragged(SFG_Window* window);
+extern void Cocoa_MouseButton(SFG_Window* fgwindow_in, int button_in, int updown_in);
+extern void Cocoa_MouseIn(SFG_Window * fgwindow_in);
+extern void Cocoa_MouseOut(SFG_Window * fgwindow_in);
+
 extern void fghOnReshapeNotify(SFG_Window *window, int width, int height, GLboolean forceNotify);
 extern void fghOnPositionNotify(SFG_Window *window, int x, int y, GLboolean forceNotify);
 
@@ -161,12 +167,12 @@ Cocoa_ShowWindow(SFG_Window * window)
 }
 
 void
-Cocoa_HideWindow(SFG_Window * window)
+Cocoa_HideWindow(SFG_Window * fgwindow_in)
 { @autoreleasepool
     {
-        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+        FREEGLUT_INTERNAL_ERROR_EXIT(fgwindow_in, "FG window is nonexistent", __FUNCTION__);
         
-        NSWindow *nswindow = window->Window.Handle;
+        NSWindow *nswindow = fgwindow_in->Window.Handle;
         
         [nswindow orderOut:nil];
     }
@@ -194,32 +200,47 @@ Cocoa_HideWindow(SFG_Window * window)
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
     /* Only allow using the macOS native fullscreen toggle menubar item if the
-     * window is resizable and not in a SDL fullscreen mode.
+     * window is resizable and not in a fullscreen mode.
      */
     if ([menuItem action] == @selector(toggleFullScreen:)) {
         SFG_Window *window = [self findWindow];
         if (window == NULL) {
             return NO;
-        } else if (window->State.IsFullscreen) {
-             return NO;
+        } else {
+            /* Only the top level window is resizable */
+            while (window->Parent) {
+                window = window->Parent;
+            }
+            if (window->State.IsFullscreen) {
+                return NO;
+            }
         }
-        /*
-        else if ((window->flags & SDL_WINDOW_RESIZABLE) == 0) {
-             return NO;
-        }
-        */
     }
     return [super validateMenuItem:menuItem];
 }
 
 - (BOOL)canBecomeKeyWindow
 {
-    return YES;
+    SFG_Window* window = [self findWindow];
+    
+    /* Only the top level window can be key */
+    if (window && (window->Parent || window->IsMenu)) {
+        return NO;
+    } else {
+        return YES;
+    }
 }
 
 - (BOOL)canBecomeMainWindow
 {
-    return YES;
+    SFG_Window* window = [self findWindow];
+    
+    /* Only the top level window can be main */
+    if (window && (window->Parent || window->IsMenu)) {
+        return NO;
+    } else {
+        return YES;
+    }
 }
 
 - (void)sendEvent:(NSEvent *)event
@@ -334,7 +355,7 @@ Cocoa_HideWindow(SFG_Window * window)
     NSWindow *window = data;
     NSView *view = [window contentView];
     
-    _window = data;
+    nswindow = data;
     observingVisible = YES;
     wasCtrlLeft = NO;
     wasVisible = [window isVisible];
@@ -387,13 +408,13 @@ Cocoa_HideWindow(SFG_Window * window)
                         change:(NSDictionary *)change
                        context:(void *)context
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
 
     if (!observingVisible) {
         return;
     }
     
-    if (object == _window && [keyPath isEqualToString:@"visible"]) {
+    if (object == nswindow && [keyPath isEqualToString:@"visible"]) {
         int newVisibility = [[change objectForKey:@"new"] intValue];
         if (newVisibility) {
             fghPlatformOnWindowStatusNotify(window, GL_TRUE, GL_FALSE);
@@ -408,14 +429,14 @@ Cocoa_HideWindow(SFG_Window * window)
 -(void) pauseVisibleObservation
 {
     observingVisible = NO;
-    wasVisible = [_window isVisible];
+    wasVisible = [nswindow isVisible];
 }
 
 -(void) resumeVisibleObservation
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
 
-    BOOL isVisible = [_window isVisible];
+    BOOL isVisible = [nswindow isVisible];
     observingVisible = YES;
     if (wasVisible != isVisible) {
         if (isVisible) {
@@ -432,8 +453,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 -(BOOL) setFullscreenSpace:(BOOL) state
 {
-    //SFG_Window *window = fgWindowByHandle(_window);
-    NSWindow *nswindow = _window;
+    //SFG_Window *window = fgWindowByHandle(nswindow);
 #if 0
     SDL_VideoData *videodata = ((SDL_WindowData *) window->driverdata)->videodata;
     
@@ -483,34 +503,33 @@ Cocoa_HideWindow(SFG_Window * window)
 - (void)close
 {
     NSNotificationCenter *center;
-    NSWindow *window = _window;
-    NSView *view = [window contentView];
+    NSView *view = [nswindow contentView];
     
     center = [NSNotificationCenter defaultCenter];
     
-    if ([window delegate] != self) {
-        [center removeObserver:self name:NSWindowDidExposeNotification object:window];
-        [center removeObserver:self name:NSWindowDidMoveNotification object:window];
-        [center removeObserver:self name:NSWindowDidResizeNotification object:window];
-        [center removeObserver:self name:NSWindowDidMiniaturizeNotification object:window];
-        [center removeObserver:self name:NSWindowDidDeminiaturizeNotification object:window];
-        [center removeObserver:self name:NSWindowDidBecomeKeyNotification object:window];
-        [center removeObserver:self name:NSWindowDidResignKeyNotification object:window];
-        [center removeObserver:self name:NSWindowDidChangeBackingPropertiesNotification object:window];
-        [center removeObserver:self name:NSWindowWillEnterFullScreenNotification object:window];
-        [center removeObserver:self name:NSWindowDidEnterFullScreenNotification object:window];
-        [center removeObserver:self name:NSWindowWillExitFullScreenNotification object:window];
-        [center removeObserver:self name:NSWindowDidExitFullScreenNotification object:window];
-        [center removeObserver:self name:@"NSWindowDidFailToEnterFullScreenNotification" object:window];
-        [center removeObserver:self name:@"NSWindowDidFailToExitFullScreenNotification" object:window];
+    if ([nswindow delegate] != self) {
+        [center removeObserver:self name:NSWindowDidExposeNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidMoveNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidResizeNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidMiniaturizeNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidDeminiaturizeNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidBecomeKeyNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidResignKeyNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidChangeBackingPropertiesNotification object:nswindow];
+        [center removeObserver:self name:NSWindowWillEnterFullScreenNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidEnterFullScreenNotification object:nswindow];
+        [center removeObserver:self name:NSWindowWillExitFullScreenNotification object:nswindow];
+        [center removeObserver:self name:NSWindowDidExitFullScreenNotification object:nswindow];
+        [center removeObserver:self name:@"NSWindowDidFailToEnterFullScreenNotification" object:nswindow];
+        [center removeObserver:self name:@"NSWindowDidFailToExitFullScreenNotification" object:nswindow];
     } else {
-        [window setDelegate:nil];
+        [nswindow setDelegate:nil];
     }
     
-    [window removeObserver:self forKeyPath:@"visible"];
+    [nswindow removeObserver:self forKeyPath:@"visible"];
     
-    if ([window nextResponder] == self) {
-        [window setNextResponder:nil];
+    if ([nswindow nextResponder] == self) {
+        [nswindow setNextResponder:nil];
     }
     if ([view nextResponder] == self) {
         [view setNextResponder:nil];
@@ -547,7 +566,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
     fgDestroyWindow(window);
     if ( fgState.ActionOnWindowClose != GLUT_ACTION_CONTINUE_EXECUTION ) {
         return YES;
@@ -563,7 +582,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowWillMove:(NSNotification *)aNotification
 {
-    if ([_window isKindOfClass:[GLUTWindow class]]) {
+    if ([nswindow isKindOfClass:[GLUTWindow class]]) {
         pendingWindowWarpX = pendingWindowWarpY = INT_MAX;
         isMoving = YES;
     }
@@ -572,8 +591,7 @@ Cocoa_HideWindow(SFG_Window * window)
 - (void)windowDidMove:(NSNotification *)aNotification
 {
     int x, y;
-    SFG_Window *window = fgWindowByHandle(_window);
-    NSWindow *nswindow = _window;
+    SFG_Window *window = fgWindowByHandle(nswindow);
     NSRect rect = [nswindow contentRectForFrameRect:[nswindow frame]];
     ConvertNSRect([nswindow screen], &rect);
     
@@ -612,8 +630,7 @@ Cocoa_HideWindow(SFG_Window * window)
         return;
     }
     
-    SFG_Window *window = fgWindowByHandle(_window);
-    NSWindow *nswindow = _window;
+    SFG_Window *window = fgWindowByHandle(nswindow);
     int x, y, w, h;
     NSRect rect = [nswindow contentRectForFrameRect:[nswindow frame]];
     ConvertNSRect([nswindow screen], &rect);
@@ -641,13 +658,13 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowDidMiniaturize:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
     fghPlatformOnWindowStatusNotify(window,GL_FALSE,GL_FALSE);
 }
 
 - (void)windowDidDeminiaturize:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
     if (!window->State.Visible) {
         fghPlatformOnWindowStatusNotify(window,GL_TRUE,GL_FALSE);
     }
@@ -655,7 +672,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowDidBecomeKey:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
     if (window) {
         fghPlatformOnWindowStatusNotify(window, GL_TRUE, GL_FALSE);
         window->State.WorkMask |= GLUT_DISPLAY_WORK;
@@ -702,7 +719,7 @@ Cocoa_HideWindow(SFG_Window * window)
 -
 (void)windowDidResignKey:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
     if (window) {
         fghPlatformOnWindowStatusNotify(window, GL_FALSE, GL_FALSE);
         window->State.WorkMask &= ~GLUT_DISPLAY_WORK;
@@ -736,9 +753,9 @@ Cocoa_HideWindow(SFG_Window * window)
         return;
     }
     
-    if ([oldscale doubleValue] != [_window backingScaleFactor]) {
+    if ([oldscale doubleValue] != [nswindow backingScaleFactor]) {
         /* Force a resize event when the backing scale factor changes. */
-        SFG_Window *window = fgWindowByHandle(_window);
+        SFG_Window *window = fgWindowByHandle(nswindow);
         window->State.Width = 0;
         window->State.Height = 0;
         [self windowDidResize:aNotification];
@@ -747,7 +764,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowWillEnterFullScreen:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
 
     SetWindowStyle(window, (NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable));
     
@@ -757,7 +774,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowDidFailToEnterFullScreen:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
 
     if (window->Window.pContext.is_destroying) {
         return;
@@ -773,9 +790,8 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowDidEnterFullScreen:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
-    SFG_PlatformContext *data = (&window->Window.pContext);
-    NSWindow *nswindow = data->nswindow;
+    SFG_Window *window = fgWindowByHandle(nswindow);
+    //SFG_PlatformContext *data = (&window->Window.pContext);
     
     inFullscreenTransition = NO;
     
@@ -803,7 +819,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowWillExitFullScreen:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
 
     isFullscreenSpace = NO;
     inFullscreenTransition = YES;
@@ -816,7 +832,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowDidFailToExitFullScreen:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
 
     if (window->Window.pContext.is_destroying) {
         return;
@@ -832,8 +848,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)windowDidExitFullScreen:(NSNotification *)aNotification
 {
-    SFG_Window *window = fgWindowByHandle(_window);
-    NSWindow *nswindow = _window;
+    SFG_Window *window = fgWindowByHandle(nswindow);
     
     inFullscreenTransition = NO;
     
@@ -898,7 +913,7 @@ Cocoa_HideWindow(SFG_Window * window)
     }
 }
 
--(NSApplicationPresentationOptions)window:(NSWindow *)nswindow willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
+-(NSApplicationPresentationOptions)window:(NSWindow *)_window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {
     SFG_Window *window = fgWindowByHandle(_window);
     
@@ -937,7 +952,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (BOOL)processHitTest:(NSEvent *)theEvent
 {
-    FREEGLUT_INTERNAL_ERROR_EXIT((isDragAreaRunning == [_window isMovableByWindowBackground]), "Drag Area is not running", "processHitTest");
+    FREEGLUT_INTERNAL_ERROR_EXIT((isDragAreaRunning == [nswindow isMovableByWindowBackground]), "Drag Area is not running", "processHitTest");
 #if 0
     if (_data->window->hit_test) {  /* if no hit-test, skip this. */
         const NSPoint location = [theEvent locationInWindow];
@@ -954,7 +969,7 @@ Cocoa_HideWindow(SFG_Window * window)
 #endif
     if (isDragAreaRunning) {
         isDragAreaRunning = NO;
-        [_window setMovableByWindowBackground:NO];
+        [nswindow setMovableByWindowBackground:NO];
         return YES;  /* was dragging, drop event. */
     }
     
@@ -963,24 +978,6 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)mouseDown:(NSEvent *)theEvent
 {
-    /*
-    NSMenu *theMenu = [[NSMenu alloc] initWithTitle:@"Contextual Menu"];
-    [theMenu insertItemWithTitle:@"Beep" action:@selector(beep:) keyEquivalent:@"" atIndex:0];
-    [theMenu insertItemWithTitle:@"Honk" action:@selector(honk:) keyEquivalent:@"" atIndex:1];
-    
-    NSWindow *nswindow = _window;
-    NSView *view = [nswindow contentView];
-    [NSMenu popUpContextMenu:theMenu withEvent:theEvent forView:view];
-    */
-    
-    SFG_Window *window = fgWindowByHandle(_window);
-    if((!window) || ( ! FETCH_WCB( *window, Mouse ))) {
-        return;
-    }
-       
-    int button;
-    int clicks;
-    
     /* Ignore events that aren't inside the client area (i.e. title bar.) */
     if ([theEvent window]) {
         NSRect windowRect = [[[theEvent window] contentView] frame];
@@ -989,11 +986,9 @@ Cocoa_HideWindow(SFG_Window * window)
         }
     }
     
-    if ([self processHitTest:theEvent]) {
-        //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_HIT_TEST, 0, 0);
-        return;  /* dragging, drop event. */
-    }
-
+    int button;
+    int clicks;
+    
     switch ([theEvent buttonNumber]) {
         case 0:
             if (([theEvent modifierFlags] & NSEventModifierFlagControl)) {
@@ -1016,24 +1011,10 @@ Cocoa_HideWindow(SFG_Window * window)
     }
     clicks = (int) [theEvent clickCount];
     
-    /*
-     * Do not execute the application's mouse callback if a menu
-     * is hooked to this button.  In that case an appropriate
-     * private call should be generated.
-     */
-    if( fgCheckActiveMenu( window, button, GL_TRUE,
-                          window->State.MouseX, window->State.MouseY ) ) {
-        return;
-    }
+    SFG_Window *window = fgWindowByHandle(nswindow);
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "FG window is nonexistent", __FUNCTION__);
     
-    INVOKE_WCB(
-               *window, Mouse,
-               ( button,
-                GLUT_DOWN,
-                window->State.MouseX,
-                window->State.MouseY
-                )
-               );
+    Cocoa_MouseButton(window, button, GLUT_DOWN);
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent
@@ -1048,18 +1029,8 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)mouseUp:(NSEvent *)theEvent
 {
-    SFG_Window *window = fgWindowByHandle(_window);
-    if((!window) || ( ! FETCH_WCB( *window, Mouse ))) {
-        return;
-    }
-    
     int button;
     int clicks;
-    
-    if ([self processHitTest:theEvent]) {
-        //SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_HIT_TEST, 0, 0);
-        return;  /* stopped dragging, drop event. */
-    }
 
     switch ([theEvent buttonNumber]) {
         case 0:
@@ -1083,24 +1054,10 @@ Cocoa_HideWindow(SFG_Window * window)
     
     clicks = (int) [theEvent clickCount];
     
-    /*
-     * Do not execute the application's mouse callback if a menu
-     * is hooked to this button.  In that case an appropriate
-     * private call should be generated.
-     */
-    if( fgCheckActiveMenu( window, button, GL_FALSE,
-                          window->State.MouseX, window->State.MouseY ) ) {
-        return;
-    }
+    SFG_Window *window = fgWindowByHandle(nswindow);
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "FG window is nonexistent", __FUNCTION__);
     
-    INVOKE_WCB(
-               *window, Mouse,
-               ( button,
-                GLUT_UP,
-                window->State.MouseX,
-                window->State.MouseY
-                )
-               );
+    Cocoa_MouseButton(window, button, GLUT_UP);
 }
 
 - (void)rightMouseUp:(NSEvent *)theEvent
@@ -1115,11 +1072,8 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)mouseMoved:(NSEvent *)theEvent
 {
-#if 0
-    SFG_Window *window = fgWindowByHandle(_window);
-    if((!window) || ( ! FETCH_WCB( *window, Passive )) ) {
-        return;
-    }
+    SFG_Window *window = fgWindowByHandle(nswindow);
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
 
     NSPoint point;
     int x, y;
@@ -1128,12 +1082,6 @@ Cocoa_HideWindow(SFG_Window * window)
         //SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIT_TEST, 0, 0);
         return;  /* dragging, drop event. */
     }
-    
-    /*
-    if (mouse->relative_mode) {
-        return;
-    }
-    */
     
     /* Ignore events that aren't inside the client area (i.e. title bar.) */
     if ([theEvent window]) {
@@ -1150,24 +1098,13 @@ Cocoa_HideWindow(SFG_Window * window)
     window->State.MouseX = x;
     window->State.MouseY = y;
     
-    if ( window->ActiveMenu )
-    {
-        fgUpdateMenuHighlight( window->ActiveMenu );
-        return;
-    }
-    
-    INVOKE_WCB( *window, Passive, ( x,
-                                    y) );
-#endif
+    Cocoa_MouseMoved(window);
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent
 {
-#if 0
-    SFG_Window *window = fgWindowByHandle(_window);
-    if((!window) || ( ! FETCH_WCB( *window, Motion )) ) {
-        return;
-    }
+    SFG_Window *window = fgWindowByHandle(nswindow);
+    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
     
     NSPoint point;
     int x, y;
@@ -1176,20 +1113,10 @@ Cocoa_HideWindow(SFG_Window * window)
     x = (int)point.x;
     y = (int)(window->State.Height - point.y);
     
-    
     window->State.MouseX = x;
     window->State.MouseY = y;
     
-    if ( window->ActiveMenu )
-    {
-        fgUpdateMenuHighlight( window->ActiveMenu );
-        return;
-    }
-    
-    
-    INVOKE_WCB( *window, Motion, ( x,
-                                   y) );
-#endif
+    Cocoa_MouseDragged(window);
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent
@@ -1204,7 +1131,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-    Cocoa_HandleMouseWheel(fgWindowByHandle(_window), theEvent);
+    Cocoa_HandleMouseWheel(fgWindowByHandle(nswindow), theEvent);
 }
 
 - (void)touchesBeganWithEvent:(NSEvent *) theEvent
@@ -1238,7 +1165,7 @@ Cocoa_HideWindow(SFG_Window * window)
 
 - (void)handleTouches:(NSTouchPhase) phase withEvent:(NSEvent *) theEvent
 {
-    SFG_Window *window = fgWindowByHandle(_window);
+    SFG_Window *window = fgWindowByHandle(nswindow);
     if (!window) {
         return;
     }
@@ -1275,12 +1202,16 @@ Cocoa_HideWindow(SFG_Window * window)
 
 
 @interface GLUTView : NSView {
-    SFG_Window *_Window;
+    SFG_Window *    m_fgwindow;
+    NSTrackingArea* m_trackingArea;
 }
+- (id)initWithFrame:(NSRect)frame;
 
 - (void)setWindow:(SFG_Window*)window;
 
 /* The default implementation doesn't pass rightMouseDown to responder chain */
+- (void)mouseEntered:(NSEvent *) event_in;
+- (void)mouseExited:(NSEvent *) event_in;
 - (void)rightMouseDown:(NSEvent *)theEvent;
 - (BOOL)mouseDownCanMoveWindow;
 - (void)drawRect:(NSRect)dirtyRect;
@@ -1288,9 +1219,39 @@ Cocoa_HideWindow(SFG_Window * window)
 @end
 
 @implementation GLUTView
-- (void)setWindow:(SFG_Window*)window
+
+- (id)initWithFrame:(NSRect)frame
 {
-    _Window = window;
+    self = [super initWithFrame:frame];
+#if 0
+    if (self) {
+        NSRect fullArea = [self bounds];
+        fullArea.size.width -= 1;
+        fullArea.size.height -= 1;
+        m_trackingArea = [[NSTrackingArea alloc] initWithRect:fullArea
+                                                      options:(NSTrackingMouseEnteredAndExited)
+                                                      owner:self userInfo:nil];
+        [self addTrackingArea:m_trackingArea];
+    }
+#endif
+    return self;
+}
+
+- (void)setWindow:(SFG_Window*) fgwindow_in
+{
+    FREEGLUT_INTERNAL_ERROR_EXIT(fgwindow_in, "FG window is nonexistent", __FUNCTION__);
+    
+    m_fgwindow = fgwindow_in;
+}
+
+- (void)mouseEntered:(NSEvent *)event_in
+{
+    Cocoa_MouseIn(m_fgwindow);
+}
+
+- (void)mouseExited:(NSEvent *)event_in
+{
+    Cocoa_MouseOut(m_fgwindow);
 }
 
 - (void)drawRect:(NSRect)dirtyRect
@@ -1314,9 +1275,9 @@ Cocoa_HideWindow(SFG_Window * window)
 - (void)resetCursorRects
 {
     [super resetCursorRects];
-    if (_Window->Window.pContext.cursor) {
+    if (m_fgwindow->Window.pContext.cursor) {
         [self addCursorRect:[self bounds]
-                     cursor:_Window->Window.pContext.cursor];
+                     cursor:m_fgwindow->Window.pContext.cursor];
     } else {
         [self addCursorRect:[self bounds]
                      cursor:[NSCursor invisibleCursor]];
@@ -1330,16 +1291,17 @@ Cocoa_HideWindow(SFG_Window * window)
 @end // GLUTView
 
 static int
-SetupWindowData(SFG_Window * window, NSWindow *nswindow, GLboolean created)
+SetupWindowData(SFG_Window * fgwindow_inout, NSWindow * nswindow_in, GLboolean created_in)
 { @autoreleasepool
     {
-        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+        FREEGLUT_INTERNAL_ERROR_EXIT(fgwindow_inout, "FG window is nonexistent", __FUNCTION__);
+        FREEGLUT_INTERNAL_ERROR_EXIT(nswindow_in, "NS window is nonexistent", __FUNCTION__);
         
-        SFG_PlatformContext *context = (SFG_PlatformContext *) &(window->Window.pContext);
+        SFG_PlatformContext *context = (SFG_PlatformContext *) &(fgwindow_inout->Window.pContext);
         
-        window->Window.Handle = nswindow;
-        context->nswindow = nswindow;
-        context->created = created;
+        fgwindow_inout->Window.Handle = nswindow_in;
+        context->nswindow = nswindow_in;
+        context->created = created_in;
         context->is_destroying = GL_FALSE;
         context->nscontexts = [[NSMutableArray alloc] init];
         
@@ -1348,50 +1310,49 @@ SetupWindowData(SFG_Window * window, NSWindow *nswindow, GLboolean created)
         
         /* Fill in the SDL window with the window data */
         {
-            NSRect rect = [nswindow contentRectForFrameRect:[nswindow frame]];
-            ConvertNSRect([nswindow screen], &rect);
-            window->State.Xpos = (int)rect.origin.x;
-            window->State.Ypos = (int)rect.origin.y;
-            window->State.Width = (int)rect.size.width;
-            window->State.Height = (int)rect.size.height;
+            NSRect rect = [nswindow_in contentRectForFrameRect:[nswindow_in frame]];
+            ConvertNSRect([nswindow_in screen], &rect);
+            fgwindow_inout->State.Xpos = (int)rect.origin.x;
+            fgwindow_inout->State.Ypos = (int)rect.origin.y;
+            fgwindow_inout->State.Width = (int)rect.size.width;
+            fgwindow_inout->State.Height = (int)rect.size.height;
         }
         
         /* Set up the listener after we create the view */
-        [context->listener listen:nswindow];
+        [context->listener listen:nswindow_in];
         
-        if ([nswindow isVisible]) {
-            window->State.Visible = GL_TRUE;
+        if ([nswindow_in isVisible]) {
+            fgwindow_inout->State.Visible = GL_TRUE;
         } else {
-            window->State.Visible = GL_FALSE;
+            fgwindow_inout->State.Visible = GL_FALSE;
         }
         
         {
-            unsigned long style = [nswindow styleMask];
-            window->State.pWState.style = style;
+            unsigned long style = [nswindow_in styleMask];
+            fgwindow_inout->State.pWState.style = style;
         }
         
         /* isZoomed always returns true if the window is not resizable */
-        if ([nswindow isZoomed]) {
-            window->State.pWState.isMaximized = GL_TRUE;
+        if ([nswindow_in isZoomed]) {
+            fgwindow_inout->State.pWState.isMaximized = GL_TRUE;
         } else {
-            window->State.pWState.isMaximized = GL_FALSE;
+            fgwindow_inout->State.pWState.isMaximized = GL_FALSE;
         }
         
-        if ([nswindow isMiniaturized]) {
-            window->State.pWState.isMinimized = GL_TRUE;
+        if ([nswindow_in isMiniaturized]) {
+            fgwindow_inout->State.pWState.isMinimized = GL_TRUE;
         } else {
-            window->State.pWState.isMinimized = GL_FALSE;
+            fgwindow_inout->State.pWState.isMinimized = GL_FALSE;
         }
         
-        if ([nswindow isKeyWindow]) {
-            window->State.pWState.isKeyWindow = GL_TRUE;
-            //SDL_SetKeyboardFocus(data->window);
+        if ([nswindow_in isKeyWindow]) {
+            fgwindow_inout->State.pWState.isKeyWindow = GL_TRUE;
         }
         
         /* Prevents the window's "window device" from being destroyed when it is
          * hidden. See http://www.mikeash.com/pyblog/nsopenglcontext-and-one-shot.html
          */
-        [nswindow setOneShot:NO];
+        [nswindow_in setOneShot:NO];
         
         /* All done! */
         return 0;
@@ -1495,13 +1456,13 @@ Cocoa_CreateWindow(SFG_Window * window,
         }
         
         if (isSubWindow && window->Parent) {
-            /*
+            
             SFG_Window * parentWin = window->Parent;
             while (parentWin->Parent) {
                 parentWin = parentWin->Parent;
             }
-            */
-            NSWindow* parent = window->Parent->Window.Handle;
+            
+            NSWindow* parent = parentWin->Window.Handle;
             [parent addChildWindow:nswindow ordered:NSWindowAbove];
         }
         
@@ -1582,7 +1543,8 @@ Cocoa_SetWindowPosition(SFG_Window * window)
         s_moveHack = moveHack;
         
         ScheduleContextUpdates(window);
-    }}
+    }
+}
 
 void
 Cocoa_SetWindowSize(SFG_Window * window)
@@ -1612,7 +1574,6 @@ Cocoa_SetWindowSize(SFG_Window * window)
         ScheduleContextUpdates(window);
     }
 }
-
 
 
 void
@@ -1761,12 +1722,12 @@ Cocoa_SetWindowFullscreen(SFG_Window * window, SFG_PlatformDisplay * display, GL
     }
 }
 
-GLboolean Cocoa_IsWindowVisible(SFG_Window* window)
+GLboolean Cocoa_IsWindowVisible(SFG_Window* window_in)
 { @autoreleasepool
     {
-        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+        FREEGLUT_INTERNAL_ERROR_EXIT(window_in, "FG window is nonexistent", __FUNCTION__);
         
-        NSWindow *nswindow = window->Window.Handle;
+        NSWindow *nswindow = window_in->Window.Handle;
         if ([nswindow isVisible]) {
             return GL_TRUE;
         } else {
@@ -1858,12 +1819,12 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
     Cocoa_InitCursor(window);
 }
 
-void fgPlatformSetWindow ( SFG_Window *window )
+void fgPlatformSetWindow ( SFG_Window* fgwindow_in )
 {
-    freeglut_return_if_fail(window);
+    freeglut_return_if_fail(fgwindow_in);
     
-    if ( window != fgStructure.CurrentWindow && window) {
-        Cocoa_GL_MakeCurrent(window, window->Window.Context);
+    if ( fgwindow_in != fgStructure.CurrentWindow) {
+        Cocoa_GL_MakeCurrent(fgwindow_in, fgwindow_in->Window.Context);
     }
 }
 

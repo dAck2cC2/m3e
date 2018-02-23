@@ -134,9 +134,9 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
 
 - (void)windowWillClose:(NSNotification *)notification;
 {
-    NSWindow *win = (NSWindow*)[notification object];
+    NSWindow *nswindow = (NSWindow*)[notification object];
     
-    if (![win isKeyWindow]) {
+    if (![nswindow isKeyWindow]) {
         return;
     }
     
@@ -150,7 +150,7 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
      * make the 'About' window key if no other windows are on-screen.
      */
     for (NSWindow *window in [NSApp orderedWindows]) {
-        if (window != win && [window canBecomeKeyWindow]) {
+        if (window != nswindow && [window canBecomeKeyWindow]) {
             if (![window isOnActiveSpace]) {
                 continue;
             }
@@ -165,7 +165,7 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
      */
     for (NSNumber *num in [NSWindow windowNumbersWithOptions:0]) {
         NSWindow *window = [NSApp windowWithWindowNumber:[num integerValue]];
-        if (window && window != win && [window canBecomeKeyWindow]) {
+        if (window && window != nswindow && [window canBecomeKeyWindow]) {
             [window makeKeyAndOrderFront:self];
             return;
         }
@@ -184,6 +184,17 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         return;
     }
     
+    NSWindow*   nswindow = (NSWindow*)[aNotification object];
+    SFG_Window* window   = fgWindowByHandle(nswindow);
+    freeglut_return_if_fail(window);
+
+    if (!window->State.Visible) {
+        Cocoa_RestoreWindow(window);
+    } else {
+        Cocoa_RaiseWindow(window);
+    }
+    
+#if 0
     if (fgDisplay.pDisplay.display && fgStructure.CurrentWindow) {
         SFG_Window *window = fgStructure.CurrentWindow;
         /*
@@ -200,11 +211,11 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         */
         if (!window->State.Visible) {
             Cocoa_RestoreWindow(window);
-            
         } else {
             Cocoa_RaiseWindow(window);
         }
      }
+#endif
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
@@ -254,8 +265,8 @@ CreateApplicationMenus(void)
     NSString *title;
     NSMenu *appleMenu;
     //NSMenu *serviceMenu;
-    NSMenu *windowMenu;
-    NSMenu *viewMenu;
+    //NSMenu *windowMenu;
+    //NSMenu *viewMenu;
     NSMenuItem *menuItem;
     NSMenu *mainMenu;
     
@@ -317,7 +328,7 @@ CreateApplicationMenus(void)
     [NSApp setAppleMenu:appleMenu];
     [appleMenu release];
     
-    
+#if 0
     /* Create the window menu */
     windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
     
@@ -354,6 +365,7 @@ CreateApplicationMenus(void)
         
         [viewMenu release];
     }
+#endif
 }
 
 void
@@ -364,7 +376,7 @@ Cocoa_RegisterApp(void)
         
         if (NSApp == nil) {
             [GLUTApplication sharedApplication];
-            FREEGLUT_INTERNAL_ERROR_EXIT((NSApp != nil), "create GLUTApplication failed", "Cocoa_RegisterApp");
+            FREEGLUT_INTERNAL_ERROR_EXIT((NSApp != nil), "create GLUTApplication failed", __FUNCTION__);
             
             s_bShouldHandleEventsInApplication = GL_TRUE;
             
@@ -419,10 +431,11 @@ Cocoa_PumpEvents()
         }
 #endif
         
-        for ( ; ; ) {
+        //for ( ; ; )
+        {
             NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES ];
             if ( event == nil ) {
-                break;
+                return;
             }
             
             if (!s_bShouldHandleEventsInApplication) {

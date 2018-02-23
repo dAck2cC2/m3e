@@ -50,7 +50,7 @@ typedef enum
 } PendingWindowOperation;
 
 @interface Cocoa_WindowListener : NSResponder <NSWindowDelegate> {
-    NSWindow* _window;
+    NSWindow* nswindow;
     BOOL observingVisible;
     BOOL wasCtrlLeft;
     BOOL wasVisible;

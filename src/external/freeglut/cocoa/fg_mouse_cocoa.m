@@ -153,35 +153,34 @@ Cocoa_FreeCursor(NSCursor * cursor)
 }
 
 static int
-Cocoa_ShowCursor(SFG_Window* window)
+Cocoa_ShowCursor(SFG_Window* fgwindow_in)
 { @autoreleasepool
     {
-        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+        FREEGLUT_INTERNAL_ERROR_EXIT(fgwindow_in, "FG window is nonexistent", __FUNCTION__);
         
-        NSWindow* nswindow = window->Window.Handle;
-        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window handler is nonexistent", __FUNCTION__);
-        
+        /* cursor could be set to GLUT_CURSOR_NONE */
+        if (fgwindow_in->Window.pContext.cursor) {
+            NSCursor* nscursor = fgwindow_in->Window.pContext.cursor;
+            [nscursor set];
+        }
 
-        [nswindow performSelectorOnMainThread:@selector(invalidateCursorRectsForView:)
-                                            withObject:[nswindow contentView]
-                                            waitUntilDone:NO];
-
-        
         return 0;
     }
 }
 
 static GLboolean
-Cocoa_IsInWindow(SFG_Window* window, int x, int y)
+Cocoa_IsInWindow(SFG_Window* fgwindow_in, int x_in, int y_in)
 {
-    if (!window->State.Visible) {
+    FREEGLUT_INTERNAL_ERROR_EXIT(fgwindow_in, "FG window is nonexistent", __FUNCTION__);
+    
+    if (!fgwindow_in->State.Visible) {
         return GL_FALSE;
     }
     
-    if ((x >= window->State.Xpos)
-    &&  (x <= (window->State.Xpos + window->State.Width))
-    &&  (y >= window->State.Ypos)
-    &&  (y <= (window->State.Ypos + window->State.Height))) {
+    if ((x_in >= fgwindow_in->State.Xpos)
+    &&  (x_in <= (fgwindow_in->State.Xpos + fgwindow_in->State.Width))
+    &&  (y_in >= fgwindow_in->State.Ypos)
+    &&  (y_in <= (fgwindow_in->State.Ypos + fgwindow_in->State.Height))) {
         return GL_TRUE;
     } else {
         return GL_FALSE;
@@ -214,7 +213,7 @@ Cocoa_FindFocusWindow(SFG_List* windowList, int x, int y)
     return NULL;
 }
 
-static void
+void
 Cocoa_MouseMoved(SFG_Window* window)
 { @autoreleasepool
     {
@@ -234,7 +233,7 @@ Cocoa_MouseMoved(SFG_Window* window)
     }
 }
 
-static void
+void
 Cocoa_MouseDragged(SFG_Window* window)
 { @autoreleasepool
     {
@@ -245,15 +244,109 @@ Cocoa_MouseDragged(SFG_Window* window)
             return;
         }
         
-        fgState.Modifiers = Cocoa_GetModifiers();
         if (FETCH_WCB( *window, Motion )) {
+            fgState.Modifiers = Cocoa_GetModifiers();
             INVOKE_WCB( *window, Motion, ( window->State.MouseX,
                                            window->State.MouseY ));
+            fgState.Modifiers = INVALID_MODIFIERS;
         }
+    }
+}
+
+void
+Cocoa_MouseButton(SFG_Window* fgwindow_in, int button_in, int updown_in)
+{ @autoreleasepool
+    {
+        FREEGLUT_INTERNAL_ERROR_EXIT(fgwindow_in, "FG window is nonexistent", __FUNCTION__);
+        
+        /*
+         * Do not execute the application's mouse callback if a menu
+         * is hooked to this button.  In that case an appropriate
+         * private call should be generated.
+         */
+        if( fgCheckActiveMenu( fgwindow_in, button_in, (updown_in == GLUT_DOWN ? GL_TRUE : GL_FALSE),
+                               fgwindow_in->State.MouseX, fgwindow_in->State.MouseY ) ) {
+            return;
+        }
+        
+        if (FETCH_WCB( *fgwindow_in, Mouse )) {
+            fgState.Modifiers = Cocoa_GetModifiers();
+            INVOKE_WCB( *fgwindow_in, Mouse,
+                       ( button_in,
+                        updown_in,
+                        fgwindow_in->State.MouseX,
+                        fgwindow_in->State.MouseY
+                        ));
+            fgState.Modifiers = INVALID_MODIFIERS;
+        }
+    }
+}
+
+void
+Cocoa_HandleMouseWheel(SFG_Window *window, NSEvent *event)
+{ @autoreleasepool
+    {
+        FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
+        FREEGLUT_INTERNAL_ERROR_EXIT(event, "event is nonexistent", __FUNCTION__);
+    
+        if ( ! FETCH_WCB( *window, MouseWheel )) {
+            return;
+        }
+    
+        CGFloat x = -[event deltaX];
+        CGFloat y = [event deltaY];
+        int direction = 1;
+    
+        if ([event respondsToSelector:@selector(isDirectionInvertedFromDevice)]) {
+            if ([event isDirectionInvertedFromDevice] == YES) {
+                direction = -1;
+            }
+        }
+    
+        fgState.Modifiers = Cocoa_GetModifiers();
+        INVOKE_WCB( *window, MouseWheel, ( 0,
+                                      direction,
+                                      x,
+                                      y ));
         fgState.Modifiers = INVALID_MODIFIERS;
     }
 }
 
+void
+Cocoa_MouseIn(SFG_Window * fgwindow_in)
+{ @autoreleasepool
+    {
+        FREEGLUT_INTERNAL_ERROR_EXIT(fgwindow_in, "FG window is nonexistent", __FUNCTION__);
+        
+        fgSetWindow(fgwindow_in);
+        Cocoa_ShowCursor(fgwindow_in);
+        
+        if (FETCH_WCB( *fgwindow_in, Entry )) {
+            INVOKE_WCB( *fgwindow_in, Entry, ( GLUT_ENTERED ) );
+        }
+    }
+}
+
+void
+Cocoa_MouseOut(SFG_Window * fgwindow_in)
+{ @autoreleasepool
+    {
+        FREEGLUT_INTERNAL_ERROR_EXIT(fgwindow_in, "FG window is nonexistent", __FUNCTION__);
+        
+        if (FETCH_WCB(*fgwindow_in, Entry)) {
+            INVOKE_WCB( *fgwindow_in, Entry, ( GLUT_LEFT ) );
+        }
+        
+        /* give the focus back to root window */
+        if (fgwindow_in->Parent) {
+            SFG_Window* parent = fgwindow_in->Parent;
+            while (parent->Parent) {
+                parent = parent->Parent;
+            }
+            fgSetWindow(parent);
+        }
+    }
+}
 
 void
 Cocoa_InitCursor(SFG_Window* window)
@@ -276,90 +369,50 @@ Cocoa_InitCursor(SFG_Window* window)
 void
 Cocoa_HandleMouseEvent(NSEvent *event)
 {
-    int x = 0;
-    int y = 0;
+    static GLboolean s_hasLeft = GL_FALSE;
     
-    const NSPoint cocoaLocation = [NSEvent mouseLocation];
-    for (NSScreen *screen in [NSScreen screens]) {
-        NSRect frame = [screen frame];
-        if (NSMouseInRect(cocoaLocation, frame, NO)) {
-            x = (int) cocoaLocation.x;
-            y = (int) ((frame.origin.y + frame.size.height) - cocoaLocation.y);
-            break;
-        }
-    }
-    
-    SFG_Window* window = Cocoa_FindFocusWindow(&(fgStructure.Windows), x, y);
-    if (window) {
-        SFG_Window* saved_window = fgStructure.CurrentWindow;
-        if ((window != saved_window) && saved_window && FETCH_WCB(*saved_window, Entry)) {
-            INVOKE_WCB( *saved_window, Entry, ( GLUT_LEFT ) );
-        }
-        fgSetWindow(window);
-        window->State.MouseX = x - window->State.Xpos;
-        window->State.MouseY = y - window->State.Ypos;
-        if ((window != saved_window) && FETCH_WCB( *window, Entry )) {
-            INVOKE_WCB( *window, Entry, ( GLUT_ENTERED ) );
-        }
-    } else {
-        if (fgStructure.CurrentWindow && FETCH_WCB(*fgStructure.CurrentWindow, Entry)) {
-            INVOKE_WCB( *fgStructure.CurrentWindow, Entry, ( GLUT_LEFT ) );
-        }
-        fgSetWindow(NULL);
-        return;
-    }
-    
+    /* Only handle the focus change here, so ignore other event. */
     switch ([event type]) {
         case NSEventTypeMouseMoved:
-            Cocoa_MouseMoved(window);
-            break;
         case NSEventTypeLeftMouseDragged:
         case NSEventTypeRightMouseDragged:
         case NSEventTypeOtherMouseDragged:
-            Cocoa_MouseDragged(window);
-            break;
-        case NSEventTypeLeftMouseDown:
-        case NSEventTypeOtherMouseDown:
-        case NSEventTypeRightMouseDown:
-        case NSEventTypeLeftMouseUp:
-        case NSEventTypeOtherMouseUp:
-        case NSEventTypeRightMouseUp:
-        case NSEventTypeScrollWheel:
-            //Cocoa_HandleMouseEvent(window, x, y);
             break;
         default:
-            /* Ignore any other events. */
             return;
+    }
+    
+    SFG_XYUse mouse;
+    fghPlatformGetCursorPos(NULL, GL_FALSE, &mouse);
+    
+    SFG_Window* window = Cocoa_FindFocusWindow(&(fgStructure.Windows), mouse.X, mouse.Y);
+    
+    if (window) {
+        s_hasLeft = GL_FALSE;
+        SFG_Window* saved_window = fgStructure.CurrentWindow;
+        if ((window != saved_window) && saved_window) {
+            if (FETCH_WCB(*saved_window, Entry)) {
+                INVOKE_WCB( *saved_window, Entry, ( GLUT_LEFT ) );
+            }
+        }
+        fgSetWindow(window);
+        window->State.MouseX = mouse.X - window->State.Xpos;
+        window->State.MouseY = mouse.Y - window->State.Ypos;
+        if ((window != saved_window)) {
+            Cocoa_ShowCursor(window);
+            
+            if (FETCH_WCB( *window, Entry )) {
+                INVOKE_WCB( *window, Entry, ( GLUT_ENTERED ) );
+            }
+        }
+    } else {
+        if (fgStructure.CurrentWindow && !s_hasLeft) {
+            s_hasLeft = GL_TRUE;
+            Cocoa_MouseOut(fgStructure.CurrentWindow);
+        }
     }
 }
 
-void
-Cocoa_HandleMouseWheel(SFG_Window *window, NSEvent *event)
-{
-    FREEGLUT_INTERNAL_ERROR_EXIT(window, "window is nonexistent", __FUNCTION__);
-    FREEGLUT_INTERNAL_ERROR_EXIT(event, "event is nonexistent", __FUNCTION__);
-    
-    if ( ! FETCH_WCB( *window, MouseWheel )) {
-        return;
-    }
-    
-    CGFloat x = -[event deltaX];
-    CGFloat y = [event deltaY];
-    int direction = 1;
-    
-    if ([event respondsToSelector:@selector(isDirectionInvertedFromDevice)]) {
-        if ([event isDirectionInvertedFromDevice] == YES) {
-            direction = -1;
-        }
-    }
-    
-    fgState.Modifiers = Cocoa_GetModifiers();
-    INVOKE_WCB( *window, MouseWheel, ( 0,
-                                      direction,
-                                      x,
-                                      y ));
-    fgState.Modifiers = INVALID_MODIFIERS;
-}
 
 /*
  * cursor
@@ -386,8 +439,6 @@ void fgPlatformSetCursor ( SFG_Window *window, int cursorID )
             window->Window.pContext.cursor = Cocoa_CreateSystemCursor(cursorID);
             break;
     }
-    
-    Cocoa_ShowCursor(window);
 }
 
 void fgPlatformWarpPointer ( int x, int y )
