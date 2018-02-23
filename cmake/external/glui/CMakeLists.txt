@@ -2,9 +2,10 @@
 project(GLUI)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/glui/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/external/glui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/freeglut/include.cmake)
 
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/glui/include)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/glui/)
 
 set(GLUI_DEPLIB
@@ -22,6 +23,10 @@ endif ()
 
 if (APPLE)
   set (CMAKE_CXX_FLAGS "-Wno-deprecated-declarations ${CMAKE_CXX_FLAGS}")
+elseif (MSVC)
+  add_definitions(-DGLUI_BUILDING_LIB)
+  add_definitions(-DGLUIDLL)
+  add_definitions(-DNOMINMAX)
 endif ()
 
 file(GLOB GLUI_HEADERS

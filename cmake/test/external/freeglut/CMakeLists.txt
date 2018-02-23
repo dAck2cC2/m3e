@@ -13,6 +13,7 @@ freeglut
 )
 
 MACRO(ADD_DEMO name)
+    SET(EXECUTABLE_OUTPUT_PATH ${BUILD_PATH})
     ADD_EXECUTABLE(test_glut_${name} ${ARGN})
     TARGET_LINK_LIBRARIES(test_glut_${name} ${TEST_GLUT_DEPLIB})
     IF(WIN32 AND MSVC)
