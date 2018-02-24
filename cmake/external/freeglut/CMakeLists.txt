@@ -1,6 +1,15 @@
 
 project(FREEGLUT)
 
+if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
+message(STATUS "Download\tFreeGLUT")
+exec_program("git clone https://github.com/dcnieho/FreeGLUT.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
+exec_program("git reset --hard cd7f5e9964f5334149cbae35ff3496137f9f9611" ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
+if (APPLE)
+exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/freeglut.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
+endif(APPLE)
+endif()
+
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/freeglut/include.cmake)
 
@@ -316,16 +325,16 @@ ENDIF()
 # The generated config.h is placed in the project's build directory, just to
 # ensure that all CMake-generated files are kept away from the main source tree.
 # As a result, the build directory must to be added to the include path list.
-CONFIGURE_FILE(${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/config.h.in ${CMAKE_BINARY_DIR}/config.h)
-INCLUDE_DIRECTORIES(BEFORE ${CMAKE_BINARY_DIR})
+CONFIGURE_FILE(${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/config.h.in ${CMAKE_BINARY_DIR}/freeglut/config.h)
+INCLUDE_DIRECTORIES(BEFORE ${CMAKE_BINARY_DIR}/freeglut)
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 IF(WIN32)
     # we also have to generate freeglut.rc, which contains the version
     # number
-    CONFIGURE_FILE(${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/freeglut.rc.in ${CMAKE_BINARY_DIR}/freeglut.rc)
+    CONFIGURE_FILE(${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/freeglut.rc.in ${CMAKE_BINARY_DIR}/freeglut/freeglut.rc)
     IF (MSVC AND NOT CMAKE_CL_64)
         # .def file only for 32bit Windows builds with Visual Studio
-        CONFIGURE_FILE(${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/freeglutdll.def.in ${CMAKE_BINARY_DIR}/freeglutdll.def)
+        CONFIGURE_FILE(${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/freeglutdll.def.in ${CMAKE_BINARY_DIR}/freeglut/freeglutdll.def)
     ENDIF()
 ENDIF()
 

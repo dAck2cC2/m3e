@@ -19,6 +19,10 @@ extern void Cocoa_MouseOut(SFG_Window * fgwindow_in);
 extern void fghOnReshapeNotify(SFG_Window *window, int width, int height, GLboolean forceNotify);
 extern void fghOnPositionNotify(SFG_Window *window, int x, int y, GLboolean forceNotify);
 
+
+void Cocoa_SetWindowSize(SFG_Window * window);
+
+
 /* -- FUNCTION DEFINITION ---------------------------------------- */
 
 static fg_time_t s_moveHack;
@@ -645,6 +649,21 @@ Cocoa_HideWindow(SFG_Window * fgwindow_in)
     
     ScheduleContextUpdates(window);
     
+#if 0
+    /* Check every of the top-level windows */
+    SFG_Window* subwindow = NULL;
+    for(subwindow = ( SFG_Window * )window->Children.First;
+        subwindow;
+        subwindow = ( SFG_Window * )subwindow->Node.Next )
+    {
+        float ratio_w = (rect.size.width - window->State.Width) / window->State.Width;
+        float ratio_h = (rect.size.height - window->State.Height) / window->State.Height;
+        subwindow->State.DesiredWidth  += subwindow->State.Width  * ratio_w;
+        subwindow->State.DesiredHeight += subwindow->State.Height * ratio_h;
+        Cocoa_SetWindowSize(subwindow);
+    }
+#endif
+    
     /* The window can move during a resize event, such as when maximizing
      or resizing from a corner */
     fghOnPositionNotify(window, x, y, GL_FALSE);
@@ -724,22 +743,7 @@ Cocoa_HideWindow(SFG_Window * fgwindow_in)
         fghPlatformOnWindowStatusNotify(window, GL_FALSE, GL_FALSE);
         window->State.WorkMask &= ~GLUT_DISPLAY_WORK;
     }
-#if 0
-    SDL_Mouse *mouse = SDL_GetMouse();
-    if (mouse->relative_mode && !mouse->relative_mode_warp) {
-        mouse->SetRelativeMouseMode(SDL_FALSE);
-    }
     
-    /* Some other window will get mouse events, since we're not key. */
-    if (SDL_GetMouseFocus() == _data->window) {
-        SDL_SetMouseFocus(NULL);
-    }
-    
-    /* Some other window will get keyboard events, since we're not key. */
-    if (SDL_GetKeyboardFocus() == _data->window) {
-        SDL_SetKeyboardFocus(NULL);
-    }
-#endif
     if (isFullscreenSpace) {
         [NSMenu setMenuBarVisible:YES];
     }
@@ -864,13 +868,13 @@ Cocoa_HideWindow(SFG_Window * fgwindow_in)
         [nswindow miniaturize:nil];
     } else {
         /* Adjust the fullscreen toggle button and readd menu now that we're here. */
-        //if (window->flags & SDL_WINDOW_RESIZABLE)
+        if (!window->IsMenu)
         {
             /* resizable windows are Spaces-friendly: they get the "go fullscreen" toggle button on their titlebar. */
             [nswindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-        } /* else {
+        } else {
             [nswindow setCollectionBehavior:NSWindowCollectionBehaviorManaged];
-        } */
+        }
         [NSMenu setMenuBarVisible:YES];
         
         pendingWindowOperation = PENDING_OPERATION_NONE;
@@ -1266,10 +1270,14 @@ Cocoa_HideWindow(SFG_Window * fgwindow_in)
 
 - (BOOL)mouseDownCanMoveWindow
 {
-    /* Always say YES, but this doesn't do anything until we call
-     -[NSWindow setMovableByWindowBackground:YES], which we ninja-toggle
-     during mouse events when we're using a drag area. */
-    return YES;
+    FREEGLUT_INTERNAL_ERROR_EXIT(m_fgwindow, "FG window is nonexistent", __FUNCTION__);
+
+    /* Only the top level window can be moved by mouse dragged */
+    if (m_fgwindow->IsMenu || m_fgwindow->Parent) {
+        return NO;
+    } else {
+        return YES;
+    }
 }
 
 - (void)resetCursorRects

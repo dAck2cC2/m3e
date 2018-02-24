@@ -48,19 +48,6 @@ Cocoa_WarpMouseGlobal(int x, int y)
         CGAssociateMouseAndMouseCursorPosition(YES);
     }
     
-#if 0
-    /* CGWarpMouseCursorPosition doesn't generate a window event, unlike our
-     * other implementations' APIs. Send what's appropriate.
-     */
-    if (!mouse->relative_mode) {
-        SDL_Window *win = SDL_FindWindowAtPoint(x, y);
-        SDL_SetMouseFocus(win);
-        if (win) {
-            SDL_assert(win == mouse->focus);
-            SDL_SendMouseMotion(win, mouse->mouseID, 0, x - win->x, y - win->y);
-        }
-    }
-#endif
     return 0;
 }
 

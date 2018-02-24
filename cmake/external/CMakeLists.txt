@@ -9,29 +9,13 @@ endif()
 
 # skia
 if(ENABLE_SKIA)
-if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
-message(STATUS "Download\tskia")
-exec_program("git clone https://skia.googlesource.com/skia.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git checkout chrome/m65" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
-endif()
 add_subdirectory(skia)
-
-if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/imgui)
-message(STATUS "Download\timgui")
-exec_program("git clone https://skia.googlesource.com/external/github.com/ocornut/imgui.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git reset --hard 6384eee34f08cb7eab8d835043e1738e4adcdf75" ${M3E_SOURCE_DIR}/${EXT_PATH}/imgui)
-endif()
 add_subdirectory(imgui)
 
 set(EXT_MODULES ${EXT_MODULES} jsoncpp)
 add_subdirectory(jsoncpp)
 
 if (APPLE)
-if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/sdl)
-message(STATUS "Download\tsdl")
-exec_program("git clone https://skia.googlesource.com/third_party/sdl" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git reset --hard 5d7cfcca344034aff9327f77fc181ae3754e7a90" ${M3E_SOURCE_DIR}/${EXT_PATH}/sdl)
-endif()
 add_subdirectory(sdl)
 endif(APPLE)
 
@@ -39,24 +23,9 @@ endif(ENABLE_SKIA)
 
 # freeglut
 if(ENABLE_GLUT)
-
-if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
-message(STATUS "Download\tFreeGLUT")
-exec_program("git clone https://github.com/dcnieho/FreeGLUT.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git reset --hard cd7f5e9964f5334149cbae35ff3496137f9f9611" ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
-if (APPLE)
-exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/freeglut.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT)
-endif(APPLE)
-endif()
 add_subdirectory(freeglut)
-
-if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/glui)
-message(STATUS "Download\tglui")
-exec_program("git clone https://github.com/libglui/glui.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git reset --hard ad0f3a89694079cd145dbc0b9b49f8a7507162d6" ${M3E_SOURCE_DIR}/${EXT_PATH}/glui)
-endif()
 add_subdirectory(glui)
-
+add_subdirectory(assimp)
 endif(ENABLE_GLUT)
 
 # external module from android

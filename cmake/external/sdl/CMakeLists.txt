@@ -1,6 +1,12 @@
 
 project(SDL C)
 
+if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/sdl)
+message(STATUS "Download\tsdl")
+exec_program("git clone https://skia.googlesource.com/third_party/sdl" ${M3E_SOURCE_DIR}/${EXT_PATH})
+exec_program("git reset --hard 5d7cfcca344034aff9327f77fc181ae3754e7a90" ${M3E_SOURCE_DIR}/${EXT_PATH}/sdl)
+endif()
+
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/sdl/include.cmake)
 

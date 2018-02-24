@@ -1,6 +1,12 @@
 
 project(imgui)
 
+if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/imgui)
+message(STATUS "Download\timgui")
+exec_program("git clone https://skia.googlesource.com/external/github.com/ocornut/imgui.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
+exec_program("git reset --hard 6384eee34f08cb7eab8d835043e1738e4adcdf75" ${M3E_SOURCE_DIR}/${EXT_PATH}/imgui)
+endif()
+
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/imgui/include.cmake)
 

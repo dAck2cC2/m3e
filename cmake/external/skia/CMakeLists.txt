@@ -1,6 +1,12 @@
 
 project(SKIA)
 
+if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
+message(STATUS "Download\tskia")
+exec_program("git clone https://skia.googlesource.com/skia.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
+exec_program("git checkout chrome/m65" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
+endif()
+
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/skia/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/jsoncpp/include.cmake)
