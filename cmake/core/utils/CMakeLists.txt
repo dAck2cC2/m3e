@@ -22,7 +22,6 @@ ${M3E_SOURCE_DIR}/src/core/include/utils/*.h
 
 # source files
 file(GLOB UTILS_SOURCE_FILES 
-#${M3E_SOURCE_DIR}/src/core/libutils/*.c 
 ${M3E_SOURCE_DIR}/src/core/libutils/*.cpp
 )
 

@@ -10,13 +10,13 @@ endif()
 # skia
 if(ENABLE_SKIA)
 add_subdirectory(skia)
-add_subdirectory(imgui)
+#add_subdirectory(imgui)
 
 set(EXT_MODULES ${EXT_MODULES} jsoncpp)
-add_subdirectory(jsoncpp)
+#add_subdirectory(jsoncpp)
 
 if (APPLE)
-add_subdirectory(sdl)
+#add_subdirectory(sdl)
 endif(APPLE)
 
 endif(ENABLE_SKIA)
