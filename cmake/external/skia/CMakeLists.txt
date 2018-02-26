@@ -53,6 +53,14 @@ ${SOURCE_PATH}/core/*.*
 file(GLOB PORTS_HEADER ${SOURCE_PATH}/ports/*.h)
 
 if (APPLE)
+include_directories(AFTER ${HEADER_PATH}/utils/mac)
+find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
+list(APPEND SKIA_DEPLIB ${CORE_FOUNDATION_LIBRARY})
+find_library(CORE_GRAPHICS_LIBRARY CoreGraphics)
+list(APPEND SKIA_DEPLIB ${CORE_GRAPHICS_LIBRARY})
+find_library(CORE_TEXT_LIBRARY CoreText)
+list(APPEND SKIA_DEPLIB ${CORE_TEXT_LIBRARY})
+
 set(PORTS_SOURCE
 ${SOURCE_PATH}/ports/SkOSFile_posix.cpp
 ${SOURCE_PATH}/ports/SkOSFile_stdio.cpp
@@ -119,7 +127,11 @@ ${SOURCE_PATH}/utils/SkShadowTessellator.cpp
 ${SOURCE_PATH}/utils/SkInsetConvexPolygon.cpp
 )
 
-if (MSVC)
+if (APPLE)
+set(UTILS_SOURCE ${UTILS_SOURCE}
+${SOURCE_PATH}/utils/mac/SkStream_mac.cpp
+)
+elseif (MSVC)
 set(UTILS_SOURCE ${UTILS_SOURCE}
 ${SOURCE_PATH}/utils/win/SkDWriteGeometrySink.cpp
 ${SOURCE_PATH}/utils/win/SkDWriteFontFileStream.cpp
