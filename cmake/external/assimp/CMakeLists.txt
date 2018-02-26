@@ -47,7 +47,7 @@ OPTION( ASSIMP_BUILD_ZLIB
 )
 OPTION( ASSIMP_NO_EXPORT
   "Disable Assimp's export functionality."
-  OFF
+  NO
 )
 
 
@@ -237,7 +237,7 @@ IF( NOT ZLIB_FOUND )
   add_subdirectory(zlib)
   SET(ZLIB_FOUND 1)
   SET(ZLIB_LIBRARIES zlibstatic)
-  SET(ZLIB_INCLUDE_DIR ${M3E_SOURCE_DIR}/${EXT_PATH}/assimp/contrib/zlib ${CMAKE_BINARY_DIR}/contrib/zlib)
+  SET(ZLIB_INCLUDE_DIR ${M3E_SOURCE_DIR}/${EXT_PATH}/assimp/contrib/zlib ${CMAKE_BINARY_DIR}/zlib)
 else(NOT ZLIB_FOUND)
   ADD_DEFINITIONS(-DASSIMP_BUILD_NO_OWN_ZLIB)
   SET(ZLIB_LIBRARIES_LINKED -lz)

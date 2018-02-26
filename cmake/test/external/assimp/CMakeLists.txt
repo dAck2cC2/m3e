@@ -6,7 +6,11 @@ project(TEST_ASSIMP)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/assimp/include.cmake)
 
+if (APPLE)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/include/GL)
+else (APPLE)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/include)
+endif (APPLE)
 
 # dependency
 

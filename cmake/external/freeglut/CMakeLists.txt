@@ -108,13 +108,13 @@ IF(WIN32)
         ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/mswin/fg_state_mswin.c
         ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/mswin/fg_structure_mswin.c
         ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/src/mswin/fg_window_mswin.c
-        ${CMAKE_BINARY_DIR}/freeglut.rc # generated below from freeglut.rc.in
+        ${CMAKE_BINARY_DIR}/freeglut/freeglut.rc # generated below from freeglut.rc.in
     )
     IF (MSVC AND NOT CMAKE_CL_64)
         # .def file only for 32bit Windows builds (TODO: MSVC only right
         # now, needed for any other Windows platform?)
         LIST(APPEND FREEGLUT_SRCS
-            ${CMAKE_BINARY_DIR}/freeglutdll.def # generated below from src/freeglutdll.def.in
+            ${CMAKE_BINARY_DIR}/freeglut/freeglutdll.def # generated below from src/freeglutdll.def.in
         )
     ENDIF()
 

@@ -90,7 +90,7 @@ configure_file( ${M3E_SOURCE_DIR}/${EXT_PATH}/assimp/contrib/zlib/zlib.pc.cmakei
 configure_file(	${M3E_SOURCE_DIR}/${EXT_PATH}/assimp/contrib/zlib/zconf.h.cmakein
 		${CMAKE_BINARY_DIR}/zlib/zconf.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR} ${M3E_SOURCE_DIR}/${EXT_PATH}/assimp)
-
+include_directories(AFTER ${CMAKE_BINARY_DIR}/zlib)
 
 #============================================================================
 # zlib
