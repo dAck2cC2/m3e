@@ -11,9 +11,16 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/src )
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/skia/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/jsoncpp/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/imgui/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/external/jsoncpp/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/external/imgui/include.cmake)
+
+if (APPLE)
+#add_definitions(-D_MACOSX)
+#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+elseif (MSVC)
+add_definitions(-DSKIA_DLL)
+add_definitions(-DSKIA_IMPLEMENTATION)
+endif ()
 
 # dependency
 
@@ -113,6 +120,14 @@ ${SOURCE_PATH}/shaders/SkColorFilterShader.cpp
 ${SOURCE_PATH}/shaders/SkPictureShader.cpp
 ${SOURCE_PATH}/shaders/SkBitmapProcShader.cpp
 ${SOURCE_PATH}/shaders/SkLocalMatrixShader.cpp
+${SOURCE_PATH}/shaders/gradients/SkGradientShader.cpp
+${SOURCE_PATH}/shaders/gradients/SkTwoPointConicalGradient.cpp
+${SOURCE_PATH}/shaders/gradients/SkSweepGradient.cpp
+${SOURCE_PATH}/shaders/gradients/SkRadialGradient.cpp
+${SOURCE_PATH}/shaders/gradients/SkGradientBitmapCache.cpp
+${SOURCE_PATH}/shaders/gradients/SkLinearGradient.cpp
+${SOURCE_PATH}/shaders/gradients/Sk4fLinearGradient.cpp
+${SOURCE_PATH}/shaders/gradients/Sk4fGradientBase.cpp
 )
 
 # utils
