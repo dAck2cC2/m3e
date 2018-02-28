@@ -10,6 +10,7 @@ endif()
 # skia
 if(ENABLE_SKIA)
 add_subdirectory(skia)
+add_subdirectory(freeglut)
 #add_subdirectory(imgui)
 
 set(EXT_MODULES ${EXT_MODULES} jsoncpp)

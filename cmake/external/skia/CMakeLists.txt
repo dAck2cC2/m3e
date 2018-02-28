@@ -15,6 +15,22 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 #include(${M3E_SOURCE_DIR}/cmake/external/jsoncpp/include.cmake)
 #include(${M3E_SOURCE_DIR}/cmake/external/imgui/include.cmake)
 
+# All supported options ###############################################
+OPTION( SKIA_ENABLE_SKSL
+  "Set to ON to enable SKSL"
+  ON
+)
+
+OPTION( SKIA_ENABLE_EFFECTS
+  "Set to ON to enable effects"
+  ON
+)
+
+OPTION( SKIA_ENABLE_GPU_GL
+  "Set to ON to enable OpenGL for GPU"
+  ON
+)
+
 if (APPLE)
 #add_definitions(-D_MACOSX)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
@@ -48,58 +64,53 @@ include_directories(AFTER ${SOURCE_PATH}/image)
 include_directories(AFTER ${SOURCE_PATH}/utils)
 include_directories(AFTER ${SOURCE_PATH}/sfnt)
 
-# core
-add_definitions(-DSK_SUPPORT_GPU=0)
-file(GLOB CORE_HEADER
-${HEADER_PATH}/core/*.h
-)
-file(GLOB CORE_SOURCE
-${SOURCE_PATH}/core/*.*
-)
+# core ###############################################
+file(GLOB CORE_HEADER ${HEADER_PATH}/core/*.h)
+file(GLOB CORE_SOURCE ${SOURCE_PATH}/core/*.*)
 
-# port
+# port ###############################################
 file(GLOB PORTS_HEADER ${SOURCE_PATH}/ports/*.h)
 
 if (APPLE)
-include_directories(AFTER ${HEADER_PATH}/utils/mac)
-find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
-list(APPEND SKIA_DEPLIB ${CORE_FOUNDATION_LIBRARY})
-find_library(CORE_GRAPHICS_LIBRARY CoreGraphics)
-list(APPEND SKIA_DEPLIB ${CORE_GRAPHICS_LIBRARY})
-find_library(CORE_TEXT_LIBRARY CoreText)
-list(APPEND SKIA_DEPLIB ${CORE_TEXT_LIBRARY})
+    include_directories(AFTER ${HEADER_PATH}/utils/mac)
+    find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
+    list(APPEND SKIA_DEPLIB ${CORE_FOUNDATION_LIBRARY})
+    find_library(CORE_GRAPHICS_LIBRARY CoreGraphics)
+    list(APPEND SKIA_DEPLIB ${CORE_GRAPHICS_LIBRARY})
+    find_library(CORE_TEXT_LIBRARY CoreText)
+    list(APPEND SKIA_DEPLIB ${CORE_TEXT_LIBRARY})
 
-set(PORTS_SOURCE
-${SOURCE_PATH}/ports/SkOSFile_posix.cpp
-${SOURCE_PATH}/ports/SkOSFile_stdio.cpp
-${SOURCE_PATH}/ports/SkDebug_stdio.cpp
-${SOURCE_PATH}/ports/SkTLS_pthread.cpp
-${SOURCE_PATH}/ports/SkFontHost_mac.cpp
-)
+    set(PORTS_SOURCE
+    ${SOURCE_PATH}/ports/SkOSFile_posix.cpp
+    ${SOURCE_PATH}/ports/SkOSFile_stdio.cpp
+    ${SOURCE_PATH}/ports/SkDebug_stdio.cpp
+    ${SOURCE_PATH}/ports/SkTLS_pthread.cpp
+    ${SOURCE_PATH}/ports/SkFontHost_mac.cpp
+    )
 
 elseif (MSVC)
-add_definitions(-DNOMINMAX)
-add_definitions(-DDWRITE_RENDERING_MODE_GDI_CLASSIC=DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC)
-add_definitions(-DDWRITE_RENDERING_MODE_NATURAL=DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL)
-add_definitions(-DDWRITE_RENDERING_MODE_NATURAL_SYMMETRIC=DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC)
-include_directories(AFTER ${SOURCE_PATH}/utils/win)
+    add_definitions(-DNOMINMAX)
+    add_definitions(-DDWRITE_RENDERING_MODE_GDI_CLASSIC=DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC)
+    add_definitions(-DDWRITE_RENDERING_MODE_NATURAL=DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL)
+    add_definitions(-DDWRITE_RENDERING_MODE_NATURAL_SYMMETRIC=DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC)
+    include_directories(AFTER ${SOURCE_PATH}/utils/win)
 
-set(PORTS_SOURCE
-${SOURCE_PATH}/ports/SkOSFile_win.cpp
-${SOURCE_PATH}/ports/SkOSFile_stdio.cpp
-${SOURCE_PATH}/ports/SkDebug_win.cpp
-${SOURCE_PATH}/ports/SkTLS_win.cpp
-${SOURCE_PATH}/ports/SkFontMgr_win_dw_factory.cpp
-${SOURCE_PATH}/ports/SkFontMgr_win_dw.cpp
-${SOURCE_PATH}/ports/SkTypeface_win_dw.cpp
-${SOURCE_PATH}/ports/SkScalerContext_win_dw.cpp
-)
+    set(PORTS_SOURCE
+    ${SOURCE_PATH}/ports/SkOSFile_win.cpp
+    ${SOURCE_PATH}/ports/SkOSFile_stdio.cpp
+    ${SOURCE_PATH}/ports/SkDebug_win.cpp
+    ${SOURCE_PATH}/ports/SkTLS_win.cpp
+    ${SOURCE_PATH}/ports/SkFontMgr_win_dw_factory.cpp
+    ${SOURCE_PATH}/ports/SkFontMgr_win_dw.cpp
+    ${SOURCE_PATH}/ports/SkTypeface_win_dw.cpp
+    ${SOURCE_PATH}/ports/SkScalerContext_win_dw.cpp
+    )
 
 else()
-set(PORTS_SOURCE 
-${SOURCE_PATH}/ports/SkTLS_pthread.cpp
-${SOURCE_PATH}/ports/SkFontMgr_empty_factory.cpp
-)
+    set(PORTS_SOURCE 
+    ${SOURCE_PATH}/ports/SkTLS_pthread.cpp
+    ${SOURCE_PATH}/ports/SkFontMgr_empty_factory.cpp
+    )
 endif()
 
 set(PORTS_SOURCE ${PORTS_SOURCE}
@@ -110,7 +121,7 @@ ${SOURCE_PATH}/ports/SkImageGenerator_none.cpp
 #${SOURCE_PATH}/ports/SkImageGenerator_skia.cpp
 )
 
-# shaders
+# shaders ###############################################
 file(GLOB SHADERS_HEADER ${SOURCE_PATH}/shaders/*.h)
 set(SHADERS_SOURCE 
 ${SOURCE_PATH}/shaders/SkImageShader.cpp
@@ -131,7 +142,13 @@ ${SOURCE_PATH}/shaders/gradients/Sk4fLinearGradient.cpp
 ${SOURCE_PATH}/shaders/gradients/Sk4fGradientBase.cpp
 )
 
-# utils
+if (SKIA_ENABLE_GPU_GL)
+    set(SHADERS_SOURCE ${SHADERS_SOURCE}
+    ${SOURCE_PATH}/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp
+    )
+endif (SKIA_ENABLE_GPU_GL)
+
+# utils ###############################################
 file(GLOB UTILS_HEADER ${SOURCE_PATH}/utils/*.h)
 set(UTILS_SOURCE 
 ${SOURCE_PATH}/utils/SkMatrix22.cpp
@@ -144,19 +161,26 @@ ${SOURCE_PATH}/utils/SkInsetConvexPolygon.cpp
 )
 
 if (APPLE)
-set(UTILS_SOURCE ${UTILS_SOURCE}
-${SOURCE_PATH}/utils/mac/SkStream_mac.cpp
+    set(UTILS_SOURCE ${UTILS_SOURCE}
+    ${SOURCE_PATH}/utils/mac/SkStream_mac.cpp
 )
 elseif (MSVC)
-set(UTILS_SOURCE ${UTILS_SOURCE}
-${SOURCE_PATH}/utils/win/SkDWriteGeometrySink.cpp
-${SOURCE_PATH}/utils/win/SkDWriteFontFileStream.cpp
-${SOURCE_PATH}/utils/win/SkDWrite.cpp
-${SOURCE_PATH}/utils/win/SkHRESULT.cpp
-)
+    set(UTILS_SOURCE ${UTILS_SOURCE}
+    ${SOURCE_PATH}/utils/win/SkDWriteGeometrySink.cpp
+    ${SOURCE_PATH}/utils/win/SkDWriteFontFileStream.cpp
+    ${SOURCE_PATH}/utils/win/SkDWrite.cpp
+    ${SOURCE_PATH}/utils/win/SkHRESULT.cpp
+    )
 endif ()
 
-# image
+if (SKIA_ENABLE_GPU_GL)
+    set(UTILS_SOURCE ${UTILS_SOURCE}
+    ${SOURCE_PATH}/utils/SkDashPath.cpp
+    ${SOURCE_PATH}/utils/SkJSONWriter.cpp
+    )
+endif (SKIA_ENABLE_GPU_GL)
+
+# image ###############################################
 file(GLOB IMAGE_HEADER ${SOURCE_PATH}/image/*.h)
 set(IMAGE_SOURCE 
 ${SOURCE_PATH}/image/SkImage_Raster.cpp
@@ -166,14 +190,20 @@ ${SOURCE_PATH}/image/SkSurface.cpp
 ${SOURCE_PATH}/image/SkImage_Lazy.cpp
 )
 
-# images
+if (SKIA_ENABLE_GPU_GL)
+    set(IMAGE_SOURCE ${IMAGE_SOURCE}
+    ${SOURCE_PATH}/image/SkImage_Gpu.cpp
+    ${SOURCE_PATH}/image/SkSurface_Gpu.cpp
+    )
+endif (SKIA_ENABLE_GPU_GL)
+
+# images ###############################################
 file(GLOB IMAGES_HEADER ${SOURCE_PATH}/images/*.h)
 set(IMAGES_SOURCE 
 ${SOURCE_PATH}/images/SkImageEncoder.cpp
 ) 
 
-
-# pathops
+# pathops ###############################################
 file(GLOB PATHOPS_HEADER ${SOURCE_PATH}/pathops/*.h)
 set(PATHOPS_SOURCE 
 ${SOURCE_PATH}/pathops/SkPathOpsOp.cpp
@@ -206,7 +236,13 @@ ${SOURCE_PATH}/pathops/SkReduceOrder.cpp
 ${SOURCE_PATH}/pathops/SkPathOpsPoint.cpp
 )
 
-# opts
+if (SKIA_ENABLE_GPU_GL)
+    set(PATHOPS_SOURCE ${PATHOPS_SOURCE}
+    ${SOURCE_PATH}/pathops/SkPathOpsSimplify.cpp
+    )
+endif (SKIA_ENABLE_GPU_GL)
+
+# opts ###############################################
 file(GLOB OPTS_HEADER ${SOURCE_PATH}/opts/*.h)
 set(OPTS_SOURCE 
 ${SOURCE_PATH}/opts/SkBlitMask_opts_none.cpp
@@ -218,7 +254,7 @@ ${SOURCE_PATH}/opts/SkOpts_sse42.cpp
 ${SOURCE_PATH}/opts/SkOpts_avx.cpp
 )
 
-# jumper
+# jumper ###############################################
 add_definitions(-DSK_JUMPER_USE_ASSEMBLY=0)
 file(GLOB JUMPER_HEADER ${SOURCE_PATH}/jumper/*.h)
 set(JUMPER_SOURCE 
@@ -226,21 +262,103 @@ ${SOURCE_PATH}/jumper/SkJumper.cpp
 ${SOURCE_PATH}/jumper/SkJumper_stages.cpp
 )
 
-# fonts
+# fonts ###############################################
 file(GLOB FONTS_HEADER ${SOURCE_PATH}/fonts/*.h)
 set(FONTS_SOURCE 
 ${SOURCE_PATH}/fonts/SkFontMgr_indirect.cpp 
 )
 
-#sfnt
+# sfnt ###############################################
 file(GLOB SFNT_HEADER ${SOURCE_PATH}/sfnt/*.h)
-set(SFNT_SOURCE 
-${SOURCE_PATH}/sfnt/SkOTUtils.cpp
-${SOURCE_PATH}/sfnt/SkOTTable_name.cpp
-)
+file(GLOB SFNT_SOURCE ${SOURCE_PATH}/sfnt/*.cpp)
+#set(SFNT_SOURCE ${SOURCE_PATH}/sfnt/SkOTUtils.cpp ${SOURCE_PATH}/sfnt/SkOTTable_name.cpp)
+
+# gpu ###############################################
+if (SKIA_ENABLE_GPU_GL)
+    add_definitions(-DSK_SUPPORT_GPU=1)
+
+    include_directories(AFTER ${SOURCE_PATH}/gpu)
+    include_directories(AFTER ${SOURCE_PATH}/sksl)
+    file(GLOB GPU_HEADER ${HEADER_PATH}/gpu/*.h)
+    file(GLOB GPU_SOURCE ${SOURCE_PATH}/gpu/*.*)
+
+    file(GLOB GPU_SRC_OPS ${SOURCE_PATH}/gpu/ops/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_OPS})
+
+    file(GLOB GPU_SRC_TEXT ${SOURCE_PATH}/gpu/text/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_TEXT})
+
+    file(GLOB GPU_SRC_EFFECTS ${SOURCE_PATH}/gpu/effects/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_EFFECTS})
+
+    file(GLOB GPU_SRC_CCPR ${SOURCE_PATH}/gpu/ccpr/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_CCPR})
+
+    file(GLOB GPU_SRC_DDL ${SOURCE_PATH}/gpu/ddl/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_DDL})    
+
+    file(GLOB GPU_SRC_MOCK ${SOURCE_PATH}/gpu/mock/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_MOCK})    
+    
+    # OpenGL #############################
+    include_directories(AFTER ${HEADER_PATH}/gpu/gl)
+
+    find_package(OpenGL REQUIRED)
+    list(APPEND SKIA_DEPLIB ${OPENGL_gl_LIBRARY})
+    include_directories(${OPENGL_INCLUDE_DIR})
+
+    file(GLOB GPU_SRC_GL ${SOURCE_PATH}/gpu/gl/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_GL})
+
+    file(GLOB GPU_SRC_GL_BUILDERS ${SOURCE_PATH}/gpu/gl/builders/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_GL_BUILDERS})
+
+    file(GLOB GPU_SRC_GLSL ${SOURCE_PATH}/gpu/glsl/*.*)
+    list(APPEND GPU_SOURCE ${GPU_SRC_GLSL})
+    
+    if (APPLE)
+        list(REMOVE_ITEM GPU_SOURCE ${SOURCE_PATH}/gpu/gl/GrGLMakeNativeInterface_none.cpp)
+        set(GPU_SOURCE ${GPU_SOURCE}
+        ${SOURCE_PATH}/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp
+        )
+    elseif (MSVC)
+        list(REMOVE_ITEM GPU_SOURCE ${SOURCE_PATH}/gpu/gl/GrGLMakeNativeInterface_none.cpp)
+        set(GPU_SOURCE ${GPU_SOURCE}
+        ${SOURCE_PATH}/gpu/gl/win/GrGLMakeNativeInterface_win.cpp
+        )
+    endif ()
+else (SKIA_ENABLE_GPU_GL)
+    add_definitions(-DSK_SUPPORT_GPU=0)
+    set(GPU_HEADER )
+    set(GPU_SOURCE )
+endif (SKIA_ENABLE_GPU_GL)
+
+# sksl ###############################################
+if (SKIA_ENABLE_SKSL)
+    file(GLOB SKSL_HEADER ${SOURCE_PATH}/sksl/*.h)
+    file(GLOB SKSL_SOURCE ${SOURCE_PATH}/sksl/*.cpp)
+
+    file(GLOB SKSL_SRC_IR ${SOURCE_PATH}/sksl/ir/*.*)
+    list(APPEND SKSL_SOURCE ${SKSL_SRC_IR})
+
+else (SKIA_ENABLE_SKSL)
+    set(SKSL_HEADER )
+    set(SKSL_SOURCE )
+endif (SKIA_ENABLE_SKSL)
+
+# effects ###############################################
+if (SKIA_ENABLE_EFFECTS)
+    file(GLOB EFFECTS_HEADER ${HEADER_PATH}/effects/*.h)
+    file(GLOB EFFECTS_SOURCE ${SOURCE_PATH}/effects/*.*)
+else (SKIA_ENABLE_EFFECTS)
+    set(EFFECTS_HEADER )
+    set(EFFECTS_SOURCE )
+endif (SKIA_ENABLE_EFFECTS)
 
 
+# build library of skia ###############################################
 set(SKIA_HEADER_FILES
+# core
 ${CORE_HEADER}
 ${PORTS_HEADER}
 ${SHADERS_HEADER}
@@ -252,9 +370,15 @@ ${OPTS_HEADER}
 ${JUMPER_HEADER}
 ${FONTS_HEADER}
 ${SFNT_HEADER}
+
+# optional
+${SKSL_HEADER}
+${GPU_HEADER}
+${EFFECTS_HEADER}
 )
 
 set(SKIA_SOURCE_FILES
+# core
 ${CORE_SOURCE}
 ${PORTS_SOURCE}
 ${SHADERS_SOURCE}
@@ -266,6 +390,11 @@ ${OPTS_SOURCE}
 ${JUMPER_SOURCE}
 ${FONTS_SOURCE}
 ${SFNT_SOURCE}
+
+# optional
+${SKSL_SOURCE}
+${GPU_SOURCE}
+${EFFECTS_SOURCE}
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

@@ -169,7 +169,7 @@ Cocoa_GL_CreateContext(SFG_Window * window)
         
         if (fgState.DisplayMode & GLUT_STENCIL) {
             attr[i++] = NSOpenGLPFAStencilSize;
-            attr[i++] = 1;
+            attr[i++] = 8;
         }
         
         if ((fgState.DisplayMode & GLUT_ACCUM) && (fgState.DisplayMode & GLUT_ALPHA)) {
