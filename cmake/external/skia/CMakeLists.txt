@@ -2,9 +2,12 @@
 project(SKIA)
 
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
-message(STATUS "Download\tskia")
-exec_program("git clone https://skia.googlesource.com/skia.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git checkout chrome/m65" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
+	message(STATUS "Download\tskia")
+	exec_program("git clone https://skia.googlesource.com/skia.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
+	exec_program("git checkout chrome/m65" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
+	if (MSVC)
+		exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/skia/skia.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
+	endif(MSVC)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include )
@@ -32,11 +35,10 @@ OPTION( SKIA_ENABLE_GPU_GL
 )
 
 if (APPLE)
-#add_definitions(-D_MACOSX)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
 elseif (MSVC)
-add_definitions(-DSKIA_DLL)
-add_definitions(-DSKIA_IMPLEMENTATION)
+	add_definitions(-DSKIA_DLL)
+	add_definitions(-DSKIA_IMPLEMENTATION)
 endif ()
 
 # dependency

@@ -13,6 +13,7 @@ skia
 ADD_DEMO(skia_core   ${M3E_SOURCE_DIR}/src/external/skia/test_core.cpp)
 
 # OpenGL ####################################
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/src/gpu)
 include(${M3E_SOURCE_DIR}/cmake/external/freeglut/include.cmake)
 set(DEMO_DEPLIBS
 skia

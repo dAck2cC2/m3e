@@ -133,7 +133,11 @@ int main(int argc, char** argv)
     // Wrap the frame buffer object attached to the screen in a Skia render target so Skia can
     // render to it
     GrGLint buffer;
+#if defined(_MSC_VER)
+	(interfaced.get())->fFunctions.fGetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
+#else
     GR_GL_GetIntegerv(interfaced.get(), GR_GL_FRAMEBUFFER_BINDING, &buffer);
+#endif
     GrGLFramebufferInfo info;
     info.fFBOID = (GrGLuint) buffer;
     SkColorType colorType;
@@ -163,9 +167,12 @@ int main(int argc, char** argv)
     //canvas->scale((float)dw/dm.w, (float)dh/dm.h);
     
     // create a surface for CPU rasterization
+#if defined(_MSC_VER)
+	sk_sp<SkSurface> cpuSurface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(SURFACE_W, SURFACE_H)));
+#else  // _MSC_VER
     sk_sp<SkSurface> cpuSurface(SkSurface::MakeRaster(canvas->imageInfo()));
-    
-    SkCanvas* offscreen = cpuSurface->getCanvas();
+#endif // _MSC_VER
+	SkCanvas* offscreen = cpuSurface->getCanvas();
     offscreen->save();
     offscreen->translate(50.0f, 50.0f);
     offscreen->drawPath(create_star(), paint);
