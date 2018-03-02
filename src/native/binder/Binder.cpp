@@ -18,7 +18,7 @@
 
 #include <atomic>
 #include <utils/misc.h>
-//#include <binder/BpBinder.h>
+#include <binder/BpBinder.h>
 #include <binder/IInterface.h>
 //#include <binder/IResultReceiver.h>
 #include <binder/Parcel.h>
@@ -83,95 +83,11 @@ status_t IBinder::shellCommand(const sp<IBinder>& target, int in, int out, int e
 
 // ---------------------------------------------------------------------------
 
-class ObjectManager
-{
-public:
-	ObjectManager();
-	~ObjectManager();
-
-	void        attach(const void* objectID,
-		void* object,
-		void* cleanupCookie,
-		IBinder::object_cleanup_func func);
-	void*       find(const void* objectID) const;
-	void        detach(const void* objectID);
-
-	void        kill();
-
-private:
-	ObjectManager(const ObjectManager&);
-	ObjectManager& operator=(const ObjectManager&);
-
-	struct entry_t
-	{
-		void* object;
-		void* cleanupCookie;
-		IBinder::object_cleanup_func func;
-	};
-
-	KeyedVector<const void*, entry_t> mObjects;
-};
-
-ObjectManager::ObjectManager()
-{
-}
-
-ObjectManager::~ObjectManager()
-{
-	kill();
-}
-
-void ObjectManager::attach(
-	const void* objectID, void* object, void* cleanupCookie,
-	IBinder::object_cleanup_func func)
-{
-	entry_t e;
-	e.object = object;
-	e.cleanupCookie = cleanupCookie;
-	e.func = func;
-
-	if (mObjects.indexOfKey(objectID) >= 0) {
-		ALOGE("Trying to attach object ID %p to binder ObjectManager %p with object %p, but object ID already in use",
-			objectID, this, object);
-		return;
-	}
-
-	mObjects.add(objectID, e);
-}
-
-void* ObjectManager::find(const void* objectID) const
-{
-	const ssize_t i = mObjects.indexOfKey(objectID);
-	if (i < 0) return NULL;
-	return mObjects.valueAt(i).object;
-}
-
-void ObjectManager::detach(const void* objectID)
-{
-	mObjects.removeItem(objectID);
-}
-
-void ObjectManager::kill()
-{
-	const size_t N = mObjects.size();
-	ALOGV("Killing %zu objects in manager %p", N, this);
-	for (size_t i = 0; i<N; i++) {
-		const entry_t& e = mObjects.valueAt(i);
-		if (e.func != NULL) {
-			e.func(mObjects.keyAt(i), e.object, e.cleanupCookie);
-		}
-	}
-
-	mObjects.clear();
-}
-
-// ---------------------------------------------------------------------------
-
 class BBinder::Extras
 {
 public:
     Mutex mLock;
-    ObjectManager mObjects;
+    BpBinder::ObjectManager mObjects;
 };
 
 // ---------------------------------------------------------------------------
@@ -210,7 +126,7 @@ status_t BBinder::transact(
             reply->writeInt32(pingBinder());
             break;
         default:
-            //err = onTransact(code, data, reply, flags);
+            err = onTransact(code, data, reply, flags);
             break;
     }
 
@@ -291,7 +207,7 @@ BBinder::~BBinder()
     if (e) delete e;
 }
 
-#if 0
+
 status_t BBinder::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t /*flags*/)
 {
@@ -309,7 +225,7 @@ status_t BBinder::onTransact(
             }
             return dump(fd, args);
         }
-
+#if 0
         case SHELL_COMMAND_TRANSACTION: {
             int in = data.readFileDescriptor();
             int out = data.readFileDescriptor();
@@ -328,7 +244,7 @@ status_t BBinder::onTransact(
                 resultReceiver->send(INVALID_OPERATION);
             }
         }
-
+#endif
         case SYSPROPS_TRANSACTION: {
             report_sysprop_change();
             return NO_ERROR;
@@ -385,7 +301,7 @@ bool BpRefBase::onIncStrongAttempted(uint32_t /*flags*/, const void* /*id*/)
 {
     return mRemote ? mRefs->attemptIncStrong(this) : false;
 }
-#endif
+
 // ---------------------------------------------------------------------------
 
 }; // namespace android

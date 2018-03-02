@@ -63,7 +63,7 @@ private:
     Mutex mHeapCacheLock;
     KeyedVector< wp<IBinder>, heap_info_t > mHeapCache;
 };
-#if 0
+
 static sp<HeapCache> gHeapCache = new HeapCache();
 
 /******************************************************************************/
@@ -132,17 +132,17 @@ private:
     mutable ssize_t mOffset;
     mutable size_t mSize;
 };
-#endif
+
 /******************************************************************************/
 
-//void* IMemory::fastPointer(const sp<IBinder>& binder, ssize_t offset) const
-//{
-    //sp<IMemoryHeap> realHeap = BpMemoryHeap::get_heap(binder);
-    //void* const base = realHeap->base();
-    //if (base == MAP_FAILED)
-    //    return 0;
-    //return static_cast<char*>(base) + offset;
-//}
+void* IMemory::fastPointer(const sp<IBinder>& binder, ssize_t offset) const
+{
+    sp<IMemoryHeap> realHeap = BpMemoryHeap::get_heap(binder);
+    void* const base = realHeap->base();
+    if (base == MAP_FAILED)
+        return 0;
+    return static_cast<char*>(base) + offset;
+}
 
 void* IMemory::pointer() const {
     ssize_t offset;
@@ -165,7 +165,6 @@ ssize_t IMemory::offset() const {
     return offset;
 }
 
-#if 0
 /******************************************************************************/
 
 BpMemory::BpMemory(const sp<IBinder>& impl)
@@ -197,8 +196,8 @@ sp<IMemoryHeap> BpMemory::getMemory(ssize_t* offset, size_t* size) const
                         mSize = s;
                     } else {
                         // Hm.
-                        android_errorWriteWithInfoLog(0x534e4554,
-                            "26877992", -1, NULL, 0);
+                        //android_errorWriteWithInfoLog(0x534e4554,
+                        //    "26877992", -1, NULL, 0);
                         mOffset = 0;
                         mSize = 0;
                     }
@@ -210,7 +209,7 @@ sp<IMemoryHeap> BpMemory::getMemory(ssize_t* offset, size_t* size) const
     if (size) *size = mSize;
     return (mSize > 0) ? mHeap : 0;
 }
-#endif 
+
 // ---------------------------------------------------------------------------
 
 IMPLEMENT_META_INTERFACE(Memory, "android.utils.IMemory");
@@ -220,7 +219,7 @@ BnMemory::BnMemory() {
 
 BnMemory::~BnMemory() {
 }
-#if 0
+
 status_t BnMemory::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
@@ -259,10 +258,10 @@ BpMemoryHeap::~BpMemoryHeap() {
                 if (VERBOSE) {
                     ALOGD("UNMAPPING binder=%p, heap=%p, size=%zu, fd=%d",
                             binder.get(), this, mSize, mHeapId);
-                    CallStack stack(LOG_TAG);
+                    //CallStack stack(LOG_TAG);
                 }
 
-                munmap(mBase, mSize);
+                //munmap(mBase, mSize);
             }
         } else {
             // remove from list only if it was mapped before
@@ -364,7 +363,7 @@ uint32_t BpMemoryHeap::getOffset() const {
     assertMapped();
     return mOffset;
 }
-#endif 
+
 // ---------------------------------------------------------------------------
 
 IMPLEMENT_META_INTERFACE(MemoryHeap, "android.utils.IMemoryHeap");
@@ -374,7 +373,7 @@ BnMemoryHeap::BnMemoryHeap() {
 
 BnMemoryHeap::~BnMemoryHeap() {
 }
-#if 0
+
 status_t BnMemoryHeap::onTransact(
         uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
@@ -486,7 +485,7 @@ void HeapCache::dump_heaps()
                 h->mHeapId, h->mBase, h->mSize);
     }
 }
-#endif 
+
 
 // ---------------------------------------------------------------------------
 }; // namespace android

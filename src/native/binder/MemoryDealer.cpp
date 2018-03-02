@@ -20,17 +20,17 @@
 //#include <binder/IPCThreadState.h>
 #include <binder/MemoryBase.h>
 
-//#include <utils/Log.h>
-//#include <utils/SortedVector.h>
+#include <utils/Log.h>
+#include <utils/SortedVector.h>
 #include <utils/String8.h>
 #include <utils/threads.h>
 
-//#include <stdint.h>
+#include <stdint.h>
 #include <stdio.h>
-//#include <stdlib.h>
-//#include <fcntl.h>
-//#include <unistd.h>
-//#include <errno.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
 #include <string.h>
 
 //#include <sys/stat.h>
@@ -38,62 +38,8 @@
 #include <sys/mman.h>
 //#include <sys/file.h>
 
-#ifdef _MSC_VER
-extern "C" int getpagesize(void);
-#endif // _MSC_VER
 
 namespace android {
-
-// ----------------------------------------------------------------------------
-
-class MemoryHeapMalloc : public virtual BnMemoryHeap
-{
-public:
-	/*
-	* allocate memory, with the given name for debugging
-	*/
-	MemoryHeapMalloc(size_t size, uint32_t flags = 0, char const* name = NULL)
-		: mSize(0), mBase(MAP_FAILED), mFlags(flags), mOffset(0)
-	{
-		memset(mName, 0x00, sizeof(mName));
-		if (name) strncpy(mName, name, sizeof(mName));
-
-		const size_t pagesize = getpagesize();
-		mSize = ((size + pagesize - 1) & ~(pagesize - 1));
-		mBase = malloc(mSize);
-		if (NULL == mBase) { mBase = MAP_FAILED; mSize = 0; }
-	};
-
-	virtual ~MemoryHeapMalloc()
-	{
-		if ((mBase != NULL) && (mBase != MAP_FAILED)) {
-			free(mBase);
-			mBase = MAP_FAILED;
-			mSize = 0;
-		}
-	};
-
-	/* implement IMemoryHeap interface */
-	virtual int         getHeapID() const { return ((int)(mName[0]));  };
-
-	/* virtual address of the heap. returns MAP_FAILED in case of error */
-	virtual void*       getBase() const { return mBase; };
-
-	virtual size_t      getSize() const { return mSize; };
-	virtual uint32_t    getFlags() const { return mFlags; };
-	virtual uint32_t    getOffset() const { return mOffset; };
-
-protected:
-	MemoryHeapMalloc();
-
-private:
-	size_t      mSize;
-	void*       mBase;
-	uint32_t    mFlags;
-	char        mName[32];
-	uint32_t    mOffset;
-};
-
 // ----------------------------------------------------------------------------
 
 /*
@@ -283,8 +229,8 @@ Allocation::~Allocation()
 // ----------------------------------------------------------------------------
 
 MemoryDealer::MemoryDealer(size_t size, const char* name, uint32_t flags)
-   : mHeap(new MemoryHeapMalloc(size, flags, name)),
-     mAllocator(new SimpleBestFitAllocator(size))
+    : mHeap(new MemoryHeapBase(size, flags, name)),
+    mAllocator(new SimpleBestFitAllocator(size))
 {    
 }
 

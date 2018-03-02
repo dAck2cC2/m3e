@@ -21,8 +21,8 @@
 #include <utils/Log.h>
 #include <utils/threads.h>
 //#include <binder/IPCThreadState.h>
-//#include <binder/Parcel.h>
-//#include <utils/String8.h>
+#include <binder/Parcel.h>
+#include <utils/String8.h>
 //#include <utils/SystemClock.h>
 
 //#include <private/binder/Static.h>
@@ -182,7 +182,6 @@ bool checkPermission(const String16& permission, pid_t pid, uid_t uid)
 }
 #endif
 // ----------------------------------------------------------------------
-#if 0
 class BpServiceManager : public BpInterface<IServiceManager>
 {
 public:
@@ -241,7 +240,7 @@ public:
         return res;
     }
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(ServiceManager, "android.os.IServiceManager");
 
 }; // namespace android

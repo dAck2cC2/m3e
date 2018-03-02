@@ -11,13 +11,16 @@ add_definitions(-DANDROID_IMPLEMENTATION=1)
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/native/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/native/binder )
 
+OPTION( BINDER_ENABLE_LOCAL
+  "Set to ON to enable local binder implementation"
+  ON
+)
+
 # dependency
 set(BINDER_DEPLIB
 utils
+log
 )
-
-# include files
-#include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)
 
 # header files
 file(GLOB BINDER_HEADER_FILES 
@@ -28,6 +31,12 @@ ${HEADER_PATH}/binder/*.h
 file(GLOB BINDER_SOURCE_FILES 
 ${SOURCE_PATH}/*.cpp
 )
+
+if (BINDER_ENABLE_LOCAL)
+    add_definitions(-DBINDER_LOCAL=1)
+    file(GLOB BINDER_LOCAL_SRC ${SOURCE_PATH}/local/*.cpp)
+    list(APPEND BINDER_SOURCE_FILES ${BINDER_LOCAL_SRC})
+endif ()
 
 if (MSVC)
     list(APPEND BINDER_SOURCE_FILES

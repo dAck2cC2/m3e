@@ -61,6 +61,18 @@ protected:
 
 // ----------------------------------------------------------------------
 
+template<typename INTERFACE>
+class BpInterface : public INTERFACE, public BpRefBase
+{
+public:
+                                BpInterface(const sp<IBinder>& remote);
+
+protected:
+    virtual IBinder*            onAsBinder();
+};
+
+// ----------------------------------------------------------------------
+
 #define DECLARE_META_INTERFACE(INTERFACE)                               \
     static const android::String16 descriptor;                          \
     static android::sp<I##INTERFACE> asInterface(                       \
@@ -85,7 +97,7 @@ protected:
                 obj->queryLocalInterface(                               \
                         I##INTERFACE::descriptor).get());               \
             if (intr == NULL) {                                         \
-                /*intr = new Bp##INTERFACE(obj);*/                      \
+                intr = new Bp##INTERFACE(obj);                          \
             }                                                           \
         }                                                               \
         return intr;                                                    \
@@ -120,6 +132,20 @@ IBinder* BnInterface<INTERFACE>::onAsBinder()
 {
     return this;
 }
+
+template<typename INTERFACE>
+inline BpInterface<INTERFACE>::BpInterface(const sp<IBinder>& remote)
+    : BpRefBase(remote)
+{
+}
+
+template<typename INTERFACE>
+inline IBinder* BpInterface<INTERFACE>::onAsBinder()
+{
+    return remote();
+}
+    
+// ----------------------------------------------------------------------
 
 }; // namespace android
 

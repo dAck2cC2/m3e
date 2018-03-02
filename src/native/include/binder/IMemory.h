@@ -56,6 +56,12 @@ public:
 class BnMemoryHeap : public BnInterface<IMemoryHeap>
 {
 public:
+    virtual status_t onTransact( 
+            uint32_t code,
+            const Parcel& data,
+            Parcel* reply,
+            uint32_t flags = 0);
+    
     BnMemoryHeap();
 protected:
     virtual ~BnMemoryHeap();
@@ -71,7 +77,7 @@ public:
     virtual sp<IMemoryHeap> getMemory(ssize_t* offset=0, size_t* size=0) const = 0;
 
     // helpers
-    //void* fastPointer(const sp<IBinder>& heap, ssize_t offset) const;
+    void* fastPointer(const sp<IBinder>& heap, ssize_t offset) const;
     void* pointer() const;
     size_t size() const;
     ssize_t offset() const;
@@ -80,6 +86,12 @@ public:
 class BnMemory : public BnInterface<IMemory>
 {
 public:
+    virtual status_t onTransact(
+            uint32_t code,
+            const Parcel& data,
+            Parcel* reply,
+            uint32_t flags = 0);
+
     BnMemory();
 protected:
     virtual ~BnMemory();

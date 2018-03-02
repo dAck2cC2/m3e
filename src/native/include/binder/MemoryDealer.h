@@ -23,7 +23,7 @@
 #include <sys/types.h>
 
 #include <binder/IMemory.h>
-//#include <binder/MemoryHeapBase.h>
+#include <binder/MemoryHeapBase.h>
 
 namespace android {
 // ----------------------------------------------------------------------------
