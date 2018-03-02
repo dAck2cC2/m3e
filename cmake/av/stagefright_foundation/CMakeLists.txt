@@ -3,7 +3,7 @@ project(STAGEFRIGHT_FOUNDATION)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/dummy/include.cmake)
 
@@ -12,7 +12,7 @@ add_definitions(-DANDROID_IMPLEMENTATION=1)
 # dependency
 set(STAGEFRIGHT_FOUNDATION_DEPLIB
 utils
-misc
+binder
 )
 
 

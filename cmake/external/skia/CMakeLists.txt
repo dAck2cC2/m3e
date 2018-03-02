@@ -14,7 +14,7 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/src )
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-#include(${M3E_SOURCE_DIR}/cmake/external/skia/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/skia/include.cmake)
 #include(${M3E_SOURCE_DIR}/cmake/external/jsoncpp/include.cmake)
 #include(${M3E_SOURCE_DIR}/cmake/external/imgui/include.cmake)
 
@@ -39,12 +39,9 @@ OPTION( SKIA_ENABLE_VIEWS
   ON
 )
 
-if (APPLE)
-	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
-elseif (MSVC)
-	add_definitions(-DSKIA_DLL)
+if (MSVC)
 	add_definitions(-DSKIA_IMPLEMENTATION)
-endif ()
+endif (MSVC)
 
 # dependency
 
@@ -53,12 +50,12 @@ set(SKIA_DEPLIB
 #imgui
 )
 
-include_directories(AFTER ${HEADER_PATH}/config)
-include_directories(AFTER ${HEADER_PATH}/core)
+#include_directories(AFTER ${HEADER_PATH}/config)
+#include_directories(AFTER ${HEADER_PATH}/core)
 include_directories(AFTER ${HEADER_PATH}/codec)
 include_directories(AFTER ${HEADER_PATH}/effects)
-include_directories(AFTER ${HEADER_PATH}/utils)
-include_directories(AFTER ${HEADER_PATH}/gpu)
+#include_directories(AFTER ${HEADER_PATH}/utils)
+#include_directories(AFTER ${HEADER_PATH}/gpu)
 include_directories(AFTER ${HEADER_PATH}/pathops)
 include_directories(AFTER ${HEADER_PATH}/ports)
 include_directories(AFTER ${HEADER_PATH}/encode)

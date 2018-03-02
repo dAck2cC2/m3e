@@ -5,19 +5,19 @@ project(TEST_BINDER)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/native/binder/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 
 if(MSVC)
-add_definitions(-D__STDC_LIMIT_MACROS)
+    add_definitions(-D__STDC_LIMIT_MACROS)
 endif()
 
 # dependency
 
 set(TEST_BINDER_DEPLIB
 gtest
-misc
+binder
 )
 
 set(TEST_BINDER_DEP ${TEST_BINDER_DEPLIB})
@@ -25,7 +25,7 @@ set(TEST_BINDER_DEP ${TEST_BINDER_DEPLIB})
 # test file
 
 file(GLOB TEST_BINDER_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/test/misc/binder/*.cpp
+${M3E_SOURCE_DIR}/src/test/native/binder/*.cpp
 )
 
 # main source
