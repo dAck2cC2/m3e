@@ -6,12 +6,12 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
 
+add_definitions(-DANDROID_IMPLEMENTATION=1)
+
+# dependency
 set(MISC_DEPLIB
 utils
 )
-
-# dependency
-set(MISC_DEP ${MISC_DEPLIB})
 
 # include files
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)
@@ -27,9 +27,9 @@ ${M3E_SOURCE_DIR}/src/misc/binder/*.cpp
 )
 
 if(MSVC)
-set(MISC_SOURCE_FILES ${MISC_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/core/msvc/getpagesize.c
-)
+    set(MISC_SOURCE_FILES ${MISC_SOURCE_FILES}
+    ${M3E_SOURCE_DIR}/src/core/msvc/getpagesize.c
+    )
 endif()
 
 # target files

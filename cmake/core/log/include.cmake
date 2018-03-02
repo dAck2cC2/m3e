@@ -1,7 +1,7 @@
 
 # define
 if(MSVC)
-
+    add_definitions(-DANDROID_DLL)
 elseif(APPLE)
 
 elseif(CYGWIN)

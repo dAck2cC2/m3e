@@ -6,13 +6,13 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/libcutils)
 
+add_definitions(-DANDROID_IMPLEMENTATION=1)
+
 # dependency
 
 set(CUTILS_DEPLIB
 log
 )
-
-set(CUTILS_DEP ${CUTILS_DEPLIB})
 
 # header files
 file(GLOB CUTILS_HEADER_FILES
@@ -28,15 +28,15 @@ ${M3E_SOURCE_DIR}/src/core/libcutils/*.cpp
 
 # header and source code for MSVC
 if(MSVC)
-set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/stdint.h)
-#set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/sys/time.h)
-set(CUTILS_SOURCE_FILES ${CUTILS_SOURCE_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/ffs.c)
+    set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/stdint.h)
+    #set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/sys/time.h)
+    set(CUTILS_SOURCE_FILES ${CUTILS_SOURCE_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/ffs.c)
 elseif(APPLE)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
 elseif(CYGWIN)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11")
 elseif(UNIX)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++0x")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++0x")
 endif()
 
 # target files
@@ -45,7 +45,7 @@ add_library(cutils SHARED ${CUTILS_HEADER_FILES} ${CUTILS_SOURCE_FILES})
 target_link_libraries(cutils ${CUTILS_DEPLIB})
 
 if(UNIX AND NOT APPLE)
-#find_package(Threads)
-#target_link_libraries(cutils ${CMAKE_THREAD_LIBS_INIT})
+    #find_package(Threads)
+    #target_link_libraries(cutils ${CMAKE_THREAD_LIBS_INIT})
 endif()
 

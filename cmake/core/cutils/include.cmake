@@ -5,15 +5,13 @@ add_definitions(-DLITTLE_ENDIAN=1)
 add_definitions(-DBIG_ENDIAN=2)
 
 if(MSVC)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/msvc)
-add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)
-
+    include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/msvc)
+    add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)
+    add_definitions(-DANDROID_DLL)
 elseif(APPLE)
-add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)
-
+    add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)
 elseif(CYGWIN)
-add_definitions(-Dffs=__builtin_ffs)
-
+    add_definitions(-Dffs=__builtin_ffs)
 elseif(UNIX)
 
 endif()

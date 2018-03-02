@@ -39,24 +39,26 @@
  * class ANDROID_API Singleton { }
  */
 /* Some compilers use a special export keyword */
+#if !defined(ANDROID_IMPLEMENTATION)
+    #define ANDROID_IMPLEMENTATION 0
+#endif
+
 #ifndef ANDROID_API
-# if defined(WIN32) || defined(__WINRT__)
-#  ifdef __BORLANDC__
-#   ifdef BUILD_SDL
-#    define ANDROID_API
-#   else
-#    define ANDROID_API    __declspec(dllimport)
-#   endif
-#  else
-#   define ANDROID_API __declspec(dllexport)
-#  endif
-# else
-#  if defined(__GNUC__) && __GNUC__ >= 4
-#   define ANDROID_API __attribute__ ((visibility("default")))
-#  else
-#   define ANDROID_API
-#  endif
-# endif
+    #if defined(ANDROID_DLL)
+        #if defined(_MSC_VER)
+            #if ANDROID_IMPLEMENTATION
+                #define ANDROID_API __declspec(dllexport)
+            #else
+                #define ANDROID_API __declspec(dllimport)
+            #endif
+        #elif defined(__GNUC__) && __GNUC__ >= 4
+            #define ANDROID_API __attribute__((visibility("default")))
+        #else
+            #define ANDROID_API
+        #endif
+    #else
+        #define ANDROID_API
+    #endif
 #endif // ANDROID_API
 
 #endif // ANDROID_CUTILS_COMPILER_H

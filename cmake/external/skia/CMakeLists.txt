@@ -34,6 +34,11 @@ OPTION( SKIA_ENABLE_GPU_GL
   ON
 )
 
+OPTION( SKIA_ENABLE_VIEWS
+  "Set to ON to enable views"
+  ON
+)
+
 if (APPLE)
 	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
 elseif (MSVC)
@@ -290,7 +295,7 @@ if (SKIA_ENABLE_GPU_GL)
     file(GLOB GPU_SRC_TEXT ${SOURCE_PATH}/gpu/text/*.*)
     list(APPEND GPU_SOURCE ${GPU_SRC_TEXT})
 
-    file(GLOB GPU_SRC_EFFECTS ${SOURCE_PATH}/gpu/effects/*.*)
+    file(GLOB GPU_SRC_EFFECTS ${SOURCE_PATH}/gpu/effects/*.cpp)
     list(APPEND GPU_SOURCE ${GPU_SRC_EFFECTS})
 
     file(GLOB GPU_SRC_CCPR ${SOURCE_PATH}/gpu/ccpr/*.*)
@@ -351,12 +356,21 @@ endif (SKIA_ENABLE_SKSL)
 # effects ###############################################
 if (SKIA_ENABLE_EFFECTS)
     file(GLOB EFFECTS_HEADER ${HEADER_PATH}/effects/*.h)
-    file(GLOB EFFECTS_SOURCE ${SOURCE_PATH}/effects/*.*)
+    file(GLOB EFFECTS_SOURCE ${SOURCE_PATH}/effects/*.cpp)
 else (SKIA_ENABLE_EFFECTS)
     set(EFFECTS_HEADER )
     set(EFFECTS_SOURCE )
 endif (SKIA_ENABLE_EFFECTS)
 
+# views ###############################################
+if (SKIA_ENABLE_VIEWS)
+    include_directories(AFTER ${HEADER_PATH}/views)
+    file(GLOB VIEWS_HEADER ${HEADER_PATH}/views/*.h)
+    file(GLOB VIEWS_SOURCE ${SOURCE_PATH}/views/*.cpp)
+else (SKIA_ENABLE_VIEWS)
+    set(VIEWS_HEADER )
+    set(VIEWS_SOURCE )
+endif (SKIA_ENABLE_VIEWS)
 
 # build library of skia ###############################################
 set(SKIA_HEADER_FILES
@@ -377,6 +391,7 @@ ${SFNT_HEADER}
 ${SKSL_HEADER}
 ${GPU_HEADER}
 ${EFFECTS_HEADER}
+${VIEWS_HEADER}
 )
 
 set(SKIA_SOURCE_FILES
@@ -397,6 +412,7 @@ ${SFNT_SOURCE}
 ${SKSL_SOURCE}
 ${GPU_SOURCE}
 ${EFFECTS_SOURCE}
+${VIEWS_SOURCE}
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

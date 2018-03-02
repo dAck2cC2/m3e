@@ -7,23 +7,22 @@ include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/dummy/include.cmake)
 
+add_definitions(-DANDROID_IMPLEMENTATION=1)
+
+# dependency
 set(STAGEFRIGHT_FOUNDATION_DEPLIB
 utils
 misc
 )
 
-# dependency
-set(STAGEFRIGHT_FOUNDATION_DEP 
-${STAGEFRIGHT_FOUNDATION_DEPLIB}
-)
 
 # define
 if(CYGWIN)
-add_definitions(-D_GNU_SOURCE)
+    add_definitions(-D_GNU_SOURCE)
 elseif(MSVC)
-add_definitions(-Dstrcasestr=strstr)
-add_definitions(-Dstrncasecmp=_strnicmp)
-add_definitions(-Dstrcasecmp=_stricmp)
+    add_definitions(-Dstrcasestr=strstr)
+    add_definitions(-Dstrncasecmp=_strnicmp)
+    add_definitions(-Dstrcasecmp=_stricmp)
 endif()
 
 # include files
@@ -61,9 +60,9 @@ ${M3E_SOURCE_DIR}/src/av/media/libstagefright/foundation/hexdump.cpp
 )
 
 if(MSVC)
-set(STAGEFRIGHT_FOUNDATION_SOURCE_FILES ${STAGEFRIGHT_FOUNDATION_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/core/msvc/vasprintf.c
-)
+    set(STAGEFRIGHT_FOUNDATION_SOURCE_FILES ${STAGEFRIGHT_FOUNDATION_SOURCE_FILES}
+    ${M3E_SOURCE_DIR}/src/core/msvc/vasprintf.c
+    )
 endif(MSVC)
 
 # target files
