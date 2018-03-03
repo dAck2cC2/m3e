@@ -37,7 +37,66 @@
 #include <memory>
 #include <limits>
 
-typedef int binder_size_t;
+// ---------------------------------------------------------------------------
+// linux/binder.h shoud define this, but we can't just include it from there
+// because we don't have binder driver.
+#if 0
+#define B_TYPE_LARGE 0x85
+
+enum {
+    BINDER_TYPE_BINDER    = B_PACK_CHARS('s', 'b', '*', B_TYPE_LARGE),
+    BINDER_TYPE_WEAK_BINDER    = B_PACK_CHARS('w', 'b', '*', B_TYPE_LARGE),
+    BINDER_TYPE_HANDLE    = B_PACK_CHARS('s', 'h', '*', B_TYPE_LARGE),
+    BINDER_TYPE_WEAK_HANDLE    = B_PACK_CHARS('w', 'h', '*', B_TYPE_LARGE),
+    BINDER_TYPE_FD        = B_PACK_CHARS('f', 'd', '*', B_TYPE_LARGE),
+    BINDER_TYPE_FDA        = B_PACK_CHARS('f', 'd', 'a', B_TYPE_LARGE),
+    BINDER_TYPE_PTR        = B_PACK_CHARS('p', 't', '*', B_TYPE_LARGE),
+};
+
+enum {
+    FLAT_BINDER_FLAG_PRIORITY_MASK = 0xff,
+    FLAT_BINDER_FLAG_ACCEPTS_FDS = 0x100,
+};
+#endif
+
+#define BINDER_IPC_32BIT
+#ifdef BINDER_IPC_32BIT
+typedef uint32_t binder_size_t;
+//typedef uint32_t uintptr_t;
+#else
+typedef __u64 binder_size_t;
+typedef __u64 uintptr_t;
+#endif
+
+/**
+ * struct binder_object_header - header shared by all binder metadata objects.
+ * @type:    type of the object
+ */
+struct binder_object_header {
+    uint32_t        type;
+};
+
+/*
+ * This is the flattened representation of a Binder object for transfer
+ * between processes.  The 'offsets' supplied as part of a binder transaction
+ * contains offsets into the data where these structures occur.  The Binder
+ * driver takes care of re-writing the structure type and data as it moves
+ * between processes.
+ */
+struct flat_binder_object {
+    unsigned long type;
+    struct binder_object_header    hdr;
+    uint32_t                flags;
+    
+    /* 8 bytes of data. */
+    union {
+        uintptr_t    binder;    /* local object */
+        uintptr_t            handle;    /* remote object */
+    };
+    
+    /* extra data associated with local object */
+    uintptr_t    cookie;
+};
 
 // ---------------------------------------------------------------------------
 namespace android {
@@ -188,7 +247,7 @@ public:
     // Place a file descriptor into the parcel.  A dup of the fd is made, which
     // will be closed once the parcel is destroyed.
     status_t            writeDupFileDescriptor(int fd);
-#if ENABLE_SCOPEDFD
+#if TODO
     // Place a file descriptor into the parcel.  This will not affect the
     // semantics of the smart file descriptor. A new descriptor will be
     // created, and will be closed when the parcel is destroyed.
@@ -214,9 +273,9 @@ public:
     // This allows the client to send the same blob to multiple processes
     // as long as it keeps a dup of the blob file descriptor handy for later.
     status_t            writeDupImmutableBlobFileDescriptor(int fd);
-
-    status_t            writeObject(const flat_binder_object& val, bool nullMetaData);
 #endif
+    status_t            writeObject(const flat_binder_object& val, bool nullMetaData);
+
     // Like Parcel.java's writeNoException().  Just writes a zero int32.
     // Currently the native implementation doesn't do any of the StrictMode
     // stack gathering and serialization that the Java implementation does.
@@ -324,7 +383,7 @@ public:
     // Retrieve a file descriptor from the parcel.  This returns the raw fd
     // in the parcel, which you do not own -- use dup() to get your own copy.
     int                 readFileDescriptor() const;
-#if ENABLE_SCOPEDFD
+#if TODO
     // Retrieve a smart file descriptor from the parcel.
     status_t            readUniqueFileDescriptor(
                             ScopedFd* val) const;
@@ -339,9 +398,9 @@ public:
     // Reads a blob from the parcel.
     // The caller should call release() on the blob after reading its contents.
     status_t            readBlob(size_t len, ReadableBlob* outBlob) const;
-
-    const flat_binder_object* readObject(bool nullMetaData) const;
 #endif
+    const flat_binder_object* readObject(bool nullMetaData) const;
+
     // Explicitly close all file descriptors in the parcel.
     void                closeFileDescriptors();
 
@@ -772,7 +831,7 @@ inline TextOutput& operator<<(TextOutput& to, const Parcel& parcel)
     parcel.print(to);
     return to;
 }
-#if 0
+
 // ---------------------------------------------------------------------------
 
 // Generic acquire and release of objects.
@@ -789,7 +848,7 @@ status_t unflatten_binder(const sp<ProcessState>& proc,
                           const flat_binder_object& flat, sp<IBinder>* out);
 status_t unflatten_binder(const sp<ProcessState>& proc,
                           const flat_binder_object& flat, wp<IBinder>* out);
-#endif
+
 }; // namespace android
 
 // ---------------------------------------------------------------------------

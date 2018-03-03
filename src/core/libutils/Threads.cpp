@@ -21,7 +21,7 @@
 #include "utils/AndroidThreads.h"
 #include "utils/Log.h"
 
-//#include "cutils/sched_policy.h"
+#include "cutils/sched_policy.h"
 //#include "cutils/properties.h"
 
 #include <stdio.h>
@@ -56,6 +56,19 @@
  */
 
 using namespace android;
+
+void androidSetThreadName(const char* name) {
+    // We don't have this
+}
+
+pid_t androidGetTid()
+{
+#ifdef HAVE_GETTID
+    return gettid();
+#else
+    return getpid();
+#endif
+}
 
 // ----------------------------------------------------------------------------
 #if defined(HAVE_PTHREADS)
@@ -103,9 +116,9 @@ struct thread_data_t {
 
         if (gDoSchedulingGroup) {
             if (prio >= ANDROID_PRIORITY_BACKGROUND) {
-                //set_sched_policy(androidGetTid(), SP_BACKGROUND);
+                set_sched_policy(androidGetTid(), SP_BACKGROUND);
             } else if (prio > ANDROID_PRIORITY_AUDIO) {
-                //set_sched_policy(androidGetTid(), SP_FOREGROUND);
+                set_sched_policy(androidGetTid(), SP_FOREGROUND);
             } else {
                 // defaults to that of parent, or as set by requestPriority()
             }
@@ -329,15 +342,6 @@ int androidCreateThreadEtc(android_thread_func_t entryFunction,
 void androidSetCreateThreadFunc(android_create_thread_fn func)
 {
     gCreateThreadFn = func;
-}
-
-pid_t androidGetTid()
-{
-#ifdef HAVE_GETTID
-    return gettid();
-#else
-    return getpid();
-#endif
 }
 
 #ifdef HAVE_ANDROID_OS

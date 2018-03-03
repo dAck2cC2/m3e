@@ -225,7 +225,7 @@ status_t BBinder::onTransact(
             }
             return dump(fd, args);
         }
-#if 0
+#if TODO
         case SHELL_COMMAND_TRANSACTION: {
             int in = data.readFileDescriptor();
             int out = data.readFileDescriptor();

@@ -6,6 +6,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/native/binder/include.cmake)
 
+#include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
+
 add_definitions(-DANDROID_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/native/include )
@@ -23,14 +25,13 @@ log
 )
 
 # header files
-file(GLOB BINDER_HEADER_FILES 
-${HEADER_PATH}/binder/*.h
-)
+file(GLOB BINDER_HEADER_FILES  ${HEADER_PATH}/binder/*.h)
+
+file(GLOB BINDER_PRIVATE_HEADER ${HEADER_PATH}/private/binder/*.h)
+list(APPEND BINDER_HEADER_FILES ${BINDER_PRIVATE_HEADER})
 
 # source files
-file(GLOB BINDER_SOURCE_FILES 
-${SOURCE_PATH}/*.cpp
-)
+file(GLOB BINDER_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
 
 if (BINDER_ENABLE_LOCAL)
     add_definitions(-DBINDER_LOCAL=1)
