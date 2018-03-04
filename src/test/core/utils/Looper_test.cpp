@@ -111,7 +111,7 @@ protected:
     }
 };
 
-
+#if defined(_LINUX)
 TEST_F(LooperTest, PollOnce_WhenNonZeroTimeoutAndNotAwoken_WaitsForTimeout) {
     StopWatch stopWatch("pollOnce");
     int result = mLooper->pollOnce(100);
@@ -436,7 +436,7 @@ TEST_F(LooperTest, PollOnce_WhenCallbackAddedTwice_OnlySecondCallbackShouldBeInv
     EXPECT_EQ(1, handler2.callbackCount)
             << "replacement handler callback should be invoked";
 }
-
+#endif // _LINUX
 TEST_F(LooperTest, SendMessage_WhenOneMessageIsEnqueue_ShouldInvokeHandlerDuringNextPoll) {
     sp<StubMessageHandler> handler = new StubMessageHandler();
     mLooper->sendMessage(handler, Message(MSG_TEST1));

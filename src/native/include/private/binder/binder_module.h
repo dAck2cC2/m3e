@@ -17,6 +17,8 @@
 #ifndef _BINDER_MODULE_H_
 #define _BINDER_MODULE_H_
 
+//#include <stdint.h>
+
 #ifdef __cplusplus
 namespace android {
 #endif
@@ -66,8 +68,8 @@ struct binder_transaction_data {
     
     union {
         struct {
-            const void *buffer;
-            const void *offsets;
+            const void* buffer;
+            const void* offsets;
         } ptr;
         uint8_t buf[8];
     } data;

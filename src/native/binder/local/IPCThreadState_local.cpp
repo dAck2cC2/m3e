@@ -64,6 +64,10 @@
 
 namespace android {
 
+#if !defined(__ANDROID__)
+extern status_t binder_write_read_local(binder_write_read* pbwr);
+#endif // __ANDROID__
+    
 static const char* getReturnString(size_t idx);
 static const void* printReturnCommand(TextOutput& out, const void* _cmd);
 static const void* printCommand(TextOutput& out, const void* _cmd);
@@ -872,7 +876,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
         else
             err = -errno;
 #else
-        err = INVALID_OPERATION;
+        err = -(binder_write_read_local(&bwr));
 #endif
         if (mProcess->mDriverFD <= 0) {
             err = -EBADF;
@@ -931,14 +935,14 @@ status_t IPCThreadState::writeTransactionData(int32_t cmd, uint32_t binderFlags,
     const status_t err = data.errorCheck();
     if (err == NO_ERROR) {
         tr.data_size = data.ipcDataSize();
-        //tr.data.ptr.buffer = data.ipcData();
+        tr.data.ptr.buffer = (void *)data.ipcData();
         tr.offsets_size = data.ipcObjectsCount()*sizeof(binder_size_t);
-        //tr.data.ptr.offsets = data.ipcObjects();
+        tr.data.ptr.offsets = (void *)data.ipcObjects();
     } else if (statusBuffer) {
         tr.flags |= TF_STATUS_CODE;
         *statusBuffer = err;
         tr.data_size = sizeof(status_t);
-        //tr.data.ptr.buffer = reinterpret_cast<uintptr_t>(statusBuffer);
+        tr.data.ptr.buffer = reinterpret_cast<void *>(statusBuffer);
         tr.offsets_size = 0;
         tr.data.ptr.offsets = 0;
     } else {

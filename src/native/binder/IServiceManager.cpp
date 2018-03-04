@@ -19,67 +19,16 @@
 #include <binder/IServiceManager.h>
 
 #include <utils/Log.h>
-#include <utils/threads.h>
-//#include <binder/IPCThreadState.h>
+#include <binder/IPCThreadState.h>
 #include <binder/Parcel.h>
 #include <utils/String8.h>
-//#include <utils/SystemClock.h>
+#include <utils/SystemClock.h>
 
-//#include <private/binder/Static.h>
+#include <private/binder/Static.h>
 
-//#include <unistd.h>
+#include <unistd.h>
 
 namespace android {
-
-class ServiceManager : public IServiceManager
-{
-public:
-    IBinder* onAsBinder()
-    {
-        return (IBinder*)(this);
-    };
-
-    /**
-     * Retrieve an existing service, blocking for a few seconds
-     * if it doesn't yet exist.
-     */
-    virtual sp<IBinder> getService( const String16& name) const
-    {
-        return NULL;
-    };
-
-    /**
-     * Retrieve an existing service, non-blocking.
-     */
-    virtual sp<IBinder>         checkService( const String16& name) const
-    {
-        return NULL;
-    };
-
-    /**
-     * Register a service.
-     */
-    virtual status_t            addService( const String16& name,
-                                            const sp<IBinder>& service,
-                                            bool allowIsolated = false) 
-    {
-        return OK;
-    };
-
-    /**
-     * Return list of all existing services.
-     */
-    virtual Vector<String16>    listServices()
-    {
-        return mList;
-    };
-
-private:
-    Vector<String16> mList;
-};
-
-static sp<IServiceManager> gDefaultServiceManager = NULL;
-static Mutex gDefaultServiceManagerLock;
 
 sp<IServiceManager> defaultServiceManager()
 {
@@ -87,21 +36,17 @@ sp<IServiceManager> defaultServiceManager()
 
     {
         AutoMutex _l(gDefaultServiceManagerLock);
-#if 0
         while (gDefaultServiceManager == NULL) {
             gDefaultServiceManager = interface_cast<IServiceManager>(
                 ProcessState::self()->getContextObject(NULL));
             if (gDefaultServiceManager == NULL)
                 sleep(1);
         }
-#else
-        gDefaultServiceManager = new ServiceManager();
-#endif
     }
 
     return gDefaultServiceManager;
 }
-#if 0
+
 bool checkCallingPermission(const String16& permission)
 {
     return checkCallingPermission(permission, NULL, NULL);
@@ -120,12 +65,13 @@ bool checkCallingPermission(const String16& permission, int32_t* outPid, int32_t
     return checkPermission(permission, pid, uid);
 }
 
+#define __BRILLO__
 bool checkPermission(const String16& permission, pid_t pid, uid_t uid)
 {
 #ifdef __BRILLO__
     // Brillo doesn't currently run ActivityManager or support framework permissions.
     return true;
-#endif
+#else
 
     sp<IPermissionController> pc;
     gDefaultServiceManagerLock.lock();
@@ -179,9 +125,11 @@ bool checkPermission(const String16& permission, pid_t pid, uid_t uid)
             gDefaultServiceManagerLock.unlock();
         }
     }
-}
 #endif
+}
+
 // ----------------------------------------------------------------------
+
 class BpServiceManager : public BpInterface<IServiceManager>
 {
 public:

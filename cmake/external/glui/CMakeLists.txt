@@ -2,9 +2,9 @@
 project(GLUI)
 
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/glui)
-message(STATUS "Download\tglui")
-exec_program("git clone https://github.com/libglui/glui.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git reset --hard ad0f3a89694079cd145dbc0b9b49f8a7507162d6" ${M3E_SOURCE_DIR}/${EXT_PATH}/glui)
+  message(STATUS "Download\tglui")
+  exec_program("git clone https://github.com/libglui/glui.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
+  exec_program("git reset --hard ad0f3a89694079cd145dbc0b9b49f8a7507162d6" ${M3E_SOURCE_DIR}/${EXT_PATH}/glui)
 endif()
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)

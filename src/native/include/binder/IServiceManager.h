@@ -68,11 +68,11 @@ sp<IServiceManager> defaultServiceManager();
 template<typename INTERFACE>
 status_t getService(const String16& name, sp<INTERFACE>* outService)
 {
-    //const sp<IServiceManager> sm = defaultServiceManager();
-    //if (sm != NULL) {
-    //    *outService = interface_cast<INTERFACE>(sm->getService(name));
-    //    if ((*outService) != NULL) return NO_ERROR;
-    //}
+    const sp<IServiceManager> sm = defaultServiceManager();
+    if (sm != NULL) {
+        *outService = interface_cast<INTERFACE>(sm->getService(name));
+        if ((*outService) != NULL) return NO_ERROR;
+    }
     return NAME_NOT_FOUND;
 }
 

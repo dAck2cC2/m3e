@@ -32,7 +32,7 @@ ${M3E_SOURCE_DIR}/src/test/main.cpp
 set(TEST_UTILS_SOURCE_FILES ${TEST_UTILS_SOURCE_FILES}
 ${M3E_SOURCE_DIR}/src/test/core/utils/BitSet_test.cpp
 ${M3E_SOURCE_DIR}/src/test/core/utils/BlobCache_test.cpp
-#${M3E_SOURCE_DIR}/src/test/core/utils/Looper_test.cpp
+${M3E_SOURCE_DIR}/src/test/core/utils/Looper_test.cpp
 ${M3E_SOURCE_DIR}/src/test/core/utils/LruCache_test.cpp
 ${M3E_SOURCE_DIR}/src/test/core/utils/RefBase_test.cpp
 #${M3E_SOURCE_DIR}/src/test/core/utils/Singleton_test.cpp
