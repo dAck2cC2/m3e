@@ -17,6 +17,8 @@
 #ifndef UTILS_LOOPER_H
 #define UTILS_LOOPER_H
 
+#include <cutils/compiler.h>
+
 #include <utils/threads.h>
 #include <utils/RefBase.h>
 #include <utils/KeyedVector.h>
@@ -135,7 +137,7 @@ private:
  *
  * A looper can be associated with a thread although there is no requirement that it must be.
  */
-class Looper : public RefBase {
+class ANDROID_API Looper : public RefBase {
 protected:
     virtual ~Looper();
 

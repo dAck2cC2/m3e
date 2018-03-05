@@ -294,6 +294,7 @@ void BpMemoryHeap::assertMapped() const
 
 void BpMemoryHeap::assertReallyMapped() const
 {
+#if !defined(_MSC_VER)
     if (mHeapId == -1) {
 
         // remote call without mLock held, worse case scenario, we end up
@@ -337,6 +338,7 @@ void BpMemoryHeap::assertReallyMapped() const
             }
         }
     }
+#endif // _MSC_VER
 }
 
 int BpMemoryHeap::getHeapID() const {

@@ -9,10 +9,6 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-#ifdef _MSC_VER
-extern "C" int getpagesize(void);
-#endif // _MSC_VER
-
 #include <binder/MemoryHeapBase.h>
 
 namespace android {

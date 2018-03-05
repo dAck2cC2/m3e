@@ -1,6 +1,7 @@
 
 #include <gtest/gtest.h>
 #include <android/log.h>
+#include <log/log.h>
 
 // sleep 1 ms.
 #ifdef _MSC_VER
@@ -88,4 +89,10 @@ TEST(liblog, __android_log_print) {
 		"TEST__android_log_print",
 		"silent"));
 	_sys_sleep(SLEEP_TIME);
+}
+
+TEST(liblog, __android_log_is_loggable) {
+	//IF_ALOGV() 
+	{
+	}
 }

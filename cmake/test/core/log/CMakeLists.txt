@@ -9,8 +9,9 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 
 if(MSVC)
-add_definitions(-D__STDC_LIMIT_MACROS)
-endif()
+    add_definitions(-D__STDC_LIMIT_MACROS)
+    include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/msvc)
+endif(MSVC)
 
 # dependency
 

@@ -8,4 +8,14 @@
 
 #define MAP_FAILED  ((void*)(-1))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern int getpagesize(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // _MSC_MMAN_H_

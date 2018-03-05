@@ -28,6 +28,8 @@
 #ifndef _LIBS_LOG_LOG_H
 #define _LIBS_LOG_LOG_H
 
+#include <cutils/compiler.h>
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -685,6 +687,7 @@ int android_log_destroy(android_log_context *ctx);
  * ANDROID_LOG_FATAL. default_prio if no property. Undefined behavior if
  * any other value.
  */
+ANDROID_API
 int __android_log_is_loggable(int prio, const char *tag, int default_prio);
 
 int __android_log_security(); /* Device Owner is present */

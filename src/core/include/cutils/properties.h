@@ -18,6 +18,7 @@
 #define __CUTILS_PROPERTIES_H
 
 #include <cutils/compiler.h>
+
 #include <sys/cdefs.h>
 #include <stddef.h>
 #include <stdint.h>

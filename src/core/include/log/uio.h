@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 
+#include <cutils/compiler.h>
+
 //
 // Implementation of sys/uio.h for Win32.
 //
@@ -39,6 +41,8 @@ struct iovec {
 };
 
 extern int  readv( int  fd, struct iovec*  vecs, int  count );
+
+ANDROID_API
 extern int  writev( int  fd, const struct iovec*  vecs, int  count );
 
 #ifdef __cplusplus

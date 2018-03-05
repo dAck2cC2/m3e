@@ -17,6 +17,10 @@
 #define LOG_TAG "Parcel"
 //#define LOG_NDEBUG 0
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
+
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -59,6 +63,10 @@
 #ifndef INT32_MAX
 #define INT32_MAX ((int32_t)(2147483647))
 #endif
+
+#ifdef interface
+#undef interface
+#endif // interface
 
 #define LOG_REFS(...)
 //#define LOG_REFS(...) ALOG(LOG_DEBUG, LOG_TAG, __VA_ARGS__)

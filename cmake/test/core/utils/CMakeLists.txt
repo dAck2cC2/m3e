@@ -8,10 +8,6 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 
-if(MSVC)
-add_definitions(-D__STDC_LIMIT_MACROS)
-endif()
-
 # dependency
 
 set(TEST_UTILS_DEPLIB
@@ -44,6 +40,11 @@ ${M3E_SOURCE_DIR}/src/test/core/utils/SystemClock_test.cpp
 ${M3E_SOURCE_DIR}/src/test/core/utils/Unicode_test.cpp
 ${M3E_SOURCE_DIR}/src/test/core/utils/Vector_test.cpp
 )
+
+if(MSVC)
+    add_definitions(-D__STDC_LIMIT_MACROS)
+    list(REMOVE_ITEM TEST_UTILS_SOURCE_FILES ${M3E_SOURCE_DIR}/src/test/core/utils/Looper_test.cpp)
+endif (MSVC)
 
 # project
 set(EXECUTABLE_OUTPUT_PATH ${BUILD_PATH})

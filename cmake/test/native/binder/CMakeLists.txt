@@ -18,6 +18,7 @@ endif()
 set(TEST_BINDER_DEPLIB
 gtest
 binder
+log
 )
 
 set(TEST_BINDER_DEP ${TEST_BINDER_DEPLIB})

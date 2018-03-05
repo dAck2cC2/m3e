@@ -60,6 +60,7 @@ extern int androidCreateRawThreadEtc(android_thread_func_t entryFunction,
                                      android_thread_id_t *threadId);
 
 // set the same of the running thread
+ANDROID_API
 extern void androidSetThreadName(const char* name);
 
 // Used by the Java Runtime to control how threads are created, so that

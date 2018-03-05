@@ -40,6 +40,7 @@ if (BINDER_ENABLE_LOCAL)
 endif ()
 
 if (MSVC)
+	add_definitions(-Dsleep=Sleep)
     list(APPEND BINDER_SOURCE_FILES
     ${M3E_SOURCE_DIR}/src/core/msvc/getpagesize.c
     )

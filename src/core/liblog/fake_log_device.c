@@ -326,7 +326,7 @@ static const char* getPriorityString(int priority)
  * WIN32 does not have writev().
  * Make up something to replace it.
  */
-static ssize_t fake_writev(int fd, const struct iovec *iov, int iovcnt) {
+int writev(int fd, const struct iovec *iov, int iovcnt) {
     ssize_t result = 0;
     const struct iovec* end = iov + iovcnt;
     for (; iov < end; iov++) {
@@ -341,7 +341,6 @@ static ssize_t fake_writev(int fd, const struct iovec *iov, int iovcnt) {
     return result;
 }
 
-#define writev fake_writev
 #endif
 
 

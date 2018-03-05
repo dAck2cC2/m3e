@@ -19,7 +19,11 @@
 
 #include <binder/TextOutput.h>
 #include <utils/threads.h>
+#if !defined(_MSC_VER)
 #include <sys/uio.h>
+#else  // _MSC_VER
+#include <log/uio.h>
+#endif // _MSC_VER
 
 // ---------------------------------------------------------------------------
 namespace android {

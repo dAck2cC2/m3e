@@ -5,7 +5,7 @@
 #include <string.h>
 #include <cutils/stdatomic.h>
 #include <cutils/properties.h>
-#include <system_properties.h>
+#include <sys/_system_properties.h>
 
 #include "bionic_macros.h"
 #include "bionic_lock.h"
@@ -474,3 +474,37 @@ int __system_property_foreach(void (*callback)(const struct prop_info* pi, void*
     return (result ? 0 : -2);
 }
 
+unsigned int __system_property_area_serial()
+{
+	return *(_property.serial());
+}
+
+unsigned int __system_property_serial(const struct prop_info* info)
+{
+	if (!info) {
+		return 0;
+	}
+
+	_lock.lock();
+
+	unsigned int serial = info->serial;
+
+	_lock.unlock();
+
+	return (serial);
+}
+
+struct prop_info* __system_property_find(const char *key)
+{
+	if (!key) {
+		return NULL;
+	}
+
+	_lock.lock();
+	
+	const prop_info* info = _property.find(key);
+
+	_lock.unlock();
+
+	return (prop_info*)(info);
+}

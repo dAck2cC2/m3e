@@ -15,6 +15,9 @@
  */
 
 #define LOG_TAG "IPCThreadState"
+#if defined(_MSC_VER)
+#define LOG_NDEBUG 1
+#endif // _MSC_VER
 
 #include <binder/IPCThreadState.h>
 
@@ -33,12 +36,27 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <cutils/threads.h>
+#if !defined(_MSC_VER)
 #include <sched.h>
+#endif // _MSC_VER
 #include <signal.h>
 #include <stdio.h>
+#if !defined(_MSC_VER)
 #include <sys/ioctl.h>
 #include <sys/resource.h>
+#endif // _MSC_VER
 #include <unistd.h>
+
+#if defined(_MSC_VER)
+uid_t getuid() { return 1000; };
+#if defined IN
+#undef IN
+#endif
+#if defined OUT
+#undef OUT
+#endif
+#define pthread_self androidGetThreadId
+#endif // _MSC_VER
 
 #if LOG_NDEBUG
 
@@ -1064,7 +1082,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
             mCallingPid = tr.sender_pid;
             mCallingUid = tr.sender_euid;
             mLastTransactionBinderFlags = tr.flags;
-
+#if !defined(_MSC_VER)
             int curPrio = getpriority(PRIO_PROCESS, mMyThreadId);
             if (gDisableBackgroundScheduling) {
                 if (curPrio > ANDROID_PRIORITY_NORMAL) {
@@ -1084,7 +1102,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
                     set_sched_policy(mMyThreadId, SP_BACKGROUND);
                 }
             }
-
+#endif // _MSC_VER
             //ALOGI(">>>> TRANSACT from pid %d uid %d\n", mCallingPid, mCallingUid);
 
             Parcel reply;

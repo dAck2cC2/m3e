@@ -20,7 +20,7 @@
 #include <utils/threads.h>
 
 namespace android {
-
+#if !defined(_MSC_VER)
 class Pipe {
 public:
     int sendFd;
@@ -55,7 +55,7 @@ public:
         return nRead == 1 ? 0 : nRead == 0 ? -EPIPE : -errno;
     }
 };
-
+#endif // _MSC_VER
 class DelayedTask : public Thread {
     int mDelayMillis;
 
@@ -68,7 +68,11 @@ protected:
     virtual void doTask() = 0;
 
     virtual bool threadLoop() {
+#if defined(_MSC_VER)
+		Sleep(mDelayMillis);
+#else  // _MSC_VER
         usleep(mDelayMillis * 1000);
+#endif // _MSC_VER
         doTask();
         return false;
     }
