@@ -39,7 +39,10 @@ public:
             uint32_t code,
             const Parcel& data,
             Parcel* reply,
-            uint32_t flags = 0) {return OK;};
+            uint32_t flags = 0)
+    {
+        return OK;
+    };
 
 protected:
     ~LocalServiceManager() {};
@@ -49,7 +52,8 @@ private:
     {
 		sp<ProcessState>  proc = ProcessState::self();
 
-		proc->becomeContextManager(NULL, NULL);
+        sp<IBinder> bbinder = IInterface::asBinder(this);
+        proc->becomeContextManager(NULL, bbinder.get());
 
 		IPCThreadState::self()->joinThreadPool();
 
