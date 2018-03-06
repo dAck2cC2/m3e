@@ -73,7 +73,7 @@ static const int EPOLL_MAX_EVENTS = 16;
 //static pthread_once_t gTLSOnce = PTHREAD_ONCE_INIT;
 //static pthread_key_t gTLSKey = 0;
 
-    thread_store_t gTLS = THREAD_STORE_INITIALIZER;
+thread_store_t gTLS = THREAD_STORE_INITIALIZER;
     
 Looper::Looper(bool allowNonCallbacks) :
         mAllowNonCallbacks(allowNonCallbacks), mSendingMessage(false),

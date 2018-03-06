@@ -1,14 +1,16 @@
 #define LOG_TAG "ServiceManager"
 
 #include <binder/IServiceManager.h>
+#include <binder/ProcessState.h>
+#include <binder/IPCThreadState.h>
 #include <utils/threads.h>
 
 namespace android {
 
-class BnServiceManager : public BnInterface<IServiceManager>, public Thread
+class LocalServiceManager : public BnInterface<IServiceManager>, public Thread
 {
 public:
-    BnServiceManager() {};
+	LocalServiceManager() {  };
 
     /**
      * Retrieve an existing service, blocking for a few seconds
@@ -40,16 +42,36 @@ public:
             uint32_t flags = 0) {return OK;};
 
 protected:
-    ~BnServiceManager() {};
+    ~LocalServiceManager() {};
     
 private:
     virtual bool threadLoop()
     {
-        return true;
+		sp<ProcessState>  proc = ProcessState::self();
+
+		proc->becomeContextManager(NULL, NULL);
+
+		IPCThreadState::self()->joinThreadPool();
+
+        return false;
     };
     
 private:
     Vector<String16>  mServices;
 };
-    
+
+class LocalServiceManagerInit
+{
+public:
+	LocalServiceManagerInit() { 
+		sm = new LocalServiceManager();
+		sm->run();
+	};
+	~LocalServiceManagerInit() {};
+private:
+	sp<LocalServiceManager> sm;
+};
+
+static LocalServiceManagerInit gLocalServiceManager;
+
 }; // namespace android

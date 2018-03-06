@@ -83,7 +83,9 @@ uid_t getuid() { return 1000; };
 namespace android {
 
 #if !defined(__ANDROID__)
-extern status_t binder_write_read_local(binder_write_read* pbwr);
+#define __ANDROID__
+#define ioctl binder_ioctl_local
+extern status_t binder_ioctl_local(int handler, int cmd, void* data);
 #endif // __ANDROID__
     
 static const char* getReturnString(size_t idx);
@@ -316,11 +318,11 @@ IPCThreadState* IPCThreadState::self()
     }
     
 create_thread:
-    IPCThreadState* result = new IPCThreadState;
-    if (result) {
-        thread_store_set(&gTLS, result, threadDestructor);
+    IPCThreadState* new_st = new IPCThreadState;
+    if (new_st) {
+        thread_store_set(&gTLS, new_st, threadDestructor);
     }
-    return result;
+    return new_st;
 }
 
 IPCThreadState* IPCThreadState::selfOrNull()
@@ -893,8 +895,6 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
             err = NO_ERROR;
         else
             err = -errno;
-#else
-        err = -(binder_write_read_local(&bwr));
 #endif
         if (mProcess->mDriverFD <= 0) {
             err = -EBADF;

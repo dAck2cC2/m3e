@@ -40,63 +40,9 @@
 // ---------------------------------------------------------------------------
 // linux/binder.h shoud define this, but we can't just include it from there
 // because we don't have binder driver.
-#if 0
-#define B_TYPE_LARGE 0x85
 
-enum {
-    BINDER_TYPE_BINDER    = B_PACK_CHARS('s', 'b', '*', B_TYPE_LARGE),
-    BINDER_TYPE_WEAK_BINDER    = B_PACK_CHARS('w', 'b', '*', B_TYPE_LARGE),
-    BINDER_TYPE_HANDLE    = B_PACK_CHARS('s', 'h', '*', B_TYPE_LARGE),
-    BINDER_TYPE_WEAK_HANDLE    = B_PACK_CHARS('w', 'h', '*', B_TYPE_LARGE),
-    BINDER_TYPE_FD        = B_PACK_CHARS('f', 'd', '*', B_TYPE_LARGE),
-    BINDER_TYPE_FDA        = B_PACK_CHARS('f', 'd', 'a', B_TYPE_LARGE),
-    BINDER_TYPE_PTR        = B_PACK_CHARS('p', 't', '*', B_TYPE_LARGE),
-};
-
-enum {
-    FLAT_BINDER_FLAG_PRIORITY_MASK = 0xff,
-    FLAT_BINDER_FLAG_ACCEPTS_FDS = 0x100,
-};
-#endif
-
-#define BINDER_IPC_32BIT
-#ifdef BINDER_IPC_32BIT
-typedef uint32_t binder_size_t;
-//typedef uint32_t uintptr_t;
-#else
-typedef __u64 binder_size_t;
-typedef __u64 uintptr_t;
-#endif
-
-/**
- * struct binder_object_header - header shared by all binder metadata objects.
- * @type:    type of the object
- */
-struct binder_object_header {
-    uint32_t        type;
-};
-
-/*
- * This is the flattened representation of a Binder object for transfer
- * between processes.  The 'offsets' supplied as part of a binder transaction
- * contains offsets into the data where these structures occur.  The Binder
- * driver takes care of re-writing the structure type and data as it moves
- * between processes.
- */
-struct flat_binder_object {
-    unsigned long type;
-    struct binder_object_header    hdr;
-    uint32_t                flags;
-    
-    /* 8 bytes of data. */
-    union {
-        uintptr_t    binder;    /* local object */
-        uintptr_t            handle;    /* remote object */
-    };
-    
-    /* extra data associated with local object */
-    uintptr_t    cookie;
-};
+struct flat_binder_object;
+typedef ssize_t binder_size_t;
 
 // ---------------------------------------------------------------------------
 namespace android {

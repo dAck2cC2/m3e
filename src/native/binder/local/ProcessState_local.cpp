@@ -28,6 +28,7 @@
 #include <binder/IServiceManager.h>
 #include <utils/String8.h>
 #include <utils/threads.h>
+#include <utils/Errors.h>
 
 #include <private/binder/binder_module.h>
 #include <private/binder/Static.h>
@@ -42,12 +43,18 @@
 //#include <sys/stat.h>
 //#include <sys/types.h>
 
+#include <cutils/threads.h>
+
 #define BINDER_VM_SIZE ((1*1024*1024) - (4096 *2))
 #define DEFAULT_MAX_BINDER_THREADS 15
 
 // -------------------------------------------------------------------------
 
 namespace android {
+
+extern int      binder_open_local();
+extern status_t binder_close_local(int handler);
+extern status_t binder_ioctl_local(int handler, int cmd, void* data);
 
 class PoolThread : public Thread
 {
@@ -67,14 +74,37 @@ protected:
     const bool mIsMain;
 };
 
+static thread_store_t gTLS = THREAD_STORE_INITIALIZER;
+static  void  threadDestructor(void *pt) { /* Nothing */ };
+
 sp<ProcessState> ProcessState::self()
 {
-    Mutex::Autolock _l(gProcessMutex);
-    if (gProcess != NULL) {
-        return gProcess;
-    }
-    gProcess = new ProcessState;
-    return gProcess;
+	// create a global ProcessState to store callback of context manager
+	// It is created firslty, which should hold the handler of 0 for context manager.
+	{
+		Mutex::Autolock _l(gProcessMutex);
+		if (gProcess == NULL) {
+			gProcess = new ProcessState;
+		}
+	}
+
+	if (gTLS.has_tls) {
+		ProcessState* pt = (ProcessState*)thread_store_get(&gTLS);
+		if (pt) {
+			return pt;
+		}
+		else {
+			goto create_process;
+		}
+	}
+
+create_process:
+	sp<ProcessState> new_st = new ProcessState;
+	if (new_st != NULL) {
+		new_st->incStrong((void*)threadDestructor);
+		thread_store_set(&gTLS, new_st.get(), threadDestructor);
+	}
+	return new_st;
 }
 
 void ProcessState::setContextObject(const sp<IBinder>& object)
@@ -145,23 +175,26 @@ bool ProcessState::isContextManager(void) const
 
 bool ProcessState::becomeContextManager(context_check_func checkFunc, void* userData)
 {
-#if 0
     if (!mManagesContexts) {
         AutoMutex _l(mLock);
-        mBinderContextCheckFunc = checkFunc;
-        mBinderContextUserData = userData;
+		if (gProcess != NULL) {
+			gProcess->mBinderContextCheckFunc = checkFunc;
+			gProcess->mBinderContextUserData = userData;
+		}
 
         int dummy = 0;
-        status_t result = 0; //ioctl(mDriverFD, BINDER_SET_CONTEXT_MGR, &dummy);
+        status_t result = binder_ioctl_local(mDriverFD, BINDER_SET_CONTEXT_MGR, &dummy);
         if (result == 0) {
             mManagesContexts = true;
         } else if (result == -1) {
-            mBinderContextCheckFunc = NULL;
-            mBinderContextUserData = NULL;
+			if (gProcess != NULL) {
+				gProcess->mBinderContextCheckFunc = NULL;
+				gProcess->mBinderContextUserData = NULL;
+			}
             ALOGE("Binder ioctl to become context manager failed: %s\n", strerror(errno));
         }
     }
-#endif
+
     return mManagesContexts;
 }
 
@@ -298,8 +331,7 @@ void ProcessState::spawnPooledThread(bool isMain)
 
 status_t ProcessState::setThreadPoolMaxThreadCount(size_t maxThreads) {
     status_t result = NO_ERROR;
-    //if (ioctl(mDriverFD, BINDER_SET_MAX_THREADS, &maxThreads) != -1) {
-    if (1) {
+    if (binder_ioctl_local(mDriverFD, BINDER_SET_MAX_THREADS, &maxThreads) != -1) {
         mMaxThreads = maxThreads;
     } else {
         result = -errno;
@@ -312,37 +344,35 @@ void ProcessState::giveThreadPoolName() {
     androidSetThreadName( makeBinderThreadName().string() );
 }
 
-#if 0
+
 static int open_driver()
 {
-    int fd = open("/dev/binder", O_RDWR | O_CLOEXEC);
+    int fd = binder_open_local();
     if (fd >= 0) {
         int vers = 0;
-        status_t result = 0; //ioctl(fd, BINDER_VERSION, &vers);
+        status_t result = binder_ioctl_local(fd, BINDER_VERSION, &vers);
         if (result == -1) {
-            ALOGE("Binder ioctl to obtain version failed: %s", strerror(errno));
-            close(fd);
+			binder_close_local(fd);
             fd = -1;
         }
-        if (result != 0 ) { //|| vers != BINDER_CURRENT_PROTOCOL_VERSION) {
+        if ((result != 0 ) || (vers != BINDER_CURRENT_PROTOCOL_VERSION)) {
             ALOGE("Binder driver protocol does not match user space protocol!");
-            close(fd);
+			binder_close_local(fd);
             fd = -1;
         }
         size_t maxThreads = DEFAULT_MAX_BINDER_THREADS;
-        //result = ioctl(fd, BINDER_SET_MAX_THREADS, &maxThreads);
+        result = binder_ioctl_local(fd, BINDER_SET_MAX_THREADS, &maxThreads);
         if (result == -1) {
-            ALOGE("Binder ioctl to set max threads failed: %s", strerror(errno));
+            ALOGE("Binder ioctl to set max threads failed: %d", result);
         }
     } else {
-        ALOGW("Opening '/dev/binder' failed: %s\n", strerror(errno));
+        ALOGW("Opening binder failed !");
     }
     return fd;
 }
-#endif
     
 ProcessState::ProcessState()
-    : mDriverFD(0) //open_driver())
+    : mDriverFD(open_driver())
     , mVMStart(MAP_FAILED)
     //, mThreadCountLock(PTHREAD_MUTEX_INITIALIZER)
     //, mThreadCountDecrement(PTHREAD_COND_INITIALIZER)
@@ -355,18 +385,6 @@ ProcessState::ProcessState()
     , mThreadPoolStarted(false)
     , mThreadPoolSeq(1)
 {
-#if 0
-    if (mDriverFD >= 0) {
-        // mmap the binder, providing a chunk of virtual address space to receive transactions.
-        mVMStart = mmap(0, BINDER_VM_SIZE, PROT_READ, MAP_PRIVATE | MAP_NORESERVE, mDriverFD, 0);
-        if (mVMStart == MAP_FAILED) {
-            // *sigh*
-            ALOGE("Using /dev/binder failed: unable to mmap transaction memory.\n");
-            close(mDriverFD);
-            mDriverFD = -1;
-        }
-    }
-#endif
     LOG_ALWAYS_FATAL_IF(mDriverFD < 0, "Binder driver could not be opened.  Terminating.");
 }
 

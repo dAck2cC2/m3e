@@ -19,9 +19,13 @@
 
 //#include <stdint.h>
 
-#ifdef __cplusplus
-namespace android {
-#endif
+enum BinderDriverCommand {
+	BINDER_VERSION,
+	BINDER_SET_MAX_THREADS,
+	BINDER_SET_CONTEXT_MGR,
+	BINDER_WRITE_READ,
+	BINDER_THREAD_EXIT,
+};
 
 /* Some parts of the simulator need fake versions of this 
  * stuff in order to compile.  Really this should go away
@@ -33,17 +37,17 @@ namespace android {
 #define BINDER_TYPE_HANDLE 3
 #define BINDER_TYPE_WEAK_HANDLE 4
 #define BINDER_TYPE_FD 5
-#if 0
+
 struct flat_binder_object {
     unsigned long type;
     unsigned long flags;
     union {
-        void *binder;
+		uintptr_t binder;
         signed long handle;
     };
-    void *cookie;
+	uintptr_t cookie;
 };
-#endif
+
 struct binder_write_read {
     signed long write_size;
     signed long write_consumed;
@@ -123,9 +127,5 @@ enum BinderDriverCommandProtocol {
     BC_CLEAR_DEATH_NOTIFICATION,
     BC_DEAD_BINDER_DONE,
 };
-
-#ifdef __cplusplus
-}   // namespace android
-#endif
 
 #endif // _BINDER_MODULE_H_
