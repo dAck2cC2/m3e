@@ -182,7 +182,7 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
 			gProcess->mBinderContextUserData = userData;
 		}
 
-        status_t result = binder_ioctl_local(mDriverFD, BINDER_SET_CONTEXT_MGR, userData);
+        status_t result = binder_ioctl_local(mDriverFD, BINDER_SET_CONTEXT_MGR, NULL);
         if (result == 0) {
             mManagesContexts = true;
         } else if (result == -1) {

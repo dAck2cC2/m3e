@@ -1,9 +1,12 @@
 #define LOG_TAG "ServiceManager"
 
+#include <utils/threads.h>
+
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 #include <binder/IPCThreadState.h>
-#include <utils/threads.h>
+
+//#include <private/binder/binder_module.h>
 
 namespace android {
 
@@ -51,9 +54,12 @@ private:
     virtual bool threadLoop()
     {
 		sp<ProcessState>  proc = ProcessState::self();
+        proc->becomeContextManager(NULL, NULL);
 
-        sp<IBinder> bbinder = IInterface::asBinder(this);
-        proc->becomeContextManager(NULL, bbinder.get());
+        sp<IBinder> thiz = IInterface::asBinder(this);
+        Parcel parcel;
+        parcel.writeStrongBinder(thiz);
+        IPCThreadState::self()->transact(0, IBinder::PING_TRANSACTION, parcel, NULL, IBinder::FLAG_ONEWAY);
 
 		IPCThreadState::self()->joinThreadPool();
 

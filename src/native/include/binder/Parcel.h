@@ -42,7 +42,7 @@
 // because we don't have binder driver.
 
 struct flat_binder_object;
-typedef ssize_t binder_size_t;
+typedef size_t binder_size_t;
 
 // ---------------------------------------------------------------------------
 namespace android {

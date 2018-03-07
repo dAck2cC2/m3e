@@ -3,24 +3,24 @@
 
 #include <stdint.h>
 
-#include <cutils/threads.h>
-
 #include <utils/Errors.h>
 #include <utils/Vector.h>
 #include <utils/Looper.h>
 
 #include <binder/Parcel.h>
-#include <binder/IPCThreadState.h>
-
 #include <private/binder/binder_module.h>
 
 namespace android {
-
+    
 struct binder_entry {
-	sp<Looper>  revicerLoop;
-	int         senderHandler;
-	Parcel*     cache;
-    sp<BBinder> service;
+    // server
+    int                 id;
+	sp<Looper>          revicerLoop;
+    flat_binder_object  service;
+
+    // client
+	int      senderHandler;
+	Parcel*  cache;
 };
 
 static Mutex mLock;
@@ -35,26 +35,49 @@ static binder_entry* binder_lookupHandle_local(int handler)
 	const size_t N = mServices.size();
 	if (N <= (size_t)handler) {
 		binder_entry e;
-		e.revicerLoop   = NULL;
+        memset(&e, 0x00, sizeof(e));
+        e.id = -1;
 		e.senderHandler = -1;
-		e.cache = NULL;
 		status_t err = mServices.insertAt(e, N, handler + 1 - N);
 		if (err < NO_ERROR) return NULL;
 	}
 	return &mServices.editItemAt(handler);
 }
 
-static status_t binder_registerService_local(binder_transaction_data& tr)
+static status_t binder_registerService_local(int handler, binder_transaction_data& tr)
 {
     status_t result = NO_ERROR;
-    
-    Parcel buffer;
-    //buffer.ipcSetDataReference(
-    //                           reinterpret_cast<const uint8_t*>(tr.data.ptr.buffer),
-    //                           tr.data_size,
-    //                           reinterpret_cast<const binder_size_t*>(tr.data.ptr.offsets),
-    //                           tr.offsets_size/sizeof(binder_size_t), freeBuffer, this);
 
+    binder_entry* e = binder_lookupHandle_local(handler);
+    if (e == NULL || e->revicerLoop == NULL) {
+        return NO_INIT;
+    }
+    
+    for (int i = 0; i < ((tr.offsets_size)/sizeof(binder_size_t)); ++i) {
+        binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
+        flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
+        if (obj->type == BINDER_TYPE_BINDER) {
+            if (e->service.cookie == 0) {
+                e->service = *obj;
+                
+            } else {
+                AutoMutex _l(mLock);
+
+                int newHandler = mServices.size();
+                binder_entry* add = binder_lookupHandle_local(newHandler);
+                if (add == NULL) return NO_MEMORY;
+                
+                add->id = newHandler;
+                add->revicerLoop = e->revicerLoop;
+                add->service = *obj;
+                
+                obj->type = BINDER_TYPE_HANDLE;
+                obj->binder = 0;
+                obj->handle = newHandler;
+                obj->cookie = 0;
+            }
+        }
+    }
     
     return result;
 }
@@ -91,9 +114,6 @@ status_t binder_write_read_local(int handler, void* data)
 		switch (*cmd) {
         case BC_REPLY:
             {
-                if (handler == mHandlerContextManager) {
-                    handler = 0;
-                }
                 binder_entry* e = binder_lookupHandle_local(handler);
                 if (e == NULL || e->revicerLoop == NULL) return (NO_INIT);
 
@@ -112,8 +132,8 @@ status_t binder_write_read_local(int handler, void* data)
 				binder_entry* et = binder_lookupHandle_local(tr->target.handle);
 				if (et == NULL || et->revicerLoop == NULL) return (DEAD_OBJECT);
                 
-                if (tr->target.handle == 0) {
-                    result = binder_registerService_local(*tr);
+                if (tr->data.ptr.offsets && tr->offsets_size) {
+                    result = binder_registerService_local(handler, *tr);
                     if (result) return result;
                 }
 
@@ -144,6 +164,7 @@ status_t binder_write_read_local(int handler, void* data)
 			bNeedRead = 0;
 			break;
 		default:
+                //assert(0);
 			break;
 		}
 	}
@@ -152,9 +173,6 @@ status_t binder_write_read_local(int handler, void* data)
 	// read
 	result = NO_ERROR;
 	if (bNeedRead && pbwr->read_buffer && pbwr->read_size) {
-        if (handler == mHandlerContextManager) {
-            handler = 0;
-        }
         binder_entry* e = binder_lookupHandle_local(handler);
         if (e == NULL || e->revicerLoop == NULL) return (NO_INIT);
 
@@ -165,8 +183,8 @@ status_t binder_write_read_local(int handler, void* data)
 			memcpy((void *)(pbwr->read_buffer), e->cache->data(), e->cache->dataSize());
             pbwr->read_consumed = e->cache->dataSize();
             binder_transaction_data* tr = (binder_transaction_data *)((uint8_t *)(pbwr->read_buffer) + sizeof(uint32_t));
-            tr->target.ptr = (void *)(&(e->service));
-            tr->cookie = (void *)(e->service.get());
+            tr->target.ptr = (void *)(e->service.binder);
+            tr->cookie = (void *)(e->service.cookie);
 		}
 
 		if (e->cache) {
@@ -183,12 +201,15 @@ status_t binder_write_read_local(int handler, void* data)
 
 int binder_open_local()
 {
+    AutoMutex _l(mLock);
+
 	int handler = mServices.size();
 	binder_entry* e = binder_lookupHandle_local(handler);
 	if ((!e) || (e->revicerLoop != NULL)) {
 		return (-1);
 	}
 
+    e->id = handler;
 	e->revicerLoop = new Looper(true);
 	if (e->revicerLoop == NULL) {
 		return (-2);
@@ -199,6 +220,8 @@ int binder_open_local()
 
 status_t binder_close_local(int handler)
 {
+    AutoMutex _l(mLock);
+
 	status_t result = BAD_VALUE;
 
 	binder_entry* e = binder_lookupHandle_local(handler);
@@ -219,6 +242,10 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
 	if (handler < 0) {
 		return BAD_VALUE;
 	}
+    
+    if (handler == mHandlerContextManager) {
+        handler = 0;
+    }
 
 	switch (cmd) {
 	case BINDER_VERSION:
@@ -231,7 +258,6 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
         {
             binder_entry* e = binder_lookupHandle_local(0);
             if ((e != NULL) && (e->revicerLoop != NULL)) {
-                e->service = (BBinder*)(data);
                 mHandlerContextManager = handler;
             } else {
                 result = NO_INIT;
