@@ -19,6 +19,8 @@
 
 //#include <stdint.h>
 
+typedef uintptr_t  binder_uintptr_t;
+
 enum BinderDriverCommand {
 	BINDER_VERSION,
 	BINDER_SET_MAX_THREADS,

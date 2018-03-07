@@ -17,6 +17,8 @@
 #ifndef ANDROID_IPC_THREAD_STATE_H
 #define ANDROID_IPC_THREAD_STATE_H
 
+#include <cutils/compiler.h>
+
 #include <utils/Errors.h>
 #include <binder/Parcel.h>
 #include <binder/ProcessState.h>
@@ -29,7 +31,7 @@
 // ---------------------------------------------------------------------------
 namespace android {
 
-class IPCThreadState
+class ANDROID_API IPCThreadState
 {
 public:
     static  IPCThreadState*     self();

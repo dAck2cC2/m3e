@@ -17,6 +17,8 @@
 #ifndef ANDROID_BINDER_H
 #define ANDROID_BINDER_H
 
+#include <cutils/compiler.h>
+
 #include <atomic>
 #include <stdint.h>
 #include <binder/IBinder.h>
@@ -24,7 +26,7 @@
 // ---------------------------------------------------------------------------
 namespace android {
 
-class BBinder : public IBinder
+class ANDROID_API BBinder : public IBinder
 {
 public:
                         BBinder();
@@ -77,7 +79,7 @@ private:
 
 // ---------------------------------------------------------------------------
 
-class BpRefBase : public virtual RefBase
+class ANDROID_API BpRefBase : public virtual RefBase
 {
 protected:
                             BpRefBase(const sp<IBinder>& o);

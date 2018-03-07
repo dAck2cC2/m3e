@@ -17,6 +17,8 @@
 #ifndef ANDROID_IBINDER_H
 #define ANDROID_IBINDER_H
 
+#include <cutils/compiler.h>
+
 #include <utils/Errors.h>
 #include <utils/RefBase.h>
 #include <utils/String16.h>
@@ -46,7 +48,7 @@ class IResultReceiver;
  * (method calls, property get and set) is down through a low-level
  * protocol implemented on top of the transact() API.
  */
-class IBinder : public virtual RefBase
+class ANDROID_API IBinder : public virtual RefBase
 {
 public:
     enum {

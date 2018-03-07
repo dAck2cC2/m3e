@@ -36,7 +36,7 @@
 //#include <sys/resource.h>
 #include <unistd.h>
 
-//#include <binder/Binder.h>
+#include <binder/Binder.h>
 #include <binder/BpBinder.h>
 #include <binder/IPCThreadState.h>
 #include <binder/Parcel.h>
@@ -568,10 +568,6 @@ status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
 
     err = NO_ERROR;
 
-	/*
-	* TODO:
-	* ignore the objects temporarily
-	*
     if (numObjects > 0) {
         // grow objects
         if (mObjectsCapacity < mObjectsSize + numObjects) {
@@ -610,7 +606,6 @@ status_t Parcel::appendFrom(const Parcel *parcel, size_t offset, size_t len)
             }
         }
     }
-	*/
 
     return err;
 }
@@ -1047,8 +1042,7 @@ status_t Parcel::writeUint64(uint64_t val)
 
 status_t Parcel::writePointer(uintptr_t val)
 {
-    //return writeAligned<binder_uintptr_t>(val);
-	return INVALID_OPERATION;
+    return writeAligned<binder_uintptr_t>(val);
 }
 
 status_t Parcel::writeFloat(float val)
@@ -1195,7 +1189,13 @@ status_t Parcel::writeNativeHandle(const native_handle* handle)
 
 status_t Parcel::writeFileDescriptor(int fd, bool takeOwnership)
 {
-    return INVALID_OPERATION;
+    flat_binder_object obj;
+    obj.type = BINDER_TYPE_FD;
+    obj.flags = 0x7f | FLAT_BINDER_FLAG_ACCEPTS_FDS;
+    obj.binder = 0; /* Don't pass uninitialized stack data to a remote process */
+    obj.handle = fd;
+    obj.cookie = takeOwnership ? 1 : 0;
+    return writeObject(obj, true);
 }
 
 status_t Parcel::writeDupFileDescriptor(int fd)
@@ -1353,7 +1353,7 @@ restart_write:
         // Need to write meta-data?
         if (nullMetaData || val.binder != 0) {
             mObjects[mObjectsSize] = mDataPos;
-            //acquire_object(ProcessState::self(), val, this, &mOpenAshmemSize);
+            acquire_object(ProcessState::self(), val, this, &mOpenAshmemSize);
             mObjectsSize++;
         }
 
@@ -1692,21 +1692,17 @@ uint64_t Parcel::readUint64() const
 
 status_t Parcel::readPointer(uintptr_t *pArg) const
 {
-	/*
     status_t ret;
     binder_uintptr_t ptr;
     ret = readAligned(&ptr);
     if (!ret)
         *pArg = ptr;
     return ret;
-	*/
-	return INVALID_OPERATION;
 }
 
 uintptr_t Parcel::readPointer() const
 {
-    //return readAligned<binder_uintptr_t>();
-	return INVALID_OPERATION;
+    return readAligned<binder_uintptr_t>();
 }
 
 
@@ -2013,13 +2009,12 @@ native_handle* Parcel::readNativeHandle() const
 
 int Parcel::readFileDescriptor() const
 {
-    /*
     const flat_binder_object* flat = readObject(true);
 
     if (flat && flat->type == BINDER_TYPE_FD) {
         return flat->handle;
     }
-    */
+
     return BAD_TYPE;
 }
 #if TODO
@@ -2169,6 +2164,30 @@ size_t Parcel::ipcObjectsCount() const
 void Parcel::ipcSetDataReference(const uint8_t* data, size_t dataSize,
     const binder_size_t* objects, size_t objectsCount, release_func relFunc, void* relCookie)
 {
+    binder_size_t minOffset = 0;
+    freeDataNoInit();
+    mError = NO_ERROR;
+    mData = const_cast<uint8_t*>(data);
+    mDataSize = mDataCapacity = dataSize;
+    //ALOGI("setDataReference Setting data size of %p to %lu (pid=%d)", this, mDataSize, getpid());
+    mDataPos = 0;
+    ALOGV("setDataReference Setting data pos of %p to %zu", this, mDataPos);
+    mObjects = const_cast<binder_size_t*>(objects);
+    mObjectsSize = mObjectsCapacity = objectsCount;
+    mNextObjectHint = 0;
+    mOwner = relFunc;
+    mOwnerCookie = relCookie;
+    for (size_t i = 0; i < mObjectsSize; i++) {
+        binder_size_t offset = mObjects[i];
+        if (offset < minOffset) {
+            ALOGE("%s: bad object offset %" PRIu64 " < %" PRIu64 "\n",
+                  __func__, (uint64_t)offset, (uint64_t)minOffset);
+            mObjectsSize = 0;
+            break;
+        }
+        minOffset = offset + sizeof(flat_binder_object);
+    }
+    scanForFds();
 }
 
 void Parcel::print(TextOutput& to, uint32_t /*flags*/) const
@@ -2199,22 +2218,30 @@ void Parcel::print(TextOutput& to, uint32_t /*flags*/) const
 
 void Parcel::releaseObjects()
 {
-	/*
-	const sp<ProcessState> proc(ProcessState::self());
-	size_t i = mObjectsSize;
-	uint8_t* const data = mData;
-	binder_size_t* const objects = mObjects;
-	while (i > 0) {
-		i--;
-		const flat_binder_object* flat
-			= reinterpret_cast<flat_binder_object*>(data + objects[i]);
-		release_object(proc, *flat, this, &mOpenAshmemSize);
-	}
-	*/
+    const sp<ProcessState> proc(ProcessState::self());
+    size_t i = mObjectsSize;
+    uint8_t* const data = mData;
+    binder_size_t* const objects = mObjects;
+    while (i > 0) {
+        i--;
+        const flat_binder_object* flat
+            = reinterpret_cast<flat_binder_object*>(data+objects[i]);
+        release_object(proc, *flat, this, &mOpenAshmemSize);
+    }
 }
 
 void Parcel::acquireObjects()
 {
+    const sp<ProcessState> proc(ProcessState::self());
+    size_t i = mObjectsSize;
+    uint8_t* const data = mData;
+    binder_size_t* const objects = mObjects;
+    while (i > 0) {
+        i--;
+        const flat_binder_object* flat
+            = reinterpret_cast<flat_binder_object*>(data+objects[i]);
+        acquire_object(proc, *flat, this, &mOpenAshmemSize);
+    }
 }
 
 void Parcel::freeData()
@@ -2509,19 +2536,17 @@ void Parcel::initState()
 
 void Parcel::scanForFds() const
 {
-	/*
-	bool hasFds = false;
-	for (size_t i = 0; i<mObjectsSize; i++) {
-		const flat_binder_object* flat
-			= reinterpret_cast<const flat_binder_object*>(mData + mObjects[i]);
-		if (flat->type == BINDER_TYPE_FD) {
-			hasFds = true;
-			break;
-		}
-	}
-	mHasFds = hasFds;
-	mFdsKnown = true;
-	*/
+    bool hasFds = false;
+    for (size_t i=0; i<mObjectsSize; i++) {
+        const flat_binder_object* flat
+            = reinterpret_cast<const flat_binder_object*>(mData + mObjects[i]);
+        if (flat->type == BINDER_TYPE_FD) {
+            hasFds = true;
+            break;
+        }
+    }
+    mHasFds = hasFds;
+    mFdsKnown = true;
 }
 
 size_t Parcel::getBlobAshmemSize() const

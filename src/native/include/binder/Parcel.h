@@ -372,7 +372,7 @@ public:
     void                print(TextOutput& to, uint32_t flags = 0) const;
 
 private:
-                        Parcel(const Parcel& o);
+						Parcel(const Parcel& o) {};
     Parcel&             operator=(const Parcel& o);
     
     status_t            finishWrite(size_t len);
