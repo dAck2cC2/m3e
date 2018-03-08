@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "IPCThreadState"
-#if defined(_MSC_VER)
+#if 1 //defined(_MSC_VER)
 #define LOG_NDEBUG 1
 #endif // _MSC_VER
 

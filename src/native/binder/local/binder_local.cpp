@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #include <utils/Errors.h>
-#include <utils/Vector.h>
+#include <utils/KeyedVector.h>
 #include <utils/Looper.h>
 
 #include <binder/Parcel.h>
@@ -24,24 +24,25 @@ struct binder_entry {
 };
 
 static Mutex mLock;
-static Vector<binder_entry> mServices;
+static KeyedVector<int, binder_entry> mServices;
 static int  mHandlerContextManager = 0;
+static int  mHandlerCounter = 0;
 
 // ---------------------------------------------------------------------------
 // Private API
 
 static binder_entry* binder_lookupHandle_local(int handler)
 {
-	const size_t N = mServices.size();
-	if (N <= (size_t)handler) {
-		binder_entry e;
+    const ssize_t N = mServices.indexOfKey(handler);
+    if (N < 0) {
+        binder_entry e;
         memset(&e, 0x00, sizeof(e));
         e.id = -1;
-		e.senderHandler = -1;
-		status_t err = mServices.insertAt(e, N, handler + 1 - N);
-		if (err < NO_ERROR) return NULL;
-	}
-	return &mServices.editItemAt(handler);
+        e.senderHandler = -1;
+        mServices.add(handler, e);
+    }
+    
+	return &(mServices.editValueFor(handler));
 }
 
 static status_t binder_registerService_local(int handler, binder_transaction_data& tr)
@@ -63,7 +64,7 @@ static status_t binder_registerService_local(int handler, binder_transaction_dat
             } else {
                 AutoMutex _l(mLock);
 
-                int newHandler = mServices.size();
+                int newHandler = mHandlerCounter++;
                 binder_entry* add = binder_lookupHandle_local(newHandler);
                 if (add == NULL) return NO_MEMORY;
                 
@@ -103,7 +104,7 @@ public:
 status_t binder_write_read_local(int handler, void* data)
 {
 	status_t result = BAD_VALUE;
-	int bNeedRead = 1;
+	int bNeedRead = 0;
 
 	binder_write_read* pbwr = (binder_write_read*)data;
 	if (!pbwr) return result;
@@ -111,6 +112,7 @@ status_t binder_write_read_local(int handler, void* data)
 	// write
 	if (pbwr->write_buffer && pbwr->write_size >= BINDER_CMD_SIZE) {
 		int32_t* cmd = (int32_t *)(pbwr->write_buffer);
+        pbwr->write_consumed += sizeof(int32_t);
 		switch (*cmd) {
         case BC_REPLY:
             {
@@ -129,6 +131,8 @@ status_t binder_write_read_local(int handler, void* data)
 				if (pbwr->write_size < (BINDER_CMD_SIZE + BINDER_TR_SIZE)) return result;
 
 				binder_transaction_data* tr = (binder_transaction_data *)((uint8_t *)(pbwr->write_buffer) + sizeof(uint32_t));
+                pbwr->write_consumed += sizeof(binder_transaction_data);
+
 				binder_entry* et = binder_lookupHandle_local(tr->target.handle);
 				if (et == NULL || et->revicerLoop == NULL) return (DEAD_OBJECT);
                 
@@ -152,7 +156,10 @@ status_t binder_write_read_local(int handler, void* data)
 				Message evt(handler);
 				sp<MessageHandler> trdata = new BinderMessageHandler(inData, et->cache, et->senderHandler);
 				et->revicerLoop->sendMessage(trdata, evt);
-
+                
+                if (pbwr->read_buffer && pbwr->read_size) {
+                    *((int32_t *)(pbwr->read_buffer)) = BR_TRANSACTION_COMPLETE;
+                }
 				bNeedRead = 0;
 			}
 			break;
@@ -163,13 +170,79 @@ status_t binder_write_read_local(int handler, void* data)
 		case BC_EXIT_LOOPER:
 			bNeedRead = 0;
 			break;
+        case BC_ACQUIRE_RESULT:
+            {
+                int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(int32_t);
+            }
+            break;
+        case BC_FREE_BUFFER:
+            {
+                uintptr_t value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(uintptr_t);
+            }
+            break;
+        case BC_INCREFS:
+            {
+                int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(int32_t);
+            }
+            break;
+        case BC_ACQUIRE:
+            {
+                int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(int32_t);
+            }
+            break;
+        case BC_RELEASE:
+            {
+                int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(int32_t);
+            }
+            break;
+        case BC_DECREFS:
+            {
+                int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(int32_t);
+            }
+            break;
+        case BC_INCREFS_DONE:
+            {
+                uintptr_t value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(uintptr_t);
+                value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(uintptr_t);
+            }
+            break;
+        case BC_ACQUIRE_DONE:
+            {
+                uintptr_t value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(uintptr_t);
+                value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(uintptr_t);
+            }
+            break;
+        case BC_ATTEMPT_ACQUIRE:
+            {
+                int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(int32_t);
+                value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
+                pbwr->write_consumed += sizeof(int32_t);
+            }
+            break;
+        case BC_REQUEST_DEATH_NOTIFICATION:
+        case BC_CLEAR_DEATH_NOTIFICATION:
+        case BC_DEAD_BINDER_DONE:
+            break;
 		default:
-                //assert(0);
+            assert(0);
 			break;
 		}
-	}
-	pbwr->write_consumed = pbwr->write_size;
+    } else {
+        bNeedRead = 1;
+    }
 
+    
 	// read
 	result = NO_ERROR;
 	if (bNeedRead && pbwr->read_buffer && pbwr->read_size) {
@@ -203,7 +276,7 @@ int binder_open_local()
 {
     AutoMutex _l(mLock);
 
-	int handler = mServices.size();
+	int handler = mHandlerCounter++;
 	binder_entry* e = binder_lookupHandle_local(handler);
 	if ((!e) || (e->revicerLoop != NULL)) {
 		return (-1);
