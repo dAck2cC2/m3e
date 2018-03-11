@@ -6,22 +6,29 @@
 #include <binder/IServiceManager.h>
 
 #include <utils/threads.h>
+#include <string.h>
+
 
 namespace android {
 
+#define TEST_MEM_SIZE  (32)
+#define TEST_STRING    "binder.test.memory"
+    
 static String16  gBinderTestName("binder_test_service");
 static int32_t   gBinderTestCounter = 0;
-    
+
 class  IBinderTest : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(BinderTest);
     
     virtual int  increase(int amount) = 0;
+    virtual sp<IMemory> getMemory() = 0;
 };
     
 enum {
-    BD_TEST_INCREASE = IBinder::FIRST_CALL_TRANSACTION
+    BD_TEST_INCREASE = IBinder::FIRST_CALL_TRANSACTION,
+    BD_TEST_MEMORY,
 };
 
 class BpBinderTest : public BpInterface<IBinderTest>
@@ -40,6 +47,19 @@ public:
         }
         return result;
     };
+    
+    virtual sp<IMemory> getMemory() {
+        sp<IMemory> result;
+        
+        Parcel data, reply;
+        data.writeInterfaceToken(IBinderTest::getInterfaceDescriptor());
+        if (remote()->transact(BD_TEST_MEMORY, data, &reply) == NO_ERROR) {
+            sp<IBinder> binder = reply.readStrongBinder();
+            result = interface_cast<IMemory>(binder);
+        }
+        
+        return result;
+    }
 };
 
 class BnBinderTest : public BnInterface<IBinderTest>
@@ -59,6 +79,12 @@ public:
                 reply->writeInt32(ret);
                 return NO_ERROR;
             } break;
+            case BD_TEST_MEMORY: {
+                CHECK_INTERFACE(IBinderTest, data, reply);
+                sp<IMemory> mem = getMemory();
+                reply->writeStrongBinder(IInterface::asBinder(mem));
+                return NO_ERROR;
+            } break;
             default:
                 return BBinder::onTransact(code, data, reply, flags);
         }
@@ -74,13 +100,31 @@ IMPLEMENT_META_INTERFACE(BinderTest, "android.test.binder");
 class CBinderTest : public BnBinderTest
 {
 public:
-    CBinderTest() {};
+    CBinderTest() {
+        mDealer = new MemoryDealer(TEST_MEM_SIZE, "CBinderTest");
+        EXPECT_TRUE(mDealer != NULL);
+        
+        mMem = mDealer->allocate(TEST_MEM_SIZE);
+        EXPECT_TRUE(mMem != NULL);
+        
+        void* pBuf = mMem->pointer();
+        EXPECT_TRUE(pBuf != NULL);
+
+        strcpy((char *)pBuf, TEST_STRING);
+    };
     ~CBinderTest() {};
     
     virtual int  increase(int amount) {
         gBinderTestCounter += amount;
         return (gBinderTestCounter);
     };
+    
+    virtual sp<IMemory> getMemory() {
+        return mMem;
+    };
+private:
+    sp<MemoryDealer> mDealer;
+    sp<IMemory>      mMem;
 };
     
 class BinderTestService : public Thread
@@ -88,26 +132,50 @@ class BinderTestService : public Thread
 public:
     BinderTestService()  {};
     ~BinderTestService() {};
+    void waitForStarted(void) {
+        mThreadStartedMutex.lock();
+        
+        Thread::run();
+        
+        mThreadStartedCondition.wait(mThreadStartedMutex);
+        mThreadStartedMutex.unlock();
+    }
+    void waitForStopped(void) {
+        mThreadStartedMutex.lock();
+        
+        mIPCThread->stopProcess();
+        Thread::requestExitAndWait();
+        //mIPCThread->shutdown();
+
+        mThreadStartedMutex.unlock();
+    }
 private:
     virtual bool threadLoop()
     {
+        mThreadStartedMutex.lock();
+        
         sp<ProcessState>  proc = ProcessState::self();
         sp<IBinderTest> test = new CBinderTest();
         
         defaultServiceManager()->addService(gBinderTestName, IInterface::asBinder(test));
+
+        mIPCThread = IPCThreadState::self();
+        
+        mThreadStartedCondition.broadcast();
+        mThreadStartedMutex.unlock();
         
         IPCThreadState::self()->joinThreadPool();
         
         return false;
     };
+private:
+    Mutex     mThreadStartedMutex;
+    Condition mThreadStartedCondition;
+    IPCThreadState* mIPCThread;;
 };
-    
-    
 
-TEST(libbinder, Binder_bn)
+TEST(libbinder, Binder_native)
 {
-    #define TEST_MEM_SIZE  (32)
-
 	sp<MemoryDealer> memoryDealer = new MemoryDealer(TEST_MEM_SIZE, "Binder_bn");
     EXPECT_TRUE(memoryDealer != NULL);
     
@@ -146,7 +214,7 @@ TEST(libbinder, Binder_service)
 #define TEST_AMOUNT (3)
     
     sp<BinderTestService> service = new BinderTestService();
-    service->run();
+    service->waitForStarted();
     
     sp<IBinder> client = defaultServiceManager()->getService(gBinderTestName);
     EXPECT_TRUE(client != NULL);
@@ -157,6 +225,28 @@ TEST(libbinder, Binder_service)
     int ret = test->increase(TEST_AMOUNT);
     EXPECT_EQ(TEST_AMOUNT, ret);
     EXPECT_EQ(gBinderTestCounter, ret);
+    
+    //service->waitForStopped();
+}
+
+TEST(libbinder, Binder_memory)
+{
+    //sp<BinderTestService> service = new BinderTestService();
+    //service->waitForStarted();
+    
+    sp<IBinderTest> test;
+    status_t chk = getService(gBinderTestName, &test);
+    EXPECT_EQ(NO_ERROR, chk);
+    EXPECT_TRUE(test != NULL);
+    
+    sp<IMemory> mem = test->getMemory();
+    EXPECT_TRUE(mem != NULL);
+    
+    void* pBuf = mem->pointer();
+    EXPECT_TRUE(mem != NULL);
+    EXPECT_STREQ(TEST_STRING, (char *)pBuf);
+    
+    //service->waitForStopped();
 }
     
 } // namespace android

@@ -56,26 +56,13 @@ extern int      binder_open_local();
 extern status_t binder_close_local(int handler);
 extern status_t binder_ioctl_local(int handler, int cmd, void* data);
 
-class PoolThread : public Thread
-{
-public:
-    PoolThread(bool isMain)
-        : mIsMain(isMain)
-    {
-    }
-    
-protected:
-    virtual bool threadLoop()
-    {
-        IPCThreadState::self()->joinThreadPool(mIsMain);
-        return false;
-    }
-    
-    const bool mIsMain;
-};
-
 static thread_store_t gTLS = THREAD_STORE_INITIALIZER;
-static  void  threadDestructor(void *pt) { /* Nothing */ };
+static  void  threadDestructor(void *st) {
+    ProcessState* const self = static_cast<ProcessState*>(st);
+    if (self != NULL) {
+        self->decStrong((void*)threadDestructor);
+    }
+};
 
 sp<ProcessState> ProcessState::self()
 {
@@ -320,12 +307,7 @@ String8 ProcessState::makeBinderThreadName() {
 
 void ProcessState::spawnPooledThread(bool isMain)
 {
-    if (mThreadPoolStarted) {
-        String8 name = makeBinderThreadName();
-        ALOGV("Spawning new pooled thread, name=%s\n", name.string());
-        sp<Thread> t = new PoolThread(isMain);
-        t->run(name.string());
-    }
+    // The process is the same as thread. It has no thread pool.
 }
 
 status_t ProcessState::setThreadPoolMaxThreadCount(size_t maxThreads) {

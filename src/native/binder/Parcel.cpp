@@ -53,7 +53,7 @@
 #include <utils/String16.h>
 
 #include <private/binder/binder_module.h>
-//#include <private/binder/Static.h>
+#include <private/binder/Static.h>
 
 #ifndef SIZE_T_MAX
 #include <limits.h>

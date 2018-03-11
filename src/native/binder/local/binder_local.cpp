@@ -10,9 +10,16 @@
 #include <binder/Parcel.h>
 #include <private/binder/binder_module.h>
 
+#define BINDER_DEBUG  0
+
+
 namespace android {
     
 struct binder_entry {
+#if  BINDER_DEBUG
+    String16*  name;
+#endif //  BINDER_DEBUG
+    
     // server
     int                 id;
 	sp<Looper>          revicerLoop;
@@ -58,25 +65,37 @@ static status_t binder_registerService_local(int handler, binder_transaction_dat
         binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
         flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
         if (obj->type == BINDER_TYPE_BINDER) {
+            reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
+#if  BINDER_DEBUG
+            int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
+            char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
+#endif // ç
+            int newHandler = handler;
             if (e->service.cookie == 0) {
                 e->service = *obj;
-                
+#if  BINDER_DEBUG
+                e->name = new String16(nameBuf);
+#endif // BINDER_DEBUG
+
             } else {
                 AutoMutex _l(mLock);
 
-                int newHandler = mHandlerCounter++;
+                newHandler = mHandlerCounter++;
                 binder_entry* add = binder_lookupHandle_local(newHandler);
                 if (add == NULL) return NO_MEMORY;
                 
                 add->id = newHandler;
                 add->revicerLoop = e->revicerLoop;
                 add->service = *obj;
-                
-                obj->type = BINDER_TYPE_HANDLE;
-                obj->binder = 0;
-                obj->handle = newHandler;
-                obj->cookie = 0;
+#if  BINDER_DEBUG
+                add->name = new String16(nameBuf);
+#endif  //  BINDER_DEBUG
             }
+            
+            obj->type = BINDER_TYPE_HANDLE;
+            obj->binder = 0;
+            obj->handle = newHandler;
+            obj->cookie = 0;
         }
     }
     
@@ -102,6 +121,39 @@ public:
 #define BINDER_TR_SIZE     (sizeof(binder_transaction_data))
 #define BINDER_TIMEOUT_MS  (500)
     
+static status_t binder_send_local(int hDst, int hSender, uint8_t* data, size_t size)
+{
+    status_t result = NO_ERROR;
+    
+    binder_entry* eDst = binder_lookupHandle_local(hDst);
+    LOG_ALWAYS_FATAL_IF((eDst == NULL), "No object. %s:%d", __FILE__, __LINE__);
+    if (eDst == NULL || eDst->revicerLoop == NULL) return (DEAD_OBJECT);
+    
+    Parcel* inData = new Parcel();
+    LOG_ALWAYS_FATAL_IF((inData == NULL), "No memory when creating Parcel. %s:%d", __FILE__, __LINE__);
+    if (!inData) return NO_MEMORY;
+    
+    inData->setData((uint8_t *)data, size);
+    
+    Message evt(hSender);
+    sp<MessageHandler> msg = new BinderMessageHandler(inData, eDst->cache, eDst->senderHandler);
+    eDst->revicerLoop->sendMessage(msg, evt);
+
+    return result;
+}
+
+static status_t binder_reply_local(int handler, uint8_t* data, size_t size)
+{
+    status_t result = NO_ERROR;
+    
+    binder_entry* e = binder_lookupHandle_local(handler);
+    LOG_ALWAYS_FATAL_IF((e == NULL), "Invalid handler. %s:%d", __FILE__, __LINE__);
+
+    result = binder_send_local(e->senderHandler, handler, data, size);
+    
+    return result;
+}
+    
 static status_t binder_write_local(int handler, binder_write_read* pbwr, int& bNeedRead, int readTimeout)
 {
     status_t result = NO_ERROR;
@@ -110,7 +162,7 @@ static status_t binder_write_local(int handler, binder_write_read* pbwr, int& bN
     readTimeout = -1;
     
     if ((pbwr->write_buffer != 0) && (pbwr->write_size < BINDER_CMD_SIZE)) {
-        bNeedRead++;;
+        bNeedRead++;
         return NO_ERROR;
     }
     if  ((pbwr->write_buffer == 0) && (pbwr->write_size > 0)) {
@@ -120,117 +172,159 @@ static status_t binder_write_local(int handler, binder_write_read* pbwr, int& bN
     while (pbwr->write_consumed < pbwr->write_size) {
         uintptr_t data = (uintptr_t)(pbwr->write_buffer + pbwr->write_consumed);
         size_t    size = pbwr->write_size - pbwr->write_consumed;
+        LOG_ALWAYS_FATAL_IF((size < BINDER_CMD_SIZE), "Wrong data format. %s:%d", __FILE__, __LINE__);
         if (size < BINDER_CMD_SIZE) {
             bNeedRead = 0;
             return NOT_ENOUGH_DATA;
         }
         
-        int32_t cmd = *((int32_t *)data);
+        int32_t* cmd = ((int32_t *)data);
         pbwr->write_consumed += sizeof(int32_t);
         
-        switch (cmd) {
-            case BC_REPLY:
-            {
-                if (size < (BINDER_CMD_SIZE + BINDER_TR_SIZE)) return NOT_ENOUGH_DATA;
+        switch (*cmd) {
+            case BC_REPLY: {
+                LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + BINDER_TR_SIZE), "Wrong data format. %s:%d", __FILE__, __LINE__);
+                (*cmd) = BR_REPLY;
 
                 binder_entry* e = binder_lookupHandle_local(handler);
                 if (e == NULL || e->revicerLoop == NULL) return (NO_INIT);
                 
                 binder_transaction_data* tr = (binder_transaction_data *)(data + BINDER_CMD_SIZE);
+                pbwr->write_consumed += sizeof(binder_transaction_data);
                 tr->target.handle = e->senderHandler;
                 
-            }
-            // continue to send this out
-            case BC_TRANSACTION:
-            {
-                if (size < (BINDER_CMD_SIZE + BINDER_TR_SIZE)) return NOT_ENOUGH_DATA;
+                void* copyData = malloc(tr->data_size);
+                LOG_ALWAYS_FATAL_IF((copyData == NULL), "No memory when creating data copy. %s:%d", __FILE__, __LINE__);
+                if (!copyData) return NO_MEMORY;
                 
-                binder_transaction_data* tr = (binder_transaction_data *)(data + BINDER_CMD_SIZE);
-                pbwr->write_consumed += sizeof(binder_transaction_data);
-                
-                binder_entry* et = binder_lookupHandle_local(tr->target.handle);
-                if (et == NULL || et->revicerLoop == NULL) return (DEAD_OBJECT);
+                memcpy(copyData, tr->data.ptr.buffer, tr->data_size);
+                tr->data.ptr.buffer = copyData;
                 
                 if (tr->data.ptr.offsets && tr->offsets_size) {
                     result = binder_registerService_local(handler, *tr);
                     if (result) return result;
                 }
-                //tr->target.ptr = 0;
                 
-                Parcel* inData = new Parcel();
-                if (!inData) return NO_MEMORY;
+                result = binder_send_local(tr->target.handle, handler, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
+            }
+                break;
+            case BC_TRANSACTION: {
+                LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + BINDER_TR_SIZE), "Wrong data format. %s:%d", __FILE__, __LINE__);
+                (*cmd) = BR_TRANSACTION;
+
+                binder_transaction_data* tr = (binder_transaction_data *)(data + BINDER_CMD_SIZE);
+                pbwr->write_consumed += sizeof(binder_transaction_data);
+
+                void* copyData = malloc(tr->data_size);
+                LOG_ALWAYS_FATAL_IF((copyData == NULL), "No memory when creating data copy. %s:%d", __FILE__, __LINE__);
+                if (!copyData) return NO_MEMORY;
+                memcpy(copyData, tr->data.ptr.buffer, tr->data_size);
+                tr->data.ptr.buffer = copyData;
+
+                if (tr->data.ptr.offsets && tr->offsets_size) {
+                    result = binder_registerService_local(handler, *tr);
+                    if (result) return result;
+                }
                 
-                inData->setData((uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
-                
-                Message evt(handler);
-                sp<MessageHandler> trdata = new BinderMessageHandler(inData, et->cache, et->senderHandler);
-                et->revicerLoop->sendMessage(trdata, evt);
-                
-                bNeedRead++;
-                readTimeout = BINDER_TIMEOUT_MS;
+                result = binder_send_local(tr->target.handle, handler, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
+                if (NO_ERROR == result) {
+                    bNeedRead++;
+                    readTimeout = BINDER_TIMEOUT_MS;
+                }
             }
                 break;
             case BC_ENTER_LOOPER:
             case BC_REGISTER_LOOPER:
                 bNeedRead++;
                 break;
-            case BC_EXIT_LOOPER:
+            case BC_EXIT_LOOPER: {
+                AutoMutex _l(mLock);
+
+                binder_entry* e = binder_lookupHandle_local(handler);
+                if (e == NULL || e->revicerLoop == NULL) return (NO_INIT);
+                sp<Looper> loop = e->revicerLoop;
+                
+                for (size_t i = mServices.size(); i > -1; --i) {
+                    if (loop == mServices.valueAt(i).revicerLoop) {
+                        binder_entry& del = mServices.editValueAt(i);
+                        del.revicerLoop = NULL;
+                        del.id = -1;
+                        
+                        if (del.service.binder) {
+                            reinterpret_cast<RefBase::weakref_type*>(del.service.binder)->decWeak((void *)0);
+                            del.service.binder = 0;
+                            del.service.cookie = 0;
+                        }
+                        
+                        mServices.removeItemsAt(i);
+                    }
+                }
+
                 bNeedRead = 0;
-                return;
-            case BC_ACQUIRE_RESULT:
-            {
-                int32_t value = *((int32_t *)(data + BINDER_CMD_SIZE));
-                pbwr->write_consumed += sizeof(int32_t);
+                return NO_ERROR;
             }
                 break;
-            case BC_FREE_BUFFER:
-            {
-                uintptr_t value = *((uintptr_t *)(data + BINDER_CMD_SIZE));
+            case BC_FREE_BUFFER: {
+                LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(uintptr_t)), "Wrong data format. %s:%d", __FILE__, __LINE__);
+
+                uintptr_t buf = *((uintptr_t *)(data + BINDER_CMD_SIZE));
                 pbwr->write_consumed += sizeof(uintptr_t);
-            }
-                break;
-            case BC_INCREFS:
-            {
-                int32_t value = *((int32_t *)(data + BINDER_CMD_SIZE));
-                pbwr->write_consumed += sizeof(int32_t);
+                
+                if (buf != 0) {
+                    free((void*)buf);
+                }
             }
                 break;
             case BC_ACQUIRE:
-            {
-                int32_t value = *((int32_t *)(data + BINDER_CMD_SIZE));
+            case BC_INCREFS: {
+                LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(int32_t)), "Wrong data format. %s:%d", __FILE__, __LINE__);
+                if (BC_INCREFS == (*cmd)) {
+                    (*cmd) = BR_INCREFS;
+                } else {
+                    (*cmd) = BR_ACQUIRE;
+                }
+
+                int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
                 pbwr->write_consumed += sizeof(int32_t);
-            }
-                break;
-            case BC_RELEASE:
-            {
-                int32_t value = *((int32_t *)(data + BINDER_CMD_SIZE));
-                pbwr->write_consumed += sizeof(int32_t);
-            }
-                break;
-            case BC_DECREFS:
-            {
-                int32_t value = *((int32_t *)(data + BINDER_CMD_SIZE));
-                pbwr->write_consumed += sizeof(int32_t);
-            }
-                break;
-            case BC_INCREFS_DONE:
-            {
-                uintptr_t value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
-                pbwr->write_consumed += sizeof(uintptr_t);
-                value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
-                pbwr->write_consumed += sizeof(uintptr_t);
+                result = binder_send_local(dstHandler, handler, (uint8_t *)data, BINDER_CMD_SIZE + sizeof(int32_t));
+                if (NO_ERROR == result) {
+                    bNeedRead++;
+                    readTimeout = BINDER_TIMEOUT_MS;
+                }
             }
                 break;
             case BC_ACQUIRE_DONE:
-            {
+            case BC_INCREFS_DONE: {
                 uintptr_t value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
                 pbwr->write_consumed += sizeof(uintptr_t);
                 value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
                 pbwr->write_consumed += sizeof(uintptr_t);
+                
+                (*cmd) = BR_OK;
+                result = binder_reply_local(handler, (uint8_t *)data, BINDER_CMD_SIZE);
             }
                 break;
-            case BC_ATTEMPT_ACQUIRE:
-            {
+
+            case BC_RELEASE:
+            case BC_DECREFS: {
+                LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(int32_t)), "Wrong data format. %s:%d", __FILE__, __LINE__);
+                if (BC_DECREFS == (*cmd)) {
+                    (*cmd) = BR_DECREFS;
+                } else {
+                    (*cmd) = BR_RELEASE;
+                }
+
+                int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
+                pbwr->write_consumed += sizeof(int32_t);
+                result = binder_send_local(dstHandler, handler, (uint8_t *)data, BINDER_CMD_SIZE + sizeof(int32_t));
+            }
+                break;
+            case BC_ACQUIRE_RESULT: {
+                int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
+                pbwr->write_consumed += sizeof(int32_t);
+            }
+                break;
+            case BC_ATTEMPT_ACQUIRE: {
                 int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
                 pbwr->write_consumed += sizeof(int32_t);
                 value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
@@ -242,7 +336,7 @@ static status_t binder_write_local(int handler, binder_write_read* pbwr, int& bN
             case BC_DEAD_BINDER_DONE:
                 break;
             default:
-                assert(0);
+                LOG_ALWAYS_FATAL("Unknown command %s:%d", __FILE__, __LINE__);
                 break;
         } // switch
     } // while
@@ -270,28 +364,56 @@ status_t binder_read_local(int handler, binder_write_read* pbwr, int readTimeout
     
     if (e->cache != NULL && e->cache->dataSize() <= pbwr->read_size) {
         memcpy((void *)(pbwr->read_buffer), e->cache->data(), e->cache->dataSize());
-        pbwr->read_consumed = e->cache->dataSize();
-        binder_transaction_data* tr = (binder_transaction_data *)((uint8_t *)(pbwr->read_buffer) + sizeof(uint32_t));
-        tr->target.ptr = (void *)(e->service.binder);
-        tr->cookie = (void *)(e->service.cookie);
+        pbwr->read_consumed += sizeof(int32_t);
         
-        if (BC_TRANSACTION == (*cmd)) {
-            (*cmd) = BR_TRANSACTION;
-            
-            binder_entry* eSender = binder_lookupHandle_local(e->senderHandler);
-            
-            Parcel* inData = new Parcel();
-            if (!inData) return NO_MEMORY;
-            inData->writeInt32(BR_TRANSACTION_COMPLETE);
-            
-            Message evt(handler);
-            sp<MessageHandler> trdata = new BinderMessageHandler(inData, eSender->cache, eSender->senderHandler);
-            eSender->revicerLoop->sendMessage(trdata, evt);
-            
-        } else if (BC_REPLY == (*cmd)) {
-            (*cmd) = BR_REPLY;
-        }
-    }
+        switch (*cmd) {
+            case BR_REPLY:
+            case BR_TRANSACTION: {
+                binder_transaction_data* tr = (binder_transaction_data *)(pbwr->read_buffer + BINDER_CMD_SIZE);
+                tr->target.ptr = (void *)(e->service.binder);
+                tr->cookie = (void *)(e->service.cookie);
+                pbwr->read_consumed += sizeof(binder_transaction_data);
+                
+                if (BR_TRANSACTION == (*cmd)) {
+                    binder_entry* eSender = binder_lookupHandle_local(e->senderHandler);
+                    
+                    Parcel* inData = new Parcel();
+                    if (!inData) return NO_MEMORY;
+                    inData->writeInt32(BR_TRANSACTION_COMPLETE);
+                    
+                    Message evt(handler);
+                    sp<MessageHandler> trdata = new BinderMessageHandler(inData, eSender->cache, eSender->senderHandler);
+                    eSender->revicerLoop->sendMessage(trdata, evt);
+                    
+                }
+            }
+                break;
+            case BR_ACQUIRE:
+            case BR_RELEASE:
+            case BR_INCREFS:
+            case BR_DECREFS: {
+                int32_t* hTarget = (int32_t *)(pbwr->read_buffer + BINDER_CMD_SIZE);
+                binder_entry* e = binder_lookupHandle_local((*hTarget));
+                if ((e) && (e->service.binder) && (e->service.cookie)) {
+                    binder_uintptr_t* ptr = (binder_uintptr_t *)(pbwr->read_buffer + BINDER_CMD_SIZE);
+                    (*ptr++) = e->service.binder;
+                    (*ptr)   = e->service.cookie;
+                    pbwr->read_consumed += 2 * sizeof(binder_uintptr_t);
+                } else {
+                    LOG_ALWAYS_FATAL("No object %s:%d", __FILE__, __LINE__);
+                    (*cmd) = BR_NOOP;
+                }
+            }
+                break;
+            case BR_FINISHED:
+            case BR_OK:
+            case BR_TRANSACTION_COMPLETE:
+                break;
+            default:
+                LOG_ALWAYS_FATAL("Unknown command %s:%d", __FILE__, __LINE__);
+                break;
+        } // switch
+    } // if
     
     if (e->cache) {
         delete (e->cache);
@@ -328,12 +450,15 @@ int binder_open_local()
 
 	int handler = mHandlerCounter++;
 	binder_entry* e = binder_lookupHandle_local(handler);
+    LOG_ALWAYS_FATAL_IF((e == NULL), "Failed to create binder entry. %s:%d", __FILE__, __LINE__);
+    LOG_ALWAYS_FATAL_IF((e->revicerLoop != NULL), "The handler is already opened. %s:%d", __FILE__, __LINE__);
 	if ((!e) || (e->revicerLoop != NULL)) {
 		return (-1);
 	}
 
     e->id = handler;
 	e->revicerLoop = new Looper(true);
+    LOG_ALWAYS_FATAL_IF((e->revicerLoop == NULL), "Failed to create receiver loop. %s:%d", __FILE__, __LINE__);
 	if (e->revicerLoop == NULL) {
 		return (-2);
 	}
@@ -348,10 +473,19 @@ status_t binder_close_local(int handler)
 	status_t result = BAD_VALUE;
 
 	binder_entry* e = binder_lookupHandle_local(handler);
+    LOG_ALWAYS_FATAL_IF((e == NULL), "Handler is already closed. %s:%d", __FILE__, __LINE__);
 	if (e) {
-		e->revicerLoop  = NULL;
-		e->senderHandler = -1;
-
+        if (e->revicerLoop != NULL) {
+            int32_t finish = BR_FINISHED;
+            binder_send_local(handler, -1, (uint8_t *)(&finish), sizeof(finish));
+        }
+        
+#if BINDER_DEBUG
+        if (e->name) {
+            delete (e->name);
+            e->name = NULL;
+        }
+#endif // BINDER_DEBUG
 		result = NO_ERROR;
 	}
 
@@ -362,6 +496,7 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
 {
 	status_t result = NO_ERROR;
 
+    LOG_ALWAYS_FATAL_IF((handler < 0), "Invalid handler %s:%d", __FILE__, __LINE__);
 	if (handler < 0) {
 		return BAD_VALUE;
 	}
@@ -393,6 +528,7 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
 	case BINDER_THREAD_EXIT:
 		break;
 	default:
+        LOG_ALWAYS_FATAL("Invalid operation %s:%d", __FILE__, __LINE__);
 		result = INVALID_OPERATION;
 		break;
 	}

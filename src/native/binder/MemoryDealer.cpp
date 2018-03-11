@@ -17,7 +17,7 @@
 #define LOG_TAG "MemoryDealer"
 
 #include <binder/MemoryDealer.h>
-//#include <binder/IPCThreadState.h>
+#include <binder/IPCThreadState.h>
 #include <binder/MemoryBase.h>
 
 #include <utils/Log.h>

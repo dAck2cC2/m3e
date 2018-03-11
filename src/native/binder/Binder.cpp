@@ -20,7 +20,7 @@
 #include <utils/misc.h>
 #include <binder/BpBinder.h>
 #include <binder/IInterface.h>
-//#include <binder/IResultReceiver.h>
+#include <binder/IResultReceiver.h>
 #include <binder/Parcel.h>
 
 #include <stdio.h>
@@ -77,7 +77,7 @@ status_t IBinder::shellCommand(const sp<IBinder>& target, int in, int out, int e
     for (size_t i = 0; i < numArgs; i++) {
         send.writeString16(args[i]);
     }
-    //send.writeStrongBinder(resultReceiver != NULL ? IInterface::asBinder(resultReceiver) : NULL);
+    send.writeStrongBinder(resultReceiver != NULL ? IInterface::asBinder(resultReceiver) : NULL);
     return target->transact(SHELL_COMMAND_TRANSACTION, send, &reply);
 }
 
@@ -225,7 +225,7 @@ status_t BBinder::onTransact(
             }
             return dump(fd, args);
         }
-#if TODO
+
         case SHELL_COMMAND_TRANSACTION: {
             int in = data.readFileDescriptor();
             int out = data.readFileDescriptor();
@@ -244,7 +244,7 @@ status_t BBinder::onTransact(
                 resultReceiver->send(INVALID_OPERATION);
             }
         }
-#endif
+
         case SYSPROPS_TRANSACTION: {
             report_sysprop_change();
             return NO_ERROR;

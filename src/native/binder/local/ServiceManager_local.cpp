@@ -85,11 +85,13 @@ private:
 		sp<ProcessState>  proc = ProcessState::self();
         proc->becomeContextManager(NULL, NULL);
 
-        //sp<IBinder> thiz = IInterface::asBinder(this);
-        Parcel parcel;
-        parcel.writeStrongBinder(this);
-        IPCThreadState::self()->transact(0, IBinder::PING_TRANSACTION, parcel, NULL, IBinder::FLAG_ONEWAY);
-
+        {
+            Parcel parcel;
+            parcel.writeInterfaceToken(mDescriptor);
+            parcel.writeStrongBinder(this);
+            IPCThreadState::self()->transact(0, IBinder::PING_TRANSACTION, parcel, NULL, IBinder::FLAG_ONEWAY);
+        }
+        
 		IPCThreadState::self()->joinThreadPool();
 
         return false;

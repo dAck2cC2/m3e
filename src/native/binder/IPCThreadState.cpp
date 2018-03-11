@@ -84,8 +84,11 @@ namespace android {
 
 #if !defined(__ANDROID__)
 #define __ANDROID__
-#define ioctl binder_ioctl_local
+#define ioctl   binder_ioctl_local
 extern status_t binder_ioctl_local(int handler, int cmd, void* data);
+
+#define close   binder_close_local
+extern status_t binder_close_local(int handler);
 #endif // __ANDROID__
     
 static const char* getReturnString(size_t idx);
@@ -419,16 +422,13 @@ void IPCThreadState::flushCommands()
 
 void IPCThreadState::blockUntilThreadAvailable()
 {
-    //pthread_mutex_lock(&mProcess->mThreadCountLock);
     mProcess->mThreadCountLock.lock();
     while (mProcess->mExecutingThreadsCount >= mProcess->mMaxThreads) {
         ALOGW("Waiting for thread to be free. mExecutingThreadsCount=%lu mMaxThreads=%lu\n",
                 static_cast<unsigned long>(mProcess->mExecutingThreadsCount),
                 static_cast<unsigned long>(mProcess->mMaxThreads));
-        //pthread_cond_wait(&mProcess->mThreadCountDecrement, &mProcess->mThreadCountLock);
         mProcess->mThreadCountDecrement.wait(mProcess->mThreadCountLock);
     }
-    //pthread_mutex_unlock(&mProcess->mThreadCountLock);
     mProcess->mThreadCountLock.unlock();
 }
 
@@ -447,19 +447,16 @@ status_t IPCThreadState::getAndExecuteCommand()
                  << getReturnString(cmd) << endl;
         }
 
-        //pthread_mutex_lock(&mProcess->mThreadCountLock);
         mProcess->mThreadCountLock.lock();
         mProcess->mExecutingThreadsCount++;
         if (mProcess->mExecutingThreadsCount >= mProcess->mMaxThreads &&
                 mProcess->mStarvationStartTimeMs == 0) {
             mProcess->mStarvationStartTimeMs = uptimeMillis();
         }
-        //pthread_mutex_unlock(&mProcess->mThreadCountLock);
         mProcess->mThreadCountLock.unlock();
 
         result = executeCommand(cmd);
 
-        //pthread_mutex_lock(&mProcess->mThreadCountLock);
         mProcess->mThreadCountLock.lock();
         mProcess->mExecutingThreadsCount--;
         if (mProcess->mExecutingThreadsCount < mProcess->mMaxThreads &&
@@ -471,9 +468,7 @@ status_t IPCThreadState::getAndExecuteCommand()
             }
             mProcess->mStarvationStartTimeMs = 0;
         }
-        //pthread_cond_broadcast(&mProcess->mThreadCountDecrement);
         mProcess->mThreadCountDecrement.broadcast();
-        //pthread_mutex_unlock(&mProcess->mThreadCountLock);
         mProcess->mThreadCountLock.unlock();
 
         // After executing the command, ensure that the thread is returned to the
@@ -895,6 +890,8 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
             err = NO_ERROR;
         else
             err = -errno;
+#else
+        err = INVALID_OPERATION;
 #endif
         if (mProcess->mDriverFD <= 0) {
             err = -EBADF;
