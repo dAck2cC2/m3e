@@ -19,11 +19,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
+//#include <fcntl.h>
 #include <unistd.h>
 
-#include <sys/types.h>
-#include <sys/mman.h>
+//#include <sys/types.h>
+//#include <sys/mman.h>
 
 #include <binder/IMemory.h>
 #include <cutils/log.h>
@@ -32,6 +32,12 @@
 //#include <utils/Atomic.h>
 #include <binder/Parcel.h>
 //#include <utils/CallStack.h>
+
+#include <private/binder/binder_module.h>
+
+#if !defined(MAP_FAILED)
+#define MAP_FAILED ((void *)(-1))
+#endif // MAP_FAILED
 
 #define VERBOSE   0
 
@@ -69,7 +75,8 @@ static sp<HeapCache> gHeapCache = new HeapCache();
 /******************************************************************************/
 
 enum {
-    HEAP_ID = IBinder::FIRST_CALL_TRANSACTION
+    HEAP_ID = IBinder::FIRST_CALL_TRANSACTION,
+    HEAP_BASE,
 };
 
 class BpMemoryHeap : public BpInterface<IMemoryHeap>
@@ -249,7 +256,6 @@ BpMemoryHeap::BpMemoryHeap(const sp<IBinder>& impl)
 
 BpMemoryHeap::~BpMemoryHeap() {
     if (mHeapId != -1) {
-        close(mHeapId);
         if (mRealHeap) {
             // by construction we're the last one
             if (mBase != MAP_FAILED) {
@@ -260,8 +266,6 @@ BpMemoryHeap::~BpMemoryHeap() {
                             binder.get(), this, mSize, mHeapId);
                     //CallStack stack(LOG_TAG);
                 }
-
-                //munmap(mBase, mSize);
             }
         } else {
             // remove from list only if it was mapped before
@@ -283,7 +287,7 @@ void BpMemoryHeap::assertMapped() const
                 mBase   = heap->mBase;
                 mSize   = heap->mSize;
                 mOffset = heap->mOffset;
-                android_atomic_write( dup( heap->mHeapId ), &mHeapId );
+                mHeapId = heap->mHeapId;
             }
         } else {
             // something went wrong
@@ -294,7 +298,6 @@ void BpMemoryHeap::assertMapped() const
 
 void BpMemoryHeap::assertReallyMapped() const
 {
-#if !defined(_MSC_VER)
     if (mHeapId == -1) {
 
         // remote call without mLock held, worse case scenario, we end up
@@ -303,42 +306,33 @@ void BpMemoryHeap::assertReallyMapped() const
 
         Parcel data, reply;
         data.writeInterfaceToken(IMemoryHeap::getInterfaceDescriptor());
-        status_t err = remote()->transact(HEAP_ID, data, &reply);
-        int parcel_fd = reply.readFileDescriptor();
+        status_t err = remote()->transact(HEAP_BASE, data, &reply);
+        const flat_binder_object* flat = reply.readObject(true);
         ssize_t size = reply.readInt32();
         uint32_t flags = reply.readInt32();
         uint32_t offset = reply.readInt32();
 
-        ALOGE_IF(err, "binder=%p transaction failed fd=%d, size=%zd, err=%d (%s)",
+        ALOGE_IF((err || !flat), "binder=%p transaction failed flat=%p, size=%zd, err=%d",
                 IInterface::asBinder(this).get(),
-                parcel_fd, size, err, strerror(-err));
+                flat, size, err);
 
+        if (!flat) return;
+        
         Mutex::Autolock _l(mLock);
         if (mHeapId == -1) {
-            int fd = dup( parcel_fd );
-            ALOGE_IF(fd==-1, "cannot dup fd=%d, size=%zd, err=%d (%s)",
-                    parcel_fd, size, err, strerror(errno));
-
-            int access = PROT_READ;
-            if (!(flags & READ_ONLY)) {
-                access |= PROT_WRITE;
-            }
-
-            mRealHeap = true;
-            mBase = mmap(0, size, access, MAP_SHARED, fd, offset);
+            int fd = flat->handle;
+            mBase = (void*)(flat->cookie);
             if (mBase == MAP_FAILED) {
                 ALOGE("cannot map BpMemoryHeap (binder=%p), size=%zd, fd=%d (%s)",
                         IInterface::asBinder(this).get(), size, fd, strerror(errno));
-                close(fd);
             } else {
                 mSize = size;
                 mFlags = flags;
                 mOffset = offset;
-                android_atomic_write(fd, &mHeapId);
+                mHeapId = fd;
             }
         }
     }
-#endif // _MSC_VER
 }
 
 int BpMemoryHeap::getHeapID() const {
@@ -383,6 +377,20 @@ status_t BnMemoryHeap::onTransact(
        case HEAP_ID: {
             CHECK_INTERFACE(IMemoryHeap, data, reply);
             reply->writeFileDescriptor(getHeapID());
+            reply->writeInt32(getSize());
+            reply->writeInt32(getFlags());
+            reply->writeInt32(getOffset());
+            return NO_ERROR;
+        } break;
+        case HEAP_BASE: {
+            CHECK_INTERFACE(IMemoryHeap, data, reply);
+            flat_binder_object obj;
+            obj.type = BINDER_TYPE_FD;
+            obj.flags = 0x7f | FLAT_BINDER_FLAG_ACCEPTS_FDS;
+            obj.binder = 0; /* Don't pass uninitialized stack data to a remote process */
+            obj.handle = getHeapID();
+            obj.cookie = (uintptr_t)getBase();
+            reply->writeObject(obj, true);
             reply->writeInt32(getSize());
             reply->writeInt32(getFlags());
             reply->writeInt32(getOffset());

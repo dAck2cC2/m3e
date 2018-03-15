@@ -243,7 +243,7 @@ TEST(libbinder, Binder_memory)
     EXPECT_TRUE(mem != NULL);
     
     void* pBuf = mem->pointer();
-    EXPECT_TRUE(mem != NULL);
+    EXPECT_TRUE(pBuf != NULL);
     EXPECT_STREQ(TEST_STRING, (char *)pBuf);
     
     //service->waitForStopped();

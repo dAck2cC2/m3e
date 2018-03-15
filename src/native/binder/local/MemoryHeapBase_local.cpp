@@ -13,6 +13,8 @@
 
 namespace android {
 
+static int gHeapCount = 0;
+    
 // ---------------------------------------------------------------------------
 
 MemoryHeapBase::MemoryHeapBase()
@@ -25,21 +27,21 @@ MemoryHeapBase::MemoryHeapBase(size_t size, uint32_t flags, char const * name)
     : mFD(-1), mSize(0), mBase(MAP_FAILED), mFlags(flags),
       mDevice(0), mNeedUnmap(false), mOffset(0)
 {
-    mapfd(-1, size, 0);
+    mapfd(gHeapCount++, size, 0);
 }
 
 MemoryHeapBase::MemoryHeapBase(const char* device, size_t size, uint32_t flags)
     : mFD(-1), mSize(0), mBase(MAP_FAILED), mFlags(flags),
       mDevice(0), mNeedUnmap(false), mOffset(0)
 {
-    mapfd(-1, size, 0);
+    mapfd(gHeapCount++, size, 0);
 }
 
 MemoryHeapBase::MemoryHeapBase(int fd, size_t size, uint32_t flags, uint32_t offset)
     : mFD(-1), mSize(0), mBase(MAP_FAILED), mFlags(flags),
       mDevice(0), mNeedUnmap(false), mOffset(0)
 {
-    mapfd(fd, size, offset);
+    mapfd(gHeapCount++, size, offset);
 }
 
 status_t MemoryHeapBase::init(int fd, void *base, int size, int flags, const char* device)

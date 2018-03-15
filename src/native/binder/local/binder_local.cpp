@@ -17,11 +17,36 @@ namespace android {
 // ---------------------------------------------------------------------------
 // Private API
     
+class IBinderEntry : public RefBase
+{
+public:
+    IBinderEntry()  {};
+    ~IBinderEntry() {};
+    
+    virtual void SetLooper(const sp<Looper>& looper) = 0;
+    virtual void CacheMessage(Parcel* msg, int sender) = 0;
+    virtual void SetParentHandler(int handler) = 0;
+    virtual int  GetParentHandler() const = 0;
+    
+    virtual status_t WriteRead(void* data) = 0;
+    virtual status_t Push(Parcel* data, int sender) = 0;
+}; // IBinderEntry
+  
+static Mutex                                gServiceLock;
+static KeyedVector<int, sp<IBinderEntry> >  gServiceList;
+static int                                  gHandlerContextManager = 0;
+static int                                  gHandlerCounter = 0;
+
+static sp<IBinderEntry> binder_lookupEntry_local(int handler);
+
+// ---------------------------------------------------------------------------
+// Implementation
+    
 #define BINDER_CMD_SIZE    (sizeof(int32_t))
 #define BINDER_TR_SIZE     (sizeof(binder_transaction_data))
 #define BINDER_TIMEOUT_MS  (500)
     
-class CBinderEntry : public RefBase
+class CBinderEntry : public IBinderEntry
 {
 public:
 #if BINDER_DEBUG
@@ -29,16 +54,22 @@ public:
 #endif // BINDER_DEBUG
     
     CBinderEntry(int handler)
-    : mHandler(handler),
-    mLooper(),
-    mMsgSender(-1),
-    mMsgCache(NULL)
-    { };
+    : mHandler(handler), mhParent(-1), mLooper(), mMsgSender(-1), mMsgCache(NULL)
+    { /* empty */ };
     
     ~CBinderEntry() { mLooper = NULL; };
-    void SetLooper(const sp<Looper>& looper) {mLooper = looper;};
+
+    virtual int  GetParentHandler() const { return mhParent; };
+    virtual void SetParentHandler(int handler) { mhParent = handler; };
+    virtual void SetLooper(const sp<Looper>& looper) {mLooper = looper;};
     
-    status_t WriteRead(void* data)
+    virtual void CacheMessage(Parcel* msg, int sender)
+    {
+        mMsgCache  = msg;
+        mMsgSender = sender;
+    };
+    
+    virtual status_t WriteRead(void* data)
     {
         status_t result = BAD_VALUE;
         int bNeedRead = 0;
@@ -56,18 +87,24 @@ public:
         return result;
     }
     
-    status_t Push(Parcel* data, int sender)
+    virtual status_t Push(Parcel* data, int sender)
     {
         status_t result = NO_ERROR;
 
         LOG_ALWAYS_FATAL_IF((mLooper == NULL), "No Message Looper. %s:%d", __FILE__, __LINE__);
         if (mLooper == NULL) return FAILED_TRANSACTION;
         
-        Message evt(sender);
-        sp<MessageHandler> msg = new BinderMessage(data, mMsgCache, mMsgSender);
+        sp<MessageHandler> msg;
+        if (mhParent == -1) {
+            msg = new BinderMessage(data, this);
+        } else {
+            sp<IBinderEntry> parent = binder_lookupEntry_local(mhParent);
+            msg = new BinderMessage(data, parent.get());
+        }
         LOG_ALWAYS_FATAL_IF((msg == NULL), "No memory when creating Message. %s:%d", __FILE__, __LINE__);
         if (msg == NULL) return NO_MEMORY;
 
+        Message evt(sender);
         mLooper->sendMessage(msg, evt);
         
         return result;
@@ -124,8 +161,7 @@ private:
                     }
                     
                     result = Send(mMsgSender, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
-                }
-                    break;
+                }   break;
                 case BC_TRANSACTION: {
                     LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + BINDER_TR_SIZE), "Wrong data format. %s:%d", __FILE__, __LINE__);
                     
@@ -150,8 +186,7 @@ private:
                         bNeedRead++;
                         readTimeout = BINDER_TIMEOUT_MS;
                     }
-                }
-                    break;
+                }   break;
                 case BC_ENTER_LOOPER:
                 case BC_REGISTER_LOOPER:
                     bNeedRead++;
@@ -160,8 +195,7 @@ private:
                     ExitLoop();
                     bNeedRead = 0;
                     return NO_ERROR;
-                }
-                    break;
+                }   break;
                 case BC_FREE_BUFFER: {
                     LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(uintptr_t)), "Wrong data format. %s:%d", __FILE__, __LINE__);
                     
@@ -171,8 +205,7 @@ private:
                     if (buf != 0) {
                         free((void*)buf);
                     }
-                }
-                    break;
+                }   break;
                 case BC_ACQUIRE:
                 case BC_INCREFS: {
                     LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(int32_t)), "Wrong data format. %s:%d", __FILE__, __LINE__);
@@ -189,8 +222,7 @@ private:
                         bNeedRead++;
                         readTimeout = BINDER_TIMEOUT_MS;
                     }
-                }
-                    break;
+                }   break;
                 case BC_ACQUIRE_DONE:
                 case BC_INCREFS_DONE: {
                     uintptr_t value = *((uintptr_t *)(pbwr->write_buffer + pbwr->write_consumed));
@@ -200,8 +232,7 @@ private:
                     
                     (*cmd) = BR_OK;
                     result = Reply((uint8_t *)data, BINDER_CMD_SIZE);
-                }
-                    break;
+                }   break;
                     
                 case BC_RELEASE:
                 case BC_DECREFS: {
@@ -215,20 +246,17 @@ private:
                     int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
                     pbwr->write_consumed += sizeof(int32_t);
                     result = Send(dstHandler, (uint8_t *)data, BINDER_CMD_SIZE + sizeof(int32_t));
-                }
-                    break;
+                }   break;
                 case BC_ACQUIRE_RESULT: {
                     int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
                     pbwr->write_consumed += sizeof(int32_t);
-                }
-                    break;
+                }   break;
                 case BC_ATTEMPT_ACQUIRE: {
                     int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
                     pbwr->write_consumed += sizeof(int32_t);
                     value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
                     pbwr->write_consumed += sizeof(int32_t);
-                }
-                    break;
+                }   break;
                 case BC_REQUEST_DEATH_NOTIFICATION:
                 case BC_CLEAR_DEATH_NOTIFICATION:
                 case BC_DEAD_BINDER_DONE:
@@ -280,8 +308,7 @@ private:
                         int32_t complete = BR_TRANSACTION_COMPLETE;
                         Send(mMsgSender, (uint8_t *)(&complete), sizeof(complete));
                     }
-                }
-                    break;
+                }   break;
                 case BR_ACQUIRE:
                 case BR_RELEASE:
                 case BR_INCREFS:
@@ -297,8 +324,7 @@ private:
                         LOG_ALWAYS_FATAL("No object %s:%d", __FILE__, __LINE__);
                         (*cmd) = BR_NOOP;
                     }
-                }
-                    break;
+                }   break;
                 case BR_FINISHED:
                 case BR_OK:
                 case BR_TRANSACTION_COMPLETE:
@@ -323,145 +349,145 @@ private:
     }
 
     
-    status_t RegisterBn(binder_transaction_data& tr);
-    status_t Send(int hDst, uint8_t* data, size_t size);
-    status_t ExitLoop();
+    status_t RegisterBn(binder_transaction_data& tr)
+    {
+        status_t result = NO_ERROR;
+        
+        for (int i = 0; i < ((tr.offsets_size)/sizeof(binder_size_t)); ++i) {
+            binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
+            flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
+            if (obj->type == BINDER_TYPE_BINDER) {
+                reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
+                
+                int handlerBp = mHandler;
+                if (mBnList.isEmpty()) {
+                    handlerBp = mHandler;
+                    
+                    #if  BINDER_DEBUG
+                    int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
+                    char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
+                    mName = new String16(nameBuf);
+                    #endif // BINDER_DEBUG
+                } else {
+                    handlerBp = gHandlerCounter++;
+                    sp<IBinderEntry> add = binder_lookupEntry_local(handlerBp);
+                    if (add == NULL) return NO_MEMORY;
+                    add->SetLooper(mLooper);
+                    add->SetParentHandler(mHandler);
+                    
+                    #if  BINDER_DEBUG
+                    int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
+                    char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
+                    add->mName = new String16(nameBuf);
+                    #endif  //  BINDER_DEBUG
+                }
+                
+                mBnList.add(handlerBp, *obj);
+                
+                obj->type = BINDER_TYPE_HANDLE;
+                obj->binder = 0;
+                obj->handle = handlerBp;
+                obj->cookie = 0;
+            }
+        }
+        
+        return result;
+    } // RegisterBn
+
+    status_t Send(int hDst, uint8_t* data, size_t size)
+    {
+        status_t result = NO_ERROR;
+        
+        sp<IBinderEntry> eDst = binder_lookupEntry_local(hDst);
+        LOG_ALWAYS_FATAL_IF((eDst == NULL), "No object. %s:%d", __FILE__, __LINE__);
+        if (eDst == NULL) return (DEAD_OBJECT);
+        
+        Parcel* msg = new Parcel();
+        LOG_ALWAYS_FATAL_IF((msg == NULL), "No memory when creating Parcel. %s:%d", __FILE__, __LINE__);
+        if (!msg) return NO_MEMORY;
+        
+        msg->setData((uint8_t *)data, size);
+        result = eDst->Push(msg, mHandler);
+        
+        return result;
+    }
+
+    status_t ExitLoop()
+    {
+        status_t result = NO_ERROR;
+        
+        mLooper = NULL;
+        
+        for (size_t i = 0; i < mBnList.size(); ++i) {
+            // remove the service for it
+            int handler = mBnList.keyAt(i);
+            if (handler != mHandler) {
+                AutoMutex _l(gServiceLock);
+                
+                sp<IBinderEntry> subEntry = gServiceList.editValueFor(handler);
+                if (subEntry != NULL) {
+                    subEntry->SetLooper(NULL);
+                    subEntry = NULL;
+                }
+                gServiceList.removeItem(handler);
+            }
+            
+            // remove the binder native for it
+            flat_binder_object obj = mBnList.editValueAt(i);
+            if (obj.binder) {
+                reinterpret_cast<RefBase::weakref_type*>(obj.binder)->decWeak((void *)0);
+                obj.binder = 0;
+                obj.cookie = 0;
+            }
+        }
+        
+        mBnList.clear();
+        
+        return result;
+    }
+
     
 private:
     class BinderMessage : public MessageHandler
     {
     public:
-        BinderMessage(Parcel* data, Parcel*& out, int& handler) : src(data), dst(out), sender(handler) {};
+        BinderMessage(Parcel* data, IBinderEntry* out) : mMsg(data), mDst(out) {};
         
         virtual void handleMessage(const Message& evt) {
-            sender = evt.what;
-            dst = src;
+            if (mDst != NULL) {
+                mDst->CacheMessage(mMsg, evt.what);
+            }
         };
     private:
-        Parcel*   src;
-        Parcel*&  dst;
-        int&      sender;
+        Parcel*          mMsg;
+        sp<IBinderEntry> mDst;
     }; // BinderMessage
     
     // server
     KeyedVector<int, flat_binder_object>  mBnList;
     int         mHandler;
+    int         mhParent;
     sp<Looper>  mLooper;
     
     // Message
     int         mMsgSender;
     Parcel*     mMsgCache;
 }; // CBinderEntry
+ 
 
-static Mutex                                gServiceLock;
-static KeyedVector<int, sp<CBinderEntry> >  gServiceList;
-static int  gHandlerContextManager = 0;
-static int  gHandlerCounter = 0;
-    
-static sp<CBinderEntry> binder_lookupEntry_local(int handler)
+
+static sp<IBinderEntry> binder_lookupEntry_local(int handler)
 {
     const ssize_t N = gServiceList.indexOfKey(handler);
     if (N < 0) {
-        sp<CBinderEntry> e = new CBinderEntry(handler);
+        sp<IBinderEntry> e = new CBinderEntry(handler);
         gServiceList.add(handler, e);
     }
     
     return (gServiceList.editValueFor(handler));
 }
     
-status_t CBinderEntry::RegisterBn(binder_transaction_data& tr)
-{
-    status_t result = NO_ERROR;
-    
-    for (int i = 0; i < ((tr.offsets_size)/sizeof(binder_size_t)); ++i) {
-        binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
-        flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
-        if (obj->type == BINDER_TYPE_BINDER) {
-            reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
-            
-#if  BINDER_DEBUG
-            int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
-            char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
-#endif // ç
-            int handlerBp = mHandler;
-            if (mBnList.isEmpty()) {
-                handlerBp = mHandler;
-#if  BINDER_DEBUG
-                mName = new String16(nameBuf);
-#endif // BINDER_DEBUG
-            } else {
-                handlerBp = gHandlerCounter++;
-                sp<CBinderEntry> add = binder_lookupEntry_local(handlerBp);
-                if (add == NULL) return NO_MEMORY;
-                add->SetLooper(mLooper);
-#if  BINDER_DEBUG
-                add->mName = new String16(nameBuf);
-#endif  //  BINDER_DEBUG
-            }
-            
-            mBnList.add(handlerBp, *obj);
-            
-            obj->type = BINDER_TYPE_HANDLE;
-            obj->binder = 0;
-            obj->handle = handlerBp;
-            obj->cookie = 0;
-        }
-    }
-    
-    return result;
-}
-    
-status_t CBinderEntry::Send(int hDst, uint8_t* data, size_t size)
-{
-    status_t result = NO_ERROR;
-    
-    sp<CBinderEntry> eDst = binder_lookupEntry_local(hDst);
-    LOG_ALWAYS_FATAL_IF((eDst == NULL), "No object. %s:%d", __FILE__, __LINE__);
-    if (eDst == NULL) return (DEAD_OBJECT);
-    
-    Parcel* msg = new Parcel();
-    LOG_ALWAYS_FATAL_IF((msg == NULL), "No memory when creating Parcel. %s:%d", __FILE__, __LINE__);
-    if (!msg) return NO_MEMORY;
-    
-    msg->setData((uint8_t *)data, size);
-    result = eDst->Push(msg, mHandler);
-    
-    return result;
-}
 
-status_t CBinderEntry::ExitLoop()
-{
-    status_t result = NO_ERROR;
-    
-    mLooper = NULL;
-    
-    for (size_t i = 0; i < mBnList.size(); ++i) {
-        // remove the service for it
-        int handler = mBnList.keyAt(i);
-        if (handler != mHandler) {
-            AutoMutex _l(gServiceLock);
-
-            sp<CBinderEntry> subEntry = gServiceList.editValueFor(handler);
-            if (subEntry != NULL) {
-                subEntry->SetLooper(NULL);
-                subEntry = NULL;
-            }
-            gServiceList.removeItem(handler);
-        }
-        
-        // remove the binder native for it
-        flat_binder_object obj = mBnList.editValueAt(i);
-        if (obj.binder) {
-            reinterpret_cast<RefBase::weakref_type*>(obj.binder)->decWeak((void *)0);
-            obj.binder = 0;
-            obj.cookie = 0;
-        }
-    }
-    
-    mBnList.clear();
-
-    return result;
-}
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -471,7 +497,7 @@ int binder_open_local()
     AutoMutex _l(gServiceLock);
     
     int handler = gHandlerCounter++;
-    sp<CBinderEntry> e = binder_lookupEntry_local(handler);
+    sp<IBinderEntry> e = binder_lookupEntry_local(handler);
     LOG_ALWAYS_FATAL_IF((e == NULL), "Failed to create binder entry. %s:%d", __FILE__, __LINE__);
     if (e == NULL) {
         return (-1);
@@ -487,7 +513,7 @@ status_t binder_close_local(int handler)
     AutoMutex _l(gServiceLock);
     
     status_t result = NO_ERROR;
-    sp<CBinderEntry> e = binder_lookupEntry_local(handler);
+    sp<IBinderEntry> e = binder_lookupEntry_local(handler);
     LOG_ALWAYS_FATAL_IF((e == NULL), "Handler is already closed. %s:%d", __FILE__, __LINE__);
     if (e != NULL) {
         Parcel finish;
@@ -520,10 +546,9 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
 		break;
 	case BINDER_SET_CONTEXT_MGR: {
         gHandlerContextManager = handler;
-    }
-		break;
+    }   break;
     case BINDER_WRITE_READ: {
-        sp<CBinderEntry> e = binder_lookupEntry_local(handler);
+        sp<IBinderEntry> e = binder_lookupEntry_local(handler);
         LOG_ALWAYS_FATAL_IF((e == 0), "Invalid handler %s:%d", __FILE__, __LINE__);
 
         if (e != NULL) {
@@ -531,8 +556,7 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
         } else {
             result = DEAD_OBJECT;
         }
-    }
-		break;
+    }   break;
 	case BINDER_THREAD_EXIT:
 		break;
 	default:
