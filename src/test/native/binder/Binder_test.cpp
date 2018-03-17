@@ -13,6 +13,7 @@ namespace android {
 
 #define TEST_MEM_SIZE  (32)
 #define TEST_STRING    "binder.test.memory"
+#define TEST_AMOUNT    (3)
     
 static String16  gBinderTestName("binder_test_service");
 static int32_t   gBinderTestCounter = 0;
@@ -133,21 +134,25 @@ public:
     BinderTestService()  {};
     ~BinderTestService() {};
     void waitForStarted(void) {
-        mThreadStartedMutex.lock();
-        
-        Thread::run();
-        
-        mThreadStartedCondition.wait(mThreadStartedMutex);
-        mThreadStartedMutex.unlock();
+        if (!Thread::isRunning()) {
+            mThreadStartedMutex.lock();
+            
+            Thread::run();
+            
+            mThreadStartedCondition.wait(mThreadStartedMutex);
+            mThreadStartedMutex.unlock();
+        }
     }
     void waitForStopped(void) {
-        mThreadStartedMutex.lock();
-        
-        mIPCThread->stopProcess();
-        Thread::requestExitAndWait();
-        //mIPCThread->shutdown();
+        if (Thread::isRunning()) {
+            mThreadStartedMutex.lock();
+            
+            mIPCThread->stopProcess();
+            Thread::requestExitAndWait();
+            //mIPCThread->shutdown();
 
-        mThreadStartedMutex.unlock();
+            mThreadStartedMutex.unlock();
+        }
     }
 private:
     virtual bool threadLoop()
@@ -174,6 +179,9 @@ private:
     IPCThreadState* mIPCThread;;
 };
 
+static sp<BinderTestService> service = new BinderTestService();
+    
+    
 TEST(libbinder, Binder_native)
 {
 	sp<MemoryDealer> memoryDealer = new MemoryDealer(TEST_MEM_SIZE, "Binder_bn");
@@ -208,12 +216,9 @@ TEST(libbinder, Binder_parcel)
     EXPECT_TRUE(mem != NULL);
     EXPECT_TRUE(mem == bnMem);
 }
-
+    
 TEST(libbinder, Binder_service)
 {
-#define TEST_AMOUNT (3)
-    
-    sp<BinderTestService> service = new BinderTestService();
     service->waitForStarted();
     
     sp<IBinder> client = defaultServiceManager()->getService(gBinderTestName);
@@ -225,14 +230,11 @@ TEST(libbinder, Binder_service)
     int ret = test->increase(TEST_AMOUNT);
     EXPECT_EQ(TEST_AMOUNT, ret);
     EXPECT_EQ(gBinderTestCounter, ret);
-    
-    //service->waitForStopped();
 }
 
 TEST(libbinder, Binder_memory)
 {
-    //sp<BinderTestService> service = new BinderTestService();
-    //service->waitForStarted();
+    service->waitForStarted();
     
     sp<IBinderTest> test;
     status_t chk = getService(gBinderTestName, &test);
@@ -245,8 +247,17 @@ TEST(libbinder, Binder_memory)
     void* pBuf = mem->pointer();
     EXPECT_TRUE(pBuf != NULL);
     EXPECT_STREQ(TEST_STRING, (char *)pBuf);
-    
-    //service->waitForStopped();
 }
+   
     
+TEST(libbinder, Binder_death)
+{
+    service->waitForStarted();
+    service->waitForStopped();
+    
+    sp<IBinderTest> test;
+    status_t chk = getService(gBinderTestName, &test);
+    EXPECT_NE(NO_ERROR, chk);
+    EXPECT_TRUE(test == NULL);}
+
 } // namespace android

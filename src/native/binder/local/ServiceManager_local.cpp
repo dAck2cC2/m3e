@@ -10,7 +10,7 @@
 
 namespace android {
 
-class LocalServiceManager : public BBinder, public Thread
+class LocalServiceManager : public BBinder, public Thread, public IBinder::DeathRecipient
 {
 public:
     LocalServiceManager() : mDescriptor("android.os.IServiceManager") {  };
@@ -50,6 +50,7 @@ public:
                 if (n < 0) {
                     reply->writeInt32(n);
                 } else {
+                    binder->linkToDeath(this);
                     reply->writeInt32(binder::Status::EX_NONE);
                 }
             }
@@ -76,6 +77,17 @@ public:
         return OK;
     };
 
+    virtual void binderDied(const wp<IBinder>& who)
+    {
+        for (size_t i = 0; i < mServices.size(); ++i) {
+            if (who == mServices[i]) {
+                mServices.removeItemsAt(i);
+                break;
+            }
+        }
+    };
+
+    
 protected:
     ~LocalServiceManager() {};
     

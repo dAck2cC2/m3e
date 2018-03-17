@@ -30,6 +30,11 @@ public:
     
     virtual status_t WriteRead(void* data) = 0;
     virtual status_t Push(Parcel* data, int sender) = 0;
+    
+    virtual void AddDeathNotify(int handle, uintptr_t proxy) = 0;
+    virtual void DelDeathNotify(int handle, uintptr_t proxy) = 0;
+    
+    virtual void Exit() = 0;
 }; // IBinderEntry
   
 static Mutex                                gServiceLock;
@@ -57,11 +62,77 @@ public:
     : mHandler(handler), mhParent(-1), mLooper(), mMsgSender(-1), mMsgCache(NULL)
     { /* empty */ };
     
-    ~CBinderEntry() { mLooper = NULL; };
+    ~CBinderEntry() {
+        mLooper = NULL;
+    };
 
     virtual int  GetParentHandler() const { return mhParent; };
     virtual void SetParentHandler(int handler) { mhParent = handler; };
     virtual void SetLooper(const sp<Looper>& looper) {mLooper = looper;};
+    
+    // TODO
+    // When the client has 2 or more Binder Proxy, also register death notification for each,
+    // unregistering one of them will remove all the notification.
+    virtual void AddDeathNotify(int handle, uintptr_t proxy)
+    {
+        AutoMutex _l(mBpLock);
+        mBpList.add(handle, proxy);
+    };
+    virtual void DelDeathNotify(int handle, uintptr_t proxy)
+    {
+        AutoMutex _l(mBpLock);
+        if (mBpList.indexOfKey(handle) > -1) {
+            mBpList.removeItemsAt(handle);
+        }
+    };
+    
+    virtual void Exit()
+    {
+        for (size_t i = 0; i < mBnList.size(); ++i) {
+            // remove handler from service list
+            int handler = mBnList.keyAt(i);
+            if (handler != mHandler) {
+                if (gServiceList.indexOfKey(handler) >= 0) {
+                    sp<IBinderEntry> subEntry = gServiceList.editValueFor(handler);
+                    LOG_ALWAYS_FATAL_IF((subEntry == NULL), "Handler[%d] is impossible disappeared. (-_-)!!! %s:%d", handler, __FILE__, __LINE__);
+                    if (subEntry != NULL) {
+                        subEntry->SetLooper(NULL);
+                        subEntry = NULL;
+                    }
+                    gServiceList.removeItem(handler);
+                }
+            }
+            
+            // release the reference of native binder
+            flat_binder_object obj = mBnList.editValueAt(i);
+            if (obj.binder) {
+                reinterpret_cast<RefBase::weakref_type*>(obj.binder)->decWeak((void *)0);
+                obj.binder = 0;
+                obj.cookie = 0;
+            }
+        }
+        mBnList.clear();
+        
+        // death notification
+        for (size_t i = 0; i < mBpList.size(); ++i) {
+            int handler = mBpList.keyAt(i);
+            uintptr_t proxy = mBpList.valueAt(i);
+            
+            if (gServiceList.indexOfKey(handler) >= 0) {
+                sp<IBinderEntry> eProxy = gServiceList.editValueFor(handler);
+                ALOGE_IF((eProxy == NULL), "Handler[%d] is impossible disappeared. (-_-)!!! %s:%d", handler, __FILE__, __LINE__);
+
+                if (eProxy != NULL) {
+                    Parcel* dead = new Parcel;
+                    dead->writeInt32(BR_DEAD_BINDER);
+                    dead->write((void *)&proxy, sizeof(proxy));
+                    status_t result = eProxy->Push(dead, mHandler);
+                    if (NO_ERROR != result) delete dead;
+                }
+            }
+        }
+        mBpList.clear();
+    }
     
     virtual void CacheMessage(Parcel* msg, int sender)
     {
@@ -71,12 +142,13 @@ public:
     
     virtual status_t WriteRead(void* data)
     {
-        status_t result = BAD_VALUE;
+        status_t result = NO_ERROR;
         int bNeedRead = 0;
         int readTimeout = -1;
         
         binder_write_read* pbwr = (binder_write_read*)data;
-        if (!pbwr) return result;
+        LOG_ALWAYS_FATAL_IF((pbwr == NULL), "Handler[%d] Data is empty. %s:%d", mHandler, __FILE__, __LINE__);
+        if (pbwr == NULL) return BAD_VALUE;
         
         result = Write(pbwr, bNeedRead, readTimeout);
         
@@ -89,9 +161,7 @@ public:
     
     virtual status_t Push(Parcel* data, int sender)
     {
-        status_t result = NO_ERROR;
-
-        LOG_ALWAYS_FATAL_IF((mLooper == NULL), "No Message Looper. %s:%d", __FILE__, __LINE__);
+        LOG_ALWAYS_FATAL_IF((mLooper == NULL), "Handler[%d] No Message Looper. %s:%d", mHandler, __FILE__, __LINE__);
         if (mLooper == NULL) return FAILED_TRANSACTION;
         
         sp<MessageHandler> msg;
@@ -99,15 +169,18 @@ public:
             msg = new BinderMessage(data, this);
         } else {
             sp<IBinderEntry> parent = binder_lookupEntry_local(mhParent);
+            ALOGE_IF((parent == NULL), "Handler[%d] is dead. %s:%d", mhParent, __FILE__, __LINE__);
+            if (parent == NULL) return DEAD_OBJECT;
+            
             msg = new BinderMessage(data, parent.get());
         }
-        LOG_ALWAYS_FATAL_IF((msg == NULL), "No memory when creating Message. %s:%d", __FILE__, __LINE__);
+        LOG_ALWAYS_FATAL_IF((msg == NULL), "Handler[%d] No memory when creating Message. %s:%d", mHandler, __FILE__, __LINE__);
         if (msg == NULL) return NO_MEMORY;
 
         Message evt(sender);
         mLooper->sendMessage(msg, evt);
         
-        return result;
+        return NO_ERROR;
     }
     
 private:
@@ -118,18 +191,24 @@ private:
         bNeedRead   = 0;
         readTimeout = -1;
         
+        // Nothing to write, read only.
         if ((pbwr->write_buffer != 0) && (pbwr->write_size < BINDER_CMD_SIZE)) {
             bNeedRead++;
             return NO_ERROR;
         }
+        
+        // Something wrong with the writing data. Do we need to read ? No, currently.
         if  ((pbwr->write_buffer == 0) && (pbwr->write_size > 0)) {
+            LOG_ALWAYS_FATAL_IF((pbwr->write_buffer == 0), "Handler[%d] Wrong data. %s:%d", mHandler, __FILE__, __LINE__);
             return BAD_VALUE;
         }
         
         while (pbwr->write_consumed < pbwr->write_size) {
             uintptr_t data = (uintptr_t)(pbwr->write_buffer + pbwr->write_consumed);
             size_t    size = pbwr->write_size - pbwr->write_consumed;
-            LOG_ALWAYS_FATAL_IF((size < BINDER_CMD_SIZE), "Wrong data format. %s:%d", __FILE__, __LINE__);
+            
+            // Do not trust the data for reading when something wrong.
+            LOG_ALWAYS_FATAL_IF((size < BINDER_CMD_SIZE), "Handler[%d] Wrong data format. %s:%d", mHandler, __FILE__, __LINE__);
             if (size < BINDER_CMD_SIZE) {
                 bNeedRead = 0;
                 return NOT_ENOUGH_DATA;
@@ -139,65 +218,56 @@ private:
             pbwr->write_consumed += sizeof(int32_t);
             
             switch (*cmd) {
+                case BC_TRANSACTION:
                 case BC_REPLY: {
-                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + BINDER_TR_SIZE), "Wrong data format. %s:%d", __FILE__, __LINE__);
-                    
-                    (*cmd) = BR_REPLY;
+                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + BINDER_TR_SIZE), "Handler[%d] Wrong data format. %s:%d", mHandler, __FILE__, __LINE__);
                     
                     binder_transaction_data* tr = (binder_transaction_data *)(data + BINDER_CMD_SIZE);
                     pbwr->write_consumed += sizeof(binder_transaction_data);
-                    tr->target.handle = mMsgSender;
                     
+                    // reply to the previous sender
+                    //tr->target.handle = mMsgSender;
+                    
+                    // the data will be released by caller, we have to make a copy for receiver.
                     void* copyData = malloc(tr->data_size);
-                    LOG_ALWAYS_FATAL_IF((copyData == NULL), "No memory when creating data copy. %s:%d", __FILE__, __LINE__);
-                    if (!copyData) return NO_MEMORY;
-                    
+                    LOG_ALWAYS_FATAL_IF((copyData == NULL), "Handler[%d] No memory when creating data copy. %s:%d", mHandler, __FILE__, __LINE__);
+                    if (copyData == NULL) return NO_MEMORY;
                     memcpy(copyData, tr->data.ptr.buffer, tr->data_size);
                     tr->data.ptr.buffer = copyData;
                     
+                    // map the native binder to proxy
                     if (tr->data.ptr.offsets && tr->offsets_size) {
                         result = RegisterBn(*tr);
                         if (result) return result;
                     }
                     
-                    result = Send(mMsgSender, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
-                }   break;
-                case BC_TRANSACTION: {
-                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + BINDER_TR_SIZE), "Wrong data format. %s:%d", __FILE__, __LINE__);
-                    
-                    (*cmd) = BR_TRANSACTION;
-                    
-                    binder_transaction_data* tr = (binder_transaction_data *)(data + BINDER_CMD_SIZE);
-                    pbwr->write_consumed += sizeof(binder_transaction_data);
-                    
-                    void* copyData = malloc(tr->data_size);
-                    LOG_ALWAYS_FATAL_IF((copyData == NULL), "No memory when creating data copy. %s:%d", __FILE__, __LINE__);
-                    if (!copyData) return NO_MEMORY;
-                    memcpy(copyData, tr->data.ptr.buffer, tr->data_size);
-                    tr->data.ptr.buffer = copyData;
-                    
-                    if (tr->data.ptr.offsets && tr->offsets_size) {
-                        result = RegisterBn(*tr);
-                        if (result) return result;
+                    if (BC_REPLY == (*cmd)) {
+                        (*cmd) = BR_REPLY;
+                        result = Send(mMsgSender, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
+                    } else {
+                        (*cmd) = BR_TRANSACTION;
+                        result = Send(tr->target.handle, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
                     }
                     
-                    result = Send(tr->target.handle, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
                     if (NO_ERROR == result) {
+                        // wait for the transaction complete
                         bNeedRead++;
                         readTimeout = BINDER_TIMEOUT_MS;
                     }
                 }   break;
                 case BC_ENTER_LOOPER:
                 case BC_REGISTER_LOOPER:
+                    // go to read
                     bNeedRead++;
                     break;
                 case BC_EXIT_LOOPER: {
-                    ExitLoop();
+                    // it should never reach here.
+                    // just exit no need to read
                     bNeedRead = 0;
                     return NO_ERROR;
                 }   break;
                 case BC_FREE_BUFFER: {
-                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(uintptr_t)), "Wrong data format. %s:%d", __FILE__, __LINE__);
+                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(uintptr_t)), "Handler[%d] Wrong data format. %s:%d", mHandler, __FILE__, __LINE__);
                     
                     uintptr_t buf = *((uintptr_t *)(data + BINDER_CMD_SIZE));
                     pbwr->write_consumed += sizeof(uintptr_t);
@@ -205,10 +275,13 @@ private:
                     if (buf != 0) {
                         free((void*)buf);
                     }
+                    
+                    // local command
+                    bNeedRead = 0;
                 }   break;
                 case BC_ACQUIRE:
                 case BC_INCREFS: {
-                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(int32_t)), "Wrong data format. %s:%d", __FILE__, __LINE__);
+                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(int32_t)), "Handler[%d] Wrong data format. %s:%d", mHandler, __FILE__, __LINE__);
                     if (BC_INCREFS == (*cmd)) {
                         (*cmd) = BR_INCREFS;
                     } else {
@@ -219,6 +292,7 @@ private:
                     pbwr->write_consumed += sizeof(int32_t);
                     result = Send(dstHandler, (uint8_t *)data, BINDER_CMD_SIZE + sizeof(int32_t));
                     if (NO_ERROR == result) {
+                        // wait for the result
                         bNeedRead++;
                         readTimeout = BINDER_TIMEOUT_MS;
                     }
@@ -232,11 +306,14 @@ private:
                     
                     (*cmd) = BR_OK;
                     result = Reply((uint8_t *)data, BINDER_CMD_SIZE);
+                    
+                    // no reply for reply
+                    bNeedRead = 0;
                 }   break;
                     
                 case BC_RELEASE:
                 case BC_DECREFS: {
-                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(int32_t)), "Wrong data format. %s:%d", __FILE__, __LINE__);
+                    LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(int32_t)), "Handler[%d] Wrong data format. %s:%d", mHandler, __FILE__, __LINE__);
                     if (BC_DECREFS == (*cmd)) {
                         (*cmd) = BR_DECREFS;
                     } else {
@@ -246,23 +323,88 @@ private:
                     int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
                     pbwr->write_consumed += sizeof(int32_t);
                     result = Send(dstHandler, (uint8_t *)data, BINDER_CMD_SIZE + sizeof(int32_t));
-                }   break;
-                case BC_ACQUIRE_RESULT: {
-                    int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
-                    pbwr->write_consumed += sizeof(int32_t);
+                    
+                    // no reply for this command
+                    bNeedRead = 0;
                 }   break;
                 case BC_ATTEMPT_ACQUIRE: {
+                    (*cmd) = BR_ATTEMPT_ACQUIRE;
+                    
+                    // no use currently
                     int32_t value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
                     pbwr->write_consumed += sizeof(int32_t);
+                    
+                    // handler
                     value = *((int32_t *)(pbwr->write_buffer + pbwr->write_consumed));
                     pbwr->write_consumed += sizeof(int32_t);
+                    
+                    // No HAS_BC_ATTEMPT_ACQUIRE currently
+                    // IPCThreadState::attemptIncStrongHandle
+                    result = Send(value, (uint8_t *)data, BINDER_CMD_SIZE);
+                    if (NO_ERROR == result) {
+                        // wait for the reulst
+                        bNeedRead++;
+                        readTimeout = BINDER_TIMEOUT_MS;
+                    }
                 }   break;
-                case BC_REQUEST_DEATH_NOTIFICATION:
-                case BC_CLEAR_DEATH_NOTIFICATION:
-                case BC_DEAD_BINDER_DONE:
-                    break;
+                case BC_ACQUIRE_RESULT: {
+                    int32_t success = *((int32_t *)(data + BINDER_CMD_SIZE));
+                    pbwr->write_consumed += sizeof(int32_t);
+                    
+                    // No HAS_BC_ATTEMPT_ACQUIRE currently
+                    // IPCThreadState::attemptIncStrongHandle
+                    if (success) {
+                        (*cmd) = BR_OK;
+                        result = Reply((uint8_t *)data, BINDER_CMD_SIZE);
+                    } else {
+                        (*cmd) = BR_ERROR;
+                        result = Reply((uint8_t *)data, BINDER_CMD_SIZE + sizeof(int32_t));
+                    }
+                    
+                    // no reply for reply
+                    bNeedRead = 0;
+                }   break;
+                case BC_REQUEST_DEATH_NOTIFICATION: {
+                    int32_t hDst = *((int32_t *)(data + BINDER_CMD_SIZE));
+                    pbwr->write_consumed += sizeof(int32_t);
+                    uintptr_t proxy = *((uintptr_t *)(data + BINDER_CMD_SIZE + sizeof(int32_t)));
+                    pbwr->write_consumed += sizeof(uintptr_t);
+                    
+                    sp<IBinderEntry> eDst = binder_lookupEntry_local(hDst);
+                    ALOGE_IF((eDst == NULL), "Handler[%d] is dead. %s:%d", hDst, __FILE__, __LINE__);
+                    if (eDst == NULL) return DEAD_OBJECT;
+
+                    eDst->AddDeathNotify(mHandler, proxy);
+                    
+                    // local command
+                    bNeedRead = 0;
+                }   break;
+                case BC_CLEAR_DEATH_NOTIFICATION: {
+                    int32_t hDst = *((int32_t *)(data + BINDER_CMD_SIZE));
+                    pbwr->write_consumed += sizeof(int32_t);
+                    uintptr_t proxy = *((uintptr_t *)(data + BINDER_CMD_SIZE + sizeof(int32_t)));
+                    pbwr->write_consumed += sizeof(uintptr_t);
+
+                    sp<IBinderEntry> eDst = binder_lookupEntry_local(hDst);
+                    ALOGE_IF((eDst == NULL), "Handler[%d] is dead. %s:%d", hDst, __FILE__, __LINE__);
+                    if (eDst == NULL) return DEAD_OBJECT;
+
+                    eDst->DelDeathNotify(mHandler, proxy);
+                    
+                    // local command
+                    bNeedRead = 0;
+                }   break;
+                case BC_DEAD_BINDER_DONE: {
+                    //uintptr_t proxy = *((uintptr_t *)(data + BINDER_CMD_SIZE));
+                    pbwr->write_consumed += sizeof(uintptr_t);
+                    
+                    // the death notification is managed on native binder side
+                    // we do not have to do anything on proxy side.
+                    
+                    bNeedRead = 0;
+                }   break;
                 default:
-                    LOG_ALWAYS_FATAL("Unknown command %s:%d", __FILE__, __LINE__);
+                    LOG_ALWAYS_FATAL("Handler[%d] Cmd[%d] Unknown command %s:%d", mHandler, *cmd, __FILE__, __LINE__);
                     break;
             } // switch
         } // while
@@ -272,26 +414,28 @@ private:
     
     status_t Read(binder_write_read* pbwr, int readTimeout)
     {
-        status_t result = NO_ERROR;
-        
+        // No read buffer. It seems not possible.
         if ((pbwr->read_buffer == 0) || (pbwr->read_size == 0)) {
             return NO_ERROR;
         }
         int32_t* cmd = (int32_t *)(pbwr->read_buffer);
         
-        LOG_ALWAYS_FATAL_IF((mLooper == NULL), "No Message Looper. %s:%d", __FILE__, __LINE__);
+        LOG_ALWAYS_FATAL_IF((mLooper == NULL), "Handler[%d] No Message Looper. %s:%d", mHandler, __FILE__, __LINE__);
         if (mLooper == NULL) return FAILED_TRANSACTION;
         
         int ret = mLooper->pollOnce(readTimeout);
         if (Looper::POLL_TIMEOUT == ret) {
+            // It means thread is dead when we cannot get reply in time.
             (*cmd) = BR_DEAD_REPLY;
             return NO_ERROR;
         }
         
         if (mMsgCache != NULL && mMsgCache->dataSize() <= pbwr->read_size) {
+            // backup the data to reading buffer
             memcpy((void *)(pbwr->read_buffer), mMsgCache->data(), mMsgCache->dataSize());
-            pbwr->read_consumed += sizeof(int32_t);
             
+            // it only has command at first.
+            pbwr->read_consumed += sizeof(int32_t);
             switch (*cmd) {
                 case BR_REPLY:
                 case BR_TRANSACTION: {
@@ -304,10 +448,9 @@ private:
                         tr->cookie = (void *)(obj.cookie);
                     }
                     
-                    if (BR_TRANSACTION == (*cmd)) {
-                        int32_t complete = BR_TRANSACTION_COMPLETE;
-                        Send(mMsgSender, (uint8_t *)(&complete), sizeof(complete));
-                    }
+                    // we have to send the complete also for BR_REPLY
+                    int32_t complete = BR_TRANSACTION_COMPLETE;
+                    Send(mMsgSender, (uint8_t *)(&complete), sizeof(complete));
                 }   break;
                 case BR_ACQUIRE:
                 case BR_RELEASE:
@@ -315,22 +458,40 @@ private:
                 case BR_DECREFS: {
                     int32_t* hTarget = (int32_t *)(pbwr->read_buffer + BINDER_CMD_SIZE);
                     if (mBnList.indexOfKey(*hTarget) >= 0) {
-                        flat_binder_object& obj = mBnList.editValueFor(*hTarget);
+                        const flat_binder_object& obj = mBnList.valueFor(*hTarget);
                         binder_uintptr_t* ptr = (binder_uintptr_t *)(pbwr->read_buffer + BINDER_CMD_SIZE);
                         (*ptr++) = obj.binder;
                         (*ptr)   = obj.cookie;
                         pbwr->read_consumed += 2 * sizeof(binder_uintptr_t);
                     } else {
-                        LOG_ALWAYS_FATAL("No object %s:%d", __FILE__, __LINE__);
+                        LOG_ALWAYS_FATAL("Handler[%d] No object %s:%d", *hTarget, __FILE__, __LINE__);
                         (*cmd) = BR_NOOP;
                     }
                 }   break;
-                case BR_FINISHED:
+                case BR_ATTEMPT_ACQUIRE: {
+                    if (mBnList.size() > 0) {
+                        const flat_binder_object& obj = mBnList[0];
+                        binder_uintptr_t* ptr = (binder_uintptr_t *)(pbwr->read_buffer + BINDER_CMD_SIZE);
+                        (*ptr++) = obj.binder;
+                        (*ptr)   = obj.cookie;
+                        pbwr->read_consumed += 2 * sizeof(binder_uintptr_t);
+                    } else {
+                        LOG_ALWAYS_FATAL("Handler[%d] No object %s:%d", mHandler, __FILE__, __LINE__);
+                        (*cmd) = BR_NOOP;
+                    }
+                }   break;
+                case BR_DEAD_BINDER: {
+                    pbwr->read_consumed += sizeof(uintptr_t);
+                }   break;
+                case BR_ERROR: {
+                    pbwr->read_consumed += sizeof(int32_t);
+                }   break;
                 case BR_OK:
+                case BR_FINISHED:
                 case BR_TRANSACTION_COMPLETE:
                     break;
                 default:
-                    LOG_ALWAYS_FATAL("Unknown command %s:%d", __FILE__, __LINE__);
+                    LOG_ALWAYS_FATAL("Handler[%d] Cmd[%d] Unknown command %s:%d", mHandler, *cmd, __FILE__, __LINE__);
                     break;
             } // switch
         } // if
@@ -340,7 +501,7 @@ private:
             mMsgCache = NULL;
         }
         
-        return result;
+        return NO_ERROR;
     } // Read
 
     status_t Reply(uint8_t* data, size_t size)
@@ -351,29 +512,42 @@ private:
     
     status_t RegisterBn(binder_transaction_data& tr)
     {
-        status_t result = NO_ERROR;
-        
+        // decode the binder object from Parcel according to Parcel::writeObject
         for (int i = 0; i < ((tr.offsets_size)/sizeof(binder_size_t)); ++i) {
             binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
             flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
             if (obj->type == BINDER_TYPE_BINDER) {
+                // Add reference to avoid it may be released
                 reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
                 
-                int handlerBp = mHandler;
+                // the first should be the one which is registered to Service Manager
+                int hProxy = mHandler;
                 if (mBnList.isEmpty()) {
-                    handlerBp = mHandler;
+                    hProxy = mHandler;
                     
                     #if  BINDER_DEBUG
                     int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
                     char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
                     mName = new String16(nameBuf);
                     #endif // BINDER_DEBUG
+                    
+                // the following is anonymous binder
                 } else {
-                    handlerBp = gHandlerCounter++;
-                    sp<IBinderEntry> add = binder_lookupEntry_local(handlerBp);
-                    if (add == NULL) return NO_MEMORY;
-                    add->SetLooper(mLooper);
-                    add->SetParentHandler(mHandler);
+                    AutoMutex _l(gServiceLock);
+
+                    hProxy = gHandlerCounter++;
+                    sp<IBinderEntry> eProxy = new CBinderEntry(hProxy);
+                    LOG_ALWAYS_FATAL_IF((eProxy == NULL), "Handler[%d] Failed to create binder entry. %s:%d", hProxy, __FILE__, __LINE__);
+                    
+                    ssize_t N = gServiceList.add(hProxy, eProxy);
+                    LOG_ALWAYS_FATAL_IF((N < 0), "Handler[%d] Failed to add binder entry. %s:%d", hProxy, __FILE__, __LINE__);
+                    if (N < 0) {
+                        return (NO_MEMORY);
+                    }
+                    
+                    // it sends the message to current threads
+                    eProxy->SetLooper(mLooper);
+                    eProxy->SetParentHandler(mHandler);
                     
                     #if  BINDER_DEBUG
                     int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
@@ -382,16 +556,18 @@ private:
                     #endif  //  BINDER_DEBUG
                 }
                 
-                mBnList.add(handlerBp, *obj);
+                // map the handler to native binder
+                mBnList.add(hProxy, *obj);
                 
+                // return the proxy for this native binder
                 obj->type = BINDER_TYPE_HANDLE;
                 obj->binder = 0;
-                obj->handle = handlerBp;
+                obj->handle = hProxy;
                 obj->cookie = 0;
             }
         }
         
-        return result;
+        return NO_ERROR;
     } // RegisterBn
 
     status_t Send(int hDst, uint8_t* data, size_t size)
@@ -399,63 +575,31 @@ private:
         status_t result = NO_ERROR;
         
         sp<IBinderEntry> eDst = binder_lookupEntry_local(hDst);
-        LOG_ALWAYS_FATAL_IF((eDst == NULL), "No object. %s:%d", __FILE__, __LINE__);
+        ALOGE_IF((eDst == NULL), "Handler[%d] is dead. %s:%d", hDst, __FILE__, __LINE__);
         if (eDst == NULL) return (DEAD_OBJECT);
         
         Parcel* msg = new Parcel();
         LOG_ALWAYS_FATAL_IF((msg == NULL), "No memory when creating Parcel. %s:%d", __FILE__, __LINE__);
-        if (!msg) return NO_MEMORY;
+        if (msg == NULL) return NO_MEMORY;
         
         msg->setData((uint8_t *)data, size);
         result = eDst->Push(msg, mHandler);
+        if (NO_ERROR != result) delete msg;
         
         return result;
     }
-
-    status_t ExitLoop()
-    {
-        status_t result = NO_ERROR;
-        
-        mLooper = NULL;
-        
-        for (size_t i = 0; i < mBnList.size(); ++i) {
-            // remove the service for it
-            int handler = mBnList.keyAt(i);
-            if (handler != mHandler) {
-                AutoMutex _l(gServiceLock);
-                
-                sp<IBinderEntry> subEntry = gServiceList.editValueFor(handler);
-                if (subEntry != NULL) {
-                    subEntry->SetLooper(NULL);
-                    subEntry = NULL;
-                }
-                gServiceList.removeItem(handler);
-            }
-            
-            // remove the binder native for it
-            flat_binder_object obj = mBnList.editValueAt(i);
-            if (obj.binder) {
-                reinterpret_cast<RefBase::weakref_type*>(obj.binder)->decWeak((void *)0);
-                obj.binder = 0;
-                obj.cookie = 0;
-            }
-        }
-        
-        mBnList.clear();
-        
-        return result;
-    }
-
     
 private:
     class BinderMessage : public MessageHandler
     {
     public:
         BinderMessage(Parcel* data, IBinderEntry* out) : mMsg(data), mDst(out) {};
+        ~BinderMessage() { if (mMsg != NULL) delete mMsg; };
         
         virtual void handleMessage(const Message& evt) {
             if (mDst != NULL) {
                 mDst->CacheMessage(mMsg, evt.what);
+                mMsg = NULL;
             }
         };
     private:
@@ -464,7 +608,10 @@ private:
     }; // BinderMessage
     
     // server
-    KeyedVector<int, flat_binder_object>  mBnList;
+    KeyedVector<int, flat_binder_object>  mBnList;   // pointer of native binder
+    KeyedVector<int, uintptr_t>           mBpList;   // proxy for death notification
+    Mutex                                 mBpLock;
+
     int         mHandler;
     int         mhParent;
     sp<Looper>  mLooper;
@@ -478,10 +625,11 @@ private:
 
 static sp<IBinderEntry> binder_lookupEntry_local(int handler)
 {
+    AutoMutex _l(gServiceLock);
+
     const ssize_t N = gServiceList.indexOfKey(handler);
     if (N < 0) {
-        sp<IBinderEntry> e = new CBinderEntry(handler);
-        gServiceList.add(handler, e);
+        return (NULL);
     }
     
     return (gServiceList.editValueFor(handler));
@@ -497,12 +645,16 @@ int binder_open_local()
     AutoMutex _l(gServiceLock);
     
     int handler = gHandlerCounter++;
-    sp<IBinderEntry> e = binder_lookupEntry_local(handler);
+
+    sp<IBinderEntry> e = new CBinderEntry(handler);
     LOG_ALWAYS_FATAL_IF((e == NULL), "Failed to create binder entry. %s:%d", __FILE__, __LINE__);
-    if (e == NULL) {
+
+    ssize_t N = gServiceList.add(handler, e);
+    LOG_ALWAYS_FATAL_IF((N < 0), "Failed to add binder entry. %s:%d", __FILE__, __LINE__);
+    if (N < 0) {
         return (-1);
     }
-
+    
     e->SetLooper(new Looper(true));
 
     return handler;
@@ -512,16 +664,29 @@ status_t binder_close_local(int handler)
 {
     AutoMutex _l(gServiceLock);
     
-    status_t result = NO_ERROR;
-    sp<IBinderEntry> e = binder_lookupEntry_local(handler);
-    LOG_ALWAYS_FATAL_IF((e == NULL), "Handler is already closed. %s:%d", __FILE__, __LINE__);
-    if (e != NULL) {
-        Parcel finish;
-        finish.writeInt32(BR_FINISHED);
-        e->Push(&finish, -1);
+    const ssize_t N = gServiceList.indexOfKey(handler);
+    LOG_ALWAYS_FATAL_IF((N < 0), "Handler[%d] does not exist. %s:%d", handler, __FILE__, __LINE__);
+    if (N < 0) {
+        return (BAD_VALUE);
     }
+    
+    sp<IBinderEntry> e = gServiceList.editValueFor(handler);
+    LOG_ALWAYS_FATAL_IF((e == NULL), "Handler[%d] is impossible disappeared. (-_-)!!! %s:%d", handler, __FILE__, __LINE__);
+    if (e != NULL) {
+        // send the message to exit the thread
+        Parcel* finish = new Parcel;
+        finish->writeInt32(BR_ERROR);
+        finish->writeInt32(-ECONNREFUSED);
+        status_t result = e->Push(finish, -1);
+        if (NO_ERROR != result) delete finish;
+        
+        // exit service
+        e->Exit();
+        e = NULL;
+    }
+    gServiceList.removeItem(handler);
 
-	return result;
+	return NO_ERROR;
 }
 
 status_t binder_ioctl_local(int handler, int cmd, void* data)
@@ -548,8 +713,13 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
         gHandlerContextManager = handler;
     }   break;
     case BINDER_WRITE_READ: {
+        // service manager is not ready
+        if ((handler == 0) && (gHandlerContextManager == 0)) {
+            return INVALID_OPERATION;
+        }
+        
         sp<IBinderEntry> e = binder_lookupEntry_local(handler);
-        LOG_ALWAYS_FATAL_IF((e == 0), "Invalid handler %s:%d", __FILE__, __LINE__);
+        ALOGE_IF((e == 0), "Handler[%d] is dead. %s:%d", handler, __FILE__, __LINE__);
 
         if (e != NULL) {
             result = e->WriteRead(data);
@@ -565,6 +735,10 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
 		break;
 	}
 
+    if (NO_ERROR != result) {
+        result = EBADF;
+    }
+    
 	return result;
 }
 

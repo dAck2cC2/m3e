@@ -74,7 +74,7 @@ public:
             status_t    join();
 
     // Indicates whether this thread is running or not.
-            bool        isRunning() const;
+    bool        isRunning() const { return mRunning; };
 
 #if defined(__ANDROID__)
     // Return the thread's kernel ID, same as the thread itself calling gettid(),
