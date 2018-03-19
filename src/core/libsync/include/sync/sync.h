@@ -19,6 +19,8 @@
 #ifndef __SYS_CORE_SYNC_H
 #define __SYS_CORE_SYNC_H
 
+#include <cutils/compiler.h>
+
 #include <sys/cdefs.h>
 #include <stdint.h>
 
@@ -42,12 +44,12 @@ struct sync_pt_info {
 };
 
 /* timeout in msecs */
-int sync_wait(int fd, int timeout);
-int sync_merge(const char *name, int fd1, int fd2);
-struct sync_fence_info_data *sync_fence_info(int fd);
-struct sync_pt_info *sync_pt_info(struct sync_fence_info_data *info,
+ANDROID_API int sync_wait(int fd, int timeout);
+ANDROID_API int sync_merge(const char *name, int fd1, int fd2);
+ANDROID_API struct sync_fence_info_data *sync_fence_info(int fd);
+ANDROID_API struct sync_pt_info *sync_pt_info(struct sync_fence_info_data *info,
                                   struct sync_pt_info *itr);
-void sync_fence_info_free(struct sync_fence_info_data *info);
+ANDROID_API void sync_fence_info_free(struct sync_fence_info_data *info);
 
 __END_DECLS
 

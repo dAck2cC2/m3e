@@ -14,6 +14,12 @@ include(${M3E_SOURCE_DIR}/cmake/native/ui/include.cmake)
 
 add_definitions(-DANDROID_IMPLEMENTATION=1)
 
+if(MSVC)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+    #add_definitions(-D__STDC_LIMIT_MACROS=1)
+    #add_definitions(-DNOMINMAX)
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/native/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/native/ui )
 

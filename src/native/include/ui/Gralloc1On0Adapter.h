@@ -27,6 +27,15 @@
 #include <unordered_map>
 #include <vector>
 
+#if defined(_MSC_VER)
+	#if defined IN
+		#undef IN
+	#endif
+	#if defined OUT
+		#undef OUT
+	#endif
+#endif // _MSC_VER
+
 struct gralloc_module_t;
 
 // This is not an "official" capability (i.e., it is not found in gralloc1.h),

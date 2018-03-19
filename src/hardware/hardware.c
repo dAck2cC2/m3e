@@ -18,9 +18,17 @@
 
 #include <cutils/properties.h>
 
+#if defined(_MSC_VER)
+#include <windows.h>
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
+#define strlcpy strncpy
+#else
 #include <dlfcn.h>
-#include <string.h>
 #include <pthread.h>
+#endif // _MSC_VER
+#include <string.h>
 #include <errno.h>
 #include <limits.h>
 
@@ -78,17 +86,30 @@ static int load(const char *id,
      * dlopen returns. Since RTLD_GLOBAL is not or'd in with
      * RTLD_NOW the external symbols will not be global
      */
+#if defined(_MSC_VER)
+	handle = LoadLibrary(path);
+#else
     handle = dlopen(path, RTLD_NOW);
+#endif
     if (handle == NULL) {
+#if defined(_MSC_VER)
+		DWORD dwerror = GetLastError();
+		ALOGE("load: module=%s\n%d", path, dwerror);
+#else
         char const *err_str = dlerror();
         ALOGE("load: module=%s\n%s", path, err_str?err_str:"unknown");
+#endif
         status = -EINVAL;
         goto done;
     }
 
     /* Get the address of the struct hal_module_info. */
     const char *sym = HAL_MODULE_INFO_SYM_AS_STR;
+#if defined(_MSC_VER) 
+	hmi = (struct hw_module_t *)GetProcAddress(handle, sym);
+#else
     hmi = (struct hw_module_t *)dlsym(handle, sym);
+#endif
     if (hmi == NULL) {
         ALOGE("load: couldn't find symbol %s", sym);
         status = -EINVAL;
@@ -111,7 +132,11 @@ static int load(const char *id,
     if (status != 0) {
         hmi = NULL;
         if (handle != NULL) {
+#if defined(_MSC_VER)
+			FreeLibrary((HMODULE)handle);
+#else
             dlclose(handle);
+#endif
             handle = NULL;
         }
     } else {

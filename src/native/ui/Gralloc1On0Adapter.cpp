@@ -183,8 +183,13 @@ void Gralloc1On0Adapter::dump(uint32_t* outSize, char* outBuffer)
         std::copy_n(buffer, actualLength, mCachedDump.begin());
         *outSize = static_cast<uint32_t>(actualLength);
     } else {
-        *outSize = std::min(*outSize,
+#if defined(_MSC_VER)
+		*outSize = min(*outSize,
                 static_cast<uint32_t>(mCachedDump.size()));
+#else
+		*outSize = std::min(*outSize,
+			static_cast<uint32_t>(mCachedDump.size()));
+#endif
         outBuffer = std::copy_n(mCachedDump.cbegin(), *outSize, outBuffer);
     }
 }

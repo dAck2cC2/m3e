@@ -24,7 +24,6 @@
 #include <sys/types.h>
 
 #if defined(_MSC_VER)
-#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #endif // _MSC_VER
 

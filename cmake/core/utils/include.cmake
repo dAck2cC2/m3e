@@ -5,6 +5,7 @@ if(MSVC)
     add_definitions(-DHAVE_MS_C_RUNTIME)
     add_definitions(-DHAVE_WIN32_THREADS)
     add_definitions(-D__PRETTY_FUNCTION__=__FUNCTION__)
+    add_definitions(-D__STDC_LIMIT_MACROS=1)
     include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/msvc)
 
 elseif(APPLE)

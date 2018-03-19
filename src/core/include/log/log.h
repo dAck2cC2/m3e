@@ -692,6 +692,7 @@ int __android_log_is_loggable(int prio, const char *tag, int default_prio);
 
 int __android_log_security(); /* Device Owner is present */
 
+ANDROID_API
 int __android_log_error_write(int tag, const char *subTag, int32_t uid, const char *data,
                               uint32_t dataLen);
 

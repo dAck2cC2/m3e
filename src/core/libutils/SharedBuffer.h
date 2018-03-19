@@ -21,8 +21,9 @@
 #ifndef ANDROID_SHARED_BUFFER_H
 #define ANDROID_SHARED_BUFFER_H
 
-#include <atomic>
 #include <stdint.h>
+#include <atomic>
+//#include <stdint.h>
 #include <sys/types.h>
 
 // ---------------------------------------------------------------------------

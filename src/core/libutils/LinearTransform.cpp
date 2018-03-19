@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#define __STDC_LIMIT_MACROS
+//#define __STDC_LIMIT_MACROS
 
 #include <assert.h>
 #include <stdint.h>
