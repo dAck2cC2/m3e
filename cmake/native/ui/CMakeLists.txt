@@ -41,11 +41,6 @@ file(GLOB UI_HEADER_FILES  ${HEADER_PATH}/ui/*.h)
 # source files
 file(GLOB UI_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
 
-#list(REMOVE_ITEM UI_SOURCE_FILES ${SOURCE_PATH}/Gralloc1On0Adapter.cpp)
-#list(REMOVE_ITEM UI_SOURCE_FILES ${SOURCE_PATH}/Gralloc1.cpp)
-#list(REMOVE_ITEM UI_SOURCE_FILES ${SOURCE_PATH}/GraphicBuffer.cpp)
-#list(REMOVE_ITEM UI_SOURCE_FILES ${SOURCE_PATH}/GraphicBufferMapper.cpp)
-#list(REMOVE_ITEM UI_SOURCE_FILES ${SOURCE_PATH}/GraphicBufferAllocator.cpp)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
