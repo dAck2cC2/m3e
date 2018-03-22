@@ -8,7 +8,9 @@ endif()
 # download and include external module
 
 # angle for EGL and OpenGL
-add_subdirectory(angle)
+if (ENABLE_ANGLE)
+    add_subdirectory(angle)
+endif(ENABLE_ANGLE)
 
 # skia
 if(ENABLE_SKIA)

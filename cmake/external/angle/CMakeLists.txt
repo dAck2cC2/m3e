@@ -2,9 +2,9 @@
 project(ANGLE)
 
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
-message(STATUS "Download\t angel")
-exec_program("git clone https://github.com/google/angle.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-exec_program("git reset --hard b2c60b1a195049ede3f3d28a81cb1ff35929f88b" ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
+    message(STATUS "Download\t angel")
+    exec_program("git clone https://github.com/google/angle.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
+    exec_program("git reset --hard b2c60b1a195049ede3f3d28a81cb1ff35929f88b" ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
 endif()
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
@@ -15,24 +15,27 @@ add_definitions(-DLIBANGLE_IMPLEMENTATION)
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src )
 
+if(NOT EXISTS ${SOURCE_PATH}/id)
+    exec_program("mkdir id" ${SOURCE_PATH})
+    exec_program("cp ../commit.h ./" ${SOURCE_PATH}/id)
+endif()
+
 include_directories(AFTER ${SOURCE_PATH})
 include_directories(AFTER ${SOURCE_PATH}/common/third_party/base)
 
-
-if(APPLE)
-    add_definitions(-DANGLE_ENABLE_OPENGL=1)
-    add_definitions(-DANGLE_PLATFORM_APPLE=1)
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++14 -stdlib=libc++")
-elseif(CYGWIN)
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11")
-elseif(UNIX)
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++0x")
-endif()
-
 # header files
+file(GLOB ANGLE_HEADER_KHR ${HEADER_PATH}/KHR/*.h)
 file(GLOB ANGLE_HEADER_EGL ${HEADER_PATH}/EGL/*.h)
+file(GLOB ANGLE_HEADER_GLES ${HEADER_PATH}/GLES/*.h)
+file(GLOB ANGLE_HEADER_GLES2 ${HEADER_PATH}/GLES2/*.h)
+file(GLOB ANGLE_HEADER_GLES3 ${HEADER_PATH}/GLES3/*.h)
 list(APPEND ANGLE_HEADER_FILES  
-${ANGLE_HEADER_EGL})
+${ANGLE_HEADER_KHR}
+${ANGLE_HEADER_EGL}
+${ANGLE_HEADER_GLES}
+${ANGLE_HEADER_GLES2}
+${ANGLE_HEADER_GLES3}
+)
 
 # source files
 set(ANGLE_SOURCE_COMMON
@@ -114,11 +117,24 @@ ${SOURCE_PATH}/libANGLE/WorkerThread.cpp
 file(GLOB ANGLE_SOURCE_RENDER ${SOURCE_PATH}/libANGLE/renderer/*.cpp )
 list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_RENDER} )
 
-file(GLOB ANGLE_SOURCE_RENDER_GL ${SOURCE_PATH}/libANGLE/renderer/gl/*.cpp )
-list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_RENDER_GL} )
 
-if(APPLE)
+if(MSVC)
+    add_definitions(-DANGLE_PLATFORM_WINDOWS)
+    add_definitions(-DANGLE_ENABLE_D3D9)
+    add_definitions(-DNOMINMAX)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+
+    list(REMOVE_ITEM ANGLE_SOURCE_ANGLE ${SOURCE_PATH}/libANGLE/renderer/Format_table_autogen.cpp)
+    list(APPEND ANGLE_SOURCE_ANGLE ${M3E_SOURCE_DIR}/src/${EXT_PATH}/angle/Format_table_autogen_msvc.cpp)
+    
+elseif(APPLE)
+    add_definitions(-DANGLE_ENABLE_OPENGL=1)
+    add_definitions(-DANGLE_PLATFORM_APPLE=1)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++14 -stdlib=libc++")
     set(CMAKE_C_FLAGS "-x objective-c")
+
+    file(GLOB ANGLE_SOURCE_RENDER_GL ${SOURCE_PATH}/libANGLE/renderer/gl/*.cpp )
+    list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_RENDER_GL} )
 
     find_package(OpenGL REQUIRED)
     list(APPEND ANGLE_DEPLIB ${OPENGL_gl_LIBRARY})
@@ -136,7 +152,13 @@ if(APPLE)
     ${SOURCE_PATH}/libANGLE/renderer/gl/cgl/PbufferSurfaceCGL.mm   
     ${SOURCE_PATH}/libANGLE/renderer/gl/cgl/WindowSurfaceCGL.mm  
     )
+elseif(CYGWIN)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11")
+elseif(UNIX)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++0x")
 endif()
+
+
 file(GLOB ANGLE_SOURCE_EGL ${SOURCE_PATH}/libEGL/*.cpp)
 file(GLOB ANGLE_SOURCE_GLESv2 ${SOURCE_PATH}/libGLESv2/*.cpp)
 list(APPEND ANGLE_SOURCE_FILES  
