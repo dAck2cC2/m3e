@@ -41,16 +41,125 @@ ${ANGLE_HEADER_GLES3}
 set(ANGLE_SOURCE_COMMON
 ${SOURCE_PATH}/common/angleutils.cpp
 ${SOURCE_PATH}/common/debug.cpp
+${SOURCE_PATH}/common/event_tracer.cpp
+${SOURCE_PATH}/common/Float16ToFloat32.cpp
+${SOURCE_PATH}/common/mathutil.cpp
+${SOURCE_PATH}/common/matrix_utils.cpp
+${SOURCE_PATH}/common/MemoryBuffer.cpp
+${SOURCE_PATH}/common/string_utils.cpp
 ${SOURCE_PATH}/common/tls.cpp
 ${SOURCE_PATH}/common/utilities.cpp
 ${SOURCE_PATH}/common/uniform_type_info_autogen.cpp
+${SOURCE_PATH}/common/third_party/base/anglebase/sha1.cc
 )
-file(GLOB ANGLE_SOURCE_COMPILER_TRANSLATOR
-#${SOURCE_PATH}/compiler/translator/*.cpp
+
+set(ANGLE_SOURCE_COMPILER_TRANSLATOR
+${SOURCE_PATH}/compiler/translator/AddAndTrueToLoopCondition.cpp
+${SOURCE_PATH}/compiler/translator/BuiltInFunctionEmulator.cpp
+${SOURCE_PATH}/compiler/translator/CallDAG.cpp
+${SOURCE_PATH}/compiler/translator/ClampFragDepth.cpp
+${SOURCE_PATH}/compiler/translator/ClampPointSize.cpp
+${SOURCE_PATH}/compiler/translator/CodeGen.cpp
+${SOURCE_PATH}/compiler/translator/CollectVariables.cpp
+${SOURCE_PATH}/compiler/translator/ConstantUnion.cpp
+${SOURCE_PATH}/compiler/translator/Compiler.cpp
+${SOURCE_PATH}/compiler/translator/Declarator.cpp
+${SOURCE_PATH}/compiler/translator/DeclareAndInitBuiltinsForInstancedMultiview.cpp
+${SOURCE_PATH}/compiler/translator/DeferGlobalInitializers.cpp
+${SOURCE_PATH}/compiler/translator/Diagnostics.cpp
+${SOURCE_PATH}/compiler/translator/DirectiveHandler.cpp
+${SOURCE_PATH}/compiler/translator/EmulatePrecision.cpp
+${SOURCE_PATH}/compiler/translator/ExtensionBehavior.cpp
+${SOURCE_PATH}/compiler/translator/FoldExpressions.cpp
+${SOURCE_PATH}/compiler/translator/FindMain.cpp
+${SOURCE_PATH}/compiler/translator/FindSymbolNode.cpp
+${SOURCE_PATH}/compiler/translator/FunctionLookup.cpp
+${SOURCE_PATH}/compiler/translator/glslang_lex.cpp
+${SOURCE_PATH}/compiler/translator/glslang_tab.cpp
+${SOURCE_PATH}/compiler/translator/HashNames.cpp
+${SOURCE_PATH}/compiler/translator/Initialize.cpp
+${SOURCE_PATH}/compiler/translator/InitializeDll.cpp
+${SOURCE_PATH}/compiler/translator/InitializeVariables.cpp
+${SOURCE_PATH}/compiler/translator/InfoSink.cpp
+${SOURCE_PATH}/compiler/translator/IntermNode.cpp
+${SOURCE_PATH}/compiler/translator/IntermNodePatternMatcher.cpp
+${SOURCE_PATH}/compiler/translator/IntermNode_util.cpp
+${SOURCE_PATH}/compiler/translator/IntermTraverse.cpp
+${SOURCE_PATH}/compiler/translator/ImmutableString.cpp
+${SOURCE_PATH}/compiler/translator/ImmutableStringBuilder.cpp
+${SOURCE_PATH}/compiler/translator/IsASTDepthBelowLimit.cpp
+${SOURCE_PATH}/compiler/translator/Operator.cpp
+${SOURCE_PATH}/compiler/translator/OutputTree.cpp
+${SOURCE_PATH}/compiler/translator/ParseContext.cpp
+${SOURCE_PATH}/compiler/translator/PoolAlloc.cpp
+${SOURCE_PATH}/compiler/translator/PruneEmptyCases.cpp
+${SOURCE_PATH}/compiler/translator/PruneNoOps.cpp
+${SOURCE_PATH}/compiler/translator/QualifierTypes.cpp
+${SOURCE_PATH}/compiler/translator/RemoveArrayLengthMethod.cpp
+${SOURCE_PATH}/compiler/translator/RemoveInvariantDeclaration.cpp
+${SOURCE_PATH}/compiler/translator/RemoveUnreferencedVariables.cpp
+${SOURCE_PATH}/compiler/translator/ReplaceVariable.cpp
+${SOURCE_PATH}/compiler/translator/RegenerateStructNames.cpp
+${SOURCE_PATH}/compiler/translator/RewriteDoWhile.cpp
+${SOURCE_PATH}/compiler/translator/RewriteTexelFetchOffset.cpp
+${SOURCE_PATH}/compiler/translator/RewriteUnaryMinusOperatorFloat.cpp
+${SOURCE_PATH}/compiler/translator/RemovePow.cpp
+${SOURCE_PATH}/compiler/translator/RunAtTheEndOfShader.cpp
+${SOURCE_PATH}/compiler/translator/ScalarizeVecAndMatConstructorArgs.cpp
+${SOURCE_PATH}/compiler/translator/SeparateDeclarations.cpp
+${SOURCE_PATH}/compiler/translator/SimplifyLoopConditions.cpp
+${SOURCE_PATH}/compiler/translator/ShaderLang.cpp
+${SOURCE_PATH}/compiler/translator/ShaderVars.cpp
+${SOURCE_PATH}/compiler/translator/SplitSequenceOperator.cpp
+${SOURCE_PATH}/compiler/translator/Symbol.cpp
+${SOURCE_PATH}/compiler/translator/SymbolTable.cpp
+${SOURCE_PATH}/compiler/translator/SymbolTable_autogen.cpp
+${SOURCE_PATH}/compiler/translator/SymbolUniqueId.cpp
+${SOURCE_PATH}/compiler/translator/Types.cpp
+${SOURCE_PATH}/compiler/translator/UnfoldShortCircuitAST.cpp
+${SOURCE_PATH}/compiler/translator/UseInterfaceBlockFields.cpp
+${SOURCE_PATH}/compiler/translator/util.cpp
+${SOURCE_PATH}/compiler/translator/ValidateGlobalInitializer.cpp
+${SOURCE_PATH}/compiler/translator/ValidateLimitations.cpp
+${SOURCE_PATH}/compiler/translator/ValidateMaxParameters.cpp
+${SOURCE_PATH}/compiler/translator/ValidateOutputs.cpp
+${SOURCE_PATH}/compiler/translator/ValidateVaryingLocations.cpp
+${SOURCE_PATH}/compiler/translator/ValidateSwitch.cpp
+${SOURCE_PATH}/compiler/translator/VariablePacker.cpp
+${SOURCE_PATH}/compiler/translator/VectorizeVectorScalarArithmetic.cpp
+${SOURCE_PATH}/compiler/translator/BuiltInFunctionEmulatorGLSL.cpp
+${SOURCE_PATH}/compiler/translator/EmulateGLFragColorBroadcast.cpp
+${SOURCE_PATH}/compiler/translator/ExtensionGLSL.cpp
+${SOURCE_PATH}/compiler/translator/OutputGLSL.cpp
+${SOURCE_PATH}/compiler/translator/OutputGLSLBase.cpp
+${SOURCE_PATH}/compiler/translator/TranslatorGLSL.cpp
+${SOURCE_PATH}/compiler/translator/VersionGLSL.cpp
+)
+set(ANGLE_SOURCE_COMPILER_PREPROCESSOR
+${SOURCE_PATH}/compiler/preprocessor/DiagnosticsBase.cpp
+${SOURCE_PATH}/compiler/preprocessor/DirectiveHandlerBase.cpp
+${SOURCE_PATH}/compiler/preprocessor/DirectiveParser.cpp
+${SOURCE_PATH}/compiler/preprocessor/ExpressionParser.cpp
+${SOURCE_PATH}/compiler/preprocessor/Input.cpp
+${SOURCE_PATH}/compiler/preprocessor/Lexer.cpp
+${SOURCE_PATH}/compiler/preprocessor/Macro.cpp
+${SOURCE_PATH}/compiler/preprocessor/MacroExpander.cpp
+${SOURCE_PATH}/compiler/preprocessor/Preprocessor.cpp
+${SOURCE_PATH}/compiler/preprocessor/Token.cpp
+${SOURCE_PATH}/compiler/preprocessor/Tokenizer.cpp
 )
 set(ANGLE_SOURCE_COMPILER
 ${ANGLE_SOURCE_COMPILER_TRANSLATOR}
+${ANGLE_SOURCE_COMPILER_PREPROCESSOR}
 )
+
+file(GLOB ANGLE_SOURCE_THIRD_COMPILER ${SOURCE_PATH}/third_party/compiler/*.cpp)
+set(ANGLE_SOURCE_THIRD
+${ANGLE_SOURCE_THIRD_COMPILER}
+)
+
+file(GLOB ANGLE_SOURCE_IMAGE_UTIL ${SOURCE_PATH}/image_util/*.cpp)
+
 set(ANGLE_SOURCE_ANGLE
 ${SOURCE_PATH}/libANGLE/angletypes.cpp 
 ${SOURCE_PATH}/libANGLE/AttributeMap.cpp
@@ -117,7 +226,6 @@ ${SOURCE_PATH}/libANGLE/WorkerThread.cpp
 file(GLOB ANGLE_SOURCE_RENDER ${SOURCE_PATH}/libANGLE/renderer/*.cpp )
 list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_RENDER} )
 
-
 if(MSVC)
     add_definitions(-DANGLE_PLATFORM_WINDOWS)
     add_definitions(-DANGLE_ENABLE_D3D9)
@@ -130,6 +238,7 @@ if(MSVC)
 elseif(APPLE)
     add_definitions(-DANGLE_ENABLE_OPENGL=1)
     add_definitions(-DANGLE_PLATFORM_APPLE=1)
+    add_definitions(-DANGLE_ENABLE_GLSL=1)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++14 -stdlib=libc++")
     set(CMAKE_C_FLAGS "-x objective-c")
 
@@ -167,6 +276,8 @@ ${ANGLE_SOURCE_COMMON}
 ${ANGLE_SOURCE_ANGLE}
 ${ANGLE_SOURCE_EGL}
 ${ANGLE_SOURCE_GLESv2}
+${ANGLE_SOURCE_THIRD}
+${ANGLE_SOURCE_IMAGE_UTIL}
 )
 
 
