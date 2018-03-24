@@ -8,6 +8,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/native/gui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
@@ -18,6 +19,8 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/native/gui )
 
 # dependency
 set(GUI_DEPLIB
+angle
+ui
 binder
 utils
 cutils
@@ -31,13 +34,34 @@ file(GLOB GUI_HEADER_FILES  ${HEADER_PATH}/gui/*.h)
 #list(APPEND GUI_HEADER_FILES ${GUI_PRIVATE_HEADER})
 
 # source files
-#file(GLOB GUI_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
 set(GUI_SOURCE_FILES 
-#${SOURCE_PATH}/BitTube.cpp
-#${SOURCE_PATH}/BufferItem.cpp
-#${SOURCE_PATH}/BufferItemConsumer.cpp
-#${SOURCE_PATH}/BufferQueue.cpp
-#${SOURCE_PATH}/Surface.cpp
+${SOURCE_PATH}/BitTube.cpp
+${SOURCE_PATH}/BufferItem.cpp
+${SOURCE_PATH}/BufferItemConsumer.cpp
+${SOURCE_PATH}/BufferQueue.cpp
+${SOURCE_PATH}/BufferQueueProducer.cpp
+${SOURCE_PATH}/BufferSlot.cpp
+${SOURCE_PATH}/Surface.cpp
+${SOURCE_PATH}/ConsumerBase.cpp
+${SOURCE_PATH}/BufferQueueCore.cpp
+${SOURCE_PATH}/SurfaceComposerClient.cpp
+${SOURCE_PATH}/CpuConsumer.cpp
+${SOURCE_PATH}/LayerState.cpp
+${SOURCE_PATH}/SurfaceControl.cpp
+${SOURCE_PATH}/ISurfaceComposer.cpp
+${SOURCE_PATH}/ISurfaceComposerClient.cpp
+${SOURCE_PATH}/IConsumerListener.cpp
+${SOURCE_PATH}/IProducerListener.cpp
+${SOURCE_PATH}/BufferQueueConsumer.cpp
+${SOURCE_PATH}/IGraphicBufferAlloc.cpp
+${SOURCE_PATH}/IGraphicBufferConsumer.cpp
+${SOURCE_PATH}/IGraphicBufferProducer.cpp
+${SOURCE_PATH}/IDisplayEventConnection.cpp
+${SOURCE_PATH}/IProducerListener.cpp
+${SOURCE_PATH}/OccupancyTracker.cpp
+${SOURCE_PATH}/GLConsumer.cpp
+${SOURCE_PATH}/SyncFeatures.cpp
+${SOURCE_PATH}/eglext.c
 )
 
 # target files

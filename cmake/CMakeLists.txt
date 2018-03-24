@@ -11,7 +11,7 @@ if(CFG_NO_DEFAULT)
     set(ENABLE_CORE      "TRUE")  
     set(ENABLE_NATIVE    "TRUE")
 	  set(ENABLE_AV_UTILS  "TRUE")
-	  set(ENABLE_HARDWARE  "TRUE")
+    set(ENABLE_HARDWARE  "TRUE")
   
   elseif(CFG_ENABLE_AV_BASE)
     set(ENABLE_CORE      "TRUE")  

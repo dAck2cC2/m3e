@@ -8,9 +8,9 @@ endif()
 # download and include external module
 
 # angle for EGL and OpenGL
-if (ENABLE_ANGLE)
+if (ENABLE_ANGLE OR ENABLE_AV_UTILS)
     add_subdirectory(angle)
-endif(ENABLE_ANGLE)
+endif()
 
 # skia
 if(ENABLE_SKIA)
@@ -20,10 +20,6 @@ if(ENABLE_SKIA)
 
     #set(EXT_MODULES ${EXT_MODULES} jsoncpp)
     #add_subdirectory(jsoncpp)
-
-    if (APPLE)
-        #add_subdirectory(sdl)
-    endif(APPLE)
 endif(ENABLE_SKIA)
 
 # freeglut

@@ -261,6 +261,9 @@ elseif(APPLE)
     ${SOURCE_PATH}/libANGLE/renderer/gl/cgl/PbufferSurfaceCGL.mm   
     ${SOURCE_PATH}/libANGLE/renderer/gl/cgl/WindowSurfaceCGL.mm  
     )
+    list(APPEND ANGLE_SOURCE_COMMON
+    ${SOURCE_PATH}/common/system_utils_mac.cpp   
+    ) 
 elseif(CYGWIN)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11")
 elseif(UNIX)
