@@ -3,64 +3,67 @@ project(MEDIA)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/misc/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
 
-set(MEDIA_DEPLIB
-utils
-misc
-stagefright_foundation
-)
+add_definitions(-DANDROID_IMPLEMENTATION=1)
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
 
 # dependency
-set(MEDIA_DEP 
-${MEDIA_DEPLIB}
+set(MEDIA_DEPLIB
+utils
+binder
+stagefright_foundation
 )
 
 # define
 if(APPLE)
-add_definitions(-Disnanf=isnan)
+    add_definitions(-Disnanf=isnan)
 endif()
 
-# include files
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)
-
 # header files
-file(GLOB MEDIA_HEADER_FILES 
-${M3E_SOURCE_DIR}/src/av/include/media/*.h 
-)
+file(GLOB MEDIA_HEADER_FILES ${HEADER_PATH}/*.h )
 
 # source files
 #file(GLOB MEDIA_SOURCE_FILES 
 #${M3E_SOURCE_DIR}/src/av/media/libmedia/*.cpp
 #)
 set(MEDIA_SOURCE_FILES
-${M3E_SOURCE_DIR}/src/av/media/libmedia/AudioParameter.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/AudioSystem.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IAudioFlinger.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IAudioFlingerClient.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IAudioPolicyService.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IAudioPolicyServiceClient.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IDataSource.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaExtractor.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaExtractorService.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaSource.cpp
+${SOURCE_PATH}/AudioParameter.cpp
+${SOURCE_PATH}/AudioSystem.cpp
+${SOURCE_PATH}/AudioPolicy.cpp
+${SOURCE_PATH}/IEffect.cpp
+${SOURCE_PATH}/IEffectClient.cpp
+${SOURCE_PATH}/IAudioTrack.cpp
+${SOURCE_PATH}/IAudioRecord.cpp
+${SOURCE_PATH}/IAudioFlinger.cpp
+${SOURCE_PATH}/IAudioFlingerClient.cpp
+${SOURCE_PATH}/IAudioPolicyService.cpp
+${SOURCE_PATH}/IAudioPolicyServiceClient.cpp
+${SOURCE_PATH}/IDataSource.cpp
+${SOURCE_PATH}/IMediaExtractor.cpp
+${SOURCE_PATH}/IMediaExtractorService.cpp
+${SOURCE_PATH}/IMediaSource.cpp
 )
 
-if(ENABLE_CODEC_SELECTOR)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/media/libstagefright)
+if(ENABLE_AV_CODEC)
+    include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
 
-set(MEDIA_SOURCE_FILES ${MEDIA_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IOMX.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaCodecList.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaCodecService.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IResourceManagerClient.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IResourceManagerService.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/MediaCodecInfo.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/MediaResource.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/MediaResourcePolicy.cpp
-${M3E_SOURCE_DIR}/src/av/media/libmedia/IMediaPlayerService.cpp
+    set(MEDIA_SOURCE_FILES ${MEDIA_SOURCE_FILES}
+    ${SOURCE_PATH}/IOMX.cpp
+    ${SOURCE_PATH}/IMediaCodecList.cpp
+    ${SOURCE_PATH}/IMediaCodecService.cpp
+    ${SOURCE_PATH}/IResourceManagerClient.cpp
+    ${SOURCE_PATH}/IResourceManagerService.cpp
+    ${SOURCE_PATH}/MediaCodecInfo.cpp
+    ${SOURCE_PATH}/MediaResource.cpp
+    ${SOURCE_PATH}/MediaResourcePolicy.cpp
+    ${SOURCE_PATH}/IMediaPlayerService.cpp
 )
-endif(ENABLE_CODEC_SELECTOR)
+endif(ENABLE_AV_CODEC)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

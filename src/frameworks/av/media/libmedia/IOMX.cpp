@@ -18,14 +18,14 @@
 #define LOG_TAG "IOMX"
 #include <utils/Log.h>
 
-//#include <sys/mman.h>
+#include <sys/mman.h>
 
-//#include <binder/IMemory.h>
-//#include <binder/Parcel.h>
+#include <binder/IMemory.h>
+#include <binder/Parcel.h>
 #include <media/IOMX.h>
-//#include <media/stagefright/foundation/ADebug.h>
-//#include <media/openmax/OMX_IndexExt.h>
-//#include <utils/NativeHandle.h>
+#include <media/stagefright/foundation/ADebug.h>
+#include <media/openmax/OMX_IndexExt.h>
+#include <utils/NativeHandle.h>
 
 namespace android {
 
@@ -63,7 +63,7 @@ enum {
     CONFIGURE_VIDEO_TUNNEL_MODE,
     UPDATE_NATIVE_HANDLE_IN_META,
 };
-#if 0
+
 class BpOMX : public BpInterface<IOMX> {
 public:
     BpOMX(const sp<IBinder> &impl)
@@ -624,7 +624,7 @@ public:
         return reply.readInt32();
     }
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(OMX, "android.hardware.IOMX");
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -637,7 +637,6 @@ IMPLEMENT_META_INTERFACE(OMX, "android.hardware.IOMX");
 
 status_t BnOMX::onTransact(
     uint32_t code, const Parcel &data, Parcel *reply, uint32_t flags) {
-#if 0
     switch (code) {
         case LIVES_LOCALLY:
         {
@@ -1226,12 +1225,10 @@ status_t BnOMX::onTransact(
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-#endif 
-    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-#if 0
+
 class BpOMXObserver : public BpInterface<IOMXObserver> {
 public:
     BpOMXObserver(const sp<IBinder> &impl)
@@ -1263,12 +1260,11 @@ public:
         }
     }
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(OMXObserver, "android.hardware.IOMXObserver");
 
 status_t BnOMXObserver::onTransact(
     uint32_t code, const Parcel &data, Parcel *reply, uint32_t flags) {
-#if 0
     switch (code) {
         case OBSERVER_ON_MSG:
         {
@@ -1300,8 +1296,6 @@ status_t BnOMXObserver::onTransact(
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-#endif
-    return 0;
 }
 
 }  // namespace android

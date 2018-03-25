@@ -29,7 +29,7 @@
 #include <system/audio.h>
 
 namespace android {
-#if 0
+
 enum {
     SET_DEVICE_CONNECTION_STATE = IBinder::FIRST_CALL_TRANSACTION,
     GET_DEVICE_CONNECTION_STATE,
@@ -803,7 +803,7 @@ public:
         return status;
     }
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(AudioPolicyService, "android.media.IAudioPolicyService");
 
 // ----------------------------------------------------------------------
@@ -812,7 +812,6 @@ IMPLEMENT_META_INTERFACE(AudioPolicyService, "android.media.IAudioPolicyService"
 status_t BnAudioPolicyService::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
-	/*
     switch (code) {
         case SET_DEVICE_CONNECTION_STATE: {
             CHECK_INTERFACE(IAudioPolicyService, data, reply);
@@ -1370,8 +1369,6 @@ status_t BnAudioPolicyService::onTransact(
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-*/
-	return 0;
 }
 
 // ----------------------------------------------------------------------------

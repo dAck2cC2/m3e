@@ -7,8 +7,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/sync/include.cmake)
 
 add_definitions(-DANDROID_IMPLEMENTATION=1)
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/core/libsync/include )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/core/libsync/ )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libsync/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libsync/ )
 
 # header files
 file(GLOB SYNC_HEADER_FILES  ${HEADER_PATH}/sync/*.h)

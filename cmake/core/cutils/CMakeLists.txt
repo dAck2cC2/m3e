@@ -4,9 +4,12 @@ project(CUTILS)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/libcutils)
-
 add_definitions(-DANDROID_IMPLEMENTATION=1)
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/cutils )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils )
+
+include_directories(AFTER ${SOURCE_PATH})
 
 # dependency
 
@@ -16,22 +19,22 @@ log
 
 # header files
 file(GLOB CUTILS_HEADER_FILES
-${M3E_SOURCE_DIR}/src/core/include/cutils/*.h
-${M3E_SOURCE_DIR}/src/core/libcutils/*.h
-${M3E_SOURCE_DIR}/src/core/libcutils/sys/*.h
+${HEADER_PATH}/*.h
+${SOURCE_PATH}/*.h
+${SOURCE_PATH}/sys/*.h
 )
 
 # source files
 file(GLOB CUTILS_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/core/libcutils/*.c
-${M3E_SOURCE_DIR}/src/core/libcutils/sys/*.cpp
+${SOURCE_PATH}/*.c
+${SOURCE_PATH}/sys/*.cpp
 )
 
 # header and source code for MSVC
 if(MSVC)
-    set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/stdint.h)
-    #set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/sys/time.h)
-    set(CUTILS_SOURCE_FILES ${CUTILS_SOURCE_FILES} ${M3E_SOURCE_DIR}/src/core/msvc/ffs.c)
+    set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${MSVC_PATH}/stdint.h)
+    set(CUTILS_SOURCE_FILES ${CUTILS_SOURCE_FILES} ${MSVC_PATH}/ffs.c)
+    #set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${MSVC_PATH}/sys/time.h)
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
 elseif(CYGWIN)

@@ -27,7 +27,7 @@
 #include <media/IAudioFlinger.h>
 
 namespace android {
-#if 0
+
 enum {
     CREATE_TRACK = IBinder::FIRST_CALL_TRANSACTION,
     OPEN_RECORD,
@@ -931,7 +931,7 @@ public:
     }
 
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(AudioFlinger, "android.media.IAudioFlinger");
 
 // ----------------------------------------------------------------------
@@ -939,7 +939,6 @@ IMPLEMENT_META_INTERFACE(AudioFlinger, "android.media.IAudioFlinger");
 status_t BnAudioFlinger::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
-	/*
     switch (code) {
         case CREATE_TRACK: {
             CHECK_INTERFACE(IAudioFlinger, data, reply);
@@ -1453,8 +1452,6 @@ status_t BnAudioFlinger::onTransact(
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-*/
-	return 0;
 }
 
 // ----------------------------------------------------------------------------

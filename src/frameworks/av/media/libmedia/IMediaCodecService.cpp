@@ -18,10 +18,10 @@
 #define LOG_TAG "IMediaCodecService"
 //#define LOG_NDEBUG 0
 
-//#include <utils/Log.h>
-//#include <stdint.h>
-//#include <sys/types.h>
-//#include <binder/Parcel.h>
+#include <utils/Log.h>
+#include <stdint.h>
+#include <sys/types.h>
+#include <binder/Parcel.h>
 #include <media/IMediaCodecService.h>
 
 namespace android {
@@ -29,7 +29,7 @@ namespace android {
 enum {
     GET_OMX = IBinder::FIRST_CALL_TRANSACTION
 };
-#if 0
+
 class BpMediaCodecService : public BpInterface<IMediaCodecService>
 {
 public:
@@ -46,7 +46,7 @@ public:
     }
 
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(MediaCodecService, "android.media.IMediaCodecService");
 
 // ----------------------------------------------------------------------
@@ -54,7 +54,6 @@ IMPLEMENT_META_INTERFACE(MediaCodecService, "android.media.IMediaCodecService");
 status_t BnMediaCodecService::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
-#if 0
     switch (code) {
 
         case GET_OMX: {
@@ -66,8 +65,6 @@ status_t BnMediaCodecService::onTransact(
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-#endif
-    return 0;
 }
 
 // ----------------------------------------------------------------------------

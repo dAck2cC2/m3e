@@ -1,7 +1,8 @@
 
 # common definition
-set(BUILD_PATH ${M3E_BINARY_DIR}/build)
-set(EXT_PATH external)
+set(BUILD_PATH  ${M3E_BINARY_DIR}/build)
+set(MSVC_PATH   ${M3E_SOURCE_DIR}/src/system/msvc)
+set(EXT_PATH    external)
 
 # test application
 macro(ADD_DEMO name)

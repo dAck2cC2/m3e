@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-//#include <stdint.h>
-//#include <sys/types.h>
+#include <stdint.h>
+#include <sys/types.h>
 
-//#include <binder/Parcel.h>
+#include <binder/Parcel.h>
 #include <media/stagefright/MediaCodecList.h>
-//#include <media/IMediaCodecList.h>
-//#include <media/MediaCodecInfo.h>
+#include <media/IMediaCodecList.h>
+#include <media/MediaCodecInfo.h>
 
-//#include <utils/Errors.h>  // for status_t
+#include <utils/Errors.h>  // for status_t
 
 namespace android {
-#if 0
+
 enum {
     CREATE = IBinder::FIRST_CALL_TRANSACTION,
     COUNT_CODECS,
@@ -103,7 +103,7 @@ public:
         return static_cast<ssize_t>(reply.readInt32());
     }
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(MediaCodecList, "android.media.IMediaCodecList");
 
 // ----------------------------------------------------------------------
@@ -111,7 +111,6 @@ IMPLEMENT_META_INTERFACE(MediaCodecList, "android.media.IMediaCodecList");
 status_t BnMediaCodecList::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
-#if 0 
     switch (code) {
         case COUNT_CODECS:
         {
@@ -193,8 +192,6 @@ status_t BnMediaCodecList::onTransact(
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-#endif
-    return 0;
 }
 
 // ----------------------------------------------------------------------------

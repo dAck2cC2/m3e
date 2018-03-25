@@ -255,7 +255,7 @@ AudioTrack::~AudioTrack()
         // Otherwise the callback thread will never exit.
         stop();
         if (mAudioTrackThread != 0) {
-            //mProxy->interrupt();
+            mProxy->interrupt();
             mAudioTrackThread->requestExit();   // see comment in AudioTrack.h
             mAudioTrackThread->requestExitAndWait();
             mAudioTrackThread.clear();
@@ -264,13 +264,13 @@ AudioTrack::~AudioTrack()
         if (mDeviceCallback != 0 && mOutput != AUDIO_IO_HANDLE_NONE) {
             AudioSystem::removeAudioDeviceCallback(mDeviceCallback, mOutput);
         }
-        //IInterface::asBinder(mAudioTrack)->unlinkToDeath(mDeathNotifier, this);
+        IInterface::asBinder(mAudioTrack)->unlinkToDeath(mDeathNotifier, this);
         mAudioTrack.clear();
         mCblkMemory.clear();
         mSharedBuffer.clear();
-        //IPCThreadState::self()->flushCommands();
-        //ALOGV("~AudioTrack, releasing session id %d from %d on behalf of %d",
-        //        mSessionId, IPCThreadState::self()->getCallingPid(), mClientPid);
+        IPCThreadState::self()->flushCommands();
+        ALOGV("~AudioTrack, releasing session id %d from %d on behalf of %d",
+                mSessionId, IPCThreadState::self()->getCallingPid(), mClientPid);
         AudioSystem::releaseAudioSessionId(mSessionId, mClientPid);
     }
 }
@@ -482,10 +482,10 @@ status_t AudioTrack::set(
     } else {
         mSessionId = sessionId;
     }
-    int callingpid = -1; //IPCThreadState::self()->getCallingPid();
-    int mypid = -1; //getpid();
+    int callingpid = IPCThreadState::self()->getCallingPid();
+    int mypid = getpid();
     if (uid == -1 || (callingpid != mypid)) {
-        mClientUid = -1; //IPCThreadState::self()->getCallingUid();
+        mClientUid = IPCThreadState::self()->getCallingUid();
     } else {
         mClientUid = uid;
     }
@@ -570,7 +570,7 @@ status_t AudioTrack::start()
         mTimestampStartupGlitchReported = false;
         mRetrogradeMotionReported = false;
         mPreviousLocation = ExtendedTimestamp::LOCATION_INVALID;
-/*
+
         // read last server side position change via timestamp.
         ExtendedTimestamp ets;
         if (mProxy->getTimestamp(&ets) == OK &&
@@ -585,9 +585,8 @@ status_t AudioTrack::start()
                     (long long)mFramesWritten);
             mFramesWrittenServerOffset = -ets.mPosition[ExtendedTimestamp::LOCATION_SERVER];
         }
-*/        
         mFramesWritten = 0;
-        //mProxy->clearTimestamp(); // need new server push for valid timestamp
+        mProxy->clearTimestamp(); // need new server push for valid timestamp
         mMarkerReached = false;
 
         // For offloaded tracks, we don't know if the hardware counters are really zero here,
@@ -619,14 +618,14 @@ status_t AudioTrack::start()
     if (status == NO_ERROR) {
         if (t != 0) {
             if (previousState == STATE_STOPPING) {
-                //mProxy->interrupt();
+                mProxy->interrupt();
             } else {
                 t->resume();
             }
         } else {
             mPreviousPriority = getpriority(PRIO_PROCESS, 0);
-            //get_sched_policy(0, &mPreviousSchedulingGroup);
-            //androidSetThreadPriority(0, ANDROID_PRIORITY_AUDIO);
+            get_sched_policy(0, &mPreviousSchedulingGroup);
+            androidSetThreadPriority(0, ANDROID_PRIORITY_AUDIO);
         }
     } else {
         ALOGE("start() status %d", status);
@@ -637,7 +636,7 @@ status_t AudioTrack::start()
             }
         } else {
             setpriority(PRIO_PROCESS, 0, mPreviousPriority);
-            //set_sched_policy(0, mPreviousSchedulingGroup);
+            set_sched_policy(0, mPreviousSchedulingGroup);
         }
     }
 
@@ -658,7 +657,7 @@ void AudioTrack::stop()
         mReleased = 0;
     }
 
-    //mProxy->interrupt();
+    mProxy->interrupt();
     mAudioTrack->stop();
 
     // Note: legacy handling - stop does not clear playback marker
@@ -666,8 +665,8 @@ void AudioTrack::stop()
 
     if (mSharedBuffer != 0) {
         // clear buffer position and loop count.
-        //mStaticProxy->setBufferPositionAndLoop(0 /* position */,
-        //        0 /* loopStart */, 0 /* loopEnd */, 0 /* loopCount */);
+        mStaticProxy->setBufferPositionAndLoop(0 /* position */,
+                0 /* loopStart */, 0 /* loopEnd */, 0 /* loopCount */);
     }
 
     sp<AudioTrackThread> t = mAudioTrackThread;
@@ -677,7 +676,7 @@ void AudioTrack::stop()
         }
     } else {
         setpriority(PRIO_PROCESS, 0, mPreviousPriority);
-        //set_sched_policy(0, mPreviousSchedulingGroup);
+        set_sched_policy(0, mPreviousSchedulingGroup);
     }
 }
 
@@ -712,9 +711,9 @@ void AudioTrack::flush_l()
     mState = STATE_FLUSHED;
     mReleased = 0;
     if (isOffloaded_l()) {
-        //mProxy->interrupt();
+        mProxy->interrupt();
     }
-    //mProxy->flush();
+    mProxy->flush();
     mAudioTrack->flush();
 }
 
@@ -728,7 +727,7 @@ void AudioTrack::pause()
     } else {
         return;
     }
-    //mProxy->interrupt();
+    mProxy->interrupt();
     mAudioTrack->pause();
 
     if (isOffloaded_l()) {
@@ -763,7 +762,7 @@ status_t AudioTrack::setVolume(float left, float right)
     mVolume[AUDIO_INTERLEAVE_LEFT] = left;
     mVolume[AUDIO_INTERLEAVE_RIGHT] = right;
 
-    //mProxy->setVolumeLR(gain_minifloat_pack(gain_from_float(left), gain_from_float(right)));
+    mProxy->setVolumeLR(gain_minifloat_pack(gain_from_float(left), gain_from_float(right)));
 
     if (isOffloaded_l()) {
         mAudioTrack->signal();
@@ -785,7 +784,7 @@ status_t AudioTrack::setAuxEffectSendLevel(float level)
 
     AutoMutex lock(mLock);
     mSendLevel = level;
-    //mProxy->setSendLevel(level);
+    mProxy->setSendLevel(level);
 
     return NO_ERROR;
 }
@@ -823,7 +822,7 @@ status_t AudioTrack::setSampleRate(uint32_t rate)
     // TODO: Should we also check if the buffer size is compatible?
 
     mSampleRate = rate;
-    //mProxy->setSampleRate(effectiveSampleRate);
+    mProxy->setSampleRate(effectiveSampleRate);
 
     return NO_ERROR;
 }
@@ -904,8 +903,8 @@ status_t AudioTrack::setPlaybackRate(const AudioPlaybackRate &playbackRate)
     }
     mPlaybackRate = playbackRate;
     //set effective rates
-    //mProxy->setPlaybackRate(playbackRateTemp);
-    //mProxy->setSampleRate(effectiveRate); // FIXME: not quite "atomic" with setPlaybackRate
+    mProxy->setPlaybackRate(playbackRateTemp);
+    mProxy->setSampleRate(effectiveRate); // FIXME: not quite "atomic" with setPlaybackRate
     return NO_ERROR;
 }
 
@@ -918,10 +917,10 @@ const AudioPlaybackRate& AudioTrack::getPlaybackRate() const
 ssize_t AudioTrack::getBufferSizeInFrames()
 {
     AutoMutex lock(mLock);
-    //if (mOutput == AUDIO_IO_HANDLE_NONE || mProxy.get() == 0) {
+    if (mOutput == AUDIO_IO_HANDLE_NONE || mProxy.get() == 0) {
         return NO_INIT;
-    //}
-    //return (ssize_t) mProxy->getBufferSizeInFrames();
+    }
+    return (ssize_t) mProxy->getBufferSizeInFrames();
 }
 
 status_t AudioTrack::getBufferDurationInUs(int64_t *duration)
@@ -930,10 +929,9 @@ status_t AudioTrack::getBufferDurationInUs(int64_t *duration)
         return BAD_VALUE;
     }
     AutoMutex lock(mLock);
-    //if (mOutput == AUDIO_IO_HANDLE_NONE || mProxy.get() == 0) {
+    if (mOutput == AUDIO_IO_HANDLE_NONE || mProxy.get() == 0) {
         return NO_INIT;
-    //}
-    /*
+    }
     ssize_t bufferSizeInFrames = (ssize_t) mProxy->getBufferSizeInFrames();
     if (bufferSizeInFrames < 0) {
         return (status_t)bufferSizeInFrames;
@@ -941,20 +939,19 @@ status_t AudioTrack::getBufferDurationInUs(int64_t *duration)
     *duration = (int64_t)((double)bufferSizeInFrames * 1000000
             / ((double)mSampleRate * mPlaybackRate.mSpeed));
     return NO_ERROR;
-    */
 }
 
 ssize_t AudioTrack::setBufferSizeInFrames(size_t bufferSizeInFrames)
 {
     AutoMutex lock(mLock);
-    //if (mOutput == AUDIO_IO_HANDLE_NONE || mProxy.get() == 0) {
+    if (mOutput == AUDIO_IO_HANDLE_NONE || mProxy.get() == 0) {
         return NO_INIT;
-    //}
+    }
     // Reject if timed track or compressed audio.
-    //if (!audio_is_linear_pcm(mFormat)) {
-    //    return INVALID_OPERATION;
-    //}
-    //return (ssize_t) mProxy->setBufferSizeInFrames((uint32_t) bufferSizeInFrames);
+    if (!audio_is_linear_pcm(mFormat)) {
+        return INVALID_OPERATION;
+    }
+    return (ssize_t) mProxy->setBufferSizeInFrames((uint32_t) bufferSizeInFrames);
 }
 
 status_t AudioTrack::setLoop(uint32_t loopStart, uint32_t loopEnd, int loopCount)
@@ -989,7 +986,7 @@ void AudioTrack::setLoop_l(uint32_t loopStart, uint32_t loopEnd, int loopCount)
     mLoopEnd = loopEnd;
     mLoopStart = loopStart;
     mLoopCountNotified = loopCount;
-    //mStaticProxy->setLoop(loopStart, loopEnd, loopCount);
+    mStaticProxy->setLoop(loopStart, loopEnd, loopCount);
 
     // Waking the AudioTrackThread is not needed as this cannot be called when active.
 }
@@ -1081,7 +1078,7 @@ status_t AudioTrack::setPosition(uint32_t position)
     }
     // After setting the position, use full update period before notification.
     mNewPosition = updateAndGetPosition_l() + mUpdatePeriod;
-    //mStaticProxy->setBufferPosition(position);
+    mStaticProxy->setBufferPosition(position);
 
     // Waking the AudioTrackThread is not needed as this cannot be called when active.
     return NO_ERROR;
@@ -1139,7 +1136,7 @@ status_t AudioTrack::getBufferPosition(uint32_t *position)
     }
 
     AutoMutex lock(mLock);
-    *position = 0; //mStaticProxy->getBufferPosition();
+    *position = mStaticProxy->getBufferPosition();
     return NO_ERROR;
 }
 
@@ -1167,7 +1164,7 @@ status_t AudioTrack::reload()
         mStaticProxy->setLoop(mLoopStart, mLoopEnd, mLoopCount);
     }
 #endif
-    //mStaticProxy->setBufferPosition(0);
+    mStaticProxy->setBufferPosition(0);
     return NO_ERROR;
 }
 
@@ -1381,7 +1378,7 @@ status_t AudioTrack::createTrack_l()
     pid_t tid = -1;
     if (mFlags & AUDIO_OUTPUT_FLAG_FAST) {
         if (mAudioTrackThread != 0 && !mThreadCanCallJava) {
-            //tid = mAudioTrackThread->getTid();
+            tid = mAudioTrackThread->getTid();
         }
     }
 
@@ -1425,10 +1422,10 @@ status_t AudioTrack::createTrack_l()
         return NO_INIT;
     }
     // invariant that mAudioTrack != 0 is true only after set() returns successfully
-    //if (mAudioTrack != 0) {
-    //    IInterface::asBinder(mAudioTrack)->unlinkToDeath(mDeathNotifier, this);
-    //    mDeathNotifier.clear();
-    //}
+    if (mAudioTrack != 0) {
+        IInterface::asBinder(mAudioTrack)->unlinkToDeath(mDeathNotifier, this);
+        mDeathNotifier.clear();
+    }
     mAudioTrack = track;
     mCblkMemory = iMem;
     IPCThreadState::self()->flushCommands();
@@ -1520,30 +1517,30 @@ status_t AudioTrack::createTrack_l()
     // update proxy
     if (mSharedBuffer == 0) {
         mStaticProxy.clear();
-        //mProxy = new AudioTrackClientProxy(cblk, buffers, frameCount, mFrameSize);
+        mProxy = new AudioTrackClientProxy(cblk, buffers, frameCount, mFrameSize);
     } else {
-        //mStaticProxy = new StaticAudioTrackClientProxy(cblk, buffers, frameCount, mFrameSize);
-        //mProxy = mStaticProxy;
+        mStaticProxy = new StaticAudioTrackClientProxy(cblk, buffers, frameCount, mFrameSize);
+        mProxy = mStaticProxy;
     }
 
-    //mProxy->setVolumeLR(gain_minifloat_pack(
-    //        gain_from_float(mVolume[AUDIO_INTERLEAVE_LEFT]),
-    //        gain_from_float(mVolume[AUDIO_INTERLEAVE_RIGHT])));
+    mProxy->setVolumeLR(gain_minifloat_pack(
+            gain_from_float(mVolume[AUDIO_INTERLEAVE_LEFT]),
+            gain_from_float(mVolume[AUDIO_INTERLEAVE_RIGHT])));
 
-    //mProxy->setSendLevel(mSendLevel);
-    //const uint32_t effectiveSampleRate = adjustSampleRate(mSampleRate, mPlaybackRate.mPitch);
-    //const float effectiveSpeed = adjustSpeed(mPlaybackRate.mSpeed, mPlaybackRate.mPitch);
-    //const float effectivePitch = adjustPitch(mPlaybackRate.mPitch);
-    //mProxy->setSampleRate(effectiveSampleRate);
+    mProxy->setSendLevel(mSendLevel);
+    const uint32_t effectiveSampleRate = adjustSampleRate(mSampleRate, mPlaybackRate.mPitch);
+    const float effectiveSpeed = adjustSpeed(mPlaybackRate.mSpeed, mPlaybackRate.mPitch);
+    const float effectivePitch = adjustPitch(mPlaybackRate.mPitch);
+    mProxy->setSampleRate(effectiveSampleRate);
 
-    //AudioPlaybackRate playbackRateTemp = mPlaybackRate;
-    //playbackRateTemp.mSpeed = effectiveSpeed;
-    //playbackRateTemp.mPitch = effectivePitch;
-    //mProxy->setPlaybackRate(playbackRateTemp);
-    //mProxy->setMinimum(mNotificationFramesAct);
+    AudioPlaybackRate playbackRateTemp = mPlaybackRate;
+    playbackRateTemp.mSpeed = effectiveSpeed;
+    playbackRateTemp.mPitch = effectivePitch;
+    mProxy->setPlaybackRate(playbackRateTemp);
+    mProxy->setMinimum(mNotificationFramesAct);
 
-    //mDeathNotifier = new DeathNotifier(this);
-    //IInterface::asBinder(mAudioTrack)->linkToDeath(mDeathNotifier, this);
+    mDeathNotifier = new DeathNotifier(this);
+    IInterface::asBinder(mAudioTrack)->linkToDeath(mDeathNotifier, this);
 
     if (mDeviceCallback != 0) {
         AudioSystem::addAudioDeviceCallback(mDeviceCallback, mOutput);
@@ -1581,9 +1578,9 @@ status_t AudioTrack::obtainBuffer(Buffer* audioBuffer, int32_t waitCount, size_t
     const struct timespec *requested;
     struct timespec timeout;
     if (waitCount == -1) {
-        requested = NULL; //&ClientProxy::kForever;
+        requested = &ClientProxy::kForever;
     } else if (waitCount == 0) {
-        requested = NULL; //&ClientProxy::kNonBlocking;
+        requested = &ClientProxy::kNonBlocking;
     } else if (waitCount > 0) {
         long long ms = WAIT_PERIOD_MS * (long long) waitCount;
         timeout.tv_sec = ms / 1000;
@@ -1652,14 +1649,14 @@ status_t AudioTrack::obtainBuffer(Buffer* audioBuffer, const struct timespec *re
 
             // Non-blocking if track is stopped or paused
             if (mState != STATE_ACTIVE) {
-                requested = NULL;//&ClientProxy::kNonBlocking;
+                requested = &ClientProxy::kNonBlocking;
             }
 
         }   // end of lock scope
 
         buffer.mFrameCount = audioBuffer->frameCount;
         // FIXME starts the requested timeout and elapsed over from scratch
-        //status = proxy->obtainBuffer(&buffer, requested, elapsed);
+        status = proxy->obtainBuffer(&buffer, requested, elapsed);
     } while (((status == DEAD_OBJECT) || (status == NOT_ENOUGH_DATA)) && (tryCounter-- > 0));
 
     audioBuffer->frameCount = buffer.mFrameCount;
@@ -1683,14 +1680,14 @@ void AudioTrack::releaseBuffer(const Buffer* audioBuffer)
         return;
     }
 
-    //Proxy::Buffer buffer;
-    //buffer.mFrameCount = stepCount;
-    //buffer.mRaw = audioBuffer->raw;
+    Proxy::Buffer buffer;
+    buffer.mFrameCount = stepCount;
+    buffer.mRaw = audioBuffer->raw;
 
     AutoMutex lock(mLock);
     mReleased += stepCount;
     mInUnderrun = false;
-    //mProxy->releaseBuffer(&buffer);
+    mProxy->releaseBuffer(&buffer);
 
     // restart track if it was disabled by audioflinger due to previous underrun
     restartIfDisabled();
@@ -1737,8 +1734,8 @@ ssize_t AudioTrack::write(const void* buffer, size_t userSize, bool blocking)
     while (userSize >= mFrameSize) {
         audioBuffer.frameCount = userSize / mFrameSize;
 
-        status_t err = obtainBuffer(&audioBuffer, 0);
-                //blocking ? &ClientProxy::kForever : &ClientProxy::kNonBlocking);
+        status_t err = obtainBuffer(&audioBuffer,
+                blocking ? &ClientProxy::kForever : &ClientProxy::kNonBlocking);
         if (err < 0) {
             if (written > 0) {
                 break;
@@ -1779,15 +1776,15 @@ nsecs_t AudioTrack::processAudioBuffer()
         mLock.unlock();
         static const int32_t kMaxTries = 5;
         int32_t tryCounter = kMaxTries;
-        //uint32_t pollUs = 10000;
-        //do {
-        //    int policy = sched_getscheduler(0) & ~SCHED_RESET_ON_FORK;
-        //    if (policy == SCHED_FIFO || policy == SCHED_RR) {
-        //        break;
-        //    }
-        //    usleep(pollUs);
-        //    pollUs <<= 1;
-        //} while (tryCounter-- > 0);
+        uint32_t pollUs = 10000;
+        do {
+            int policy = sched_getscheduler(0) & ~SCHED_RESET_ON_FORK;
+            if (policy == SCHED_FIFO || policy == SCHED_RR) {
+                break;
+            }
+            usleep(pollUs);
+            pollUs <<= 1;
+        } while (tryCounter-- > 0);
         if (tryCounter < 0) {
             ALOGE("did not receive expected priority boost on time");
         }
@@ -1865,7 +1862,7 @@ nsecs_t AudioTrack::processAudioBuffer()
         mRemainingFrames = notificationFrames;
         mRetryOnPartialBuffer = false;
     }
-    size_t misalignment = 0; //mProxy->getMisalignment();
+    size_t misalignment = mProxy->getMisalignment();
     uint32_t sequence = mSequence;
     sp<AudioTrackClientProxy> proxy = mProxy;
 
@@ -1874,20 +1871,20 @@ nsecs_t AudioTrack::processAudioBuffer()
     uint32_t loopPeriod = 0; // time in frames for next EVENT_LOOP_END or EVENT_BUFFER_END
 
     if (mLoopCount > 0) {
-        int loopCount = 0;
-        size_t bufferPosition = 0;
-        //mStaticProxy->getBufferPositionAndLoopCount(&bufferPosition, &loopCount);
+        int loopCount;
+        size_t bufferPosition;
+        mStaticProxy->getBufferPositionAndLoopCount(&bufferPosition, &loopCount);
         loopPeriod = ((loopCount > 0) ? mLoopEnd : mFrameCount) - bufferPosition;
         loopCountNotifications = min(mLoopCountNotified - loopCount, kMaxLoopCountNotifications);
         mLoopCountNotified = loopCount; // discard any excess notifications
     } else if (mLoopCount < 0) {
         // FIXME: We're not accurate with notification count and position with infinite looping
         // since loopCount from server side will always return -1 (we could decrement it).
-        size_t bufferPosition = 0; //mStaticProxy->getBufferPosition();
+        size_t bufferPosition = mStaticProxy->getBufferPosition();
         loopCountNotifications = int((flags & (CBLK_LOOP_CYCLE | CBLK_LOOP_FINAL)) != 0);
         loopPeriod = mLoopEnd - bufferPosition;
     } else if (/* mLoopCount == 0 && */ mSharedBuffer != 0) {
-        size_t bufferPosition = 0; //mStaticProxy->getBufferPosition();
+        size_t bufferPosition = mStaticProxy->getBufferPosition();
         loopPeriod = mFrameCount - bufferPosition;
     }
 
@@ -1905,11 +1902,11 @@ nsecs_t AudioTrack::processAudioBuffer()
         // should wait on proxy futex and handle CBLK_STREAM_END_DONE within this function
         // (and make sure we don't callback for more data while we're stopping).
         // This helps with position, marker notifications, and track invalidation.
-        //struct timespec timeout;
-        //timeout.tv_sec = WAIT_STREAM_END_TIMEOUT_SEC;
-        //timeout.tv_nsec = 0;
+        struct timespec timeout;
+        timeout.tv_sec = WAIT_STREAM_END_TIMEOUT_SEC;
+        timeout.tv_nsec = 0;
 
-        status_t status = 0; //proxy->waitStreamEndDone(&timeout);
+        status_t status = proxy->waitStreamEndDone(&timeout);
         switch (status) {
         case NO_ERROR:
         case DEAD_OBJECT:
@@ -2019,7 +2016,7 @@ nsecs_t AudioTrack::processAudioBuffer()
     // to return a certain fill level.
 
     struct timespec timeout;
-    const struct timespec *requested = NULL;//&ClientProxy::kForever;
+    const struct timespec *requested = &ClientProxy::kForever;
     if (ns != NS_WHENEVER) {
         timeout.tv_sec = ns / 1000000000LL;
         timeout.tv_nsec = ns % 1000000000LL;
@@ -2036,7 +2033,7 @@ nsecs_t AudioTrack::processAudioBuffer()
         status_t err = obtainBuffer(&audioBuffer, requested, NULL, &nonContig);
         LOG_ALWAYS_FATAL_IF((err != NO_ERROR) != (audioBuffer.frameCount == 0),
                 "obtainBuffer() err=%d frameCount=%zu", err, audioBuffer.frameCount);
-        requested = NULL; //&ClientProxy::kNonBlocking;
+        requested = &ClientProxy::kNonBlocking;
         size_t avail = audioBuffer.frameCount + nonContig;
         ALOGV("obtainBuffer(%u) returned %zu = %zu + %zu err %d",
                 mRemainingFrames, avail, audioBuffer.frameCount, nonContig, err);
@@ -2188,7 +2185,7 @@ status_t AudioTrack::restoreTrack_l(const char *from)
     size_t bufferPosition = 0;
     int loopCount = 0;
     if (mStaticProxy != 0) {
-        //mStaticProxy->getBufferPositionAndLoopCount(&bufferPosition, &loopCount);
+        mStaticProxy->getBufferPositionAndLoopCount(&bufferPosition, &loopCount);
     }
 
     mFlags = mOrigFlags;
@@ -2209,10 +2206,10 @@ status_t AudioTrack::restoreTrack_l(const char *from)
         // Continue playback from last known position and restore loop.
         if (mStaticProxy != 0) {
             if (loopCount != 0) {
-                //mStaticProxy->setBufferPositionAndLoop(bufferPosition,
-                //        mLoopStart, mLoopEnd, loopCount);
+                mStaticProxy->setBufferPositionAndLoop(bufferPosition,
+                        mLoopStart, mLoopEnd, loopCount);
             } else {
-                //mStaticProxy->setBufferPosition(bufferPosition);
+                mStaticProxy->setBufferPosition(bufferPosition);
                 if (bufferPosition == mFrameCount) {
                     ALOGD("restoring track at end of static buffer");
                 }
@@ -2235,7 +2232,7 @@ status_t AudioTrack::restoreTrack_l(const char *from)
 Modulo<uint32_t> AudioTrack::updateAndGetPosition_l()
 {
     // This is the sole place to read server consumed frames
-    Modulo<uint32_t> newServer(0);//mProxy->getPosition());
+    Modulo<uint32_t> newServer(mProxy->getPosition());
     const int32_t delta = (newServer - mServer).signedValue();
     // TODO There is controversy about whether there can be "negative jitter" in server position.
     //      This should be investigated further, and if possible, it should be addressed.
@@ -2298,7 +2295,7 @@ status_t AudioTrack::getTimestamp_l(ExtendedTimestamp *timestamp)
     if (isOffloadedOrDirect_l()) {
         return INVALID_OPERATION; // not supported
     }
-    status_t status = 0; //mProxy->getTimestamp(timestamp);
+    status_t status = mProxy->getTimestamp(timestamp);
     LOG_ALWAYS_FATAL_IF(status != OK, "status %d not allowed from proxy getTimestamp", status);
     bool found = false;
     timestamp->mPosition[ExtendedTimestamp::LOCATION_CLIENT] = mFramesWritten;
@@ -2361,7 +2358,7 @@ status_t AudioTrack::getTimestamp(AudioTimestamp& timestamp)
     } else {
         // read timestamp from shared memory
         ExtendedTimestamp ets;
-        status = 0; //mProxy->getTimestamp(&ets);
+        status = mProxy->getTimestamp(&ets);
         if (status == OK) {
             ExtendedTimestamp::Location location;
             status = ets.getBestTimestamp(&timestamp, &location);
@@ -2568,8 +2565,8 @@ bool AudioTrack::isOffloadedOrDirect() const
     return isOffloadedOrDirect_l();
 }
 
-#if 0
-status_t AudioTrack::hump(int fd, const Vector<String16>& args __unused) const
+#if TODO
+status_t AudioTrack::dump(int fd, const Vector<String16>& args __unused) const
 {
 
     const size_t SIZE = 256;
@@ -2600,13 +2597,13 @@ uint32_t AudioTrack::getUnderrunCount() const
 
 uint32_t AudioTrack::getUnderrunCount_l() const
 {
-    return 0; //mProxy->getUnderrunCount() + mUnderrunCountOffset;
+    return mProxy->getUnderrunCount() + mUnderrunCountOffset;
 }
 
 uint32_t AudioTrack::getUnderrunFrames() const
 {
     AutoMutex lock(mLock);
-    return 0; //mProxy->getUnderrunFrames();
+    return mProxy->getUnderrunFrames();
 }
 
 status_t AudioTrack::addAudioDeviceCallback(const sp<AudioSystem::AudioDeviceCallback>& callback)
@@ -2708,7 +2705,7 @@ void AudioTrack::DeathNotifier::binderDied(const wp<IBinder>& who __unused)
     sp<AudioTrack> audioTrack = mAudioTrack.promote();
     if (audioTrack != 0) {
         AutoMutex lock(audioTrack->mLock);
-        //audioTrack->mProxy->binderDied();
+        audioTrack->mProxy->binderDied();
     }
 }
 

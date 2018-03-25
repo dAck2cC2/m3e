@@ -26,7 +26,7 @@
 #include <media/AudioSystem.h>
 
 namespace android {
-#if 0
+
 enum {
     IO_CONFIG_CHANGED = IBinder::FIRST_CALL_TRANSACTION
 };
@@ -55,7 +55,7 @@ public:
         remote()->transact(IO_CONFIG_CHANGED, data, &reply, IBinder::FLAG_ONEWAY);
     }
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(AudioFlingerClient, "android.media.IAudioFlingerClient");
 
 // ----------------------------------------------------------------------
@@ -63,7 +63,6 @@ IMPLEMENT_META_INTERFACE(AudioFlingerClient, "android.media.IAudioFlingerClient"
 status_t BnAudioFlingerClient::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
-/*
     switch (code) {
     case IO_CONFIG_CHANGED: {
             CHECK_INTERFACE(IAudioFlingerClient, data, reply);
@@ -83,8 +82,6 @@ status_t BnAudioFlingerClient::onTransact(
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-    */
-return 0;
 }
 
 // ----------------------------------------------------------------------------

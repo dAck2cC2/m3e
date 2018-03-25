@@ -48,7 +48,7 @@ const sp<IAudioFlinger> AudioSystem::get_audio_flinger()
     {
         Mutex::Autolock _l(gLock);
         if (gAudioFlinger == 0) {
-            /*sp<IServiceManager> sm = defaultServiceManager();
+            sp<IServiceManager> sm = defaultServiceManager();
             sp<IBinder> binder;
             do {
                 binder = sm->getService(String16("media.audio_flinger"));
@@ -67,7 +67,7 @@ const sp<IAudioFlinger> AudioSystem::get_audio_flinger()
             binder->linkToDeath(gAudioFlingerClient);
             gAudioFlinger = interface_cast<IAudioFlinger>(binder);
             LOG_ALWAYS_FATAL_IF(gAudioFlinger == 0);
-            afc = gAudioFlingerClient;*/
+            afc = gAudioFlingerClient;
         }
         af = gAudioFlinger;
     }
@@ -98,9 +98,9 @@ sp<AudioIoDescriptor> AudioSystem::getIoDescriptor(audio_io_handle_t ioHandle)
 
 /* static */ status_t AudioSystem::checkAudioFlinger()
 {
-    //if (defaultServiceManager()->checkService(String16("media.audio_flinger")) != 0) {
-    //    return NO_ERROR;
-    //}
+    if (defaultServiceManager()->checkService(String16("media.audio_flinger")) != 0) {
+        return NO_ERROR;
+    }
     return DEAD_OBJECT;
 }
 
@@ -694,7 +694,7 @@ const sp<IAudioPolicyService> AudioSystem::get_audio_policy_service()
     {
         Mutex::Autolock _l(gLockAPS);
         if (gAudioPolicyService == 0) {
-            /*sp<IServiceManager> sm = defaultServiceManager();
+            sp<IServiceManager> sm = defaultServiceManager();
             sp<IBinder> binder;
             do {
                 binder = sm->getService(String16("media.audio_policy"));
@@ -710,7 +710,6 @@ const sp<IAudioPolicyService> AudioSystem::get_audio_policy_service()
             gAudioPolicyService = interface_cast<IAudioPolicyService>(binder);
             LOG_ALWAYS_FATAL_IF(gAudioPolicyService == 0);
             apc = gAudioPolicyServiceClient;
-	    */
         }
         ap = gAudioPolicyService;
     }

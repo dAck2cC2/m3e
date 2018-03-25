@@ -15,26 +15,26 @@
 ** limitations under the License.
 */
 
-//#include <stdint.h>
-//#include <sys/types.h>
+#include <stdint.h>
+#include <sys/types.h>
 
-//#include <binder/Parcel.h>
-//#include <binder/IMemory.h>
-//#include <media/IHDCP.h>
-//#include <media/IMediaCodecList.h>
-//#include <media/IMediaHTTPService.h>
+#include <binder/Parcel.h>
+#include <binder/IMemory.h>
+#include <media/IHDCP.h>
+#include <media/IMediaCodecList.h>
+#include <media/IMediaHTTPService.h>
 #include <media/IMediaPlayerService.h>
-//#include <media/IMediaRecorder.h>
-//#include <media/IOMX.h>
-//#include <media/IRemoteDisplay.h>
-//#include <media/IRemoteDisplayClient.h>
-//#include <media/IStreamSource.h>
+#include <media/IMediaRecorder.h>
+#include <media/IOMX.h>
+#include <media/IRemoteDisplay.h>
+#include <media/IRemoteDisplayClient.h>
+#include <media/IStreamSource.h>
 
-//#include <utils/Errors.h>  // for status_t
-//#include <utils/String8.h>
+#include <utils/Errors.h>  // for status_t
+#include <utils/String8.h>
 
 namespace android {
-#if 0
+
 enum {
     CREATE = IBinder::FIRST_CALL_TRANSACTION,
     CREATE_MEDIA_RECORDER,
@@ -130,7 +130,7 @@ public:
         return interface_cast<IMediaCodecList>(reply.readStrongBinder());
     }
 };
-#endif
+
 IMPLEMENT_META_INTERFACE(MediaPlayerService, "android.media.IMediaPlayerService");
 
 // ----------------------------------------------------------------------
@@ -138,7 +138,6 @@ IMPLEMENT_META_INTERFACE(MediaPlayerService, "android.media.IMediaPlayerService"
 status_t BnMediaPlayerService::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
-#if 0    
     switch (code) {
         case CREATE: {
             CHECK_INTERFACE(IMediaPlayerService, data, reply);
@@ -209,8 +208,6 @@ status_t BnMediaPlayerService::onTransact(
         default:
             return BBinder::onTransact(code, data, reply, flags);
     }
-#endif
-    return 0;
 }
 
 // ----------------------------------------------------------------------------

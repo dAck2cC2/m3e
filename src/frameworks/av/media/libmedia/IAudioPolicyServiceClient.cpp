@@ -26,7 +26,7 @@
 #include <media/AudioSystem.h>
 
 namespace android {
-#if 0
+
 enum {
     PORT_LIST_UPDATE = IBinder::FIRST_CALL_TRANSACTION,
     PATCH_LIST_UPDATE,
@@ -94,7 +94,7 @@ public:
         remote()->transact(RECORDING_CONFIGURATION_UPDATE, data, &reply, IBinder::FLAG_ONEWAY);
     }
 };
-#endif 
+
 IMPLEMENT_META_INTERFACE(AudioPolicyServiceClient, "android.media.IAudioPolicyServiceClient");
 
 // ----------------------------------------------------------------------
@@ -102,7 +102,6 @@ IMPLEMENT_META_INTERFACE(AudioPolicyServiceClient, "android.media.IAudioPolicySe
 status_t BnAudioPolicyServiceClient::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
-	/*
     switch (code) {
     case PORT_LIST_UPDATE: {
             CHECK_INTERFACE(IAudioPolicyServiceClient, data, reply);
@@ -138,8 +137,6 @@ status_t BnAudioPolicyServiceClient::onTransact(
     default:
         return BBinder::onTransact(code, data, reply, flags);
     }
-    */
-	return 0;
 }
 
 // ----------------------------------------------------------------------------
