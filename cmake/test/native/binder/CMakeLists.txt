@@ -5,7 +5,7 @@ project(TEST_BINDER)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 

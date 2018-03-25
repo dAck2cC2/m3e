@@ -9,4 +9,4 @@ else()
 endif()
 
 # include
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/include)

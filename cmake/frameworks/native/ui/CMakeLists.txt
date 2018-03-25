@@ -7,8 +7,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/sync/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/native/binder/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/native/ui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
@@ -20,8 +20,8 @@ if(MSVC)
     #add_definitions(-DNOMINMAX)
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/native/include )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/native/ui )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/ui )
 
 # dependency
 set(UI_DEPLIB

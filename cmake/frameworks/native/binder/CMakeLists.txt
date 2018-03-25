@@ -4,14 +4,14 @@ project(BINDER)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
 add_definitions(-DANDROID_IMPLEMENTATION=1)
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/native/include )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/native/binder )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/binder )
 
 OPTION( BINDER_ENABLE_LOCAL
   "Set to ON to enable local binder implementation"

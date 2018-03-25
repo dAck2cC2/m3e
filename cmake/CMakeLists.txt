@@ -60,15 +60,11 @@ endif()
 
 # the subdirectory
 add_subdirectory(external)
-add_subdirectory(av)
+add_subdirectory(frameworks)
 
 if(ENABLE_CORE)
   add_subdirectory(core)
 endif(ENABLE_CORE)
-
-if(ENABLE_NATIVE)
-  add_subdirectory(native)
-endif(ENABLE_NATIVE)
 
 if(ENABLE_HARDWARE)
   add_subdirectory(hardware)
