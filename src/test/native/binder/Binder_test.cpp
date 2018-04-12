@@ -8,6 +8,7 @@
 #include <utils/threads.h>
 #include <string.h>
 
+#include <initrc.h>
 
 namespace android {
 
@@ -15,6 +16,7 @@ namespace android {
 #define TEST_STRING    "binder.test.memory"
 #define TEST_AMOUNT    (3)
     
+static InitRC&   gInitrc = InitRC::getInstance();
 static String16  gBinderTestName("binder_test_service");
 static int32_t   gBinderTestCounter = 0;
 

@@ -8,6 +8,8 @@
 #include <utils/threads.h>
 #include <utils/KeyedVector.h>
 
+#include <hardware/hardware.h>
+
 namespace android {
 
 class LocalServiceManager : public BBinder, public Thread, public IBinder::DeathRecipient
@@ -87,6 +89,16 @@ public:
         }
     };
 
+    void waitForStarted(void) {
+        if (!Thread::isRunning()) {
+            mThreadStartedMutex.lock();
+            
+            Thread::run();
+            
+            mThreadStartedCondition.wait(mThreadStartedMutex);
+            mThreadStartedMutex.unlock();
+        }
+    };
     
 protected:
     ~LocalServiceManager() {};
@@ -94,6 +106,8 @@ protected:
 private:
     virtual bool threadLoop()
     {
+        mThreadStartedMutex.lock();
+
 		sp<ProcessState>  proc = ProcessState::self();
         proc->becomeContextManager(NULL, NULL);
 
@@ -104,6 +118,9 @@ private:
             IPCThreadState::self()->transact(0, IBinder::PING_TRANSACTION, parcel, NULL, IBinder::FLAG_ONEWAY);
         }
         
+        mThreadStartedCondition.broadcast();
+        mThreadStartedMutex.unlock();
+        
 		IPCThreadState::self()->joinThreadPool();
 
         return false;
@@ -112,22 +129,48 @@ private:
 private:
     const android::String16              mDescriptor;
     KeyedVector<String16, sp<IBinder> >  mServices;
-};
-
     
-class LocalServiceManagerInit
-{
-public:
-	LocalServiceManagerInit() { 
-		sm = new LocalServiceManager();
-		sm->run();
-	};
-	~LocalServiceManagerInit() {};
-private:
-	sp<LocalServiceManager> sm;
+    Mutex     mThreadStartedMutex;
+    Condition mThreadStartedCondition;
 };
-
-    
-static LocalServiceManagerInit gLocalServiceManager;
 
 }; // namespace android
+
+//  interface for initrc
+
+#define SERVICE_MANAGER_TAG     0xF3EC
+#define SERVICE_MANAGER_VER     7020
+#define SERVICE_MANAGER_ID      "servicemanager"
+#define SERVICE_MANAGER_NAME    "android.os.IServiceManager"
+#define SERVICE_MANAGER_AUTHOR  "yuki.kokoto"
+
+android::sp<android::LocalServiceManager> gServiceManager;
+
+int open_servicemanager(const struct hw_module_t* module, const char* id,
+                        struct hw_device_t** device)
+{
+    if (gServiceManager == NULL) {
+        gServiceManager = new android::LocalServiceManager();
+        if (gServiceManager != NULL) {
+            gServiceManager->waitForStarted();
+        }
+    }
+    
+    return android::OK;
+}
+
+hw_module_methods_t method = {
+    open_servicemanager
+};
+
+hw_module_t HMI = {
+    SERVICE_MANAGER_TAG,    // tag
+    SERVICE_MANAGER_VER,    // module_api_version
+    SERVICE_MANAGER_VER,    // hal_api_version
+    SERVICE_MANAGER_ID,     // id
+    SERVICE_MANAGER_NAME,   // name
+    SERVICE_MANAGER_AUTHOR, // author
+    &method, // methods
+    NULL,    // dso
+    { 0 }    // reserved
+};
