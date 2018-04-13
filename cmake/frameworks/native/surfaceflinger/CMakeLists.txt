@@ -28,15 +28,23 @@ gui
 
 # source files
 set( SURFACEFLINGER_HEADER_FILES  
+${HEADER_PATH}/Client.h
 ${HEADER_PATH}/SurfaceFlinger.h
 )
 
 set( SURFACEFLINGER_SOURCE_FILES  
+${SOURCE_PATH}/Client.cpp
 ${SOURCE_PATH}/SurfaceFlinger.cpp
 ${SOURCE_PATH}/main_surfaceflinger.cpp
 )
 
 if (APPLE)
+    set(SURFACEFLINGER_HEADER_FILES ${SURFACEFLINGER_HEADER_FILES}
+    #${HEADER_PATH}/SurfaceFlingerCocoa.h
+    )
+    set(SURFACEFLINGER_SOURCE_FILES ${SURFACEFLINGER_SOURCE_FILES}
+    #${SOURCE_PATH}/SurfaceFlingerCocoa.cpp
+    )
     set(LIB_NAME surfaceflinger.osx)
 else ()
     set(LIB_NAME surfaceflinger.default)

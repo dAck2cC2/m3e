@@ -1,13 +1,19 @@
 #ifndef ANDROID_SURFACE_FLINGER_H
 #define ANDROID_SURFACE_FLINGER_H
 
+#include <utils/threads.h>
 #include <gui/ISurfaceComposer.h>
+#include <hardware/hwcomposer_defs.h>
 
 namespace android {
-
+    
 class SurfaceFlinger : public BnSurfaceComposer
 {
 public:
+    static char const* getServiceName() {
+        return "SurfaceFlinger";
+    };
+    
     SurfaceFlinger();
     ~SurfaceFlinger();
     
@@ -43,6 +49,16 @@ public:
     virtual status_t getAnimationFrameStats(FrameStats* outStats) const;
     virtual status_t getHdrCapabilities(const sp<IBinder>& display,
                                         HdrCapabilities* outCapabilities) const;
+private:
+    /* ------------------------------------------------------------------------
+     * RefBase interface
+     */
+    virtual void onFirstRef();
+
+    void createBuiltinDisplayLocked(int type);
+
+private:
+    sp<IBinder> mBuiltinDisplays[HWC_NUM_PHYSICAL_DISPLAY_TYPES];
 };
 
 };  // namespace android

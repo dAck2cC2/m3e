@@ -283,8 +283,36 @@ ${ANGLE_SOURCE_THIRD}
 ${ANGLE_SOURCE_IMAGE_UTIL}
 )
 
-
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(angle SHARED ${ANGLE_SOURCE_FILES} ${ANGLE_HEADER_FILES})
 target_link_libraries(angle ${ANGLE_DEPLIB})
+
+
+
+
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/)
+file(GLOB ANGLE_UTIL_HEAD ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/*.h)
+file(GLOB ANGLE_UTIL_SRC  ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/*.cpp)
+if(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+
+    find_library(APPKIT_LIBRARY AppKit)
+    list(APPEND DEMO_DEPLIBS ${APPKIT_LIBRARY})
+
+    list(APPEND ANGLE_UTIL_HEAD 
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/osx/OSXPixmap.h
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/osx/OSXtimer.h
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/osx/OSXWindow.h
+    )
+    list(APPEND ANGLE_UTIL_SRC 
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/osx/OSXPixmap.mm
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/osx/OSXtimer.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/osx/OSXWindow.mm
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/posix/Posix_system_utils.cpp
+    )
+elseif(MSVC)
+endif()
+
+set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
+add_library(angle_util STATIC ${ANGLE_UTIL_SRC} ${ANGLE_UTIL_HEAD})
