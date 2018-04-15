@@ -6,6 +6,7 @@
 #include <binder/IServiceManager.h>
 
 #include <utils/threads.h>
+#include <utils/Vector.h>
 #include <string.h>
 
 #include <initrc.h>
@@ -27,11 +28,18 @@ public:
     
     virtual int  increase(int amount) = 0;
     virtual sp<IMemory> getMemory() = 0;
+    
+    virtual sp<IBinder> createToken(int32_t id) = 0;
+    virtual int32_t getTokenId(const sp<IBinder>& token) = 0;
+    virtual sp<IBinder> getToken(int32_t id) = 0;
 };
     
 enum {
     BD_TEST_INCREASE = IBinder::FIRST_CALL_TRANSACTION,
     BD_TEST_MEMORY,
+    BD_TEST_CREATE_TOKEN,
+    BD_TEST_GET_TOKEN_ID,
+    BD_TEST_GET_TOKEN,
 };
 
 class BpBinderTest : public BpInterface<IBinderTest>
@@ -62,7 +70,43 @@ public:
         }
         
         return result;
-    }
+    };
+    
+    virtual sp<IBinder> createToken(int32_t id)
+    {
+        sp<IBinder> result;
+        Parcel data, reply;
+        data.writeInterfaceToken(IBinderTest::getInterfaceDescriptor());
+        data.writeInt32(id);
+        if (remote()->transact(BD_TEST_CREATE_TOKEN, data, &reply) == NO_ERROR) {
+            result = reply.readStrongBinder();
+        }
+        return result;
+    };
+    
+    virtual int32_t getTokenId(const sp<IBinder>& token)
+    {
+        int32_t result = 0;
+        Parcel data, reply;
+        data.writeInterfaceToken(IBinderTest::getInterfaceDescriptor());
+        data.writeStrongBinder(token);
+        if (remote()->transact(BD_TEST_GET_TOKEN_ID, data, &reply) == NO_ERROR) {
+            result = reply.readInt32();
+        }
+        return result;
+    };
+    
+    virtual sp<IBinder> getToken(int32_t id)
+    {
+        sp<IBinder> result;
+        Parcel data, reply;
+        data.writeInterfaceToken(IBinderTest::getInterfaceDescriptor());
+        data.writeInt32(id);
+        if (remote()->transact(BD_TEST_GET_TOKEN, data, &reply) == NO_ERROR) {
+            result = reply.readStrongBinder();
+        }
+        return result;
+    };
 };
 
 class BnBinderTest : public BnInterface<IBinderTest>
@@ -86,6 +130,27 @@ public:
                 CHECK_INTERFACE(IBinderTest, data, reply);
                 sp<IMemory> mem = getMemory();
                 reply->writeStrongBinder(IInterface::asBinder(mem));
+                return NO_ERROR;
+            } break;
+            case BD_TEST_CREATE_TOKEN: {
+                CHECK_INTERFACE(IBinderTest, data, reply);
+                int32_t id = data.readInt32();
+                sp<IBinder> token = createToken(id);
+                reply->writeStrongBinder(token);
+                return NO_ERROR;
+            } break;
+            case BD_TEST_GET_TOKEN_ID: {
+                CHECK_INTERFACE(IBinderTest, data, reply);
+                sp<IBinder> token = data.readStrongBinder();
+                int32_t id = getTokenId(token);
+                reply->writeInt32(id);
+                return NO_ERROR;
+            } break;
+            case BD_TEST_GET_TOKEN: {
+                CHECK_INTERFACE(IBinderTest, data, reply);
+                int32_t id = data.readInt32();
+                sp<IBinder> token = getToken(id);
+                reply->writeStrongBinder(token);
                 return NO_ERROR;
             } break;
             default:
@@ -125,9 +190,48 @@ public:
     virtual sp<IMemory> getMemory() {
         return mMem;
     };
+    
+    virtual sp<IBinder> createToken(int32_t id)
+    {
+        if ((id < 0) || (id >= TOKEN_MAX)) {
+            return NULL;
+        }
+        
+        if (mToken[id] == NULL) {
+            mToken[id] = new BBinder();
+        }
+        
+        return mToken[id];
+    };
+    
+    virtual int32_t getTokenId(const sp<IBinder>& token)
+    {
+        int32_t id = -1;
+        for (int32_t i = 0; i < TOKEN_MAX; ++i) {
+            if (token == mToken[i]) {
+                id = i;
+                break;
+            }
+        }
+        
+        return id;
+    };
+    
+    virtual sp<IBinder> getToken(int32_t id)
+    {
+        if ((id < 0) || (id >= TOKEN_MAX)) {
+            return NULL;
+        }
+        
+        return mToken[id];
+    };
+    
 private:
     sp<MemoryDealer> mDealer;
     sp<IMemory>      mMem;
+    
+    static const int TOKEN_MAX = 2;
+    sp<IBinder>      mToken[2];
 };
     
 class BinderTestService : public Thread
@@ -250,8 +354,35 @@ TEST(libbinder, Binder_memory)
     EXPECT_TRUE(pBuf != NULL);
     EXPECT_STREQ(TEST_STRING, (char *)pBuf);
 }
-   
+
+TEST(libbinder, Binder_token)
+{
+    service->waitForStarted();
+
+    sp<IBinderTest> test;
+    status_t chk = getService(gBinderTestName, &test);
+    EXPECT_EQ(NO_ERROR, chk);
+    EXPECT_TRUE(test != NULL);
+
+    sp<IBinder> token[2];
     
+    for (int32_t i = 0; i < 2; ++i) {
+        token[i] = test->createToken(i);
+        EXPECT_TRUE(token[i] != NULL) << i;
+    }
+    
+    for (int32_t i = 0; i < 2; ++i) {
+        int32_t id = test->getTokenId(token[i]);
+        EXPECT_EQ(i, id) << i;
+    }
+    
+    for (int32_t i = 0; i < 2; ++i) {
+        sp<IBinder> t;
+        t = test->getToken(i);
+        EXPECT_TRUE(token[i] == t) << i;
+    }
+}
+
 TEST(libbinder, Binder_death)
 {
     service->waitForStarted();

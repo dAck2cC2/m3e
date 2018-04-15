@@ -290,12 +290,20 @@ private:
                     
                     int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
                     pbwr->write_consumed += sizeof(int32_t);
+                    
+                    /*
+                     * It may not be necessary to keep or release the object in this way.
+                     * Besides, it will cause some objects are released unexpectedly.
+                     * Investigate it later.
+                     */
+                    #if TODO
                     result = Send(dstHandler, (uint8_t *)data, BINDER_CMD_SIZE + sizeof(int32_t));
                     if (NO_ERROR == result) {
                         // wait for the result
                         bNeedRead++;
                         readTimeout = BINDER_TIMEOUT_MS;
                     }
+                    #endif // TODO
                 }   break;
                 case BC_ACQUIRE_DONE:
                 case BC_INCREFS_DONE: {
@@ -322,7 +330,9 @@ private:
                     
                     int32_t dstHandler = *((int32_t *)(data + BINDER_CMD_SIZE));
                     pbwr->write_consumed += sizeof(int32_t);
+                    #if TODO
                     result = Send(dstHandler, (uint8_t *)data, BINDER_CMD_SIZE + sizeof(int32_t));
+                    #endif // TODO
                     
                     // no reply for this command
                     bNeedRead = 0;
@@ -448,6 +458,11 @@ private:
                         tr->cookie = (void *)(obj.cookie);
                     }
                     
+                    // map the proxy to native binder
+                    if (tr->data.ptr.offsets && tr->offsets_size) {
+                        SearchBp(*tr);
+                    }
+                    
                     // we have to send the complete also for BR_REPLY
                     int32_t complete = BR_TRANSACTION_COMPLETE;
                     Send(mMsgSender, (uint8_t *)(&complete), sizeof(complete));
@@ -509,7 +524,6 @@ private:
         return Send(mMsgSender, data, size);
     }
 
-    
     status_t RegisterBn(binder_transaction_data& tr)
     {
         // decode the binder object from Parcel according to Parcel::writeObject
@@ -517,11 +531,8 @@ private:
             binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
             flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
             if (obj->type == BINDER_TYPE_BINDER) {
-                // Add reference to avoid it may be released
-                reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
-                
                 // the first should be the one which is registered to Service Manager
-                int hProxy = mHandler;
+                int hProxy = -1;
                 if (mBnList.isEmpty()) {
                     hProxy = mHandler;
                     
@@ -531,45 +542,85 @@ private:
                     mName = new String16(nameBuf);
                     #endif // BINDER_DEBUG
                     
+                    // Add reference to avoid it may be released
+                    reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
+                    
+                    // map the handler to native binder
+                    mBnList.add(hProxy, *obj);
+                    
                 // the following is anonymous binder
                 } else {
-                    AutoMutex _l(gServiceLock);
-
-                    hProxy = gHandlerCounter++;
-                    sp<IBinderEntry> eProxy = new CBinderEntry(hProxy);
-                    LOG_ALWAYS_FATAL_IF((eProxy == NULL), "Handler[%d] Failed to create binder entry. %s:%d", hProxy, __FILE__, __LINE__);
-                    
-                    ssize_t N = gServiceList.add(hProxy, eProxy);
-                    LOG_ALWAYS_FATAL_IF((N < 0), "Handler[%d] Failed to add binder entry. %s:%d", hProxy, __FILE__, __LINE__);
-                    if (N < 0) {
-                        return (NO_MEMORY);
+                    // do not map the same native binder twice
+                    for (int i = 0; i < mBnList.size(); ++i) {
+                        if (mBnList[i].cookie == obj->cookie) {
+                            hProxy = mBnList.keyAt(i);
+                            break;
+                        }
                     }
                     
-                    // it sends the message to current threads
-                    eProxy->SetLooper(mLooper);
-                    eProxy->SetParentHandler(mHandler);
-                    
-                    #if  BINDER_DEBUG
-                    int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
-                    char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
-                    add->mName = new String16(nameBuf);
-                    #endif  //  BINDER_DEBUG
-                }
-                
-                // map the handler to native binder
-                mBnList.add(hProxy, *obj);
+                    // create handler for new native binder
+                    if (hProxy == -1) {
+                        AutoMutex _l(gServiceLock);
+
+                        hProxy = gHandlerCounter++;
+                        sp<IBinderEntry> eProxy = new CBinderEntry(hProxy);
+                        LOG_ALWAYS_FATAL_IF((eProxy == NULL), "Handler[%d] Failed to create binder entry. %s:%d", hProxy, __FILE__, __LINE__);
+                        
+                        ssize_t N = gServiceList.add(hProxy, eProxy);
+                        LOG_ALWAYS_FATAL_IF((N < 0), "Handler[%d] Failed to add binder entry. %s:%d", hProxy, __FILE__, __LINE__);
+                        if (N < 0) {
+                            return (NO_MEMORY);
+                        }
+                        
+                        // it sends the message to current threads
+                        eProxy->SetLooper(mLooper);
+                        eProxy->SetParentHandler(mHandler);
+                        
+                        #if  BINDER_DEBUG
+                        int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
+                        char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
+                        add->mName = new String16(nameBuf);
+                        #endif  //  BINDER_DEBUG
+                        
+                        // Add reference to avoid it may be released
+                        reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
+                        
+                        // map the handler to native binder
+                        mBnList.add(hProxy, *obj);
+                    } // if (hProxy == -1)
+                } // if (mBnList.isEmpty())
                 
                 // return the proxy for this native binder
                 obj->type = BINDER_TYPE_HANDLE;
                 obj->binder = 0;
                 obj->handle = hProxy;
                 obj->cookie = 0;
-            }
-        }
+            } // if (obj->type == BINDER_TYPE_BINDER)
+        } // for
         
         return NO_ERROR;
     } // RegisterBn
 
+    status_t SearchBp(binder_transaction_data& tr)
+    {
+        // decode the binder object from Parcel according to Parcel::writeObject
+        for (int i = 0; i < ((tr.offsets_size)/sizeof(binder_size_t)); ++i) {
+            binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
+            flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
+            
+            // binder proxy
+            if (obj->type == BINDER_TYPE_HANDLE) {
+                for (int i = 0; i < mBnList.size(); ++i) {
+                    if (obj->handle == mBnList.keyAt(i)) {
+                        (*obj) = mBnList[i];
+                     }
+                }
+            }
+        } // for
+
+        return NO_ERROR;
+    }
+    
     status_t Send(int hDst, uint8_t* data, size_t size)
     {
         status_t result = NO_ERROR;

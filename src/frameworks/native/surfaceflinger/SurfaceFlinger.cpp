@@ -6,6 +6,7 @@
 #include <gui/IDisplayEventConnection.h>
 
 #include "Client.h"
+#include "Layer.h"
 #include "SurfaceFlinger.h"
 
 namespace android {
@@ -55,7 +56,7 @@ void SurfaceFlinger::destroyDisplay(const sp<IBinder>& display)
     
 sp<IBinder> SurfaceFlinger::getBuiltInDisplay(int32_t id)
 {
-    if (uint32_t(id) >= HWC_NUM_PHYSICAL_DISPLAY_TYPES) {
+    if (uint32_t(id) >= DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES) {
         ALOGE("getDefaultDisplay: id=%d is not a valid default display id", id);
         return NULL;
     }
@@ -94,7 +95,7 @@ status_t SurfaceFlinger::getDisplayConfigs(const sp<IBinder>& display,
         return NAME_NOT_FOUND;
     
     int32_t type = NAME_NOT_FOUND;
-    for (int i=0 ; i<HWC_NUM_PHYSICAL_DISPLAY_TYPES ; i++) {
+    for (int i=0 ; i<DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES ; i++) {
         if (display == mBuiltinDisplays[i]) {
             type = i;
             break;
@@ -152,8 +153,8 @@ status_t SurfaceFlinger::getDisplayConfigs(const sp<IBinder>& display,
             info.orientation = 0;
         }
         
-        //info.w = hwConfig->getWidth();
-        //info.h = hwConfig->getHeight();
+        info.w = 800; //hwConfig->getWidth();
+        info.h = 600; //hwConfig->getHeight();
         info.xdpi = xdpi;
         info.ydpi = ydpi;
         //info.fps = 1e9 / hwConfig->getVsyncPeriod();
@@ -191,7 +192,11 @@ status_t SurfaceFlinger::getDisplayStats(const sp<IBinder>& display,
 
 int SurfaceFlinger::getActiveConfig(const sp<IBinder>& display)
 {
-    return -1;
+    sp<DisplayDevice> device(getDisplayDevice(display));
+    if (device != NULL) {
+        return device->getActiveConfig();
+    }
+    return BAD_VALUE;
 }
 
 status_t SurfaceFlinger::setActiveConfig(const sp<IBinder>& display, int id)
@@ -244,7 +249,20 @@ status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
 
 void SurfaceFlinger::onFirstRef()
 {
-    createBuiltinDisplayLocked(HWC_DISPLAY_PRIMARY);
+    {
+        Mutex::Autolock lock(mStateLock);
+        
+        // All non-virtual displays are currently considered secure.
+        //bool isSecure = true;
+        
+        int32_t type = DisplayDevice::DISPLAY_PRIMARY;
+        createBuiltinDisplayLocked(DisplayDevice::DISPLAY_PRIMARY);
+        wp<IBinder> token = mBuiltinDisplays[type];
+        
+        sp<DisplayDevice> hw = new DisplayDevice(this,
+                                                 DisplayDevice::DISPLAY_PRIMARY);
+        mDisplays.add(token, hw);
+    }
 }
 
 void SurfaceFlinger::createBuiltinDisplayLocked(int type)
@@ -253,6 +271,108 @@ void SurfaceFlinger::createBuiltinDisplayLocked(int type)
     ALOGW_IF(mBuiltinDisplays[type],
              "Overwriting display token for display type %d", type);
     mBuiltinDisplays[type] = new BBinder();
+}
+
+status_t SurfaceFlinger::createLayer(
+                                     const String8& name,
+                                     const sp<Client>& client,
+                                     uint32_t w, uint32_t h, PixelFormat format, uint32_t flags,
+                                     sp<IBinder>* handle, sp<IGraphicBufferProducer>* gbp)
+{
+    //ALOGD("createLayer for (%d x %d), name=%s", w, h, name.string());
+    if (int32_t(w|h) < 0) {
+        ALOGE("createLayer() failed, w or h is negative (w=%d, h=%d)",
+              int(w), int(h));
+        return BAD_VALUE;
+    }
+    
+    status_t result = NO_ERROR;
+    
+    sp<Layer> layer;
+    
+    switch (flags & ISurfaceComposerClient::eFXSurfaceMask) {
+        case ISurfaceComposerClient::eFXSurfaceNormal:
+            result = createNormalLayer(client,
+                                       name, w, h, flags, format,
+                                       handle, gbp, &layer);
+            break;
+        case ISurfaceComposerClient::eFXSurfaceDim:
+            result = createDimLayer(client,
+                                    name, w, h, flags,
+                                    handle, gbp, &layer);
+            break;
+        default:
+            result = BAD_VALUE;
+            break;
+    }
+    
+    if (result != NO_ERROR) {
+        return result;
+    }
+    
+    result = addClientLayer(client, *handle, *gbp, layer);
+    if (result != NO_ERROR) {
+        return result;
+    }
+    
+    //setTransactionFlags(eTransactionNeeded);
+    return result;
+}
+
+status_t SurfaceFlinger::createNormalLayer(const sp<Client>& client,
+                                           const String8& name, uint32_t w, uint32_t h, uint32_t flags, PixelFormat& format,
+                                           sp<IBinder>* handle, sp<IGraphicBufferProducer>* gbp, sp<Layer>* outLayer)
+{
+    // initialize the surfaces
+    switch (format) {
+        case PIXEL_FORMAT_TRANSPARENT:
+        case PIXEL_FORMAT_TRANSLUCENT:
+            format = PIXEL_FORMAT_RGBA_8888;
+            break;
+        case PIXEL_FORMAT_OPAQUE:
+            format = PIXEL_FORMAT_RGBX_8888;
+            break;
+    }
+    
+    *outLayer = new Layer(this, client, name, w, h, flags);
+    status_t err = NO_ERROR; //(*outLayer)->setBuffers(w, h, format, flags);
+    //if (err == NO_ERROR) {
+    //    *handle = (*outLayer)->getHandle();
+    //    *gbp = (*outLayer)->getProducer();
+    //}
+    
+    ALOGE_IF(err, "createNormalLayer() failed (%s)", strerror(-err));
+    return err;
+}
+
+status_t SurfaceFlinger::createDimLayer(const sp<Client>& client,
+                                        const String8& name, uint32_t w, uint32_t h, uint32_t flags,
+                                        sp<IBinder>* handle, sp<IGraphicBufferProducer>* gbp, sp<Layer>* outLayer)
+{
+    return NO_INIT;
+}
+
+status_t SurfaceFlinger::addClientLayer(const sp<Client>& client,
+                                        const sp<IBinder>& handle,
+                                        const sp<IGraphicBufferProducer>& gbc,
+                                        const sp<Layer>& lbc)
+{
+    /*
+    // add this layer to the current state list
+    {
+        Mutex::Autolock _l(mStateLock);
+        if (mCurrentState.layersSortedByZ.size() >= MAX_LAYERS) {
+            return NO_MEMORY;
+        }
+        mCurrentState.layersSortedByZ.add(lbc);
+        mGraphicBufferProducerList.add(IInterface::asBinder(gbc));
+    }
+    */
+    
+    // attach this layer to the client
+    client->attachLayer(handle, lbc);
+    
+    return NO_ERROR;
 }
 
     

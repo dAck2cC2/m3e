@@ -15,7 +15,7 @@ namespace android {
 
 // ---------------------------------------------------------------------------
 
-//class Layer;
+class Layer;
 class SurfaceFlinger;
 
 // ---------------------------------------------------------------------------
@@ -28,6 +28,14 @@ public:
     
     status_t initCheck() const;
     
+    // protected by SurfaceFlinger::mStateLock
+    void attachLayer(const sp<IBinder>& handle, const sp<Layer>& layer);
+    
+    void detachLayer(const Layer* layer);
+    
+    sp<Layer> getLayerUser(const sp<IBinder>& handle) const;
+
+private:
     // ISurfaceComposerClient interface
     virtual status_t createSurface(
             const String8& name,
@@ -46,7 +54,10 @@ public:
 private:
     // constant
     sp<SurfaceFlinger> mFlinger;
-
+    
+    // protected by mLock
+    DefaultKeyedVector< wp<IBinder>, wp<Layer> > mLayers;
+    
     // thread-safe
     mutable Mutex mLock;
 };

@@ -1,12 +1,22 @@
+
 #ifndef ANDROID_SURFACE_FLINGER_H
 #define ANDROID_SURFACE_FLINGER_H
 
+#include <utils/KeyedVector.h>
+#include <utils/RefBase.h>
 #include <utils/threads.h>
 #include <gui/ISurfaceComposer.h>
-#include <hardware/hwcomposer_defs.h>
+
+#include "DisplayDevice.h"
 
 namespace android {
-    
+// ---------------------------------------------------------------------------
+
+class Client;
+class Layer;
+
+// ---------------------------------------------------------------------------
+
 class SurfaceFlinger : public BnSurfaceComposer
 {
 public:
@@ -55,10 +65,69 @@ private:
      */
     virtual void onFirstRef();
 
-    void createBuiltinDisplayLocked(int type);
+    /* ------------------------------------------------------------------------
+     * Display and layer stack management
+     */
+    // called when starting, or restarting after system_server death
+    //void initializeDisplays();
 
+    void createBuiltinDisplayLocked(int type);
+    
+    // NOTE: can only be called from the main thread or with mStateLock held
+    sp<const DisplayDevice> getDisplayDevice(const wp<IBinder>& dpy) const {
+        return mDisplays.valueFor(dpy);
+    }
+    
+    // NOTE: can only be called from the main thread or with mStateLock held
+    sp<DisplayDevice> getDisplayDevice(const wp<IBinder>& dpy) {
+        return mDisplays.valueFor(dpy);
+    }
+    
+    int32_t getDisplayType(const sp<IBinder>& display) {
+        if (!display.get()) return NAME_NOT_FOUND;
+        for (int i = 0; i < DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES; ++i) {
+            if (display == mBuiltinDisplays[i]) {
+                return i;
+            }
+        }
+        return NAME_NOT_FOUND;
+    }
+
+    /* ------------------------------------------------------------------------
+     * Layer management
+     */
+    status_t createLayer(const String8& name, const sp<Client>& client,
+                         uint32_t w, uint32_t h, PixelFormat format, uint32_t flags,
+                         sp<IBinder>* handle, sp<IGraphicBufferProducer>* gbp);
+    
+    status_t createNormalLayer(const sp<Client>& client, const String8& name,
+                               uint32_t w, uint32_t h, uint32_t flags, PixelFormat& format,
+                               sp<IBinder>* outHandle, sp<IGraphicBufferProducer>* outGbp,
+                               sp<Layer>* outLayer);
+    
+    status_t createDimLayer(const sp<Client>& client, const String8& name,
+                            uint32_t w, uint32_t h, uint32_t flags, sp<IBinder>* outHandle,
+                            sp<IGraphicBufferProducer>* outGbp, sp<Layer>* outLayer);
+    
+    // add a layer to SurfaceFlinger
+    status_t addClientLayer(const sp<Client>& client,
+                            const sp<IBinder>& handle,
+                            const sp<IGraphicBufferProducer>& gbc,
+                            const sp<Layer>& lbc);
+    
 private:
-    sp<IBinder> mBuiltinDisplays[HWC_NUM_PHYSICAL_DISPLAY_TYPES];
+    /* ------------------------------------------------------------------------
+     * Attributes
+     */
+    
+    // access must be protected by mStateLock
+    mutable Mutex mStateLock;
+
+    sp<IBinder> mBuiltinDisplays[DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES];
+    
+    // this may only be written from the main thread with mStateLock held
+    // it may be read from other threads with mStateLock held
+    DefaultKeyedVector< wp<IBinder>, sp<DisplayDevice> > mDisplays;
 };
 
 };  // namespace android

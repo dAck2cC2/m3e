@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "IPCThreadState"
-#if 1 //defined(_MSC_VER)
+#if defined(_MSC_VER)
 #define LOG_NDEBUG 1
 #endif // _MSC_VER
 
@@ -48,14 +48,14 @@
 #include <unistd.h>
 
 #if defined(_MSC_VER)
-uid_t getuid() { return 1000; };
-#if defined IN
-#undef IN
-#endif
-#if defined OUT
-#undef OUT
-#endif
-#define pthread_self androidGetThreadId
+    uid_t getuid() { return 1000; };
+    #if defined IN
+        #undef IN
+    #endif
+    #if defined OUT
+        #undef OUT
+    #endif
+    #define pthread_self androidGetThreadId
 #endif // _MSC_VER
 
 #if LOG_NDEBUG

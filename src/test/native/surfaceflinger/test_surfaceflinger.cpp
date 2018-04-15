@@ -7,6 +7,10 @@
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
 
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+#include <EGL/eglext.h>
+
 using namespace android;
 
 static InitRC&   gInitrc = InitRC::getInstance();
@@ -50,6 +54,32 @@ private:
         
         sp<Surface> s = control->getSurface();
 
+        // initialize opengl and egl
+        const EGLint attribs[] = {
+            EGL_RED_SIZE,   8,
+            EGL_GREEN_SIZE, 8,
+            EGL_BLUE_SIZE,  8,
+            EGL_DEPTH_SIZE, 0,
+            EGL_NONE
+        };
+        EGLint w, h;
+        EGLint numConfigs;
+        EGLConfig config;
+        EGLSurface surface;
+        EGLContext context;
+        
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        
+        eglInitialize(display, 0, 0);
+        eglChooseConfig(display, attribs, &config, 1, &numConfigs);
+        surface = eglCreateWindowSurface(display, config, s.get(), NULL);
+        context = eglCreateContext(display, config, NULL, NULL);
+        eglQuerySurface(display, surface, EGL_WIDTH, &w);
+        eglQuerySurface(display, surface, EGL_HEIGHT, &h);
+        
+        if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
+            return NO_INIT;
+        
         return NO_ERROR;
     };
     

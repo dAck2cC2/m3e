@@ -6,10 +6,11 @@ project(TEST_ANGLE)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
-set(DEMO_DEPLIBS angle)
-list(APPEND DEMO_DEPLIBS angle_util)
+set(DEMO_DEPLIBS 
+angle
+angle_util
+)
 
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util)
 
 ADD_DEMO(angle_WindowTest 

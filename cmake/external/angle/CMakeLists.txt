@@ -289,16 +289,21 @@ add_library(angle SHARED ${ANGLE_SOURCE_FILES} ${ANGLE_HEADER_FILES})
 target_link_libraries(angle ${ANGLE_DEPLIB})
 
 
+###########################################################
+# angle utils
+###########################################################
 
-
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/)
+#include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/)
+set(ANGLE_UTIL_DEPLIB
+angle 
+)
 file(GLOB ANGLE_UTIL_HEAD ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/*.h)
 file(GLOB ANGLE_UTIL_SRC  ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/*.cpp)
 if(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
 
     find_library(APPKIT_LIBRARY AppKit)
-    list(APPEND DEMO_DEPLIBS ${APPKIT_LIBRARY})
+    list(APPEND ANGLE_UTIL_DEPLIB ${APPKIT_LIBRARY})
 
     list(APPEND ANGLE_UTIL_HEAD 
     ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/osx/OSXPixmap.h
@@ -315,4 +320,5 @@ elseif(MSVC)
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(angle_util STATIC ${ANGLE_UTIL_SRC} ${ANGLE_UTIL_HEAD})
+add_library(angle_util SHARED ${ANGLE_UTIL_SRC} ${ANGLE_UTIL_HEAD})
+target_link_libraries(angle_util ${ANGLE_UTIL_DEPLIB})

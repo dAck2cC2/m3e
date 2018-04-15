@@ -7,7 +7,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
-#include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
 #add_definitions(-DANDROID_IMPLEMENTATION=1)
 
@@ -23,28 +23,30 @@ cutils
 utils
 binder
 gui
-#angle
+angle
+angle_util
 )
 
 # source files
 set( SURFACEFLINGER_HEADER_FILES  
+${HEADER_PATH}/Barrier.h
 ${HEADER_PATH}/Client.h
+${HEADER_PATH}/Layer.h
+${HEADER_PATH}/MessageQueue.h
+${HEADER_PATH}/DisplayDevice.h
 ${HEADER_PATH}/SurfaceFlinger.h
 )
 
 set( SURFACEFLINGER_SOURCE_FILES  
 ${SOURCE_PATH}/Client.cpp
+${SOURCE_PATH}/Layer.cpp
+${SOURCE_PATH}/MessageQueue.cpp
+${SOURCE_PATH}/DisplayDevice.cpp
 ${SOURCE_PATH}/SurfaceFlinger.cpp
 ${SOURCE_PATH}/main_surfaceflinger.cpp
 )
 
 if (APPLE)
-    set(SURFACEFLINGER_HEADER_FILES ${SURFACEFLINGER_HEADER_FILES}
-    #${HEADER_PATH}/SurfaceFlingerCocoa.h
-    )
-    set(SURFACEFLINGER_SOURCE_FILES ${SURFACEFLINGER_SOURCE_FILES}
-    #${SOURCE_PATH}/SurfaceFlingerCocoa.cpp
-    )
     set(LIB_NAME surfaceflinger.osx)
 else ()
     set(LIB_NAME surfaceflinger.default)

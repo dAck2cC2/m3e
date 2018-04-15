@@ -7,14 +7,6 @@
 #include <hardware/hardware.h>
 
 #include "SurfaceFlinger.h"
-/*
-#if defined(__APPLE__)
-#include "SurfaceFlingerCocoa.h"
-#define ImplSurfaceFlinger SurfaceFlingerCocoa
-#else
-#error Unknown platform
-#endif
-*/
 
 namespace android {
 
