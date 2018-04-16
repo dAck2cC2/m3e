@@ -15,9 +15,7 @@
  */
 
 #define LOG_TAG "IPCThreadState"
-#if defined(_MSC_VER)
 #define LOG_NDEBUG 1
-#endif // _MSC_VER
 
 #include <binder/IPCThreadState.h>
 

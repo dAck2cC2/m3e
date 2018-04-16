@@ -38,7 +38,7 @@ public:
     virtual ~Layer();
 
     // the this layer's size and format
-    //status_t setBuffers(uint32_t w, uint32_t h, PixelFormat format, uint32_t flags);
+    status_t setBuffers(uint32_t w, uint32_t h, PixelFormat format, uint32_t flags);
 
 
     //class Handle;

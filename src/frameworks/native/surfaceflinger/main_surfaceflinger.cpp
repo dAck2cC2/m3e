@@ -10,6 +10,25 @@
 
 namespace android {
 
+class SurfaceFlingerMessage : public Thread
+{
+public:
+    SurfaceFlingerMessage(sp<SurfaceFlinger>& flinger)
+    : mFlinger(flinger) { };
+    ~SurfaceFlingerMessage() { };
+    
+private:
+    virtual bool threadLoop()
+    {
+        if (mFlinger != NULL) {
+            mFlinger->run();
+        }
+        return false;
+    };
+    
+    sp<SurfaceFlinger> mFlinger;
+};
+    
 class SurfaceFlingerService : public Thread
 {
 public:
@@ -44,6 +63,10 @@ private:
         sp<ProcessState> ps(ProcessState::self());
         
         sp<SurfaceFlinger> flinger = new SurfaceFlinger();
+        sp<SurfaceFlingerMessage> message = new SurfaceFlingerMessage(flinger);
+        if (message != NULL) {
+            message->run();
+        }
         
         // publish surface flinger
         sp<IServiceManager> sm(defaultServiceManager());
@@ -61,7 +84,7 @@ private:
 private:
     Mutex     mThreadStartedMutex;
     Condition mThreadStartedCondition;
-    IPCThreadState* mIPCThread;;
+    IPCThreadState* mIPCThread;
 };
 
 }; // namespace android

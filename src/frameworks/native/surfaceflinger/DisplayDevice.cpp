@@ -3,6 +3,8 @@
 #undef LOG_TAG
 #define LOG_TAG "DisplayDevice"
 
+#include <OSWindow.h>
+
 #include "DisplayDevice.h"
 #include "SurfaceFlinger.h"
 
@@ -16,9 +18,10 @@ DisplayDevice::DisplayDevice(
 )
 :   mFlinger(flinger),
     mType(type),
-    mActiveConfig(0)
+    mActiveConfig(0),
+    mWindow(0)
 {
-
+    mWindow = CreateOSWindow();
 }
 
 DisplayDevice::~DisplayDevice() 

@@ -6,6 +6,8 @@
 
 #include <hardware/hwcomposer_defs.h>
 
+class OSWindow;
+
 namespace android {
 
 class SurfaceFlinger;
@@ -44,6 +46,8 @@ private:
     
     // Current active config
     int mActiveConfig;
+    
+    OSWindow* mWindow;
 };
 
 }; // namespace android

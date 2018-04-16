@@ -25,12 +25,27 @@ SurfaceFlinger::~SurfaceFlinger()
 
 sp<ISurfaceComposerClient> SurfaceFlinger::createConnection()
 {
+    /*
+     * Not sure how to support such usage currently. Use static variable to keep
+     * the instance of binder native instead.
+     */
+#if TODO
     sp<ISurfaceComposerClient> bclient;
     sp<Client> client(new Client(this));
     status_t err = client->initCheck();
     if (err == NO_ERROR) {
         bclient = client;
     }
+#else
+    static sp<ISurfaceComposerClient> bclient;
+    if (bclient == NULL) {
+        sp<Client> client(new Client(this));
+        status_t err = client->initCheck();
+        if (err == NO_ERROR) {
+            bclient = client;
+        }
+    }
+#endif
     return bclient;
 }
     
@@ -247,9 +262,27 @@ status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
     return NO_INIT;
 }
 
+void SurfaceFlinger::init()
+{
+    ALOGI(  "SurfaceFlinger's main thread ready to run. "
+          "Initializing graphics H/W...");
+    
+    { // Autolock scope
+        Mutex::Autolock _l(mStateLock);
+    }
+}
+    
 void SurfaceFlinger::onFirstRef()
 {
-    {
+    mEventQueue.init(this);
+
+    onHotplugReceived(DisplayDevice::DISPLAY_PRIMARY, true);
+    init();
+}
+
+void SurfaceFlinger::onHotplugReceived(int32_t disp, bool connected) {
+    ALOGV("onHotplugReceived(%d, %s)", disp, connected ? "true" : "false");
+    if (disp == DisplayDevice::DISPLAY_PRIMARY) {
         Mutex::Autolock lock(mStateLock);
         
         // All non-virtual displays are currently considered secure.
@@ -258,13 +291,37 @@ void SurfaceFlinger::onFirstRef()
         int32_t type = DisplayDevice::DISPLAY_PRIMARY;
         createBuiltinDisplayLocked(DisplayDevice::DISPLAY_PRIMARY);
         wp<IBinder> token = mBuiltinDisplays[type];
+        /*
+        sp<IGraphicBufferProducer> producer;
+        sp<IGraphicBufferConsumer> consumer;
+        BufferQueue::createBufferQueue(&producer, &consumer,
+                                       new GraphicBufferAlloc());
         
+        sp<FramebufferSurface> fbs = new FramebufferSurface(*mHwc,
+                                                            DisplayDevice::DISPLAY_PRIMARY, consumer);
+        sp<DisplayDevice> hw = new DisplayDevice(this,
+                                                 DisplayDevice::DISPLAY_PRIMARY, disp, isSecure, token, fbs,
+                                                 producer, mRenderEngine->getEGLConfig());
+        */
         sp<DisplayDevice> hw = new DisplayDevice(this,
                                                  DisplayDevice::DISPLAY_PRIMARY);
+
         mDisplays.add(token, hw);
+    } else {
+        auto type = DisplayDevice::DISPLAY_EXTERNAL;
+        Mutex::Autolock _l(mStateLock);
+        if (connected) {
+            createBuiltinDisplayLocked(type);
+        } else {
+            //mCurrentState.displays.removeItem(mBuiltinDisplays[type]);
+            mBuiltinDisplays[type].clear();
+        }
+        //setTransactionFlags(eDisplayTransactionNeeded);
+        
+        // Defer EventThread notification until SF has updated mDisplays.
     }
 }
-
+    
 void SurfaceFlinger::createBuiltinDisplayLocked(int type)
 {
     ALOGV("createBuiltinDisplayLocked(%d)", type);
@@ -335,7 +392,7 @@ status_t SurfaceFlinger::createNormalLayer(const sp<Client>& client,
     }
     
     *outLayer = new Layer(this, client, name, w, h, flags);
-    status_t err = NO_ERROR; //(*outLayer)->setBuffers(w, h, format, flags);
+    status_t err = (*outLayer)->setBuffers(w, h, format, flags);
     //if (err == NO_ERROR) {
     //    *handle = (*outLayer)->getHandle();
     //    *gbp = (*outLayer)->getProducer();
@@ -375,5 +432,28 @@ status_t SurfaceFlinger::addClientLayer(const sp<Client>& client,
     return NO_ERROR;
 }
 
+status_t SurfaceFlinger::postMessageAsync(const sp<MessageBase>& msg,
+                                          nsecs_t reltime, uint32_t /* flags */) {
+    return mEventQueue.postMessage(msg, reltime);
+}
+
+status_t SurfaceFlinger::postMessageSync(const sp<MessageBase>& msg,
+                                         nsecs_t reltime, uint32_t /* flags */) {
+    status_t res = mEventQueue.postMessage(msg, reltime);
+    if (res == NO_ERROR) {
+        msg->wait();
+    }
+    return res;
+}
+
+void SurfaceFlinger::run() {
+    do {
+        waitForEvent();
+    } while (true);
+}
+    
+void SurfaceFlinger::waitForEvent() {
+    mEventQueue.waitMessage();
+}
     
 }; // namespace android

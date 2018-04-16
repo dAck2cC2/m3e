@@ -25,5 +25,11 @@ Layer::~Layer() {
 void Layer::onFirstRef() {
 }
     
+status_t Layer::setBuffers( uint32_t w, uint32_t h,
+                           PixelFormat format, uint32_t flags)
+{
+    return NO_INIT;
+}
+    
 // ---------------------------------------------------------------------------
 }; // namespace android

@@ -8,6 +8,7 @@
 #include <gui/ISurfaceComposer.h>
 
 #include "DisplayDevice.h"
+#include "MessageQueue.h"
 
 namespace android {
 // ---------------------------------------------------------------------------
@@ -25,8 +26,28 @@ public:
     };
     
     SurfaceFlinger();
-    ~SurfaceFlinger();
     
+    // must be called before clients can connect
+    void init();
+    
+    // starts SurfaceFlinger main loop in the current thread
+    void run();
+
+    // post an asynchronous message to the main thread
+    status_t postMessageAsync(const sp<MessageBase>& msg, nsecs_t reltime = 0, uint32_t flags = 0);
+    
+    // post a synchronous message to the main thread
+    status_t postMessageSync(const sp<MessageBase>& msg, nsecs_t reltime = 0, uint32_t flags = 0);
+
+private:
+    friend class Client;
+    
+    // We're reference counted, never destroy SurfaceFlinger directly
+    virtual ~SurfaceFlinger();
+    
+    /* ------------------------------------------------------------------------
+     * ISurfaceComposer interface
+     */
     virtual sp<ISurfaceComposerClient> createConnection();
     virtual sp<IGraphicBufferAlloc> createGraphicBufferAlloc();
     virtual sp<IDisplayEventConnection> createDisplayEventConnection();
@@ -59,11 +80,18 @@ public:
     virtual status_t getAnimationFrameStats(FrameStats* outStats) const;
     virtual status_t getHdrCapabilities(const sp<IBinder>& display,
                                         HdrCapabilities* outCapabilities) const;
-private:
+    
     /* ------------------------------------------------------------------------
      * RefBase interface
      */
     virtual void onFirstRef();
+    
+    virtual void onHotplugReceived(int disp, bool connected);
+    
+    /* ------------------------------------------------------------------------
+     * Message handling
+     */
+    void waitForEvent();
 
     /* ------------------------------------------------------------------------
      * Display and layer stack management
@@ -128,6 +156,9 @@ private:
     // this may only be written from the main thread with mStateLock held
     // it may be read from other threads with mStateLock held
     DefaultKeyedVector< wp<IBinder>, sp<DisplayDevice> > mDisplays;
+    
+    // these are thread safe
+    mutable MessageQueue mEventQueue;
 };
 
 };  // namespace android
