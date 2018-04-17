@@ -26,8 +26,13 @@ InitRC::~InitRC()
 
 void InitRC::ResetProperties()
 {
-    property_set("ro.hardware", "local");
+    // native display
+    property_set("native.display.name",   "M3E");
+    property_set("native.display.width",  "800");
+    property_set("native.display.height", "600");
     
+    // libraries of service
+    property_set("ro.hardware", "local");
 #if defined(__APPLE__)
     property_set("ro.board.platform", "osx");
 #elif defined(_MSC_VER)

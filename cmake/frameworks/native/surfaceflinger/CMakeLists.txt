@@ -14,6 +14,7 @@ include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
 
+include_directories(AFTER ${HEADER_PATH})
 add_definitions(-D_LIBCPP_HAS_NO_ATOMIC_HEADER=1)
 
 # dependency
@@ -28,22 +29,45 @@ angle_util
 )
 
 # source files
-set( SURFACEFLINGER_HEADER_FILES  
+set( SURFACEFLINGER_HEADER_FILES 
+${HEADER_PATH}/clz.h
+${HEADER_PATH}/Transform.h
 ${HEADER_PATH}/Barrier.h
 ${HEADER_PATH}/Client.h
 ${HEADER_PATH}/Layer.h
 ${HEADER_PATH}/MessageQueue.h
 ${HEADER_PATH}/DisplayDevice.h
 ${HEADER_PATH}/SurfaceFlinger.h
+${HEADER_PATH}/RenderEngine/Texture.h
+${HEADER_PATH}/RenderEngine/Description.h
+${HEADER_PATH}/RenderEngine/GLExtensions.h
+${HEADER_PATH}/RenderEngine/Mesh.h
+${HEADER_PATH}/RenderEngine/Program.h
+${HEADER_PATH}/RenderEngine/ProgramCache.h
+${HEADER_PATH}/RenderEngine/RenderEngine.h
+${HEADER_PATH}/RenderEngine/GLES20RenderEngine.h
+#${HEADER_PATH}/RenderEngine/GLES11RenderEngine.h
+#${HEADER_PATH}/RenderEngine/GLES10RenderEngine.h
 )
 
 set( SURFACEFLINGER_SOURCE_FILES  
+${SOURCE_PATH}/Transform.cpp
 ${SOURCE_PATH}/Client.cpp
 ${SOURCE_PATH}/Layer.cpp
 ${SOURCE_PATH}/MessageQueue.cpp
 ${SOURCE_PATH}/DisplayDevice.cpp
 ${SOURCE_PATH}/SurfaceFlinger.cpp
 ${SOURCE_PATH}/main_surfaceflinger.cpp
+${SOURCE_PATH}/RenderEngine/Texture.cpp
+${SOURCE_PATH}/RenderEngine/Description.cpp
+${SOURCE_PATH}/RenderEngine/GLExtensions.cpp
+${SOURCE_PATH}/RenderEngine/Mesh.cpp
+${SOURCE_PATH}/RenderEngine/Program.cpp
+${SOURCE_PATH}/RenderEngine/ProgramCache.cpp
+${SOURCE_PATH}/RenderEngine/RenderEngine.cpp
+${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp
+#${SOURCE_PATH}/RenderEngine/GLES11RenderEngine.cpp
+#${SOURCE_PATH}/RenderEngine/GLES10RenderEngine.cpp
 )
 
 if (APPLE)

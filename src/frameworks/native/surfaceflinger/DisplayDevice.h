@@ -3,6 +3,7 @@
 #define ANDROID_DISPLAY_DEVICE_H
 
 #include <utils/RefBase.h>
+#include <utils/String8.h>
 
 #include <hardware/hwcomposer_defs.h>
 
@@ -23,13 +24,14 @@ public:
         NUM_BUILTIN_DISPLAY_TYPES = HWC_NUM_PHYSICAL_DISPLAY_TYPES,
     };
 
-    DisplayDevice(
-            const sp<SurfaceFlinger>& flinger,
-            DisplayType type
-                  );
+    DisplayDevice(const sp<SurfaceFlinger>& flinger,
+                  DisplayType type,
+                  EGLConfig config,
+                  OSWindow* osWindow);
 
     ~DisplayDevice();
 
+    EGLBoolean makeCurrent(EGLDisplay dpy, EGLContext ctx) const;
    
     /* ------------------------------------------------------------------------
      * Display active config management.
@@ -47,7 +49,16 @@ private:
     // Current active config
     int mActiveConfig;
     
-    OSWindow* mWindow;
+    // Window of operation system
+    OSWindow*   mOSWindow;
+    std::string mName;
+    
+    EGLConfig       mConfig;
+    EGLDisplay      mDisplay;
+    EGLSurface      mSurface;
+    int             mDisplayWidth;
+    int             mDisplayHeight;
+    String8         mDisplayName;
 };
 
 }; // namespace android

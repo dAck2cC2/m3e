@@ -2,6 +2,11 @@
 #ifndef ANDROID_SURFACE_FLINGER_H
 #define ANDROID_SURFACE_FLINGER_H
 
+#include <stdint.h>
+#include <sys/types.h>
+
+#include <EGL/egl.h>
+
 #include <utils/KeyedVector.h>
 #include <utils/RefBase.h>
 #include <utils/threads.h>
@@ -10,11 +15,14 @@
 #include "DisplayDevice.h"
 #include "MessageQueue.h"
 
+class OSWindow;
+
 namespace android {
 // ---------------------------------------------------------------------------
 
 class Client;
 class Layer;
+class RenderEngine;
 
 // ---------------------------------------------------------------------------
 
@@ -38,6 +46,11 @@ public:
     
     // post a synchronous message to the main thread
     status_t postMessageSync(const sp<MessageBase>& msg, nsecs_t reltime = 0, uint32_t flags = 0);
+
+    // returns the default Display
+    sp<const DisplayDevice> getDefaultDisplayDevice() const {
+        return getDisplayDevice(mBuiltinDisplays[DisplayDevice::DISPLAY_PRIMARY]);
+    }
 
 private:
     friend class Client;
@@ -85,6 +98,8 @@ private:
      * RefBase interface
      */
     virtual void onFirstRef();
+    
+    virtual EGLDisplay initEGL();
     
     virtual void onHotplugReceived(int disp, bool connected);
     
@@ -151,6 +166,9 @@ private:
     // access must be protected by mStateLock
     mutable Mutex mStateLock;
 
+    RenderEngine* mRenderEngine;
+    EGLContext mEGLContext;
+    EGLDisplay mEGLDisplay;
     sp<IBinder> mBuiltinDisplays[DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES];
     
     // this may only be written from the main thread with mStateLock held
@@ -159,6 +177,9 @@ private:
     
     // these are thread safe
     mutable MessageQueue mEventQueue;
+    
+    // OS window
+    OSWindow* mOSWindow;
 };
 
 };  // namespace android

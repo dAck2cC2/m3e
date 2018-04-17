@@ -1,4 +1,7 @@
 
+#include <vector>
+#include <OSWindow.h>
+
 #include <cutils/properties.h>
 
 #include <ui/DisplayInfo.h>
@@ -9,11 +12,15 @@
 #include "Layer.h"
 #include "SurfaceFlinger.h"
 
+#include "RenderEngine/RenderEngine.h"
+
 namespace android {
 
 SurfaceFlinger::SurfaceFlinger()
 :   BnSurfaceComposer(),
-    mBuiltinDisplays()
+    mRenderEngine(NULL),
+    mBuiltinDisplays(),
+    mOSWindow(NULL)
 {
 
 }
@@ -262,6 +269,41 @@ status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
     return NO_INIT;
 }
 
+EGLDisplay SurfaceFlinger::initEGL()
+{
+    EGLDisplay display = EGL_NO_DISPLAY;
+    
+    if (mOSWindow == NULL) {
+        mOSWindow = CreateOSWindow();
+    }
+    
+    if (mOSWindow) {
+        char name[PROPERTY_VALUE_MAX];
+        property_get("native.display.name", name, "default");
+        int32_t width  = property_get_int32("native.display.width",  400);
+        int32_t height = property_get_int32("native.display.height", 300);
+        
+        mOSWindow->initialize(name, width, height);
+        mOSWindow->setVisible(true);
+    
+        std::vector<EGLAttrib> displayAttributes;
+        displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
+        displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
+        displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE);
+        displayAttributes.push_back(2);
+        displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE);
+        displayAttributes.push_back(0);
+        
+        displayAttributes.push_back(EGL_NONE);
+        
+        display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE,
+                                         reinterpret_cast<void *>(mOSWindow->getNativeDisplay()),
+                                         &displayAttributes[0]);
+    }
+    
+    return display;
+}
+    
 void SurfaceFlinger::init()
 {
     ALOGI(  "SurfaceFlinger's main thread ready to run. "
@@ -269,15 +311,36 @@ void SurfaceFlinger::init()
     
     { // Autolock scope
         Mutex::Autolock _l(mStateLock);
+        
+        // initialize EGL for the default display
+        //mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        mEGLDisplay = initEGL();
+        eglInitialize(mEGLDisplay, NULL, NULL);
+        
+        // Get a RenderEngine for the given display / config (can't fail)
+        mRenderEngine = RenderEngine::create(mEGLDisplay,
+                                             HAL_PIXEL_FORMAT_RGBA_8888);
     }
+    
+    Mutex::Autolock _l(mStateLock);
+    
+    // retrieve the EGL context that was selected/created
+    mEGLContext = mRenderEngine->getEGLContext();
+    
+    LOG_ALWAYS_FATAL_IF(mEGLContext == EGL_NO_CONTEXT,
+                        "couldn't create EGLContext");
+    
+    // make the GLContext current so that we can create textures when creating
+    // Layers (which may happens before we render something)
+    getDefaultDisplayDevice()->makeCurrent(mEGLDisplay, mEGLContext);
 }
     
 void SurfaceFlinger::onFirstRef()
 {
     mEventQueue.init(this);
-
-    onHotplugReceived(DisplayDevice::DISPLAY_PRIMARY, true);
+    
     init();
+    onHotplugReceived(DisplayDevice::DISPLAY_PRIMARY, true);
 }
 
 void SurfaceFlinger::onHotplugReceived(int32_t disp, bool connected) {
@@ -304,7 +367,9 @@ void SurfaceFlinger::onHotplugReceived(int32_t disp, bool connected) {
                                                  producer, mRenderEngine->getEGLConfig());
         */
         sp<DisplayDevice> hw = new DisplayDevice(this,
-                                                 DisplayDevice::DISPLAY_PRIMARY);
+                                                 DisplayDevice::DISPLAY_PRIMARY,
+                                                 mRenderEngine->getEGLConfig(),
+                                                 mOSWindow);
 
         mDisplays.add(token, hw);
     } else {
