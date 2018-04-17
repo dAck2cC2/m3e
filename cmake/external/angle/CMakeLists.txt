@@ -17,7 +17,7 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src )
 
 if(NOT EXISTS ${SOURCE_PATH}/id)
     exec_program("mkdir id" ${SOURCE_PATH})
-    exec_program("cp ../commit.h ./" ${SOURCE_PATH}/id)
+    exec_program("python commit_id.py gen ../ ./id/commit.h" ${SOURCE_PATH})
 endif()
 
 include_directories(AFTER ${SOURCE_PATH})
@@ -227,14 +227,25 @@ file(GLOB ANGLE_SOURCE_RENDER ${SOURCE_PATH}/libANGLE/renderer/*.cpp )
 list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_RENDER} )
 
 if(MSVC)
-    add_definitions(-DANGLE_PLATFORM_WINDOWS)
-    add_definitions(-DANGLE_ENABLE_D3D9)
-    add_definitions(-DNOMINMAX)
+    add_definitions(-DNOMINMAX=1)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+    add_definitions(-DANGLE_PLATFORM_WINDOWS=1)
+    add_definitions(-DANGLE_ENABLE_GLSL=1)    
 
     list(REMOVE_ITEM ANGLE_SOURCE_ANGLE ${SOURCE_PATH}/libANGLE/renderer/Format_table_autogen.cpp)
     list(APPEND ANGLE_SOURCE_ANGLE ${M3E_SOURCE_DIR}/src/${EXT_PATH}/angle/Format_table_autogen_msvc.cpp)
     
+    #if("$ENV{DXSDK_DIR}" STREQUAL "")
+    #    message_error("DIRECTX requires the \$DXSDK_DIR environment variable to be set")
+    #endif() 
+    #include_directories($ENV{DXSDK_DIR}\\Include)
+    #set(CMAKE_REQUIRED_FLAGS "/I\"$ENV{DXSDK_DIR}\\Include\"")
+
+    add_definitions(-DANGLE_ENABLE_D3D9=1)
+    add_definitions(-DANGLE_ENABLE_D3D11=1) 
+    file(GLOB ANGLE_SOURCE_RENDER_D3D ${SOURCE_PATH}/libANGLE/renderer/d3d/*.cpp )
+    list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_RENDER_D3D} ) 
+
 elseif(APPLE)
     add_definitions(-DANGLE_ENABLE_OPENGL=1)
     add_definitions(-DANGLE_PLATFORM_APPLE=1)
