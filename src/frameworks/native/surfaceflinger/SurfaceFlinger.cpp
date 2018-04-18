@@ -322,6 +322,11 @@ void SurfaceFlinger::init()
                                              HAL_PIXEL_FORMAT_RGBA_8888);
     }
     
+    // Drop the state lock while we initialize the hardware composer. We drop
+    // the lock because on creation, it will call back into SurfaceFlinger to
+    // initialize the primary display.
+    onHotplugReceived(DisplayDevice::DISPLAY_PRIMARY, true);
+    
     Mutex::Autolock _l(mStateLock);
     
     // retrieve the EGL context that was selected/created
@@ -333,6 +338,13 @@ void SurfaceFlinger::init()
     // make the GLContext current so that we can create textures when creating
     // Layers (which may happens before we render something)
     getDefaultDisplayDevice()->makeCurrent(mEGLDisplay, mEGLContext);
+    
+    mRenderEngine->primeCache();
+
+    // start boot animation
+    //startBootAnim();
+    
+    ALOGV("Done initializing");
 }
     
 void SurfaceFlinger::onFirstRef()
@@ -340,7 +352,6 @@ void SurfaceFlinger::onFirstRef()
     mEventQueue.init(this);
     
     init();
-    onHotplugReceived(DisplayDevice::DISPLAY_PRIMARY, true);
 }
 
 void SurfaceFlinger::onHotplugReceived(int32_t disp, bool connected) {

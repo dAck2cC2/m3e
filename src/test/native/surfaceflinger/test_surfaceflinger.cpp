@@ -72,6 +72,7 @@ private:
         
         eglInitialize(display, 0, 0);
         eglChooseConfig(display, attribs, &config, 1, &numConfigs);
+        /*
         surface = eglCreateWindowSurface(display, config, s.get(), NULL);
         context = eglCreateContext(display, config, NULL, NULL);
         eglQuerySurface(display, surface, EGL_WIDTH, &w);
@@ -79,7 +80,7 @@ private:
         
         if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
             return NO_INIT;
-        
+        */
         return NO_ERROR;
     };
     

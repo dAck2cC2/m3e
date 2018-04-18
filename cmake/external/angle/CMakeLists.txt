@@ -13,7 +13,7 @@ endif()
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
-add_definitions(-DLIBANGLE_IMPLEMENTATION)
+add_definitions(-DLIBANGLE_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src )
@@ -22,6 +22,8 @@ if(NOT EXISTS ${SOURCE_PATH}/id)
     exec_program("mkdir id" ${SOURCE_PATH})
     exec_program("python commit_id.py gen ../ ./id/commit.h" ${SOURCE_PATH})
 endif()
+
+add_definitions(-DNDEBUG=1)
 
 include_directories(AFTER ${SOURCE_PATH})
 include_directories(AFTER ${SOURCE_PATH}/common/third_party/base)

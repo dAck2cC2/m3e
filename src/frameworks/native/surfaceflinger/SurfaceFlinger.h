@@ -52,6 +52,10 @@ public:
         return getDisplayDevice(mBuiltinDisplays[DisplayDevice::DISPLAY_PRIMARY]);
     }
 
+    RenderEngine& getRenderEngine() const {
+        return *mRenderEngine;
+    }
+    
 private:
     friend class Client;
     

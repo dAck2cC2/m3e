@@ -2,6 +2,8 @@
 #ifndef ANDROID_DISPLAY_DEVICE_H
 #define ANDROID_DISPLAY_DEVICE_H
 
+#include "Transform.h"
+
 #include <utils/RefBase.h>
 #include <utils/String8.h>
 
@@ -32,7 +34,8 @@ public:
     ~DisplayDevice();
 
     EGLBoolean makeCurrent(EGLDisplay dpy, EGLContext ctx) const;
-   
+    void setViewportAndProjection() const;
+
     /* ------------------------------------------------------------------------
      * Display active config management.
      */
@@ -50,15 +53,19 @@ private:
     int mActiveConfig;
     
     // Window of operation system
-    OSWindow*   mOSWindow;
-    std::string mName;
-    
+    OSWindow*       mOSWindow;
     EGLConfig       mConfig;
     EGLDisplay      mDisplay;
     EGLSurface      mSurface;
     int             mDisplayWidth;
     int             mDisplayHeight;
     String8         mDisplayName;
+    
+    /*
+     * Transaction state
+     */
+    static status_t orientationToTransfrom(int orientation,
+                                           int w, int h, Transform* tr);
 };
 
 }; // namespace android

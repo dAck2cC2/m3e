@@ -25,11 +25,49 @@
 #include "GLExtensions.h"
 #include "Mesh.h"
 
+#include <vector>
+
 EGLAPI const char* eglQueryStringImplementationANDROID(EGLDisplay dpy, EGLint name);
 
 // ---------------------------------------------------------------------------
 namespace android {
 // ---------------------------------------------------------------------------
+
+static EGLBoolean FindEGLConfig(EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *config)
+{
+    EGLint numConfigs = 0;
+    eglGetConfigs(dpy, nullptr, 0, &numConfigs);
+    std::vector<EGLConfig> allConfigs(numConfigs);
+    eglGetConfigs(dpy, allConfigs.data(), static_cast<EGLint>(allConfigs.size()), &numConfigs);
+    
+    for (size_t i = 0; i < allConfigs.size(); i++)
+    {
+        bool matchFound = true;
+        for (const EGLint *curAttrib = attrib_list; curAttrib[0] != EGL_NONE; curAttrib += 2)
+        {
+            if (curAttrib[1] == EGL_DONT_CARE)
+            {
+                continue;
+            }
+            
+            EGLint actualValue = EGL_DONT_CARE;
+            eglGetConfigAttrib(dpy, allConfigs[i], curAttrib[0], &actualValue);
+            if (curAttrib[1] != actualValue)
+            {
+                matchFound = false;
+                break;
+            }
+        }
+        
+        if (matchFound)
+        {
+            *config = allConfigs[i];
+            return EGL_TRUE;
+        }
+    }
+    
+    return EGL_FALSE;
+}
 
 static bool findExtension(const char* exts, const char* name) {
     if (!exts)
@@ -82,7 +120,7 @@ RenderEngine* RenderEngine::create(EGLDisplay display, int hwcFormat) {
 
     // Also create our EGLContext
     EGLint contextAttributes[] = {
-            EGL_CONTEXT_CLIENT_VERSION, contextClientVersion,      // MUST be first
+            //EGL_CONTEXT_CLIENT_VERSION, contextClientVersion,      // MUST be first
 #ifdef EGL_IMG_context_priority
 #ifdef HAS_CONTEXT_PRIORITY
 #warning "using EGL_IMG_context_priority"
@@ -91,6 +129,7 @@ RenderEngine* RenderEngine::create(EGLDisplay display, int hwcFormat) {
 #endif
             EGL_NONE, EGL_NONE
     };
+    FindEGLConfig(display, contextAttributes, &config);
     EGLContext ctxt = eglCreateContext(display, config, NULL, contextAttributes);
 
     // if can't create a GL context, we can only abort.
@@ -444,7 +483,7 @@ void RenderEngine::primeCache() const {
     // which is performed in its constructor
     ProgramCache::getInstance();
 }
-
+    
 // ---------------------------------------------------------------------------
 }; // namespace android
 // ---------------------------------------------------------------------------

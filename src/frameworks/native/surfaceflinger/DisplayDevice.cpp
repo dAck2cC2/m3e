@@ -3,9 +3,14 @@
 #undef LOG_TAG
 #define LOG_TAG "DisplayDevice"
 
+#include <OSWindow.h>
+
 #include <cutils/properties.h>
 
-#include <OSWindow.h>
+#include <utils/RefBase.h>
+#include <binder/Binder.h>
+#include <gui/IGraphicBufferProducer.h>
+#include <private/gui/LayerState.h>
 
 #include "RenderEngine/RenderEngine.h"
 
@@ -24,7 +29,6 @@ DisplayDevice::DisplayDevice(const sp<SurfaceFlinger>& flinger,
     mType(type),
     mActiveConfig(0),
     mOSWindow(osWindow),
-    mName(),
     mDisplay(EGL_NO_DISPLAY),
     mSurface(EGL_NO_SURFACE),
     mDisplayWidth(),
@@ -82,8 +86,16 @@ EGLBoolean DisplayDevice::makeCurrent(EGLDisplay dpy, EGLContext ctx) const {
                 eglSwapInterval(dpy, 0);
         }
     }
-    //setViewportAndProjection();
+    setViewportAndProjection();
     return result;
+}
+
+void DisplayDevice::setViewportAndProjection() const {
+    size_t w = mDisplayWidth;
+    size_t h = mDisplayHeight;
+    Rect sourceCrop(0, 0, w, h);
+    mFlinger->getRenderEngine().setViewportAndProjection(w, h, sourceCrop, h,
+                                                         false, Transform::ROT_0);
 }
 
 // ----------------------------------------------------------------------------
@@ -93,4 +105,28 @@ void DisplayDevice::setActiveConfig(int mode) {
 
 int DisplayDevice::getActiveConfig()  const {
     return mActiveConfig;
+}
+
+status_t DisplayDevice::orientationToTransfrom(
+                                               int orientation, int w, int h, Transform* tr)
+{
+    uint32_t flags = 0;
+    switch (orientation) {
+        case DisplayState::eOrientationDefault:
+            flags = Transform::ROT_0;
+            break;
+        case DisplayState::eOrientation90:
+            flags = Transform::ROT_90;
+            break;
+        case DisplayState::eOrientation180:
+            flags = Transform::ROT_180;
+            break;
+        case DisplayState::eOrientation270:
+            flags = Transform::ROT_270;
+            break;
+        default:
+            return BAD_VALUE;
+    }
+    tr->set(flags, w, h);
+    return NO_ERROR;
 }
