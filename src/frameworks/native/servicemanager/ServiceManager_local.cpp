@@ -1,5 +1,7 @@
 #define LOG_TAG "ServiceManager"
 
+#include <cutils/compiler.h>
+
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 #include <binder/IPCThreadState.h>
@@ -163,7 +165,10 @@ hw_module_methods_t method = {
     open_servicemanager
 };
 
-hw_module_t HMI = {
+#ifdef __cplusplus
+extern "C"
+#endif
+ANDROID_API hw_module_t HMI = {
     SERVICE_MANAGER_TAG,    // tag
     SERVICE_MANAGER_VER,    // module_api_version
     SERVICE_MANAGER_VER,    // hal_api_version

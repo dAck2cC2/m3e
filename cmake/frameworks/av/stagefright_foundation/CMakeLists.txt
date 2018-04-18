@@ -63,7 +63,7 @@ ${SOURCE_PATH}/hexdump.cpp
 
 if(MSVC)
     set(STAGEFRIGHT_FOUNDATION_SOURCE_FILES ${STAGEFRIGHT_FOUNDATION_SOURCE_FILES}
-    ${M3E_SOURCE_DIR}/src/core/msvc/vasprintf.c
+    ${MSVC_PATH}/vasprintf.c
     )
 endif(MSVC)
 

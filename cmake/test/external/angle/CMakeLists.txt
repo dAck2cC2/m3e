@@ -6,11 +6,16 @@ project(TEST_ANGLE)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
+if(MSVC)
+    add_definitions(-DNOMINMAX=1)
+endif()
+
 set(DEMO_DEPLIBS 
 angle
 angle_util
 )
 
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src/)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util)
 
 ADD_DEMO(angle_WindowTest 

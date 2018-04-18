@@ -7,7 +7,7 @@
 
 namespace android {
 
-class InitRC : public Singleton<InitRC>
+class ANDROID_API InitRC : public Singleton<InitRC>
 {
 public:
     InitRC();

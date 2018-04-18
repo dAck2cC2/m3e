@@ -64,6 +64,15 @@ ${SOURCE_PATH}/SyncFeatures.cpp
 ${SOURCE_PATH}/eglext.c
 )
 
+if(MSVC)
+    add_definitions(-DNOMINMAX=1)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+
+    list(REMOVE_ITEM GUI_SOURCE_FILES
+    ${SOURCE_PATH}/eglext.c
+    )
+endif()
+
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(gui SHARED ${GUI_SOURCE_FILES} ${GUI_HEADER_FILES})

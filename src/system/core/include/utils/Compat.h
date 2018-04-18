@@ -58,7 +58,7 @@ static inline ssize_t pwrite64(int fd, const void* buf, size_t nbytes, off64_t o
  * being constexpr is fine if in pre-C++11 code (such as a const static float
  * member variable).
  */
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 #define CONSTEXPR constexpr
 #else
 #define CONSTEXPR

@@ -10,12 +10,18 @@
 #pragma once
 #endif
 
+#include <windows.h>
+#include <winsock.h>
 #include <time.h>
-#include <windows.h> 
 
 #ifdef __cplusplus
 extern "C"
 #endif
 int gettimeofday(struct timeval *tv/*in*/, struct timezone *tz/*in*/);
+
+#ifdef __cplusplus
+extern "C"
+#endif
+void usleep(DWORD waitTime);
 
 #endif // _MSC_TIME_H_ ]

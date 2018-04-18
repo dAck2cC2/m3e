@@ -34,11 +34,13 @@
 
 #define LOG_TAG "HAL"
 #include <utils/Log.h>
+#include <utils/os_sep.h>
 
 /** Base path of the hal modules */
 #define HAL_LIBRARY_PATH1 "."
 #define HAL_LIBRARY_PATH2 "sw"
 #define HAL_LIBRARY_PATH3 "hw"
+
 
 /**
  * There are a set of variant filename for modules. The form of the filename
@@ -160,18 +162,18 @@ static int hw_module_exists(char *path, size_t path_len, const char *name,
     const char* prefix  = "lib";
     const char* extname = "so";
 #endif
-    snprintf(path, path_len, "%s/%s%s.%s.%s",
-             HAL_LIBRARY_PATH3, prefix, name, subname, extname);
+    snprintf(path, path_len, "%s%s%s%s.%s.%s",
+             HAL_LIBRARY_PATH3, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
     if (access(path, R_OK) == 0)
         return 0;
 
-    snprintf(path, path_len, "%s/%s%s.%s.%s",
-             HAL_LIBRARY_PATH2, prefix, name, subname, extname);
+    snprintf(path, path_len, "%s%s%s%s.%s.%s",
+             HAL_LIBRARY_PATH2, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
     if (access(path, R_OK) == 0)
         return 0;
 
-    snprintf(path, path_len, "%s/%s%s.%s.%s",
-             HAL_LIBRARY_PATH1, prefix, name, subname, extname);
+    snprintf(path, path_len, "%s%s%s%s.%s.%s",
+             HAL_LIBRARY_PATH1, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
     if (access(path, R_OK) == 0)
         return 0;
 

@@ -19,6 +19,10 @@ utils
 hardware
 )
 
+if(MSVC)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+endif()
+
 # header files
 file(GLOB INITRC_HEADER_FILES  ${HEADER_PATH}/*.h)
 

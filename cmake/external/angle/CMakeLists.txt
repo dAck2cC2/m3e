@@ -5,6 +5,9 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
     message(STATUS "Download\t angel")
     exec_program("git clone https://github.com/google/angle.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
     exec_program("git reset --hard b2c60b1a195049ede3f3d28a81cb1ff35929f88b" ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
+	if (MSVC)
+		exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/angle/angle.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
+	endif(MSVC)
 endif()
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
@@ -230,21 +233,66 @@ if(MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     add_definitions(-DANGLE_PLATFORM_WINDOWS=1)
-    add_definitions(-DANGLE_ENABLE_GLSL=1)    
-
-    list(REMOVE_ITEM ANGLE_SOURCE_ANGLE ${SOURCE_PATH}/libANGLE/renderer/Format_table_autogen.cpp)
-    list(APPEND ANGLE_SOURCE_ANGLE ${M3E_SOURCE_DIR}/src/${EXT_PATH}/angle/Format_table_autogen_msvc.cpp)
-    
-    #if("$ENV{DXSDK_DIR}" STREQUAL "")
-    #    message_error("DIRECTX requires the \$DXSDK_DIR environment variable to be set")
-    #endif() 
-    #include_directories($ENV{DXSDK_DIR}\\Include)
-    #set(CMAKE_REQUIRED_FLAGS "/I\"$ENV{DXSDK_DIR}\\Include\"")
+    add_definitions(-DANGLE_ENABLE_HLSL=1)    
 
     add_definitions(-DANGLE_ENABLE_D3D9=1)
     add_definitions(-DANGLE_ENABLE_D3D11=1) 
-    file(GLOB ANGLE_SOURCE_RENDER_D3D ${SOURCE_PATH}/libANGLE/renderer/d3d/*.cpp )
+    file(GLOB ANGLE_SOURCE_RENDER_D3D 
+    ${SOURCE_PATH}/libANGLE/renderer/d3d/*.cpp 
+    ${SOURCE_PATH}/libANGLE/renderer/d3d/d3d9/*.cpp
+    ${SOURCE_PATH}/libANGLE/renderer/d3d/d3d11/*.cpp
+    ${SOURCE_PATH}/libANGLE/renderer/d3d/d3d11/win32/*.cpp
+    )
     list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_RENDER_D3D} ) 
+
+    list(APPEND ANGLE_SOURCE_ANGLE 
+    ${SOURCE_PATH}/compiler/translator/blocklayout.cpp 
+    ${SOURCE_PATH}/compiler/translator/blocklayoutHLSL.cpp 
+    ${SOURCE_PATH}/compiler/translator/blocklayoutHLSL.cpp 
+    ${SOURCE_PATH}/third_party/systeminfo/SystemInfo.cpp
+    ${SOURCE_PATH}/common/third_party/smhasher/src/PMurHash.cpp
+    ${SOURCE_PATH}/compiler/translator/emulated_builtin_functions_hlsl_autogen.cpp
+    ${SOURCE_PATH}/compiler/translator/UtilsHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/TranslatorHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/OutputHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/ASTMetadataHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/BuiltInFunctionEmulatorHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/ImageFunctionHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/FlagStd140Structs.cpp
+    ${SOURCE_PATH}/compiler/translator/StructureHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/TextureFunctionHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/UniformHLSL.cpp
+    ${SOURCE_PATH}/compiler/translator/AddDefaultReturnStatements.cpp
+    ${SOURCE_PATH}/compiler/translator/ArrayReturnValueToOutParameter.cpp
+    ${SOURCE_PATH}/compiler/translator/BreakVariableAliasingInInnerLoops.cpp
+    ${SOURCE_PATH}/compiler/translator/ExpandIntegerPowExpressions.cpp
+    ${SOURCE_PATH}/compiler/translator/RemoveDynamicIndexing.cpp
+    ${SOURCE_PATH}/compiler/translator/RewriteElseBlocks.cpp
+    ${SOURCE_PATH}/compiler/translator/RewriteUnaryMinusOperatorInt.cpp
+    ${SOURCE_PATH}/compiler/translator/SeparateArrayConstructorStatements.cpp
+    ${SOURCE_PATH}/compiler/translator/SeparateArrayInitialization.cpp
+    ${SOURCE_PATH}/compiler/translator/SeparateExpressionsReturningArrays.cpp
+    ${SOURCE_PATH}/compiler/translator/UnfoldShortCircuitToIf.cpp
+    ${SOURCE_PATH}/compiler/translator/WrapSwitchStatementsInBlocks.cpp
+    ${SOURCE_PATH}/compiler/translator/RemoveSwitchFallThrough.cpp
+    ) 
+
+    set(DirectX_LIBRARY_PATHS)
+    if(CMAKE_CL_64)
+        set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64")
+    else(CMAKE_CL_64)
+        set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86")
+    endif(CMAKE_CL_64)
+    set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86")
+
+    #message("DirectX_LIBRARY_PATHS=${DirectX_LIBRARY_PATHS}")
+
+    find_library(D3D9_LIBRARY d3d9 ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
+    list(APPEND ANGLE_DEPLIB ${D3D9_LIBRARY})
+
+    find_library(DXGUID_LIBRARY dxguid ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
+    list(APPEND ANGLE_DEPLIB ${DXGUID_LIBRARY}) 
+
 
 elseif(APPLE)
     add_definitions(-DANGLE_ENABLE_OPENGL=1)
@@ -328,6 +376,18 @@ if(APPLE)
     ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/posix/Posix_system_utils.cpp
     )
 elseif(MSVC)
+    list(APPEND ANGLE_UTIL_HEAD 
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/WindowsTimer.h
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32Pixmap.h
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32Window.h
+    )
+    list(APPEND ANGLE_UTIL_SRC 
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/Windows_system_utils.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/WindowsTimer.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32Pixmap.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32Window.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32_system_utils.cpp
+    )
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

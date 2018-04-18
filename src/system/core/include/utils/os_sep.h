@@ -17,7 +17,7 @@
 #ifndef _FRAMEWORKS_COMPILE_SLANG_OS_SEP_H_  // NOLINT
 #define _FRAMEWORKS_COMPILE_SLANG_OS_SEP_H_
 
-#ifdef USE_MINGW
+#if defined(USE_MINGW) || defined(_MSC_VER)
 /* Define the default path separator for the platform. */
 #define OS_PATH_SEPARATOR     '\\'
 #define OS_PATH_SEPARATOR_STR "\\"
