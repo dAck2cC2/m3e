@@ -9,6 +9,6 @@ if(ENABLE_SKIA)
     add_subdirectory(skia)
 endif(ENABLE_SKIA)
 
-if(ENABLE_ANGLE)
+#if(ENABLE_ANGLE)
     add_subdirectory(angle)
-endif(ENABLE_ANGLE)
+#endif(ENABLE_ANGLE)

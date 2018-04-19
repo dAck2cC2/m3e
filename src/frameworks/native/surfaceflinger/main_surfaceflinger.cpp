@@ -10,6 +10,25 @@
 
 namespace android {
 
+class SurfaceFlingerUpdate : public Thread
+{
+public:
+    SurfaceFlingerUpdate(sp<SurfaceFlinger>& flinger)
+    : mFlinger(flinger) { };
+    ~SurfaceFlingerUpdate() { };
+    
+private:
+    virtual bool threadLoop()
+    {
+        if (mFlinger != NULL) {
+            mFlinger->update();
+        }
+        return true;
+    };
+    
+    sp<SurfaceFlinger> mFlinger;
+};
+    
 class SurfaceFlingerMessage : public Thread
 {
 public:
@@ -63,10 +82,18 @@ private:
         sp<ProcessState> ps(ProcessState::self());
         
         sp<SurfaceFlinger> flinger = new SurfaceFlinger();
+        
+        flinger->init();
+        
         sp<SurfaceFlingerMessage> message = new SurfaceFlingerMessage(flinger);
         if (message != NULL) {
             message->run();
         }
+
+        //sp<SurfaceFlingerUpdate> update = new SurfaceFlingerUpdate(flinger);
+        //if (update != NULL) {
+        //    update->run();
+        //}
         
         // publish surface flinger
         sp<IServiceManager> sm(defaultServiceManager());

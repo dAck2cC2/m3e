@@ -61,16 +61,20 @@ ${SOURCE_PATH}/IProducerListener.cpp
 ${SOURCE_PATH}/OccupancyTracker.cpp
 ${SOURCE_PATH}/GLConsumer.cpp
 ${SOURCE_PATH}/SyncFeatures.cpp
-${SOURCE_PATH}/eglext.c
+${SOURCE_PATH}/ISurfaceHandle.cpp
 )
 
-if(MSVC)
+if(APPLE)
+    list(APPEND GUI_SOURCE_FILES
+        ${SOURCE_PATH}/eglext.c
+    )
+elseif(MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 
-    list(REMOVE_ITEM GUI_SOURCE_FILES
-    ${SOURCE_PATH}/eglext.c
-    )
+    #list(REMOVE_ITEM GUI_SOURCE_FILES
+    #${SOURCE_PATH}/eglext.c
+    #)
 endif()
 
 # target files

@@ -39,6 +39,7 @@ enum BinderDriverCommand {
 #define BINDER_TYPE_HANDLE 3
 #define BINDER_TYPE_WEAK_HANDLE 4
 #define BINDER_TYPE_FD 5
+#define BINDER_TYPE_POINTER 6
 
 struct flat_binder_object {
     unsigned long type;

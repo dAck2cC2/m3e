@@ -342,16 +342,21 @@ void SurfaceFlinger::init()
     mRenderEngine->primeCache();
 
     // start boot animation
-    //startBootAnim();
+    startBootAnim();
     
     ALOGV("Done initializing");
 }
+
+void SurfaceFlinger::startBootAnim() {
+    // start boot animation
+    property_set("service.bootanim.exit", "0");
+    property_set("ctl.start", "bootanim");
+}
+
     
 void SurfaceFlinger::onFirstRef()
 {
-    mEventQueue.init(this);
-    
-    init();
+    mEventQueue.init(this);    
 }
 
 void SurfaceFlinger::onHotplugReceived(int32_t disp, bool connected) {
@@ -469,10 +474,10 @@ status_t SurfaceFlinger::createNormalLayer(const sp<Client>& client,
     
     *outLayer = new Layer(this, client, name, w, h, flags);
     status_t err = (*outLayer)->setBuffers(w, h, format, flags);
-    //if (err == NO_ERROR) {
-    //    *handle = (*outLayer)->getHandle();
+    if (err == NO_ERROR) {
+        *handle = (*outLayer)->getHandle();
     //    *gbp = (*outLayer)->getProducer();
-    //}
+    }
     
     ALOGE_IF(err, "createNormalLayer() failed (%s)", strerror(-err));
     return err;
@@ -530,6 +535,24 @@ void SurfaceFlinger::run() {
     
 void SurfaceFlinger::waitForEvent() {
     mEventQueue.waitMessage();
+}
+    
+void SurfaceFlinger::update()
+{
+    if (mOSWindow) {
+        // Clear events that the application did not process from this frame
+        Event event;
+        while (mOSWindow->popEvent(&event))
+        {
+            // If the application did not catch a close event, close now
+            if (event.Type == Event::EVENT_CLOSED)
+            {
+                //exit();
+            }
+        }
+
+        mOSWindow->messageLoop();
+    }
 }
     
 }; // namespace android

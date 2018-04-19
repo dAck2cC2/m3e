@@ -11,6 +11,9 @@
 #include "Client.h"
 #include "SurfaceFlinger.h"
 
+#include "RenderEngine/Mesh.h"
+#include "RenderEngine/Texture.h"
+
 namespace android {
 
 // ---------------------------------------------------------------------------
@@ -28,7 +31,6 @@ class SurfaceFlinger;
  * that new data has arrived.
  */
 class Layer : public RefBase {
-
 public:
     // -----------------------------------------------------------------------
 
@@ -41,8 +43,8 @@ public:
     status_t setBuffers(uint32_t w, uint32_t h, PixelFormat format, uint32_t flags);
 
 
-    //class Handle;
-    //sp<IBinder> getHandle();
+    class Handle;
+    sp<IBinder> getHandle();
     //sp<IGraphicBufferProducer> getProducer() const;
     const String8& getName() const { return mName; }; 
 
@@ -61,14 +63,20 @@ private:
     // -----------------------------------------------------------------------
  
      // constants
+    uint32_t mTextureName;      // from GLES
+    bool mPremultipliedAlpha;
     String8 mName;
 
+    // The texture used to draw the layer in GLES composition mode
+    mutable Texture mTexture;
 
     // protected by mLock
     mutable Mutex mLock;
     // Set to true once we've returned this surface's handle
     mutable bool mHasSurface;
     const wp<Client> mClientRef;
+    
+    sp<Handle> mHandle;
 };
 
 // ---------------------------------------------------------------------------

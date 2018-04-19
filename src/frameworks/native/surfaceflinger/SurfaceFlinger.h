@@ -41,6 +41,9 @@ public:
     // starts SurfaceFlinger main loop in the current thread
     void run();
 
+    // starts SurfaceFlinger os window loop in the current thread
+    void update();
+    
     // post an asynchronous message to the main thread
     status_t postMessageAsync(const sp<MessageBase>& msg, nsecs_t reltime = 0, uint32_t flags = 0);
     
@@ -54,6 +57,10 @@ public:
 
     RenderEngine& getRenderEngine() const {
         return *mRenderEngine;
+    }
+    
+    OSWindow* getOSWindow() const {
+        return mOSWindow;
     }
     
 private:
@@ -161,6 +168,11 @@ private:
                             const sp<IBinder>& handle,
                             const sp<IGraphicBufferProducer>& gbc,
                             const sp<Layer>& lbc);
+    
+    /* ------------------------------------------------------------------------
+     * Boot animation, on/off animations and screen capture
+     */
+    void startBootAnim();
     
 private:
     /* ------------------------------------------------------------------------
