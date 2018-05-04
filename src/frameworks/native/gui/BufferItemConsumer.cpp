@@ -22,11 +22,15 @@
 #include <gui/BufferItem.h>
 #include <gui/BufferItemConsumer.h>
 
+#if defined(_MSC_VER)
+#define BI_LOGE(x, ...) 
+#else  // _MSC_VER
 //#define BI_LOGV(x, ...) ALOGV("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define BI_LOGD(x, ...) ALOGD("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define BI_LOGI(x, ...) ALOGI("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define BI_LOGW(x, ...) ALOGW("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define BI_LOGE(x, ...) ALOGE("[%s] " x, mName.string(), ##__VA_ARGS__)
+#endif // _MSC_VER
 
 namespace android {
 

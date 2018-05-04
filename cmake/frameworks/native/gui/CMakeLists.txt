@@ -72,9 +72,13 @@ elseif(MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 
-    #list(REMOVE_ITEM GUI_SOURCE_FILES
-    #${SOURCE_PATH}/eglext.c
-    #)
+    list(REMOVE_ITEM GUI_SOURCE_FILES
+    ${SOURCE_PATH}/BitTube.cpp
+    )
+
+    list(APPEND GUI_SOURCE_FILES
+    ${SOURCE_PATH}/BitTube_msvc.cpp
+    )
 endif()
 
 # target files

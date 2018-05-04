@@ -26,6 +26,10 @@
 #define VALIDATE_CONSISTENCY()
 #endif
 
+#if defined(_MSC_VER)
+#include <algorithm>
+#endif // _MSC_VER
+
 #include <inttypes.h>
 
 #include <gui/BufferItem.h>

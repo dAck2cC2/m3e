@@ -34,11 +34,19 @@
 #include <list>
 #include <set>
 
+#if defined(_MSC_VER)
+#define BQ_LOGV(x, ...) 
+#define BQ_LOGD(x, ...) 
+#define BQ_LOGI(x, ...) 
+#define BQ_LOGW(x, ...) 
+#define BQ_LOGE(x, ...) 
+#else  // _MSC_VER
 #define BQ_LOGV(x, ...) ALOGV("[%s] " x, mConsumerName.string(), ##__VA_ARGS__)
 #define BQ_LOGD(x, ...) ALOGD("[%s] " x, mConsumerName.string(), ##__VA_ARGS__)
 #define BQ_LOGI(x, ...) ALOGI("[%s] " x, mConsumerName.string(), ##__VA_ARGS__)
 #define BQ_LOGW(x, ...) ALOGW("[%s] " x, mConsumerName.string(), ##__VA_ARGS__)
 #define BQ_LOGE(x, ...) ALOGE("[%s] " x, mConsumerName.string(), ##__VA_ARGS__)
+#endif // _MSC_VER
 
 #if 1
 #define ATRACE_BUFFER_INDEX(index)

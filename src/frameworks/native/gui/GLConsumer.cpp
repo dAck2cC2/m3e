@@ -49,12 +49,19 @@ EGLAPI const char* eglQueryStringImplementationANDROID(EGLDisplay dpy, EGLint na
 
 namespace android {
 
+#if defined(_MSC_VER)
+#define GLC_LOGV(x, ...) 
+#define GLC_LOGD(x, ...) 
+#define GLC_LOGW(x, ...) 
+#define GLC_LOGE(x, ...) 
+#else  // _MSC_VER
 // Macros for including the GLConsumer name in log messages
 #define GLC_LOGV(x, ...) ALOGV("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define GLC_LOGD(x, ...) ALOGD("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define GLC_LOGI(x, ...) ALOGI("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define GLC_LOGW(x, ...) ALOGW("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define GLC_LOGE(x, ...) ALOGE("[%s] " x, mName.string(), ##__VA_ARGS__)
+#endif // _MSC_VER
 
 static const struct {
     uint32_t width, height;
