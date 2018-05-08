@@ -17,6 +17,9 @@
 #ifndef ANDROID_SURFACE_FLINGER_CLZ_H
 
 #include <stdint.h>
+#if defined(_MSC_VER)
+#include <cutils/bitops.h>
+#endif // _MSC_VER
 
 namespace android {
 

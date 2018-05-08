@@ -12,9 +12,11 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
 if(MSVC)
+    add_definitions(-DANDROID_DLL=1)
+    add_definitions(-DANDROID_IMPLEMENTATION=1)
+    add_definitions(-DANDROID_UI_IMPLEMENTATION=1)
+
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     #add_definitions(-D__STDC_LIMIT_MACROS=1)
     #add_definitions(-DNOMINMAX)

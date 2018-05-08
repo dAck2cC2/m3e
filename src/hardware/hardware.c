@@ -162,17 +162,17 @@ static int hw_module_exists(char *path, size_t path_len, const char *name,
     const char* prefix  = "lib";
     const char* extname = "so";
 #endif
-    snprintf(path, path_len, "%s%s%s%s.%s.%s",
+    snprintf(path, path_len, "%s%s%s%s_%s.%s",
              HAL_LIBRARY_PATH3, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
     if (access(path, R_OK) == 0)
         return 0;
 
-    snprintf(path, path_len, "%s%s%s%s.%s.%s",
+    snprintf(path, path_len, "%s%s%s%s_%s.%s",
              HAL_LIBRARY_PATH2, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
     if (access(path, R_OK) == 0)
         return 0;
 
-    snprintf(path, path_len, "%s%s%s%s.%s.%s",
+    snprintf(path, path_len, "%s%s%s%s_%s.%s",
              HAL_LIBRARY_PATH1, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
     if (access(path, R_OK) == 0)
         return 0;
@@ -191,7 +191,7 @@ int hw_get_module_by_class(const char *class_id, const char *inst,
 
 
     if (inst)
-        snprintf(name, PATH_MAX, "%s.%s", class_id, inst);
+        snprintf(name, PATH_MAX, "%s_%s", class_id, inst);
     else
         strlcpy(name, class_id, PATH_MAX);
 

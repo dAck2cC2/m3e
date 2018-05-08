@@ -17,6 +17,8 @@
 #ifndef ANDROID_UI_RECT
 #define ANDROID_UI_RECT
 
+#include <ui/compiler.h>
+
 #include <utils/Flattenable.h>
 #include <utils/Log.h>
 #include <utils/TypeHelpers.h>
@@ -26,13 +28,13 @@
 
 namespace android {
 
-class Rect : public ARect, public LightFlattenablePod<Rect>
+class ANDROID_UI_API Rect : public ARect, public LightFlattenablePod<Rect>
 {
 public:
     typedef ARect::value_type value_type;
 
-    static const Rect INVALID_RECT;
-    static const Rect EMPTY_RECT;
+	static const Rect INVALID_RECT;
+	static const Rect EMPTY_RECT;
 
     // we don't provide copy-ctor and operator= on purpose
     // because we want the compiler generated versions

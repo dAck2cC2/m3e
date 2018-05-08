@@ -17,13 +17,15 @@
 #ifndef ANDROID_UI_FRAME_STATS_H
 #define ANDROID_UI_FRAME_STATS_H
 
+#include <ui/compiler.h>
+
 #include <utils/Flattenable.h>
 #include <utils/Timers.h>
 #include <utils/Vector.h>
 
 namespace android {
 
-class FrameStats : public LightFlattenable<FrameStats> {
+class ANDROID_UI_API FrameStats : public LightFlattenable<FrameStats> {
 public:
     FrameStats() : refreshPeriodNano(0) {};
 

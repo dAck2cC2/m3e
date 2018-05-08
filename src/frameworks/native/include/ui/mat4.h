@@ -229,14 +229,14 @@ tmat44<T>::tmat44(U const* rawArray) {
 // ----------------------------------------------------------------------------------------
 
 template <typename T>
-tmat44<T> tmat44<T>::ortho(T left, T right, T bottom, T top, T near, T far) {
+tmat44<T> tmat44<T>::ortho(T left, T right, T bottom, T top, T neared, T far) {
     tmat44<T> m;
     m[0][0] =  2 / (right - left);
     m[1][1] =  2 / (top   - bottom);
-    m[2][2] = -2 / (far   - near);
+    m[2][2] = -2 / (far   - neared);
     m[3][0] = -(right + left)   / (right - left);
     m[3][1] = -(top   + bottom) / (top   - bottom);
-    m[3][2] = -(far   + near)   / (far   - near);
+    m[3][2] = -(far   + neared)   / (far   - neared);
     return m;
 }
 

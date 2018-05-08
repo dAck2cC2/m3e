@@ -17,6 +17,8 @@
 #ifndef ANDROID_GUI_SURFACE_CONTROL_H
 #define ANDROID_GUI_SURFACE_CONTROL_H
 
+#include <gui/compiler.h>
+
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -40,7 +42,7 @@ class SurfaceComposerClient;
 
 // ---------------------------------------------------------------------------
 
-class SurfaceControl : public RefBase
+class ANDROID_GUI_API SurfaceControl : public RefBase
 {
 public:
     static bool isValid(const sp<SurfaceControl>& surface) {

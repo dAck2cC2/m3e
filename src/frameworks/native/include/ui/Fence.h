@@ -17,6 +17,8 @@
 #ifndef ANDROID_FENCE_H
 #define ANDROID_FENCE_H
 
+#include <ui/compiler.h>
+
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -35,7 +37,7 @@ namespace android {
 // Fence
 // ===========================================================================
 
-class Fence
+class ANDROID_UI_API Fence
     : public LightRefBase<Fence>, public Flattenable<Fence>
 {
 public:

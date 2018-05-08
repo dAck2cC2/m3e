@@ -9,13 +9,21 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
-#add_definitions(-DANDROID_IMPLEMENTATION=1)
+add_definitions(-DANDROID_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
 
 include_directories(AFTER ${HEADER_PATH})
 add_definitions(-D_LIBCPP_HAS_NO_ATOMIC_HEADER=1)
+
+if(MSVC)
+    #add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+    #add_definitions(-D__STDC_LIMIT_MACROS=1)
+    add_definitions(-D_USE_MATH_DEFINES=1)
+    add_definitions(-DNOMINMAX=1)
+endif()
+
 
 # dependency
 set( SURFACEFLINGER_DEPLIB
@@ -71,9 +79,9 @@ ${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp
 )
 
 if (APPLE)
-    set(LIB_NAME surfaceflinger.osx)
+    set(LIB_NAME surfaceflinger_osx)
 else ()
-    set(LIB_NAME surfaceflinger.default)
+    set(LIB_NAME surfaceflinger_default)
 endif()
 
 # target files

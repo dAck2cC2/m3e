@@ -66,7 +66,7 @@ const sp<IAudioFlinger> AudioSystem::get_audio_flinger()
             }
             binder->linkToDeath(gAudioFlingerClient);
             gAudioFlinger = interface_cast<IAudioFlinger>(binder);
-            LOG_ALWAYS_FATAL_IF(gAudioFlinger == 0);
+            LOG_ALWAYS_FATAL_IF((gAudioFlinger == 0), "audio flinger doesn't exist");
             afc = gAudioFlingerClient;
         }
         af = gAudioFlinger;
@@ -708,7 +708,7 @@ const sp<IAudioPolicyService> AudioSystem::get_audio_policy_service()
             }
             binder->linkToDeath(gAudioPolicyServiceClient);
             gAudioPolicyService = interface_cast<IAudioPolicyService>(binder);
-            LOG_ALWAYS_FATAL_IF(gAudioPolicyService == 0);
+            LOG_ALWAYS_FATAL_IF((gAudioPolicyService == 0), "audio policy doesn't exist");
             apc = gAudioPolicyServiceClient;
         }
         ap = gAudioPolicyService;

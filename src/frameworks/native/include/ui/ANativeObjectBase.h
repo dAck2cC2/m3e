@@ -46,6 +46,8 @@ typedef struct egl_native_pixmap_t
 
 #ifdef __cplusplus
 
+#include <cutils/compiler.h>
+
 #include <utils/RefBase.h>
 
 namespace android {
@@ -55,7 +57,7 @@ namespace android {
  * reference-counted object; with proper type conversions.
  */
 template <typename NATIVE_TYPE, typename TYPE, typename REF>
-class ANativeObjectBase : public NATIVE_TYPE, public REF
+class ANDROID_API ANativeObjectBase : public NATIVE_TYPE, public REF
 {
 public:
     // Disambiguate between the incStrong in REF and NATIVE_TYPE

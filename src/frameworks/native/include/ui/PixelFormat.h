@@ -25,6 +25,8 @@
 #ifndef UI_PIXELFORMAT_H
 #define UI_PIXELFORMAT_H
 
+#include <ui/compiler.h>
+
 #include <hardware/hardware.h>
 
 namespace android {
@@ -64,8 +66,8 @@ enum {
 
 typedef int32_t PixelFormat;
 
-uint32_t bytesPerPixel(PixelFormat format);
-uint32_t bitsPerPixel(PixelFormat format);
+uint32_t ANDROID_UI_API bytesPerPixel(PixelFormat format);
+uint32_t ANDROID_UI_API bitsPerPixel(PixelFormat format);
 
 }; // namespace android
 

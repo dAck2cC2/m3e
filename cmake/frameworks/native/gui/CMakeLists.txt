@@ -12,6 +12,7 @@ include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
+add_definitions(-DANDROID_GUI_IMPLEMENTATION=1)
 add_definitions(-DANDROID_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
@@ -30,8 +31,8 @@ log
 # header files
 file(GLOB GUI_HEADER_FILES  ${HEADER_PATH}/gui/*.h)
 
-#file(GLOB GUI_PRIVATE_HEADER ${HEADER_PATH}/private/gui/*.h)
-#list(APPEND GUI_HEADER_FILES ${GUI_PRIVATE_HEADER})
+file(GLOB GUI_PRIVATE_HEADER ${HEADER_PATH}/private/gui/*.h)
+list(APPEND GUI_HEADER_FILES ${GUI_PRIVATE_HEADER})
 
 # source files
 set(GUI_SOURCE_FILES 
@@ -65,9 +66,9 @@ ${SOURCE_PATH}/ISurfaceHandle.cpp
 )
 
 if(APPLE)
-    list(APPEND GUI_SOURCE_FILES
-        ${SOURCE_PATH}/eglext.c
-    )
+#    list(APPEND GUI_SOURCE_FILES
+#        ${SOURCE_PATH}/eglext.c
+#    )
 elseif(MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
@@ -79,6 +80,10 @@ elseif(MSVC)
     list(APPEND GUI_SOURCE_FILES
     ${SOURCE_PATH}/BitTube_msvc.cpp
     )
+
+    list(APPEND GUI_SOURCE_FILES
+    ${MSVC_PATH}/sys/time.c
+    ) 
 endif()
 
 # target files

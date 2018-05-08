@@ -17,6 +17,8 @@
 #ifndef ANDROID_NATIVE_HANDLE_H
 #define ANDROID_NATIVE_HANDLE_H
 
+#include <cutils/compiler.h>
+
 #include <utils/RefBase.h>
 #include <utils/StrongPointer.h>
 
@@ -24,7 +26,7 @@ typedef struct native_handle native_handle_t;
 
 namespace android {
 
-class NativeHandle: public LightRefBase<NativeHandle> {
+class ANDROID_API NativeHandle: public LightRefBase<NativeHandle> {
 public:
     // Create a refcounted wrapper around a native_handle_t, and declare
     // whether the wrapper owns the handle (so that it should clean up the

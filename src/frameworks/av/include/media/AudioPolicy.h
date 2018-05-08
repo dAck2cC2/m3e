@@ -56,20 +56,24 @@ namespace android {
 #define MAX_MIXES_PER_POLICY 10
 #define MAX_CRITERIA_PER_MIX 20
 
-class AudioMixMatchCriterion {
-public:
-    AudioMixMatchCriterion() {}
-    AudioMixMatchCriterion(audio_usage_t usage, audio_source_t source, uint32_t rule);
+	class AudioMixMatchCriterion {
+	public:
+		AudioMixMatchCriterion() {}
+		AudioMixMatchCriterion(audio_usage_t usage, audio_source_t source, uint32_t rule);
 
-    status_t readFromParcel(Parcel *parcel);
-    status_t writeToParcel(Parcel *parcel) const;
+		status_t readFromParcel(Parcel *parcel);
+		status_t writeToParcel(Parcel *parcel) const;
 
-    union {
-        audio_usage_t   mUsage;
-        audio_source_t  mSource;
-        uid_t           mUid;
-    } mValue;
-    uint32_t        mRule;
+		union {
+			audio_usage_t   mUsage;
+			audio_source_t  mSource;
+			uid_t           mUid;
+		} mValue;
+		uint32_t        mRule;
+
+#if defined(_MSC_VER)
+		inline  bool                operator<(const AudioMixMatchCriterion& other) const { return (this->mRule < other.mRule); };
+#endif // _MSC_VER
 };
 
 class AudioMix {

@@ -969,7 +969,7 @@ status_t BnAudioFlinger::onTransact(
                         (audio_stream_type_t) streamType, sampleRate, format,
                         channelMask, &frameCount, &flags, buffer, output, pid, tid,
                         &sessionId, clientUid, &status);
-                LOG_ALWAYS_FATAL_IF((track != 0) != (status == NO_ERROR));
+                LOG_ALWAYS_FATAL_IF(((track != 0) != (status == NO_ERROR)), "createTrack failed");
             }
             reply->writeInt64(frameCount);
             reply->writeInt32(flags);
@@ -999,7 +999,7 @@ status_t BnAudioFlinger::onTransact(
                     sampleRate, format, channelMask, opPackageName, &frameCount, &flags,
                     pid, tid, clientUid, &sessionId, &notificationFrames, cblk, buffers,
                     &status);
-            LOG_ALWAYS_FATAL_IF((record != 0) != (status == NO_ERROR));
+            LOG_ALWAYS_FATAL_IF(((record != 0) != (status == NO_ERROR)), "openRecord failed");
             reply->writeInt64(frameCount);
             reply->writeInt32(flags);
             reply->writeInt32(sessionId);

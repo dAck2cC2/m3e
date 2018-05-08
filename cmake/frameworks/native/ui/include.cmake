@@ -1,6 +1,5 @@
 # define
 if(MSVC)
-    add_definitions(-DANDROID_DLL)
     add_definitions(-D__STDC_LIMIT_MACROS=1)
 endif(MSVC)
 

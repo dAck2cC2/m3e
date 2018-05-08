@@ -22,6 +22,8 @@ stagefright_foundation
 # define
 if(APPLE)
     add_definitions(-Disnanf=isnan)
+elseif(MSVC)
+    add_definitions(-D__unused= )
 endif()
 
 # header files
@@ -64,6 +66,12 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/IMediaPlayerService.cpp
 )
 endif(ENABLE_AV_CODEC)
+
+if(MSVC)
+    list(APPEND MEDIA_SOURCE_FILES
+    ${MSVC_PATH}/sys/time.c
+    ) 
+endif()
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

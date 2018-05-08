@@ -841,7 +841,20 @@ typedef struct {
 
 #define AUDIO_OFFLOAD_INFO_VERSION_0_1 AUDIO_MAKE_OFFLOAD_INFO_VERSION(0, 1)
 #define AUDIO_OFFLOAD_INFO_VERSION_CURRENT AUDIO_OFFLOAD_INFO_VERSION_0_1
-
+#if defined(_MSC_VER)
+static const audio_offload_info_t AUDIO_INFO_INITIALIZER = {
+	/* version: */ AUDIO_OFFLOAD_INFO_VERSION_CURRENT,
+	/* size : */ sizeof(audio_offload_info_t),
+	/* sample_rate : */ 0,
+	/* channel_mask : */ 0,
+	/* format : */ AUDIO_FORMAT_DEFAULT,
+	/* stream_type : */ AUDIO_STREAM_VOICE_CALL,
+	/* bit_rate : */ 0,
+	/* duration_us : */ 0,
+	/* has_video : */ false,
+	/* is_streaming : */ false
+};
+#else  // _MSC_VER
 static const audio_offload_info_t AUDIO_INFO_INITIALIZER = {
     version: AUDIO_OFFLOAD_INFO_VERSION_CURRENT,
     size: sizeof(audio_offload_info_t),
@@ -854,6 +867,7 @@ static const audio_offload_info_t AUDIO_INFO_INITIALIZER = {
     has_video: false,
     is_streaming: false
 };
+#endif // _MSC_VER
 
 /* common audio stream configuration parameters
  * You should memset() the entire structure to zero before use to
@@ -867,7 +881,26 @@ struct audio_config {
     size_t frame_count;
 };
 typedef struct audio_config audio_config_t;
-
+#if defined(_MSC_VER)
+static const audio_config_t AUDIO_CONFIG_INITIALIZER = {
+	/* sample_rate: */ 0,
+	/* channel_mask : */ AUDIO_CHANNEL_NONE,
+	/* format : */ AUDIO_FORMAT_DEFAULT,
+	/* offload_info : */ {
+		/* version: */ AUDIO_OFFLOAD_INFO_VERSION_CURRENT,
+		/* size : */ sizeof(audio_offload_info_t),
+		/* sample_rate : */ 0,
+		/* channel_mask : */ 0,
+		/* format : */ AUDIO_FORMAT_DEFAULT,
+		/* stream_type : */ AUDIO_STREAM_VOICE_CALL,
+		/* bit_rate : */ 0,
+		/* duration_us : */ 0,
+		/* has_video : */ false,
+		/* is_streaming : */ false
+	},
+	/* frame_count: */ 0,
+};
+#else  // _MSC_VER
 static const audio_config_t AUDIO_CONFIG_INITIALIZER = {
     sample_rate: 0,
     channel_mask: AUDIO_CHANNEL_NONE,
@@ -886,6 +919,7 @@ static const audio_config_t AUDIO_CONFIG_INITIALIZER = {
     },
     frame_count: 0,
 };
+#endif // _MSC_VER
 
 struct audio_config_base {
     uint32_t sample_rate;
@@ -894,13 +928,19 @@ struct audio_config_base {
 };
 
 typedef struct audio_config_base audio_config_base_t;
-
+#if defined(_MSC_VER)
+static const audio_config_base_t AUDIO_CONFIG_BASE_INITIALIZER = {
+	/* sample_rate: */ 0,
+	/* channel_mask : */ AUDIO_CHANNEL_NONE,
+	/* format : */ AUDIO_FORMAT_DEFAULT
+};
+#else  // _MSC_VER
 static const audio_config_base_t AUDIO_CONFIG_BASE_INITIALIZER = {
     sample_rate: 0,
     channel_mask: AUDIO_CHANNEL_NONE,
     format: AUDIO_FORMAT_DEFAULT
 };
-
+#endif // _MSC_VER
 /* audio hw module handle functions or structures referencing a module */
 typedef enum {
     AUDIO_MODULE_HANDLE_NONE = 0,

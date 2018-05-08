@@ -287,7 +287,7 @@ if(MSVC)
     endif(CMAKE_CL_64)
     set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86")
 
-    #message("DirectX_LIBRARY_PATHS=${DirectX_LIBRARY_PATHS}")
+    message("DirectX_LIBRARY_PATHS=${DirectX_LIBRARY_PATHS}")
 
     find_library(D3D9_LIBRARY d3d9 ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
     list(APPEND ANGLE_DEPLIB ${D3D9_LIBRARY})
@@ -331,6 +331,10 @@ elseif(UNIX)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++0x")
 endif()
 
+
+list(APPEND ANGLE_SOURCE_ANGLE
+${M3E_SOURCE_DIR}/src/external/angle/eglext.cpp
+)
 
 file(GLOB ANGLE_SOURCE_EGL ${SOURCE_PATH}/libEGL/*.cpp)
 file(GLOB ANGLE_SOURCE_GLESv2 ${SOURCE_PATH}/libGLESv2/*.cpp)

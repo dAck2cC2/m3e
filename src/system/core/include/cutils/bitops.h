@@ -19,9 +19,7 @@
 
 #include <stdbool.h>
 #include <string.h>
-#if !defined(_MSC_VER)
 #include <strings.h>
-#endif // _MSC_VER
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS

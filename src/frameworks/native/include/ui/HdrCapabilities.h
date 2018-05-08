@@ -17,11 +17,13 @@
 #ifndef ANDROID_UI_HDR_CAPABILTIES_H
 #define ANDROID_UI_HDR_CAPABILTIES_H
 
+#include <ui/compiler.h>
+
 #include <binder/Parcelable.h>
 
 namespace android {
 
-class HdrCapabilities : public Parcelable
+class ANDROID_UI_API HdrCapabilities : public Parcelable
 {
 public:
     HdrCapabilities(const std::vector<int32_t /*android_hdr_t*/>& types,

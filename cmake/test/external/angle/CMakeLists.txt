@@ -37,38 +37,12 @@ ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/texture_utils.cpp
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/mip_map_2d/MipMap2D.cpp
 )
-ADD_DEMO(angle_multi_texture
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
-#${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/texture_utils.cpp
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/tga_utils.cpp
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multi_texture/MultiTexture.cpp
-)
-add_custom_command(TARGET test_angle_multi_texture POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multi_texture/*.tga $<TARGET_FILE_DIR:test_angle_multi_texture>
-)
-ADD_DEMO(angle_multiple_draw_buffers
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/texture_utils.cpp
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multiple_draw_buffers/MultipleDrawBuffers.cpp
-)
-add_custom_command(TARGET test_angle_multiple_draw_buffers POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multiple_draw_buffers/*.glsl $<TARGET_FILE_DIR:test_angle_multiple_draw_buffers>
-)
+
 ADD_DEMO(angle_multiview
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multiview/Multiview.cpp
 )
-ADD_DEMO(angle_particle_system
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/tga_utils.cpp
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/particle_system/ParticleSystem.cpp
-)
-add_custom_command(TARGET test_angle_particle_system POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy
-${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/particle_system/*.tga $<TARGET_FILE_DIR:test_angle_particle_system>
-)
+
 ADD_DEMO(angle_post_sub_buffer
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/post_sub_buffer/PostSubBuffer.cpp
@@ -109,3 +83,37 @@ ADD_DEMO(angle_tri_fan_microbench
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/tri_fan_microbench/TriFanMicroBench.cpp
 )
+
+
+if (NOT MSVC)
+    ADD_DEMO(angle_multi_texture
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
+    #${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/texture_utils.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/tga_utils.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multi_texture/MultiTexture.cpp
+    )
+    add_custom_command(TARGET test_angle_multi_texture POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multi_texture/*.tga $<TARGET_FILE_DIR:test_angle_multi_texture>
+    )
+
+    ADD_DEMO(angle_multiple_draw_buffers
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/texture_utils.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multiple_draw_buffers/MultipleDrawBuffers.cpp
+    )
+    add_custom_command(TARGET test_angle_multiple_draw_buffers POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/multiple_draw_buffers/*.glsl $<TARGET_FILE_DIR:test_angle_multiple_draw_buffers>
+    )
+
+    ADD_DEMO(angle_particle_system
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/tga_utils.cpp
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/particle_system/ParticleSystem.cpp
+    )
+    add_custom_command(TARGET test_angle_particle_system POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/particle_system/*.tga $<TARGET_FILE_DIR:test_angle_particle_system>
+    )
+endif(NOT MSVC)

@@ -43,9 +43,10 @@ Program::Program(const ProgramCache::Key& /*needs*/, const char* vertex, const c
         GLint infoLen = 0;
         glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &infoLen);
         if (infoLen > 1) {
-            GLchar log[infoLen];
+            GLchar* log = new GLchar[infoLen];
             glGetProgramInfoLog(programId, infoLen, 0, &log[0]);
             ALOGE("%s", log);
+			delete[] log;
         }
         glDetachShader(programId, vertexId);
         glDetachShader(programId, fragmentId);

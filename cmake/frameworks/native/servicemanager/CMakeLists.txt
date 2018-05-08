@@ -25,7 +25,7 @@ set( SERVICEMANAGER_SOURCE_FILES
 ${SOURCE_PATH}/ServiceManager_local.cpp
 )
 
-set(LIB_NAME servicemanager.local)
+set(LIB_NAME servicemanager_local)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

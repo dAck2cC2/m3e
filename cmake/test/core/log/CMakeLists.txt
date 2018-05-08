@@ -10,7 +10,7 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 
 if(MSVC)
     add_definitions(-D__STDC_LIMIT_MACROS)
-    include_directories(AFTER ${M3E_SOURCE_DIR}/src/core/msvc)
+    include_directories(AFTER ${MSVC_PATH})
 endif(MSVC)
 
 # dependency
