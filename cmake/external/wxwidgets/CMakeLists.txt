@@ -1,0 +1,166 @@
+
+project(WXWIDGETS)
+
+if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets)
+    message(STATUS "Download\t wxWidgets")
+    exec_program("git clone https://github.com/wxWidgets/wxWidgets.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
+    exec_program("git reset --hard 9caa3d5d8e279a6420f040c756239bcd31a0dde7" ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets)
+endif()
+
+include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/wxwidgets/include.cmake)
+
+
+#############################################################################
+# Name:        CMakeLists.txt
+# Purpose:     Primary CMake for wxWidgets
+# Author:      Tobias Taschner
+# Created:     2016-09-20
+# Copyright:   (c) 2016 wxWidgets development team
+# Licence:     wxWindows licence
+#############################################################################
+
+if(NOT CMAKE_CONFIGURATION_TYPES)
+    get_property(HAVE_MULTI_CONFIG_GENERATOR GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    # Set default configuration types for multi-config generators
+    if(HAVE_MULTI_CONFIG_GENERATOR)
+        set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
+    endif()
+endif()
+
+if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+    # If no deployment target has been set default to the minimum supported
+    # OS X version (this has to be set before the first project() call)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.7 CACHE STRING "OS X Deployment Target")
+endif()
+
+include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/policies.cmake NO_POLICY_SCOPE)
+
+# Initialize variables for quick access to wx root dir in sub dirs
+set(wxSOURCE_DIR ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets)
+set(wxBINARY_DIR ${BUILD_PATH})
+set(wxOUTPUT_DIR ${BUILD_PATH})
+
+# parse the version number from wx/version.h and include in wxMAJOR_VERSION and wxMINOR_VERSION
+file(READ ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/include/wx/version.h WX_VERSION_H_CONTENTS)
+string(REGEX MATCH "wxMAJOR_VERSION[ \t]+([0-9]+)"
+    wxMAJOR_VERSION ${WX_VERSION_H_CONTENTS})
+string (REGEX MATCH "([0-9]+)"
+    wxMAJOR_VERSION ${wxMAJOR_VERSION})
+string(REGEX MATCH "wxMINOR_VERSION[ \t]+([0-9]+)"
+    wxMINOR_VERSION ${WX_VERSION_H_CONTENTS})
+string (REGEX MATCH "([0-9]+)"
+    wxMINOR_VERSION ${wxMINOR_VERSION})
+string(REGEX MATCH "wxRELEASE_NUMBER[ \t]+([0-9]+)"
+    wxRELEASE_NUMBER ${WX_VERSION_H_CONTENTS})
+string (REGEX MATCH "([0-9]+)"
+    wxRELEASE_NUMBER ${wxRELEASE_NUMBER})
+# Determine if current version is a "Development" release
+math(EXPR rel_dev "${wxMINOR_VERSION} % 2")
+if(rel_dev)
+    set(wxVERSION_IS_DEV TRUE)
+else()
+    set(wxVERSION_IS_DEV FALSE)
+endif()
+
+set(wxVERSION ${wxMAJOR_VERSION}.${wxMINOR_VERSION}.${wxRELEASE_NUMBER})
+set(wxCOPYRIGHT "1992-2018 wxWidgets")
+
+list(APPEND CMAKE_MODULE_PATH "${wxSOURCE_DIR}/build/cmake/modules")
+
+include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/files.cmake)            # Files list
+include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/functions.cmake)        # wxWidgets functions
+include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/toolkit.cmake)          # Platform/toolkit settings
+include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/options.cmake)          # User options
+include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/init.cmake)             # Init various global build vars
+include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/install.cmake)          # Install target support
+
+include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/source_groups.cmake)
+
+set(wxLIB_TARGETS)
+if(wxBUILD_MONOLITHIC)
+    # Initialize variables for monolithic build
+    set(wxMONO_SRC_FILES)
+    set(wxMONO_LIBS_PRIVATE)
+    set(wxMONO_LIBS_PUBLIC)
+    set(wxMONO_INCLUDE_DIRS_PRIVATE)
+    set(wxMONO_INCLUDE_DIRS_PUBLIC)
+endif()
+
+# Define third party libraries
+set(LIBS_THIRDPARTY regex zlib expat)
+if(wxUSE_GUI)
+#    list(APPEND LIBS_THIRDPARTY jpeg png tiff)
+endif()
+foreach(LIB IN LISTS LIBS_THIRDPARTY)
+    include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/lib/${LIB}.cmake)
+endforeach()
+
+
+
+
+
+if(NOT wxBUILD_CUSTOM_SETUP_HEADER_PATH)
+    file(COPY
+        ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/setup.h.in
+        DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/cmake/
+        FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+            GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        )    
+    # Write setup.h after all variables are available
+    include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/setup.cmake)
+endif()
+
+if(UNIX)
+    file(COPY
+        ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/wx-config-inplace.in
+        DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/
+        FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+            GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        )     
+    file(COPY
+        ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/wx-config.in
+        DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/
+        FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+            GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        )      
+    # Write wx-config
+    include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/config.cmake)
+endif()
+
+# Determine minimum required OS at runtime
+set(wxREQUIRED_OS_DESC "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_PROCESSOR}")
+if(MSVC OR MINGW OR CYGWIN)
+    # Determine based on used toolkit
+    if(MINGW OR CYGWIN OR (MSVC_VERSION LESS 1700) OR (CMAKE_VS_PLATFORM_TOOLSET MATCHES "_xp$") )
+        # Visual Studio < 2012 and MinGW always create XP compatible binaries
+        # XP Toolset is required since VS 2012
+        set(wxREQUIRED_OS_DESC "Windows XP / Windows Server 2003")
+    else()
+        set(wxREQUIRED_OS_DESC "Windows Vista / Windows Server 2008")
+    endif()
+    if(CMAKE_CL_64)
+        wx_string_append(wxREQUIRED_OS_DESC " (x64 Edition)")
+    endif()
+elseif(APPLE AND NOT IPHONE)
+    if(DEFINED CMAKE_OSX_DEPLOYMENT_TARGET)
+        set(wxREQUIRED_OS_DESC "macOS ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    endif()
+endif()
+
+# Print configuration summary
+wx_print_thirdparty_library_summary()
+
+message(STATUS "Configured wxWidgets ${wxVERSION} for ${CMAKE_SYSTEM}
+    Min OS Version required at runtime:                ${wxREQUIRED_OS_DESC}
+    Which GUI toolkit should wxWidgets use?            ${wxBUILD_TOOLKIT} ${wxTOOLKIT_VERSION}
+    Should wxWidgets be compiled into single library?  ${wxBUILD_MONOLITHIC}
+    Should wxWidgets be linked as a shared library?    ${wxBUILD_SHARED}
+    Should wxWidgets support Unicode?                  ${wxUSE_UNICODE}
+    What wxWidgets compatibility level should be used? ${wxBUILD_COMPATIBILITY}"
+    )
+
+#set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
+#add_library( SHARED ${ANGLE_UTIL_SRC} ${ANGLE_UTIL_HEAD})
+#target_link_libraries(angle_util ${ANGLE_UTIL_DEPLIB})
+

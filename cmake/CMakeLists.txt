@@ -35,6 +35,8 @@ if(CFG_NO_DEFAULT)
     set(ENABLE_GLUT  "TRUE")
   elseif(CFG_ENABLE_ANGLE)
     set(ENABLE_ANGLE "TRUE")
+  elseif(CFG_ENABLE_WXWIDGETS)
+    set(ENABLE_WXWIDGETS "TRUE")
   endif()
 
   if(CFG_ENABLE_TEST)

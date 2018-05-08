@@ -4,6 +4,8 @@ project(jsoncpp)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/jsoncpp/include.cmake)
 
+GET_ANDROID_MODULE(jsoncpp)
+
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/jsoncpp/src/lib_json)
 
 add_definitions(-DJSON_DLL_BUILD)

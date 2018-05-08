@@ -5,9 +5,11 @@ project(SAFEIOP)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/safe-iop/include.cmake)
 
+GET_ANDROID_MODULE(safe-iop)
+
 if(MSVC)
-add_definitions(-Du_int32_t=uint32_t)
-add_definitions(-Dtypeof=decltype)
+    add_definitions(-Du_int32_t=uint32_t)
+    add_definitions(-Dtypeof=decltype)
 endif(MSVC)
 
 file(GLOB LIBSAFEIOP_HEADER_FILES

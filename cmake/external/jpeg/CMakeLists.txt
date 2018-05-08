@@ -4,6 +4,8 @@ project(JPEG)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/jpeg/include.cmake)
 
+GET_ANDROID_MODULE(jpeg)
+
 #include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/libyuv/files)
 
 #add_definitions(-DHAVE_JPEG)

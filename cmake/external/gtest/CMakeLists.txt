@@ -5,6 +5,8 @@ project(GTEST)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/gtest/include.cmake)
 
+GET_ANDROID_MODULE(gtest)
+
 include_directories(AFTER
 ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest
 ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include

@@ -5,6 +5,8 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/jpeg/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/libyuv/include.cmake)
 
+GET_ANDROID_MODULE(libyuv)
+
 #include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/libyuv/files)
 
 # dependency
