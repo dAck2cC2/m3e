@@ -4,6 +4,8 @@ project(EXPAT)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/expat/include.cmake)
 
+GET_ANDROID_MODULE(expat)
+
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/expat)
 
 add_definitions(-DHAVE_EXPAT_CONFIG_H)

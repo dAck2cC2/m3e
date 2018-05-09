@@ -13,7 +13,11 @@ endif()
 # wxWidgets
 if (ENABLE_WXWIDGETS)
     add_subdirectory(wxwidgets)
+    add_subdirectory(zlib)
+    add_subdirectory(expat)        
     add_subdirectory(jpeg)
+    add_subdirectory(png)
+    add_subdirectory(tiff)
 endif(ENABLE_WXWIDGETS)
 
 # angle for EGL and OpenGL
@@ -52,5 +56,5 @@ endif(ENABLE_TEST)
 if(ENABLE_AV_CODEC)
     add_subdirectory(expat)
     add_subdirectory(jpeg)
-    add_subdirectory(libyuv)
+    add_subdirectory(yuv)
 endif(ENABLE_AV_CODEC)
