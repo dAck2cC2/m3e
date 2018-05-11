@@ -12,3 +12,8 @@ endif(ENABLE_SKIA)
 if(ENABLE_ANGLE OR ENABLE_AV_UTILS)
     add_subdirectory(angle)
 endif()
+
+if (ENABLE_WXWIDGETS)
+endif()
+
+#add_subdirectory(jpeg)

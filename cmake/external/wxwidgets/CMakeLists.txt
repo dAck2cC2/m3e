@@ -42,7 +42,7 @@ set(wxBINARY_DIR ${BUILD_PATH})
 set(wxOUTPUT_DIR ${BUILD_PATH})
 
 # parse the version number from wx/version.h and include in wxMAJOR_VERSION and wxMINOR_VERSION
-file(READ ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/include/wx/version.h WX_VERSION_H_CONTENTS)
+file(READ ${wxSOURCE_DIR}/include/wx/version.h WX_VERSION_H_CONTENTS)
 string(REGEX MATCH "wxMAJOR_VERSION[ \t]+([0-9]+)"
     wxMAJOR_VERSION ${WX_VERSION_H_CONTENTS})
 string (REGEX MATCH "([0-9]+)"
@@ -68,14 +68,14 @@ set(wxCOPYRIGHT "1992-2018 wxWidgets")
 
 list(APPEND CMAKE_MODULE_PATH "${wxSOURCE_DIR}/build/cmake/modules")
 
-include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/files.cmake)            # Files list
-include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/functions.cmake)        # wxWidgets functions
-include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/toolkit.cmake)          # Platform/toolkit settings
-include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/options.cmake)          # User options
-include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/init.cmake)             # Init various global build vars
-include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/install.cmake)          # Install target support
+include(${wxSOURCE_DIR}/build/cmake/files.cmake)            # Files list
+include(${wxSOURCE_DIR}/build/cmake/functions.cmake)        # wxWidgets functions
+include(${wxSOURCE_DIR}/build/cmake/toolkit.cmake)          # Platform/toolkit settings
+include(${wxSOURCE_DIR}/build/cmake/options.cmake)          # User options
+include(${wxSOURCE_DIR}/build/cmake/init.cmake)             # Init various global build vars
+include(${wxSOURCE_DIR}/build/cmake/install.cmake)          # Install target support
 
-include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/source_groups.cmake)
+include(${wxSOURCE_DIR}/build/cmake/source_groups.cmake)
 
 set(wxLIB_TARGETS)
 if(wxBUILD_MONOLITHIC)
@@ -88,44 +88,48 @@ if(wxBUILD_MONOLITHIC)
 endif()
 
 # Define third party libraries
-set(LIBS_THIRDPARTY regex zlib expat)
+set(LIBS_THIRDPARTY zlib expat)
 if(wxUSE_GUI)
-#    list(APPEND LIBS_THIRDPARTY jpeg png tiff)
+    list(APPEND LIBS_THIRDPARTY jpeg png tiff)
 endif()
 foreach(LIB IN LISTS LIBS_THIRDPARTY)
-    include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/lib/${LIB}.cmake)
+    string(TOUPPER ${LIB} _name_upper)
+    set(${_name_upper}_LIBRARIES ${LIB})
+    include(${M3E_SOURCE_DIR}/cmake/external/${LIB}/include.cmake)
 endforeach()
 
+list(APPEND LIBS_THIRDPARTY regex)
+include(${wxSOURCE_DIR}/build/cmake/lib/regex.cmake)
 
 
 
 
 if(NOT wxBUILD_CUSTOM_SETUP_HEADER_PATH)
     file(COPY
-        ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/setup.h.in
+        ${wxSOURCE_DIR}/build/cmake/setup.h.in
         DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/cmake/
         FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
             GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         )    
     # Write setup.h after all variables are available
-    include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/setup.cmake)
+    include(${wxSOURCE_DIR}/build/cmake/setup.cmake)
 endif()
 
 if(UNIX)
     file(COPY
-        ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/wx-config-inplace.in
+        ${wxSOURCE_DIR}/wx-config-inplace.in
         DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/
         FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
             GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         )     
     file(COPY
-        ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/wx-config.in
+        ${wxSOURCE_DIR}/wx-config.in
         DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/
         FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
             GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         )      
     # Write wx-config
-    include(${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets/build/cmake/config.cmake)
+    include(${wxSOURCE_DIR}/build/cmake/config.cmake)
 endif()
 
 # Determine minimum required OS at runtime

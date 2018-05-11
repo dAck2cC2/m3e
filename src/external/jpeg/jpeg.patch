@@ -1,0 +1,25 @@
+diff --git a/jpeglib.h b/jpeglib.h
+index 07e6872..bb1a5d1 100644
+--- a/jpeglib.h
++++ b/jpeglib.h
+@@ -943,6 +943,9 @@ typedef JMETHOD(boolean, jpeg_marker_parser_method, (j_decompress_ptr cinfo));
+ #define jpeg_resync_to_restart	jResyncRestart
+ #endif /* NEED_SHORT_EXTERNAL_NAMES */
+ 
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* Default error-management setup */
+ EXTERN(struct jpeg_error_mgr *) jpeg_std_error
+@@ -1125,6 +1128,10 @@ EXTERN(void) jpeg_configure_huffman_index_scan(j_decompress_ptr cinfo,
+                         huffman_index *index, int scan_no, int offset);
+ EXTERN(void) jpeg_destroy_huffman_index(huffman_index *index);
+ 
++#ifdef __cplusplus
++}  //  extern "C" 
++#endif
++
+ 
+ /* These marker codes are exported since applications and data source modules
+  * are likely to want to use them.

@@ -14,6 +14,11 @@ macro(GET_ANDROID_MODULE name)
         message(STATUS "Download\t ${name}")
         exec_program("git clone ${EXT_LINK}/${EXT_PATH}/${name}" ${M3E_SOURCE_DIR}/${EXT_PATH})
         exec_program("git checkout tags/${EXT_TAG}" ${M3E_SOURCE_DIR}/${EXT_PATH}/${name})
+
+        # apply patch
+        if (EXISTS ${M3E_SOURCE_DIR}/src/${EXT_PATH}/${name}/${name}.patch)
+            exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/${name}/${name}.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/${name})
+        endif()
     endif()
 endmacro()
 
