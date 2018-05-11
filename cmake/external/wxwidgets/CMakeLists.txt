@@ -8,7 +8,7 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/wxWidgets)
 endif()
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/wxwidgets/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/external/wxwidgets/include.cmake)
 
 
 #############################################################################
@@ -73,7 +73,7 @@ include(${wxSOURCE_DIR}/build/cmake/functions.cmake)        # wxWidgets function
 include(${wxSOURCE_DIR}/build/cmake/toolkit.cmake)          # Platform/toolkit settings
 include(${wxSOURCE_DIR}/build/cmake/options.cmake)          # User options
 include(${wxSOURCE_DIR}/build/cmake/init.cmake)             # Init various global build vars
-include(${wxSOURCE_DIR}/build/cmake/install.cmake)          # Install target support
+#include(${wxSOURCE_DIR}/build/cmake/install.cmake)          # Install target support
 
 include(${wxSOURCE_DIR}/build/cmake/source_groups.cmake)
 
@@ -101,7 +101,73 @@ endforeach()
 list(APPEND LIBS_THIRDPARTY regex)
 include(${wxSOURCE_DIR}/build/cmake/lib/regex.cmake)
 
+# add_opt_lib()
+# Add library which may have been disabled by wxUSE_...
+macro(add_opt_lib name var_name)
+    if(${var_name})
+        list(APPEND LIBS ${name})
+    endif()
+endmacro()
 
+# Define base libraries
+set(LIBS base)
+add_opt_lib(net wxUSE_SOCKETS)
+add_opt_lib(xml wxUSE_XML)
+
+# Define UI libraries
+if(wxUSE_GUI)
+    list(APPEND LIBS core adv)
+    foreach(lib
+        aui
+        html
+        propgrid
+        ribbon
+        richtext
+        webview
+        stc
+        xrc
+        )
+        string(TOUPPER ${lib} _name_upper)
+        add_opt_lib(${lib} wxUSE_${_name_upper})
+    endforeach()
+    add_opt_lib(media wxUSE_MEDIACTRL)
+    add_opt_lib(gl wxUSE_OPENGL)
+    add_opt_lib(qa wxUSE_DEBUGREPORT)
+endif() # wxUSE_GUI
+
+# Include cmake file for every library
+foreach(LIB ${LIBS})
+    file(READ "${wxSOURCE_DIR}/build/cmake/lib/${LIB}/CMakeLists.txt" _cmakefile)
+    string(REGEX REPLACE "../../source_groups.cmake" "${wxSOURCE_DIR}/build/cmake/source_groups.cmake" _cmakefile "${_cmakefile}")
+    file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/${LIB}/CMakeLists.txt" "${_cmakefile}")
+
+    add_subdirectory(${LIB})
+endforeach()
+
+if(wxBUILD_MONOLITHIC)
+    # Create monolithic library target
+    list(LENGTH wxMONO_SRC_FILES src_file_count)
+    wx_add_library(mono ${wxMONO_SRC_FILES})
+    foreach(vis PRIVATE PUBLIC)
+        if(wxMONO_LIBS_${vis})
+            # Remove libs included in mono from list
+            foreach(lib IN LISTS LIBS)
+                list(REMOVE_ITEM wxMONO_LIBS_${vis} ${lib})
+            endforeach()
+
+            target_link_libraries(mono ${vis} ${wxMONO_LIBS_${vis}})
+        endif()
+        if(wxMONO_INCLUDE_DIRS_${vis})
+            target_include_directories(mono ${vis} ${wxMONO_INCLUDE_DIRS_${vis}})
+        endif()
+        if(wxMONO_DEFINITIONS_${vis})
+            target_compile_definitions(mono ${vis} ${wxMONO_DEFINITIONS_${vis}})
+        endif()
+    endforeach()
+endif()
+
+
+include(${wxSOURCE_DIR}/build/cmake/utils/CMakeLists.txt)
 
 
 if(NOT wxBUILD_CUSTOM_SETUP_HEADER_PATH)
@@ -113,6 +179,12 @@ if(NOT wxBUILD_CUSTOM_SETUP_HEADER_PATH)
         )    
     # Write setup.h after all variables are available
     include(${wxSOURCE_DIR}/build/cmake/setup.cmake)
+    file(COPY 
+        ${wxSETUP_HEADER_FILE} 
+        DESTINATION ${M3E_BINARY_DIR}/wxWidgets/wx/
+        FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+            GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        )
 endif()
 
 if(UNIX)
@@ -163,8 +235,3 @@ message(STATUS "Configured wxWidgets ${wxVERSION} for ${CMAKE_SYSTEM}
     Should wxWidgets support Unicode?                  ${wxUSE_UNICODE}
     What wxWidgets compatibility level should be used? ${wxBUILD_COMPATIBILITY}"
     )
-
-#set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-#add_library( SHARED ${ANGLE_UTIL_SRC} ${ANGLE_UTIL_HEAD})
-#target_link_libraries(angle_util ${ANGLE_UTIL_DEPLIB})
-

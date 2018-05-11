@@ -14,6 +14,7 @@ if(ENABLE_ANGLE OR ENABLE_AV_UTILS)
 endif()
 
 if (ENABLE_WXWIDGETS)
+    add_subdirectory(wxwidgets)
 endif()
 
 #add_subdirectory(jpeg)
