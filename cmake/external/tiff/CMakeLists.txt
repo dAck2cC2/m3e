@@ -529,8 +529,10 @@ option(jpeg "use libjpeg (required for JPEG compression)" ON)
 #if(JPEG_FOUND)
 #  set(JPEG_SUPPORT TRUE)
 #endif()
+#include(${M3E_SOURCE_DIR}/cmake/external/jpeg-turbo/include.cmake)
+#set(JPEG_LIBRARY jpeg-turbo)
 include(${M3E_SOURCE_DIR}/cmake/external/jpeg/include.cmake)
-set(JPEG_LIBRARY jpeg)
+set(JPEG_LIBRARY ${JPEG})
 
 
 
@@ -850,6 +852,14 @@ endforeach()
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/tiff/ ${TIFF_INCLUDES})
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(tiff SHARED ${tiff_lib_SOURCES} ${nodist_tiff_HEADERS} ${tiff_port_SOURCES})
-target_link_libraries(tiff ${TIFF_LIBRARY_DEPS})
+add_library(${TIFF} SHARED ${tiff_lib_SOURCES} ${nodist_tiff_HEADERS} ${tiff_port_SOURCES})
+target_link_libraries(${TIFF} ${TIFF_LIBRARY_DEPS})
                     
+set_target_properties(${TIFF} PROPERTIES SOVERSION ${SO_COMPATVERSION})
+if(NOT CYGWIN)
+    # This property causes shared libraries on Linux to have the full version
+    # encoded into their final filename.  We disable this on Cygwin because
+    # it causes cygz-${TIFF_FULL_VERSION}.dll to be created when cygz.dll
+    # seems to be the default.
+    set_target_properties(${TIFF} PROPERTIES VERSION ${SO_VERSION})
+endif()
