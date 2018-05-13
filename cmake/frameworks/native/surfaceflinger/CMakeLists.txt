@@ -78,11 +78,7 @@ ${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp
 #${SOURCE_PATH}/RenderEngine/GLES10RenderEngine.cpp
 )
 
-if (APPLE)
-    set(LIB_NAME surfaceflinger_osx)
-else ()
-    set(LIB_NAME surfaceflinger_default)
-endif()
+set(LIB_NAME surfaceflinger_default)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

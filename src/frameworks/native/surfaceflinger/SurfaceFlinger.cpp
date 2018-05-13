@@ -4,6 +4,8 @@
 
 #include <cutils/properties.h>
 
+#include <binder/IPCThreadState.h>
+
 #include <ui/DisplayInfo.h>
 
 #include <gui/IDisplayEventConnection.h>
@@ -269,10 +271,8 @@ status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
     return NO_INIT;
 }
 
-EGLDisplay SurfaceFlinger::initEGL()
+void SurfaceFlinger::CreateWindow()
 {
-    EGLDisplay display = EGL_NO_DISPLAY;
-    
     if (mOSWindow == NULL) {
         mOSWindow = CreateOSWindow();
     }
@@ -285,21 +285,33 @@ EGLDisplay SurfaceFlinger::initEGL()
         
         mOSWindow->initialize(name, width, height);
         mOSWindow->setVisible(true);
-    
-        std::vector<EGLAttrib> displayAttributes;
-        displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
-        displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
-        displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE);
-        displayAttributes.push_back(2);
-        displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE);
-        displayAttributes.push_back(0);
-        
-        displayAttributes.push_back(EGL_NONE);
-        
-        display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE,
-                                         reinterpret_cast<void *>(mOSWindow->getNativeDisplay()),
-                                         &displayAttributes[0]);
     }
+}
+
+    
+EGLDisplay SurfaceFlinger::initEGL()
+{
+    CreateWindow();
+    
+    EGLDisplay display = EGL_NO_DISPLAY;
+    
+    if (mOSWindow == NULL) {
+        return display;
+    }
+    
+    std::vector<EGLAttrib> displayAttributes;
+    displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
+    displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
+    displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE);
+    displayAttributes.push_back(2);
+    displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE);
+    displayAttributes.push_back(0);
+    
+    displayAttributes.push_back(EGL_NONE);
+    
+    display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE,
+                                     reinterpret_cast<void *>(mOSWindow->getNativeDisplay()),
+                                     &displayAttributes[0]);
     
     return display;
 }
@@ -528,31 +540,34 @@ status_t SurfaceFlinger::postMessageSync(const sp<MessageBase>& msg,
 }
 
 void SurfaceFlinger::run() {
-    do {
-        waitForEvent();
-    } while (true);
+    if (mOSWindow){
+        bool mRunning = true;
+        
+        while (mRunning) {
+            // Clear events that the application did not process from this frame
+            Event event;
+            while (mOSWindow->popEvent(&event)) {
+                // If the application did not catch a close event, close now
+                if (event.Type == Event::EVENT_CLOSED) {
+                    mRunning = false;
+                }
+            }
+            
+            if (!mRunning) {
+                break;
+            }
+            
+            waitForEvent();
+            IPCThreadState::self()->handlePolledCommands();
+            
+            mOSWindow->messageLoop();
+            
+        } // while (mRunning)
+    } // if (mOSWindow)
 }
     
 void SurfaceFlinger::waitForEvent() {
     mEventQueue.waitMessage();
 }
-    
-void SurfaceFlinger::update()
-{
-    if (mOSWindow) {
-        // Clear events that the application did not process from this frame
-        Event event;
-        while (mOSWindow->popEvent(&event))
-        {
-            // If the application did not catch a close event, close now
-            if (event.Type == Event::EVENT_CLOSED)
-            {
-                //exit();
-            }
-        }
 
-        mOSWindow->messageLoop();
-    }
-}
-    
 }; // namespace android

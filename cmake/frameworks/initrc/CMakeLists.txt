@@ -7,6 +7,11 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
 
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger)
+
+
 add_definitions(-DANDROID_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/initrc )
@@ -17,6 +22,7 @@ set(INITRC_DEPLIB
 cutils
 utils
 hardware
+surfaceflinger_default
 )
 
 if(MSVC)

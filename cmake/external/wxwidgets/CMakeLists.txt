@@ -90,16 +90,19 @@ endif()
 
 # Define third party libraries
 set(LIBS_THIRDPARTY zlib expat)
-if(wxUSE_GUI)
-    list(APPEND LIBS_THIRDPARTY jpeg png tiff)
-endif()
 foreach(LIB IN LISTS LIBS_THIRDPARTY)
     string(TOUPPER ${LIB} _name_upper)
     set(${_name_upper}_LIBRARIES ${LIB})
     include(${M3E_SOURCE_DIR}/cmake/external/${LIB}/include.cmake)
 endforeach()
 
-list(APPEND LIBS_THIRDPARTY regex)
+if(wxUSE_GUI)
+    set(LIBS_THIRDPARTY jpeg png tiff)
+    foreach(LIB IN LISTS LIBS_THIRDPARTY)
+        include(${M3E_SOURCE_DIR}/cmake/external/${LIB}/include.cmake)
+    endforeach()
+endif()
+
 include(${wxSOURCE_DIR}/build/cmake/lib/regex.cmake)
 
 # add_opt_lib()

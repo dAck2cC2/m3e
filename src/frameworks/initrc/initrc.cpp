@@ -1,27 +1,38 @@
 
 #include <cutils/properties.h>
 #include <hardware/hardware.h>
+
+#include <SurfaceFlinger.h>
+
 #include "initrc.h"
 
 namespace android {
     
 ANDROID_SINGLETON_STATIC_INSTANCE(InitRC);
 
-static const char* gServiceList[] = {
-    "servicemanager",
-    "surfaceflinger",
+enum {
+    SERVICE_SM = 0,
+    SERVICE_SF,
+    SERVICE_CNT
 };
-#define SERVICE_LIST_CNT  (sizeof(gServiceList)/sizeof(char*))
+    
+static struct {
+    const char*          name;
+    struct hw_device_t*  handler;
+}
+gServiceList[SERVICE_CNT] = {
+    {"servicemanager", NULL},
+    {"surfaceflinger", NULL}
+};
 
 InitRC::InitRC()
 {
     ResetProperties();
-    StartServices();
+    StartService(SERVICE_SM);
 }
 
 InitRC::~InitRC()
 {
-    // empty
 }
 
 void InitRC::ResetProperties()
@@ -42,18 +53,39 @@ void InitRC::ResetProperties()
 #endif
 }
 
-void InitRC::StartServices()
+void InitRC::StartService(int index)
 {
+    if (index < 0 || index >= SERVICE_CNT) {
+        return;
+    }
+    
     // Using the structure and interface of hardware.h just for lazy.
     // We could also define our own serivce structure and load interface.
-    const hw_module_t* module = NULL;
-    for (int i = 0; i < SERVICE_LIST_CNT; ++i) {
-        module = NULL;
-        hw_get_module(gServiceList[i], &module);
-        if (module && module->methods && module->methods->open) {
-            (*(module->methods->open))(module, gServiceList[i], NULL);
-        }
+    const hw_module_t*  module = NULL;
+    module = NULL;
+    hw_get_module(gServiceList[index].name, &module);
+    if (module && module->methods && module->methods->open) {
+        (*(module->methods->open))(module, gServiceList[index].name, &(gServiceList[index].handler));
     }
+}
+ 
+status_t InitRC::Entry(int argc, char** argv)
+{
+    StartService(SERVICE_SF);
+    
+    return OK;
+}
+
+void InitRC::Run()
+{
+    if ((NULL == gServiceList[SERVICE_SF].handler)
+    ||  (NULL == gServiceList[SERVICE_SF].handler->module)
+    ||  (NULL == gServiceList[SERVICE_SF].handler->module->dso)) {
+        return;
+    }
+    
+    sp<SurfaceFlinger> flinger = (SurfaceFlinger *)(gServiceList[SERVICE_SF].handler->module->dso);
+    flinger->run();
 }
     
 }; // namespace android

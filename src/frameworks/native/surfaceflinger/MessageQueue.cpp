@@ -84,7 +84,7 @@ void MessageQueue::waitMessage() {
                 ALOGE("Looper::pollOnce() returned unknown status %d", ret);
                 continue;
         }
-    } while (true);
+    } while (false);
 }
 
 status_t MessageQueue::postMessage(

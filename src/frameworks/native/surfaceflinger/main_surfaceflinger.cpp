@@ -8,115 +8,6 @@
 
 #include "SurfaceFlinger.h"
 
-namespace android {
-
-class SurfaceFlingerUpdate : public Thread
-{
-public:
-    SurfaceFlingerUpdate(sp<SurfaceFlinger>& flinger)
-    : mFlinger(flinger) { };
-    ~SurfaceFlingerUpdate() { };
-    
-private:
-    virtual bool threadLoop()
-    {
-        if (mFlinger != NULL) {
-            mFlinger->update();
-        }
-        return true;
-    };
-    
-    sp<SurfaceFlinger> mFlinger;
-};
-    
-class SurfaceFlingerMessage : public Thread
-{
-public:
-    SurfaceFlingerMessage(sp<SurfaceFlinger>& flinger)
-    : mFlinger(flinger) { };
-    ~SurfaceFlingerMessage() { };
-    
-private:
-    virtual bool threadLoop()
-    {
-        if (mFlinger != NULL) {
-            mFlinger->run();
-        }
-        return false;
-    };
-    
-    sp<SurfaceFlinger> mFlinger;
-};
-    
-class SurfaceFlingerService : public Thread
-{
-public:
-    SurfaceFlingerService()  {};
-    ~SurfaceFlingerService() {};
-    void waitForStarted(void) {
-        if (!Thread::isRunning()) {
-            mThreadStartedMutex.lock();
-            
-            Thread::run();
-            
-            mThreadStartedCondition.wait(mThreadStartedMutex);
-            mThreadStartedMutex.unlock();
-        }
-    }
-    void waitForStopped(void) {
-        if (Thread::isRunning()) {
-            mThreadStartedMutex.lock();
-            
-            mIPCThread->stopProcess();
-            Thread::requestExitAndWait();
-            //mIPCThread->shutdown();
-            
-            mThreadStartedMutex.unlock();
-        }
-    }
-private:
-    virtual bool threadLoop()
-    {
-        mThreadStartedMutex.lock();
-        
-        sp<ProcessState> ps(ProcessState::self());
-        
-        sp<SurfaceFlinger> flinger = new SurfaceFlinger();
-        
-        flinger->init();
-        
-        sp<SurfaceFlingerMessage> message = new SurfaceFlingerMessage(flinger);
-        if (message != NULL) {
-            message->run();
-        }
-
-        //sp<SurfaceFlingerUpdate> update = new SurfaceFlingerUpdate(flinger);
-        //if (update != NULL) {
-        //    update->run();
-        //}
-        
-        // publish surface flinger
-        sp<IServiceManager> sm(defaultServiceManager());
-        sm->addService(String16(SurfaceFlinger::getServiceName()), flinger, false);
-
-        mIPCThread = IPCThreadState::self();
-        
-        mThreadStartedCondition.broadcast();
-        mThreadStartedMutex.unlock();
-        
-        IPCThreadState::self()->joinThreadPool();
-        
-        return false;
-    };
-private:
-    Mutex     mThreadStartedMutex;
-    Condition mThreadStartedCondition;
-    IPCThreadState* mIPCThread;
-};
-
-}; // namespace android
-
-
 //  interface for initrc
 
 #define SURFACE_FLINGER_TAG     0xF3EC
@@ -125,33 +16,63 @@ private:
 #define SURFACE_FLINGER_NAME    "android.SurfaceFlinger"
 #define SURFACE_FLINGER_AUTHOR  "yuki.kokoto"
 
-android::sp<android::SurfaceFlingerService> gSurfaceFlinger;
+static android::sp<android::SurfaceFlinger> gSurfaceFlinger;
 
-int open_surfaceflinger(const struct hw_module_t* module, const char* id,
-                        struct hw_device_t** device)
-{
-    if (gSurfaceFlinger == NULL) {
-        gSurfaceFlinger = new android::SurfaceFlingerService();
-        if (gSurfaceFlinger != NULL) {
-            gSurfaceFlinger->waitForStarted();
-        }
-    }
-    
-    return android::OK;
-}
+static int open_surfaceflinger(const struct hw_module_t* module, const char* id,
+                        struct hw_device_t** device);
+static int close_surfaceflinger(struct hw_device_t* device);
 
 hw_module_methods_t method = {
     open_surfaceflinger
 };
 
 hw_module_t HMI = {
-    SURFACE_FLINGER_TAG, // tag
-    SURFACE_FLINGER_VER, // module_api_version
-    SURFACE_FLINGER_VER, // hal_api_version
-    SURFACE_FLINGER_ID,  // id
-    SURFACE_FLINGER_NAME, // name
+    SURFACE_FLINGER_TAG,    // tag
+    SURFACE_FLINGER_VER,    // module_api_version
+    SURFACE_FLINGER_VER,    // hal_api_version
+    SURFACE_FLINGER_ID,     // id
+    SURFACE_FLINGER_NAME,   // name
     SURFACE_FLINGER_AUTHOR, // author
-    &method, // methods
-    NULL,    // dso
-    { 0 }    // reserved
+    &method,                // methods
+    NULL,                   // dso
+    { 0 }                   // reserved
 };
+
+struct hw_device_t DEV = {
+    SURFACE_FLINGER_TAG, // tag
+    SURFACE_FLINGER_VER, // version
+    &HMI,                // module
+    { 0 },               // reserved
+    close_surfaceflinger // close
+};
+
+int open_surfaceflinger(const struct hw_module_t* module, const char* id,
+                        struct hw_device_t** device)
+{
+    if (gSurfaceFlinger == NULL) {
+        android::sp<android::ProcessState> ps(android::ProcessState::self());
+        
+        gSurfaceFlinger = new android::SurfaceFlinger();
+        gSurfaceFlinger->init();
+        
+        // publish surface flinger
+        android::sp<android::IServiceManager> sm(android::defaultServiceManager());
+        sm->addService(android::String16(android::SurfaceFlinger::getServiceName()), gSurfaceFlinger, false);
+        
+        HMI.dso = (void *)(gSurfaceFlinger.get());
+    }
+    
+    if (device != NULL) {
+        (*device) = &DEV;
+    }
+    
+    return android::OK;
+}
+
+int close_surfaceflinger(struct hw_device_t* device)
+{
+    gSurfaceFlinger = NULL;
+    
+    return android::OK;
+}
+

@@ -17,6 +17,7 @@ cutils
 initrc
 gui
 angle
+angle_util
 #hardware
 )
 

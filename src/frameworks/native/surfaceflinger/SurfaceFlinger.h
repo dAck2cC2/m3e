@@ -40,9 +40,6 @@ public:
     
     // starts SurfaceFlinger main loop in the current thread
     void run();
-
-    // starts SurfaceFlinger os window loop in the current thread
-    void update();
     
     // post an asynchronous message to the main thread
     status_t postMessageAsync(const sp<MessageBase>& msg, nsecs_t reltime = 0, uint32_t flags = 0);
@@ -110,6 +107,7 @@ private:
      */
     virtual void onFirstRef();
     
+    virtual void CreateWindow();
     virtual EGLDisplay initEGL();
     
     virtual void onHotplugReceived(int disp, bool connected);

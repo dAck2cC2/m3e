@@ -14,13 +14,50 @@
 namespace android {
 
 #define TEST_MEM_SIZE  (32)
+    
+TEST(libbinder, Binder_native)
+{
+    sp<MemoryDealer> memoryDealer = new MemoryDealer(TEST_MEM_SIZE, "Binder_bn");
+    EXPECT_TRUE(memoryDealer != NULL);
+    
+    sp<IMemory> bnMem = memoryDealer->allocate(TEST_MEM_SIZE);
+    EXPECT_TRUE(bnMem != NULL);
+    
+    sp<IBinder> binder = IInterface::asBinder(bnMem);
+    EXPECT_TRUE(bnMem != NULL);
+    
+    sp<IMemory> mem = interface_cast<IMemory>(binder);
+    EXPECT_TRUE(mem != NULL);
+    EXPECT_TRUE(mem == bnMem);
+}
+
+TEST(libbinder, Binder_parcel)
+{
+    sp<MemoryDealer> memoryDealer = new MemoryDealer(TEST_MEM_SIZE, "Binder_parcel");
+    EXPECT_TRUE(memoryDealer != NULL);
+    
+    sp<IMemory> bnMem = memoryDealer->allocate(TEST_MEM_SIZE);
+    EXPECT_TRUE(bnMem != NULL);
+    
+    Parcel parcel;
+    EXPECT_EQ(NO_ERROR, parcel.writeStrongBinder(IInterface::asBinder(bnMem)));
+    
+    parcel.setDataPosition(0);
+    sp<IBinder> binder = parcel.readStrongBinder();
+    
+    sp<IMemory> mem = interface_cast<IMemory>(binder);
+    EXPECT_TRUE(mem != NULL);
+    EXPECT_TRUE(mem == bnMem);
+}
+    
+    
 #define TEST_STRING    "binder.test.memory"
 #define TEST_AMOUNT    (3)
     
-static InitRC&   gInitrc = InitRC::getInstance();
 static String16  gBinderTestName("binder_test_service");
 static int32_t   gBinderTestCounter = 0;
 
+    
 class  IBinderTest : public IInterface
 {
 public:
@@ -284,46 +321,18 @@ private:
     Condition mThreadStartedCondition;
     IPCThreadState* mIPCThread;;
 };
-
+    
+static InitRC& inirc = InitRC::getInstance();
 static sp<BinderTestService> service = new BinderTestService();
-    
-    
-TEST(libbinder, Binder_native)
-{
-	sp<MemoryDealer> memoryDealer = new MemoryDealer(TEST_MEM_SIZE, "Binder_bn");
-    EXPECT_TRUE(memoryDealer != NULL);
-    
-    sp<IMemory> bnMem = memoryDealer->allocate(TEST_MEM_SIZE);
-    EXPECT_TRUE(bnMem != NULL);
 
-    sp<IBinder> binder = IInterface::asBinder(bnMem);
-    EXPECT_TRUE(bnMem != NULL);
-
-    sp<IMemory> mem = interface_cast<IMemory>(binder);
-    EXPECT_TRUE(mem != NULL);
-    EXPECT_TRUE(mem == bnMem);
-}
+class ServiceTest : public testing::Test {
+protected:
+    virtual void SetUp() {
+        // EMPTY
+    };
+};
     
-TEST(libbinder, Binder_parcel)
-{
-    sp<MemoryDealer> memoryDealer = new MemoryDealer(TEST_MEM_SIZE, "Binder_parcel");
-    EXPECT_TRUE(memoryDealer != NULL);
-    
-    sp<IMemory> bnMem = memoryDealer->allocate(TEST_MEM_SIZE);
-    EXPECT_TRUE(bnMem != NULL);
-    
-    Parcel parcel;
-    EXPECT_EQ(NO_ERROR, parcel.writeStrongBinder(IInterface::asBinder(bnMem)));
-    
-    parcel.setDataPosition(0);
-    sp<IBinder> binder = parcel.readStrongBinder();
-    
-    sp<IMemory> mem = interface_cast<IMemory>(binder);
-    EXPECT_TRUE(mem != NULL);
-    EXPECT_TRUE(mem == bnMem);
-}
-    
-TEST(libbinder, Binder_service)
+TEST_F(ServiceTest, Binder_service)
 {
     service->waitForStarted();
     
@@ -338,7 +347,7 @@ TEST(libbinder, Binder_service)
     EXPECT_EQ(gBinderTestCounter, ret);
 }
 
-TEST(libbinder, Binder_memory)
+TEST_F(ServiceTest, Binder_memory)
 {
     service->waitForStarted();
     
@@ -355,7 +364,7 @@ TEST(libbinder, Binder_memory)
     EXPECT_STREQ(TEST_STRING, (char *)pBuf);
 }
 
-TEST(libbinder, Binder_token)
+TEST_F(ServiceTest, Binder_token)
 {
     service->waitForStarted();
 
@@ -383,7 +392,7 @@ TEST(libbinder, Binder_token)
     }
 }
 
-TEST(libbinder, Binder_death)
+TEST_F(ServiceTest, Binder_death)
 {
     service->waitForStarted();
     service->waitForStopped();

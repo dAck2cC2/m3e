@@ -10,11 +10,17 @@ namespace android {
 class ANDROID_API InitRC : public Singleton<InitRC>
 {
 public:
+    status_t Entry(int argc, char** argv);
+    void Run();
+    
+private:
+    friend Singleton;
+    
     InitRC();
     ~InitRC();
-private:
+    
     void ResetProperties();
-    void StartServices();
+    void StartService(int index);
 };
     
 }; // namespace android

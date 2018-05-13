@@ -1,4 +1,6 @@
 
+#include "shader_utils.h"
+
 #include <initrc.h>
 
 #include <ui/DisplayInfo.h>
@@ -14,10 +16,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-
 using namespace android;
-
-static InitRC&   gInitrc = InitRC::getInstance();
 
 class Animation : public Thread
 {
@@ -33,35 +32,69 @@ public:
         
     };
     
+    virtual bool initialize()
+    {
+        const std::string vs =
+        R"(attribute vec4 vPosition;
+        void main()
+        {
+            gl_Position = vPosition;
+        })";
+        
+        const std::string fs =
+        R"(precision mediump float;
+        void main()
+        {
+            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        })";
+        
+        mProgram = CompileProgram(vs, fs);
+        if (!mProgram)
+        {
+            return false;
+        }
+        
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        
+        return true;
+    }
+
+    
+    void draw()
+    {
+        GLfloat vertices[] =
+        {
+            0.0f,  0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+        };
+        
+        // Set the viewport
+        glViewport(0, 0, mWidth, mHeight);
+        
+        // Clear the color buffer
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // Use the program object
+        glUseProgram(mProgram);
+        
+        // Load the vertex data
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+        glEnableVertexAttribArray(0);
+        
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        
+        eglSwapBuffers(mDisplay, mSurface);
+
+    };
+    
 private:
     virtual bool        threadLoop()
     {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
         do {
-            GLfloat vertices[] =
-            {
-                0.0f,  0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
-            };
-            
-            // Set the viewport
-            glViewport(0, 0, mWidth, mHeight);
-            
-            // Clear the color buffer
-            glClear(GL_COLOR_BUFFER_BIT);
-            
-            // Use the program object
-            //glUseProgram(mProgram);
-            
-            // Load the vertex data
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-            glEnableVertexAttribArray(0);
-            
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-            
-            eglSwapBuffers(mDisplay, mSurface);
+            draw();
         } while (!exitPending());
         
         eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -130,6 +163,8 @@ private:
         mFlingerSurfaceControl = control;
         mFlingerSurface = s;
         
+        initialize();
+        
         return NO_ERROR;
     };
     
@@ -152,13 +187,17 @@ private:
     EGLDisplay  mSurface;
     sp<SurfaceControl> mFlingerSurfaceControl;
     sp<Surface> mFlingerSurface;
+    GLuint mProgram;
 };
+
 
 int main(int argc, char** argv)
 {
+    InitRC::getInstance().Entry(argc, argv);
+    
     sp<Animation> animation = new Animation();
     
-    while (1) ;
+    InitRC::getInstance().Run();
     
     return 0;
 }
