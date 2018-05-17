@@ -271,7 +271,7 @@ status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
     return NO_INIT;
 }
 
-void SurfaceFlinger::CreateWindow()
+void SurfaceFlinger::CreateNativeWindow()
 {
     if (mOSWindow == NULL) {
         mOSWindow = CreateOSWindow();
@@ -291,7 +291,7 @@ void SurfaceFlinger::CreateWindow()
     
 EGLDisplay SurfaceFlinger::initEGL()
 {
-    CreateWindow();
+	CreateNativeWindow();
     
     EGLDisplay display = EGL_NO_DISPLAY;
     
@@ -557,8 +557,8 @@ void SurfaceFlinger::run() {
                 break;
             }
             
-            waitForEvent();
-            IPCThreadState::self()->handlePolledCommands();
+            waitForEvent(1000/60);
+            //IPCThreadState::self()->handlePolledCommands();
             
             mOSWindow->messageLoop();
             
@@ -566,8 +566,8 @@ void SurfaceFlinger::run() {
     } // if (mOSWindow)
 }
     
-void SurfaceFlinger::waitForEvent() {
-    mEventQueue.waitMessage();
+void SurfaceFlinger::waitForEvent(int timeoutMillis) {
+    mEventQueue.waitMessage(timeoutMillis);
 }
 
 }; // namespace android

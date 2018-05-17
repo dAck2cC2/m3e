@@ -7,6 +7,7 @@
 
 #include <EGL/egl.h>
 
+#include <cutils/compiler.h>
 #include <utils/KeyedVector.h>
 #include <utils/RefBase.h>
 #include <utils/threads.h>
@@ -26,7 +27,7 @@ class RenderEngine;
 
 // ---------------------------------------------------------------------------
 
-class SurfaceFlinger : public BnSurfaceComposer
+class ANDROID_API SurfaceFlinger : public BnSurfaceComposer
 {
 public:
     static char const* getServiceName() {
@@ -107,16 +108,18 @@ private:
      */
     virtual void onFirstRef();
     
-    virtual void CreateWindow();
+    virtual void CreateNativeWindow();
     virtual EGLDisplay initEGL();
     
     virtual void onHotplugReceived(int disp, bool connected);
     
+public:
     /* ------------------------------------------------------------------------
      * Message handling
      */
-    void waitForEvent();
+    void waitForEvent(int timeoutMillis);
 
+private:
     /* ------------------------------------------------------------------------
      * Display and layer stack management
      */

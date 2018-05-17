@@ -66,9 +66,9 @@ void MessageQueue::init(const sp<SurfaceFlinger>& flinger)
 }
 
 
-void MessageQueue::waitMessage() {
+void MessageQueue::waitMessage(int timeoutMillis) {
     do {
-        int32_t ret = mLooper->pollOnce(-1);
+        int32_t ret = mLooper->pollOnce(timeoutMillis);
         switch (ret) {
             case Looper::POLL_WAKE:
             case Looper::POLL_CALLBACK:

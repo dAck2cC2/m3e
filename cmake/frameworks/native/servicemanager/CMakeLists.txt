@@ -8,7 +8,10 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
+if (MSVC)
+    add_definitions(-DANDROID_DLL)
+    add_definitions(-DANDROID_IMPLEMENTATION=1)
+endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/servicemanager )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/servicemanager )

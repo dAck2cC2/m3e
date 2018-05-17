@@ -4,6 +4,7 @@
 
 #include "Transform.h"
 
+#include <cutils/compiler.h>
 #include <utils/RefBase.h>
 #include <utils/String8.h>
 
@@ -15,7 +16,7 @@ namespace android {
 
 class SurfaceFlinger;
 
-class DisplayDevice : public LightRefBase<DisplayDevice>
+class ANDROID_API DisplayDevice : public LightRefBase<DisplayDevice>
 {
 public:
     enum DisplayType {

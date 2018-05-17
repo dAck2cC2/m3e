@@ -69,7 +69,7 @@ public:
     ~MessageQueue();
     void init(const sp<SurfaceFlinger>& flinger);
     
-    void waitMessage();
+    void waitMessage(int timeoutMillis);
     status_t postMessage(const sp<MessageBase>& message, nsecs_t reltime=0);
 };
 
