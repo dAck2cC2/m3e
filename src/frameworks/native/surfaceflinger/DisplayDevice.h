@@ -30,7 +30,7 @@ public:
     DisplayDevice(const sp<SurfaceFlinger>& flinger,
                   DisplayType type,
                   EGLConfig config,
-                  OSWindow* osWindow);
+		          EGLDisplay display);
 
     ~DisplayDevice();
 

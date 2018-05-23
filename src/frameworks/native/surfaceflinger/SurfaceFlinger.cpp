@@ -325,8 +325,8 @@ void SurfaceFlinger::init()
         Mutex::Autolock _l(mStateLock);
         
         // initialize EGL for the default display
+		mEGLDisplay = initEGL();
         //mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        mEGLDisplay = initEGL();
         eglInitialize(mEGLDisplay, NULL, NULL);
         
         // Get a RenderEngine for the given display / config (can't fail)
@@ -397,7 +397,7 @@ void SurfaceFlinger::onHotplugReceived(int32_t disp, bool connected) {
         sp<DisplayDevice> hw = new DisplayDevice(this,
                                                  DisplayDevice::DISPLAY_PRIMARY,
                                                  mRenderEngine->getEGLConfig(),
-                                                 mOSWindow);
+                                                 mEGLDisplay);
 
         mDisplays.add(token, hw);
     } else {
@@ -557,7 +557,7 @@ void SurfaceFlinger::run() {
                 break;
             }
             
-            waitForEvent(1000/60);
+            //waitForEvent(1000/60);
             //IPCThreadState::self()->handlePolledCommands();
             
             mOSWindow->messageLoop();

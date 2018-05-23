@@ -56,7 +56,7 @@ private:
     sp<SurfaceFlinger> mFlinger;
     
     // protected by mLock
-    DefaultKeyedVector< wp<IBinder>, wp<Layer> > mLayers;
+    DefaultKeyedVector< wp<IBinder>, sp<Layer> > mLayers;
     
     // thread-safe
     mutable Mutex mLock;

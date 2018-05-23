@@ -18,7 +18,7 @@ namespace android {
 
 		void Start() {
 			mService.waitForStarted();
-			//mMessage.waitForStarted();
+			mMessage.waitForStarted();
 		}
 
 	private:
@@ -78,7 +78,7 @@ namespace android {
 				mStartedCondition.broadcast();
 				mStartedMutex.unlock();
 
-				while (TRUE) {
+				while (true) {
 					mFlinger->waitForEvent(-1);
 				}
 
@@ -142,7 +142,7 @@ int open_surfaceflinger(const struct hw_module_t* module, const char* id,
         gSurfaceFlinger = new android::SurfaceFlinger();
         gSurfaceFlinger->init();
 
-#if 1      
+#if 0      
 		// publish surface flinger
 		android::sp<android::ProcessState> ps(android::ProcessState::self());
         android::sp<android::IServiceManager> sm(android::defaultServiceManager());

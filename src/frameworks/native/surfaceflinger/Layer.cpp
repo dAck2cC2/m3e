@@ -74,6 +74,10 @@ public:
     Handle(const sp<SurfaceFlinger>& flinger, const sp<Layer>& layer)
     : mFlinger(flinger), mOwner(layer) {};
     
+	~Handle() {
+
+	};
+
     virtual EGLNativeWindowType getNativeWindow()
     {
         EGLNativeWindowType win = 0;
@@ -102,7 +106,7 @@ sp<IBinder> Layer::getHandle() {
         mHandle = new Handle(mFlinger, this);
     }
     
-    return (mHandle);
+    return (IInterface::asBinder(mHandle));
 }
 
 // ---------------------------------------------------------------------------

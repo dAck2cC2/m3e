@@ -24,11 +24,12 @@ using namespace android;
 DisplayDevice::DisplayDevice(const sp<SurfaceFlinger>& flinger,
                              DisplayType type,
                              EGLConfig config,
-                             OSWindow* osWindow)
+							 EGLDisplay display)
 :   mFlinger(flinger),
     mType(type),
     mActiveConfig(0),
-    mOSWindow(osWindow),
+    mOSWindow(flinger->getOSWindow()),
+	mConfig(EGL_NO_CONFIG),
     mDisplay(EGL_NO_DISPLAY),
     mSurface(EGL_NO_SURFACE),
     mDisplayWidth(),
@@ -36,12 +37,14 @@ DisplayDevice::DisplayDevice(const sp<SurfaceFlinger>& flinger,
 {
     EGLNativeWindowType const window = mOSWindow->getNativeWindow();
     
-    EGLSurface eglSurface;
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    EGLSurface eglSurface = EGL_NO_SURFACE;
+	if (display == EGL_NO_DISPLAY) {
+		display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+	}
     if (config == EGL_NO_CONFIG) {
         config = RenderEngine::chooseEglConfig(display, PIXEL_FORMAT_RGBA_8888);
     }
-    eglSurface = eglCreateWindowSurface(display, config, window, NULL);
+    //eglSurface = eglCreateWindowSurface(display, config, window, NULL);
     eglQuerySurface(display, eglSurface, EGL_WIDTH,  &mDisplayWidth);
     eglQuerySurface(display, eglSurface, EGL_HEIGHT, &mDisplayHeight);
     
