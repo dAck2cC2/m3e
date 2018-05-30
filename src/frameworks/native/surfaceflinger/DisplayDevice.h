@@ -10,10 +10,9 @@
 
 #include <hardware/hwcomposer_defs.h>
 
-class OSWindow;
-
 namespace android {
 
+class NativeWindow;
 class SurfaceFlinger;
 
 class ANDROID_API DisplayDevice : public LightRefBase<DisplayDevice>
@@ -54,7 +53,7 @@ private:
     int mActiveConfig;
     
     // Window of operation system
-    OSWindow*       mOSWindow;
+	NativeWindow*   mNativeWindow;
     EGLConfig       mConfig;
     EGLDisplay      mDisplay;
     EGLSurface      mSurface;

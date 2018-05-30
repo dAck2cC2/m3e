@@ -36,5 +36,10 @@ ${SOURCE_PATH}/uncompr.c
 ${SOURCE_PATH}/zutil.c
 )
 
+if(MSVC)
+    include_directories(AFTER ${MSVC_PATH})
+    list(APPEND ZIPARCHIVE_HEADER_FILES ${MSVC_PATH}/unistd.h)
+endif()
+
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(zlib SHARED ${ZLIB_SOURCE_FILES} ${ZLIB_HEADER_FILES})

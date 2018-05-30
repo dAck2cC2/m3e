@@ -5,6 +5,7 @@ project(TEST_ANGLE)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/angle/include_util.cmake)
 
 if(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")

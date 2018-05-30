@@ -9,6 +9,7 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/angle/include_util.cmake)
 
 # dependency
 

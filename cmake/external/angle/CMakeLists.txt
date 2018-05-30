@@ -360,7 +360,8 @@ target_link_libraries(angle ${ANGLE_DEPLIB})
 # angle utils
 ###########################################################
 
-#include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/)
+include(${M3E_SOURCE_DIR}/cmake/external/angle/include_util.cmake)
+
 set(ANGLE_UTIL_DEPLIB
 angle 
 )

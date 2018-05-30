@@ -16,14 +16,13 @@
 #include "DisplayDevice.h"
 #include "MessageQueue.h"
 
-class OSWindow;
-
 namespace android {
 // ---------------------------------------------------------------------------
 
 class Client;
 class Layer;
 class RenderEngine;
+class NativeWindow;
 
 // ---------------------------------------------------------------------------
 
@@ -57,8 +56,8 @@ public:
         return *mRenderEngine;
     }
     
-    OSWindow* getOSWindow() const {
-        return mOSWindow;
+    NativeWindow* getNativeWindow() const {
+        return mNativeWindow;
     }
     
 private:
@@ -108,7 +107,7 @@ private:
      */
     virtual void onFirstRef();
     
-    virtual void CreateNativeWindow();
+    virtual void CreateEGLWindow();
     virtual EGLDisplay initEGL();
     
     virtual void onHotplugReceived(int disp, bool connected);
@@ -195,8 +194,8 @@ private:
     // these are thread safe
     mutable MessageQueue mEventQueue;
     
-    // OS window
-    OSWindow* mOSWindow;
+    // Native window
+    NativeWindow* mNativeWindow;
 };
 
 };  // namespace android

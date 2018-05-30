@@ -1,6 +1,5 @@
 
 #include <vector>
-#include <OSWindow.h>
 
 #include <cutils/properties.h>
 
@@ -15,6 +14,7 @@
 #include "SurfaceFlinger.h"
 
 #include "RenderEngine/RenderEngine.h"
+#include "NativeWindow/NativeWindow.h"
 
 namespace android {
 
@@ -22,7 +22,7 @@ SurfaceFlinger::SurfaceFlinger()
 :   BnSurfaceComposer(),
     mRenderEngine(NULL),
     mBuiltinDisplays(),
-    mOSWindow(NULL)
+    mNativeWindow(NULL)
 {
 
 }
@@ -271,31 +271,31 @@ status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
     return NO_INIT;
 }
 
-void SurfaceFlinger::CreateNativeWindow()
+void SurfaceFlinger::CreateEGLWindow()
 {
-    if (mOSWindow == NULL) {
-        mOSWindow = CreateOSWindow();
+    if (mNativeWindow == NULL) {
+		mNativeWindow = CreateNativeWindow();
     }
     
-    if (mOSWindow) {
+    if (mNativeWindow) {
         char name[PROPERTY_VALUE_MAX];
         property_get("native.display.name", name, "default");
         int32_t width  = property_get_int32("native.display.width",  400);
         int32_t height = property_get_int32("native.display.height", 300);
         
-        mOSWindow->initialize(name, width, height);
-        mOSWindow->setVisible(true);
+		mNativeWindow->initialize(name, width, height);
+		mNativeWindow->setVisible(true);
     }
 }
 
     
 EGLDisplay SurfaceFlinger::initEGL()
 {
-	CreateNativeWindow();
+	CreateEGLWindow();
     
     EGLDisplay display = EGL_NO_DISPLAY;
     
-    if (mOSWindow == NULL) {
+    if (mNativeWindow == NULL) {
         return display;
     }
     
@@ -310,7 +310,7 @@ EGLDisplay SurfaceFlinger::initEGL()
     displayAttributes.push_back(EGL_NONE);
     
     display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE,
-                                     reinterpret_cast<void *>(mOSWindow->getNativeDisplay()),
+                                     reinterpret_cast<void *>(mNativeWindow->getNativeDisplay()),
                                      &displayAttributes[0]);
     
     return display;
@@ -540,13 +540,13 @@ status_t SurfaceFlinger::postMessageSync(const sp<MessageBase>& msg,
 }
 
 void SurfaceFlinger::run() {
-    if (mOSWindow){
+    if (mNativeWindow){
         bool mRunning = true;
         
         while (mRunning) {
             // Clear events that the application did not process from this frame
             Event event;
-            while (mOSWindow->popEvent(&event)) {
+            while (mNativeWindow->popEvent(&event)) {
                 // If the application did not catch a close event, close now
                 if (event.Type == Event::EVENT_CLOSED) {
                     mRunning = false;
@@ -560,10 +560,10 @@ void SurfaceFlinger::run() {
             //waitForEvent(1000/60);
             //IPCThreadState::self()->handlePolledCommands();
             
-            mOSWindow->messageLoop();
+            mNativeWindow->messageLoop();
             
         } // while (mRunning)
-    } // if (mOSWindow)
+    } // if (mNativeWindow)
 }
     
 void SurfaceFlinger::waitForEvent(int timeoutMillis) {

@@ -22,7 +22,7 @@ if (ENABLE_WXWIDGETS)
 endif(ENABLE_WXWIDGETS)
 
 # angle for EGL and OpenGL
-if (ENABLE_ANGLE OR ENABLE_AV_UTILS)
+if (ENABLE_ANGLE)
     add_subdirectory(angle)
 endif()
 
@@ -48,6 +48,11 @@ if (ENABLE_CORE)
     #    add_subdirectory(wepoll)
     #endif ()
 endif(ENABLE_CORE)
+
+if (ENABLE_AV_UTILS)
+    add_subdirectory(angle)
+    add_subdirectory(zlib)
+endif()
 
 if(ENABLE_TEST)
     set(EXT_MODULES ${EXT_MODULES} gtest)

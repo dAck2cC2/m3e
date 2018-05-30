@@ -4,8 +4,6 @@
 #define LOG_TAG "Layer"
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 
-#include <OSWindow.h>
-
 #include <utils/RefBase.h>
 #include <binder/Binder.h>
 #include <gui/ISurfaceHandle.h>
@@ -15,6 +13,7 @@
 #include "Layer.h"
 #include "SurfaceFlinger.h"
 #include "RenderEngine/RenderEngine.h"
+#include "NativeWindow/NativeWindow.h"
 
 namespace android {
 
@@ -84,7 +83,7 @@ public:
         
         sp<SurfaceFlinger> flinger = mFlinger.promote();
         if (flinger != NULL) {
-            win = flinger->getOSWindow()->getNativeWindow();
+            win = flinger->getNativeWindow()->getNativeWindow();
         }
         
         return win;

@@ -3,8 +3,6 @@
 #undef LOG_TAG
 #define LOG_TAG "DisplayDevice"
 
-#include <OSWindow.h>
-
 #include <cutils/properties.h>
 
 #include <utils/RefBase.h>
@@ -12,6 +10,7 @@
 #include <gui/IGraphicBufferProducer.h>
 #include <private/gui/LayerState.h>
 
+#include "NativeWindow/NativeWindow.h"
 #include "RenderEngine/RenderEngine.h"
 
 #include "DisplayDevice.h"
@@ -28,14 +27,14 @@ DisplayDevice::DisplayDevice(const sp<SurfaceFlinger>& flinger,
 :   mFlinger(flinger),
     mType(type),
     mActiveConfig(0),
-    mOSWindow(flinger->getOSWindow()),
+    mNativeWindow(flinger->getNativeWindow()),
 	mConfig(EGL_NO_CONFIG),
     mDisplay(EGL_NO_DISPLAY),
     mSurface(EGL_NO_SURFACE),
     mDisplayWidth(),
     mDisplayHeight()
 {
-    EGLNativeWindowType const window = mOSWindow->getNativeWindow();
+    EGLNativeWindowType const window = mNativeWindow->getNativeWindow();
     
     EGLSurface eglSurface = EGL_NO_SURFACE;
 	if (display == EGL_NO_DISPLAY) {
@@ -72,10 +71,10 @@ DisplayDevice::DisplayDevice(const sp<SurfaceFlinger>& flinger,
 
 DisplayDevice::~DisplayDevice() 
 {
-    if (mOSWindow) {
-        mOSWindow->destroy();
-        delete mOSWindow;
-        mOSWindow = NULL;
+    if (mNativeWindow) {
+		mNativeWindow->destroy();
+        delete mNativeWindow;
+		mNativeWindow = NULL;
     }
 }
 
