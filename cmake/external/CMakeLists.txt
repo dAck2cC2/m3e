@@ -52,6 +52,7 @@ endif(ENABLE_CORE)
 if (ENABLE_AV_UTILS)
     add_subdirectory(angle)
     add_subdirectory(zlib)
+    #add_subdirectory(skia)
 endif()
 
 if(ENABLE_TEST)

@@ -37,6 +37,10 @@ static inline ssize_t pwrite64(int fd, const void* buf, size_t nbytes, off64_t o
     return pwrite(fd, buf, nbytes, offset);
 }
 
+#elif defined(_WIN32)
+
+#define lseek64 _lseeki64
+
 #endif /* __APPLE__ */
 
 #if defined(_WIN32)

@@ -20,6 +20,8 @@
 #ifndef LIBZIPARCHIVE_ZIPARCHIVE_H_
 #define LIBZIPARCHIVE_ZIPARCHIVE_H_
 
+#include <cutils/compiler.h>
+
 #include <stdint.h>
 #include <string.h>
 #include <sys/cdefs.h>
@@ -108,6 +110,7 @@ typedef void* ZipArchiveHandle;
  *
  * Returns 0 on success, and negative values on failure.
  */
+ANDROID_API
 int32_t OpenArchive(const char* fileName, ZipArchiveHandle* handle);
 
 /*
@@ -128,6 +131,7 @@ int32_t OpenArchive(const char* fileName, ZipArchiveHandle* handle);
  *
  * Returns 0 on success, and negative values on failure.
  */
+ANDROID_API
 int32_t OpenArchiveFd(const int fd, const char* debugFileName,
                       ZipArchiveHandle *handle, bool assume_ownership = true);
 
@@ -138,6 +142,7 @@ int32_t OpenArchiveFd(const int fd, const char* debugFileName,
  * this handle for any further operations without an intervening
  * call to one of the OpenArchive variants.
  */
+ANDROID_API
 void CloseArchive(ZipArchiveHandle handle);
 
 /*
@@ -156,6 +161,7 @@ void CloseArchive(ZipArchiveHandle handle);
  * On non-Windows platforms this method does not modify internal state and
  * can be called concurrently.
  */
+ANDROID_API
 int32_t FindEntry(const ZipArchiveHandle handle, const ZipString& entryName,
                   ZipEntry* data);
 
@@ -172,6 +178,7 @@ int32_t FindEntry(const ZipArchiveHandle handle, const ZipString& entryName,
  *
  * Returns 0 on success and negative values on failure.
  */
+ANDROID_API
 int32_t StartIteration(ZipArchiveHandle handle, void** cookie_ptr,
                        const ZipString* optional_prefix,
                        const ZipString* optional_suffix);
@@ -182,12 +189,14 @@ int32_t StartIteration(ZipArchiveHandle handle, void** cookie_ptr,
  * Returns 0 on success, -1 if there are no more elements in this
  * archive and lower negative values on failure.
  */
+ANDROID_API
 int32_t Next(void* cookie, ZipEntry* data, ZipString* name);
 
 /*
  * End iteration over all entries of a zip file and frees the memory allocated
  * in StartIteration.
  */
+ANDROID_API
 void EndIteration(void* cookie);
 
 /*
@@ -198,6 +207,7 @@ void EndIteration(void* cookie);
  *
  * Returns 0 on success and negative values on failure.
  */
+ANDROID_API
 int32_t ExtractEntryToFile(ZipArchiveHandle handle, ZipEntry* entry, int fd);
 
 /**
@@ -208,11 +218,14 @@ int32_t ExtractEntryToFile(ZipArchiveHandle handle, ZipEntry* entry, int fd);
  *
  * Returns 0 on success and negative values on failure.
  */
+ANDROID_API
 int32_t ExtractToMemory(ZipArchiveHandle handle, ZipEntry* entry,
                         uint8_t* begin, uint32_t size);
 
+ANDROID_API
 int GetFileDescriptor(const ZipArchiveHandle handle);
 
+ANDROID_API
 const char* ErrorCodeString(int32_t error_code);
 
 __END_DECLS

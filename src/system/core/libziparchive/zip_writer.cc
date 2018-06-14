@@ -20,7 +20,7 @@
 
 #include <utils/Log.h>
 
-#include <sys/param.h>
+//#include <sys/param.h>
 
 #include <cassert>
 #include <cstdio>
@@ -300,7 +300,11 @@ int32_t ZipWriter::CompressBytes(FileInfo* file, const void* data, size_t len) {
   assert(z_stream_->avail_out != 0);
 
   // Prepare the input.
+#if defined(_MSC_VER)
+  z_stream_->next_in = (z_const Bytef*)(data);
+#else  // _MSC_VER
   z_stream_->next_in = reinterpret_cast<const uint8_t*>(data);
+#endif // _MSC_VER
   z_stream_->avail_in = len;
 
   while (z_stream_->avail_in > 0) {

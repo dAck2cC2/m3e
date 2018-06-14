@@ -57,4 +57,9 @@ typedef unsigned __int16  uint16_t;
 typedef unsigned __int32  uint32_t;
 typedef unsigned __int64  uint64_t;
 
+
+#ifndef TEMP_FAILURE_RETRY
+#define TEMP_FAILURE_RETRY(exp)  exp
+#endif // TEMP_FAILURE_RETRY
+
 #endif /* unistd.h  */

@@ -8,3 +8,4 @@ if(ENABLE_HARDWARE)
 endif(ENABLE_HARDWARE)
 
 add_subdirectory(av)
+add_subdirectory(base)

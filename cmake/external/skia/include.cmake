@@ -14,3 +14,6 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/gpu)
 # additonal
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/views)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/utils)
+
+#extend
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/skia/include)
