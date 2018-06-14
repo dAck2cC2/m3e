@@ -225,7 +225,11 @@ class ErrnoRestorer {
 #if defined(NDEBUG)
 static constexpr bool kEnableDChecks = false;
 #else
+#if defined(__APPLE__)
+static bool kEnableDChecks = true;
+#else  // __APPLE__
 static constexpr bool kEnableDChecks = true;
+#endif // __APPLE__
 #endif
 
 #define DCHECK(x) \

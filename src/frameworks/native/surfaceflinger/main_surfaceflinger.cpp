@@ -79,7 +79,7 @@ namespace android {
 				mStartedMutex.unlock();
 
 				while (true) {
-					mFlinger->waitForEvent(-1);
+					mFlinger->waitForEvent(0);
 				}
 
 				return false;
@@ -142,7 +142,7 @@ int open_surfaceflinger(const struct hw_module_t* module, const char* id,
         gSurfaceFlinger = new android::SurfaceFlinger();
         gSurfaceFlinger->init();
 
-#if 0      
+#if 0     
 		// publish surface flinger
 		android::sp<android::ProcessState> ps(android::ProcessState::self());
         android::sp<android::IServiceManager> sm(android::defaultServiceManager());

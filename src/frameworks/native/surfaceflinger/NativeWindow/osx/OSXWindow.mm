@@ -1,18 +1,11 @@
-//
-// Copyright (c) 2015 The ANGLE Project Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-//
 
-// OSXWindow.mm: Implementation of OSWindow for OSX
-
-#include "osx/OSXWindow.h"
+#include "NativeWindow/osx/OSXWindow.h"
 
 #include <set>
 // Include Carbon to use the keycode names in Carbon's Event.h
 #include <Carbon/Carbon.h>
 
-#include "common/debug.h"
+//#include "common/debug.h"
 
 // On OSX 10.12 a number of AppKit interfaces have been renamed for consistency, and the previous
 // symbols tagged as deprecated. However we can't simply use the new symbols as it would break
@@ -20,7 +13,6 @@
 // warnings.
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-namespace android {
 
 // Some events such as "ShouldTerminate" are sent to the whole application so we keep a list of
 // all the windows in order to forward the event to each of them. However this and calling pushEvent
@@ -521,6 +513,7 @@ static MouseButton TranslateMouseButton(int button)
     }
 @end
 
+    
 OSXWindow::OSXWindow()
     : mWindow(nil),
       mDelegate(nil),
@@ -693,9 +686,8 @@ NSWindow* OSXWindow::getNSWindow() const
     return mWindow;
 }
 
-NativeWindow *CreateNativeWindow()
+android::NativeWindow *android::CreateNativeWindow()
 {
     return new OSXWindow;
 }
 
-} /* namespace android */

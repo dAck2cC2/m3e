@@ -6,8 +6,6 @@
 
 #include "NativeWindow/NativeWindow.h"
 
-namespace android {
-
 class OSXWindow;
 
 @interface WindowDelegate : NSObject
@@ -25,8 +23,8 @@ class OSXWindow;
 }
 - (id) initWithWindow: (OSXWindow*) window;
 @end
-
-class OSXWindow : public OSWindow
+    
+class OSXWindow : public android::NativeWindow
 {
   public:
     OSXWindow();
@@ -55,6 +53,5 @@ class OSXWindow : public OSWindow
     ContentView *mView;
 };
 
-} /* namespace android */
 
 #endif // SF_NATIVE_OSX_WINDOW_H_

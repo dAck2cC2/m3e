@@ -9,7 +9,7 @@ if(ENABLE_SKIA)
     add_subdirectory(skia)
 endif(ENABLE_SKIA)
 
-if(ENABLE_ANGLE OR ENABLE_AV_UTILS)
+if(ENABLE_ANGLE)
     add_subdirectory(angle)
 endif()
 

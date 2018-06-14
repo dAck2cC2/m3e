@@ -165,7 +165,9 @@ static auto& logging_lock = *new mutex();
 #ifdef __ANDROID__
 static auto& gLogger = *new LogFunction(LogdLogger());
 #else
+#if !defined(__APPLE__)
 static auto& gLogger = *new LogFunction(StderrLogger);
+#endif // __APPLE__
 #endif
 
 static bool gInitialized = false;
@@ -233,7 +235,9 @@ void LogdLogger::operator()(LogId id, LogSeverity severity, const char* tag,
 #endif
 
 void InitLogging(char* argv[], LogFunction&& logger) {
+#if !defined(__APPLE__)
   SetLogger(std::forward<LogFunction>(logger));
+#endif // __APPLE__
   InitLogging(argv);
 }
 
@@ -294,7 +298,9 @@ void InitLogging(char* argv[]) {
 
 void SetLogger(LogFunction&& logger) {
   lock_guard<mutex> lock(logging_lock);
+#if !defined(__APPLE__)
   gLogger = std::move(logger);
+#endif // __APPLE__
 }
 
 static const char* GetFileBasename(const char* file) {
@@ -412,7 +418,9 @@ std::ostream& LogMessage::stream() {
 void LogMessage::LogLine(const char* file, unsigned int line, LogId id,
                          LogSeverity severity, const char* message) {
   const char* tag = ProgramInvocationName();
+#if !defined(__APPLE__)
   gLogger(id, severity, tag, file, line, message);
+#endif // __APPLE__
 }
 
 ScopedLogSeverity::ScopedLogSeverity(LogSeverity level) {
