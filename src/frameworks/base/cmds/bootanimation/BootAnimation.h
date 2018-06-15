@@ -141,7 +141,9 @@ private:
     bool        mSystemBoot;
     String8     mZipFileName;
     SortedVector<String8> mLoadedFiles;
+#if ENABLE_TIME_CHECK
     sp<TimeCheckThread> mTimeCheckThread;
+#endif // ENABLE_TIME_CHECK
 };
 
 // ---------------------------------------------------------------------------

@@ -39,16 +39,6 @@ OPTION( SKIA_ENABLE_VIEWS
   ON
 )
 
-OPTION( SKIA_ENABLE_SHARDER
-  "Set to ON to enable shader."
-  ON
-)
-
-OPTION( SKIA_ENABLE_JUMPER
-  "Set to ON to enable jumper."
-  ON
-)
-
 if (MSVC)
 	add_definitions(-DSKIA_IMPLEMENTATION)
 endif (MSVC)
@@ -81,6 +71,7 @@ include_directories(AFTER ${SOURCE_PATH}/sfnt)
 # core ###############################################
 file(GLOB CORE_HEADER ${HEADER_PATH}/core/*.h)
 file(GLOB CORE_SOURCE ${SOURCE_PATH}/core/*.*)
+source_group(core FILES ${CORE_HEADER} ${CORE_SOURCE})
 
 # port ###############################################
 file(GLOB PORTS_HEADER ${SOURCE_PATH}/ports/*.h)
@@ -135,36 +126,36 @@ ${SOURCE_PATH}/ports/SkImageGenerator_none.cpp
 #${SOURCE_PATH}/ports/SkImageGenerator_skia.cpp
 )
 
-# shaders ###############################################
-if(SKIA_ENABLE_SHARDER)
-    file(GLOB SHADERS_HEADER ${SOURCE_PATH}/shaders/*.h)
-    set(SHADERS_SOURCE 
-    ${SOURCE_PATH}/shaders/SkImageShader.cpp
-    ${SOURCE_PATH}/shaders/SkShader.cpp
-    ${SOURCE_PATH}/shaders/SkColorShader.cpp
-    ${SOURCE_PATH}/shaders/SkComposeShader.cpp
-    ${SOURCE_PATH}/shaders/SkColorFilterShader.cpp
-    ${SOURCE_PATH}/shaders/SkPictureShader.cpp
-    ${SOURCE_PATH}/shaders/SkBitmapProcShader.cpp
-    ${SOURCE_PATH}/shaders/SkLocalMatrixShader.cpp
-    ${SOURCE_PATH}/shaders/gradients/SkGradientShader.cpp
-    ${SOURCE_PATH}/shaders/gradients/SkTwoPointConicalGradient.cpp
-    ${SOURCE_PATH}/shaders/gradients/SkSweepGradient.cpp
-    ${SOURCE_PATH}/shaders/gradients/SkRadialGradient.cpp
-    ${SOURCE_PATH}/shaders/gradients/SkGradientBitmapCache.cpp
-    ${SOURCE_PATH}/shaders/gradients/SkLinearGradient.cpp
-    ${SOURCE_PATH}/shaders/gradients/Sk4fLinearGradient.cpp
-    ${SOURCE_PATH}/shaders/gradients/Sk4fGradientBase.cpp
-    )
+source_group(ports FILES ${PORTS_HEADER} ${PORTS_SOURCE})
 
-    if (SKIA_ENABLE_GPU_GL)
-        set(SHADERS_SOURCE ${SHADERS_SOURCE}
-        ${SOURCE_PATH}/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp
-        )
-    endif (SKIA_ENABLE_GPU_GL)
-else(SKIA_ENABLE_SHARDER)
-    set(SHADERS_SOURCE )
-endif(SKIA_ENABLE_SHARDER)
+# shaders ###############################################
+file(GLOB SHADERS_HEADER ${SOURCE_PATH}/shaders/*.h)
+set(SHADERS_SOURCE 
+${SOURCE_PATH}/shaders/SkImageShader.cpp
+${SOURCE_PATH}/shaders/SkShader.cpp
+${SOURCE_PATH}/shaders/SkColorShader.cpp
+${SOURCE_PATH}/shaders/SkComposeShader.cpp
+${SOURCE_PATH}/shaders/SkColorFilterShader.cpp
+${SOURCE_PATH}/shaders/SkPictureShader.cpp
+${SOURCE_PATH}/shaders/SkBitmapProcShader.cpp
+${SOURCE_PATH}/shaders/SkLocalMatrixShader.cpp
+${SOURCE_PATH}/shaders/gradients/SkGradientShader.cpp
+${SOURCE_PATH}/shaders/gradients/SkTwoPointConicalGradient.cpp
+${SOURCE_PATH}/shaders/gradients/SkSweepGradient.cpp
+${SOURCE_PATH}/shaders/gradients/SkRadialGradient.cpp
+${SOURCE_PATH}/shaders/gradients/SkGradientBitmapCache.cpp
+${SOURCE_PATH}/shaders/gradients/SkLinearGradient.cpp
+${SOURCE_PATH}/shaders/gradients/Sk4fLinearGradient.cpp
+${SOURCE_PATH}/shaders/gradients/Sk4fGradientBase.cpp
+)
+
+if (SKIA_ENABLE_GPU_GL)
+    set(SHADERS_SOURCE ${SHADERS_SOURCE}
+    ${SOURCE_PATH}/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp
+    )
+endif (SKIA_ENABLE_GPU_GL)
+
+source_group(shaders FILES ${SHADERS_HEADER} ${SHADERS_SOURCE})
 
 # utils ###############################################
 file(GLOB UTILS_HEADER ${SOURCE_PATH}/utils/*.h)
@@ -198,6 +189,8 @@ if (SKIA_ENABLE_GPU_GL)
     )
 endif (SKIA_ENABLE_GPU_GL)
 
+source_group(utils FILES ${UTILS_HEADER} ${UTILS_SOURCE})
+
 # image ###############################################
 file(GLOB IMAGE_HEADER ${SOURCE_PATH}/image/*.h)
 set(IMAGE_SOURCE 
@@ -215,11 +208,15 @@ if (SKIA_ENABLE_GPU_GL)
     )
 endif (SKIA_ENABLE_GPU_GL)
 
+source_group(image FILES ${IMAGE_HEADER} ${IMAGE_SOURCE})
+
 # images ###############################################
 file(GLOB IMAGES_HEADER ${SOURCE_PATH}/images/*.h)
 set(IMAGES_SOURCE 
 ${SOURCE_PATH}/images/SkImageEncoder.cpp
 ) 
+
+source_group(images FILES ${IMAGES_HEADER} ${IMAGES_SOURCE})
 
 # pathops ###############################################
 file(GLOB PATHOPS_HEADER ${SOURCE_PATH}/pathops/*.h)
@@ -260,6 +257,8 @@ if (SKIA_ENABLE_GPU_GL)
     )
 endif (SKIA_ENABLE_GPU_GL)
 
+source_group(pathops FILES ${PATHOPS_HEADER} ${PATHOPS_SOURCE})
+
 # opts ###############################################
 file(GLOB OPTS_HEADER ${SOURCE_PATH}/opts/*.h)
 set(OPTS_SOURCE 
@@ -272,18 +271,17 @@ ${SOURCE_PATH}/opts/SkOpts_sse42.cpp
 ${SOURCE_PATH}/opts/SkOpts_avx.cpp
 )
 
+source_group(opts FILES ${OPTS_HEADER} ${OPTS_SOURCE})
+
 # jumper ###############################################
-if(SKIA_ENABLE_JUMPER)
-    add_definitions(-DSK_JUMPER_USE_ASSEMBLY=0)
-    file(GLOB JUMPER_HEADER ${SOURCE_PATH}/jumper/*.h)
-    set(JUMPER_SOURCE 
-    ${SOURCE_PATH}/jumper/SkJumper.cpp
-    ${SOURCE_PATH}/jumper/SkJumper_stages.cpp
-    )
-else(SKIA_ENABLE_JUMPER)
-    set(JUMPER_HEADER )
-    set(JUMPER_SOURCE )
-endif(SKIA_ENABLE_JUMPER)
+add_definitions(-DSK_JUMPER_USE_ASSEMBLY=0)
+file(GLOB JUMPER_HEADER ${SOURCE_PATH}/jumper/*.h)
+set(JUMPER_SOURCE 
+${SOURCE_PATH}/jumper/SkJumper.cpp
+${SOURCE_PATH}/jumper/SkJumper_stages.cpp
+)
+
+source_group(opts FILES ${JUMPER_HEADER} ${JUMPER_SOURCE})
 
 # fonts ###############################################
 file(GLOB FONTS_HEADER ${SOURCE_PATH}/fonts/*.h)
@@ -291,10 +289,14 @@ set(FONTS_SOURCE
 ${SOURCE_PATH}/fonts/SkFontMgr_indirect.cpp 
 )
 
+source_group(fonts FILES ${FONTS_HEADER} ${FONTS_SOURCE})
+
 # sfnt ###############################################
 file(GLOB SFNT_HEADER ${SOURCE_PATH}/sfnt/*.h)
 file(GLOB SFNT_SOURCE ${SOURCE_PATH}/sfnt/*.cpp)
 #set(SFNT_SOURCE ${SOURCE_PATH}/sfnt/SkOTUtils.cpp ${SOURCE_PATH}/sfnt/SkOTTable_name.cpp)
+
+source_group(sfnt FILES ${SFNT_HEADER} ${SFNT_SOURCE})
 
 # gpu ###############################################
 if (SKIA_ENABLE_GPU_GL)
@@ -356,6 +358,8 @@ else (SKIA_ENABLE_GPU_GL)
     set(GPU_SOURCE )
 endif (SKIA_ENABLE_GPU_GL)
 
+source_group(gpu FILES ${GPU_HEADER} ${GPU_SOURCE})
+
 # sksl ###############################################
 if (SKIA_ENABLE_SKSL)
     file(GLOB SKSL_HEADER ${SOURCE_PATH}/sksl/*.h)
@@ -369,6 +373,8 @@ else (SKIA_ENABLE_SKSL)
     set(SKSL_SOURCE )
 endif (SKIA_ENABLE_SKSL)
 
+source_group(sksl FILES ${SKSL_HEADER} ${SKSL_SOURCE})
+
 # effects ###############################################
 if (SKIA_ENABLE_EFFECTS)
     file(GLOB EFFECTS_HEADER ${HEADER_PATH}/effects/*.h)
@@ -377,6 +383,8 @@ else (SKIA_ENABLE_EFFECTS)
     set(EFFECTS_HEADER )
     set(EFFECTS_SOURCE )
 endif (SKIA_ENABLE_EFFECTS)
+
+source_group(effects FILES ${EFFECTS_HEADER} ${EFFECTS_SOURCE})
 
 # views ###############################################
 if (SKIA_ENABLE_VIEWS)
@@ -387,6 +395,8 @@ else (SKIA_ENABLE_VIEWS)
     set(VIEWS_HEADER )
     set(VIEWS_SOURCE )
 endif (SKIA_ENABLE_VIEWS)
+
+source_group(views FILES ${VIEWS_HEADER} ${VIEWS_SOURCE})
 
 # build library of skia ###############################################
 set(SKIA_HEADER_FILES

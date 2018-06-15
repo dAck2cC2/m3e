@@ -24,4 +24,11 @@ extern "C"
 #endif
 void usleep(DWORD waitTime);
 
+#ifdef __cplusplus
+extern "C"
+#endif
+int clock_nanosleep(int clock_id, int flags,
+	const struct timespec *request,
+	struct timespec *remain);
+
 #endif // _MSC_TIME_H_ ]

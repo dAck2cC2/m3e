@@ -38,6 +38,19 @@ set( BOOTANIMATION_SOURCE_FILES
 ${SOURCE_PATH}/BootAnimation.cpp
 )
 
+if(MSVC)
+    #add_definitions(-DNOMINMAX=1)
+    add_definitions(-Dstrcasecmp=strcmp)
+
+    include_directories(AFTER ${MSVC_PATH})
+
+    list(APPEND BOOTANIMATION_HEADER_FILES
+    ${MSVC_PATH}/sys/time.h
+    )
+    list(APPEND BOOTANIMATION_SOURCE_FILES
+    ${MSVC_PATH}/sys/time.c
+    )    
+endif(MSVC)
 
 set(LIB_NAME bootanimation_default)
 

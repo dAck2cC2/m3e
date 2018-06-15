@@ -18,6 +18,7 @@
 
 class SkStream;
 class SkStreamRewindable;
+class SkColorTable;
 
 /** \class SkImageDecoder
 

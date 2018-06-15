@@ -51,3 +51,11 @@ void usleep(DWORD waitTime)
 	WaitForSingleObject(timer, INFINITE);
 	CloseHandle(timer);
 }
+
+int clock_nanosleep(int clock_id, int flags,
+	const struct timespec *request,
+	struct timespec *remain)
+{
+
+	return 0;
+}

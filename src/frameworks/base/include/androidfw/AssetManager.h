@@ -20,6 +20,8 @@
 #ifndef __LIBS_ASSETMANAGER_H
 #define __LIBS_ASSETMANAGER_H
 
+#include <cutils/compiler.h>
+
 #include <androidfw/Asset.h>
 #include <androidfw/AssetDir.h>
 #include <androidfw/ZipFileRO.h>
@@ -67,7 +69,7 @@ struct ResTable_config;
  * The asset hierarchy may be examined like a filesystem, using
  * AssetDir objects to peruse a single directory.
  */
-class AssetManager : public AAssetManager {
+class ANDROID_API AssetManager : public AAssetManager {
 public:
     static const char* RESOURCES_FILENAME;
     static const char* IDMAP_BIN;

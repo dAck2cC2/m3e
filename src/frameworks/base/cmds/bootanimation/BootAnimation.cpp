@@ -18,8 +18,15 @@
 #define LOG_TAG "BootAnimation"
 
 #include <stdint.h>
-//#include <sys/inotify.h>
-//#include <sys/poll.h>
+#if defined(_MSC_VER)
+#include <winsock2.h>
+#include <windows.h>
+#include <dirent.h>
+#include <time.h>
+#else  // _MSC_VER
+#include <sys/inotify.h>
+#include <sys/poll.h>
+#endif // _MSC_VER
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <math.h>
@@ -29,6 +36,7 @@
 #include <time.h>
 
 #include <cutils/properties.h>
+#include <cutils/bitops.h>
 
 #include <androidfw/AssetManager.h>
 #include <binder/IPCThreadState.h>
@@ -55,11 +63,13 @@
 
 #include <GLES/gl.h>
 #include <GLES/glext.h>
+#include <EGL/egl.h>
 #include <EGL/eglext.h>
 
 #include "BootAnimation.h"
+#if ENABLE_AUDIOPLAY
 #include "audioplay.h"
-
+#endif // ENABLE_AUDIOPLAY
 namespace android {
 
 static const char OEM_BOOTANIMATION_FILE[] = "/oem/media/bootanimation.zip";
@@ -88,8 +98,11 @@ static const std::vector<std::string> PLAY_SOUND_BOOTREASON_BLACKLIST {
 
 // ---------------------------------------------------------------------------
 
-BootAnimation::BootAnimation() : Thread(false), mClockEnabled(true), mTimeIsAccurate(false),
-        mTimeCheckThread(NULL) {
+BootAnimation::BootAnimation() : Thread(false), mClockEnabled(true), mTimeIsAccurate(false)
+#if ENABLE_TIME_CHECK
+,mTimeCheckThread(NULL) 
+#endif // ENABLE_TIME_CHECK
+{
     mSession = new SurfaceComposerClient();
 
     // If the system has already booted, the animation is not being used for a boot.
@@ -118,9 +131,11 @@ void BootAnimation::binderDied(const wp<IBinder>&)
 
     // calling requestExit() is not enough here because the Surface code
     // might be blocked on a condition variable that will never be updated.
-    kill( getpid(), SIGKILL );
+    //kill( getpid(), SIGKILL );
     requestExit();
+#if ENABLE_AUDIOPLAY
     audioplay::destroy();
+#endif // ENABLE_AUDIOPLAY
 }
 
 status_t BootAnimation::initTexture(Texture* texture, AssetManager& assets,
@@ -136,7 +151,7 @@ status_t BootAnimation::initTexture(Texture* texture, AssetManager& assets,
 
     // ensure we can call getPixels(). No need to call unlock, since the
     // bitmap will go out of scope when we return from this method.
-    bitmap.lockPixels();
+    //bitmap.lockPixels();
 
     const int w = bitmap.width();
     const int h = bitmap.height();
@@ -200,7 +215,7 @@ status_t BootAnimation::initTexture(const Animation::Frame& frame)
 
     // ensure we can call getPixels(). No need to call unlock, since the
     // bitmap will go out of scope when we return from this method.
-    bitmap.lockPixels();
+   // bitmap.lockPixels();
 
     const int w = bitmap.width();
     const int h = bitmap.height();
@@ -283,7 +298,7 @@ status_t BootAnimation::readyToRun() {
 
     eglInitialize(display, 0, 0);
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-    surface = eglCreateWindowSurface(display, config, s.get(), NULL);
+    //surface = eglCreateWindowSurface(display, config, s.get(), NULL);
     context = eglCreateContext(display, config, NULL, NULL);
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
@@ -676,7 +691,7 @@ bool BootAnimation::preloadZip(Animation& animation)
             }
         }
     }
-
+#if ENABLE_AUDIOPLAY
     // Create and initialize audioplay if there is a wav file in any of the animations.
     if (partWithAudio != NULL) {
         ALOGD("found audio.wav, creating playback engine");
@@ -684,7 +699,7 @@ bool BootAnimation::preloadZip(Animation& animation)
             return false;
         }
     }
-
+#endif // ENABLE_AUDIOPLAY
     zip->endIteration(cookie);
 
     return true;
@@ -741,19 +756,19 @@ bool BootAnimation::movie()
         clockTextureInitialized = (initTexture(&mClock, mAssets, "images/clock64.png") == NO_ERROR);
         mClockEnabled = clockTextureInitialized;
     }
-
+#if ENABLE_TIME_CHECK
     if (mClockEnabled && !updateIsTimeAccurate()) {
         mTimeCheckThread = new TimeCheckThread(this);
         mTimeCheckThread->run("BootAnimation::TimeCheckThread", PRIORITY_NORMAL);
     }
-
+#endif // ENABLE_TIME_CHECK
     playAnimation(*animation);
-
+#if ENABLE_TIME_CHECK
     if (mTimeCheckThread != NULL) {
         mTimeCheckThread->requestExit();
         mTimeCheckThread = NULL;
     }
-
+#endif // ENABLE_TIME_CHECK
     releaseAnimation(animation);
 
     if (clockTextureInitialized) {
@@ -787,13 +802,13 @@ bool BootAnimation::playAnimation(const Animation& animation)
             // Exit any non playuntil complete parts immediately
             if(exitPending() && !part.playUntilComplete)
                 break;
-
+#if ENABLE_AUDIOPLAY
             // only play audio file the first time we animate the part
             if (r == 0 && part.audioData && playSoundsAllowed()) {
                 ALOGD("playing clip for part%d, size=%d", (int) i, part.audioLength);
                 audioplay::playClip(part.audioData, part.audioLength);
             }
-
+#endif // ENABLE_AUDIOPLAY
             glClearColor(
                     part.backgroundColor[0],
                     part.backgroundColor[1],
@@ -850,9 +865,9 @@ bool BootAnimation::playAnimation(const Animation& animation)
                     struct timespec spec;
                     spec.tv_sec  = (now + delay) / 1000000000;
                     spec.tv_nsec = (now + delay) % 1000000000;
-                    int err;
+                    int err = 0;
                     do {
-                        err = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &spec, NULL);
+                        //err = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &spec, NULL);
                     } while (err<0 && errno == EINTR);
                 }
 
@@ -878,11 +893,11 @@ bool BootAnimation::playAnimation(const Animation& animation)
             }
         }
     }
-
+#if ENABLE_AUDIOPLAY
     // we've finally played everything we're going to play
     audioplay::setPlaying(false);
     audioplay::destroy();
-
+#endif // ENABLE_AUDIOPLAY
     return true;
 }
 
@@ -972,7 +987,15 @@ bool BootAnimation::updateIsTimeAccurate() {
       fclose(file);
       if (lastChangedTime > 0) {
         struct timespec now;
-        clock_gettime(CLOCK_REALTIME, &now);
+#if defined(__linux__)
+		clock_gettime(CLOCK_REALTIME, &now);
+#else // __APPLE__
+		// Apple doesn't support POSIX clocks.
+		struct timeval t;
+		gettimeofday(&t, NULL);
+		now.tv_sec = t.tv_sec;
+		now.tv_nsec = t.tv_usec * 1000;
+#endif
         // Match the Java timestamp format
         long long rtcNow = (now.tv_sec * 1000LL) + (now.tv_nsec / 1000000LL);
         if (ACCURATE_TIME_EPOCH < rtcNow
@@ -985,7 +1008,7 @@ bool BootAnimation::updateIsTimeAccurate() {
 
     return mTimeIsAccurate;
 }
-
+#if ENABLE_TIME_CHECK
 BootAnimation::TimeCheckThread::TimeCheckThread(BootAnimation* bootAnimation) : Thread(false),
     mInotifyFd(-1), mSystemWd(-1), mTimeWd(-1), mBootAnimation(bootAnimation) {}
 
@@ -1076,7 +1099,7 @@ status_t BootAnimation::TimeCheckThread::readyToRun() {
 
     return NO_ERROR;
 }
-
+#endif // ENABLE_TIME_CHECK
 // ---------------------------------------------------------------------------
 
 }
