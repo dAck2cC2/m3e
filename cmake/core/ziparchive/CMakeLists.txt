@@ -33,6 +33,8 @@ ${SOURCE_PATH}/zip_writer.cc
 if(MSVC)
     include_directories(AFTER ${MSVC_PATH})
     list(APPEND ZIPARCHIVE_HEADER_FILES ${MSVC_PATH}/unistd.h)
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
 endif()
 
 # target files

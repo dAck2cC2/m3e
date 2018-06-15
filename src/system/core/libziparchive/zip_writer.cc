@@ -300,7 +300,7 @@ int32_t ZipWriter::CompressBytes(FileInfo* file, const void* data, size_t len) {
   assert(z_stream_->avail_out != 0);
 
   // Prepare the input.
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__APPLE__)
   z_stream_->next_in = (z_const Bytef*)(data);
 #else  // _MSC_VER
   z_stream_->next_in = reinterpret_cast<const uint8_t*>(data);

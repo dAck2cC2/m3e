@@ -808,7 +808,7 @@ class FileWriter : public Writer {
     const off64_t current_offset = lseek64(fd, 0, SEEK_CUR);
     if (current_offset == -1) {
       ALOGW("Zip: unable to seek to current location on fd %d: %s", fd, strerror(errno));
-      return nullptr;
+      return std::unique_ptr<FileWriter>(nullptr);
     }
 
     int result = 0;
@@ -1053,7 +1053,7 @@ int32_t ExtractToMemory(ZipArchiveHandle handle, ZipEntry* entry,
 
 int32_t ExtractEntryToFile(ZipArchiveHandle handle,
                            ZipEntry* entry, int fd) {
-  std::unique_ptr<Writer> writer(FileWriter::Create(fd, entry));
+  std::unique_ptr<FileWriter> writer(FileWriter::Create(fd, entry));
   if (writer.get() == nullptr) {
     return kIoError;
   }

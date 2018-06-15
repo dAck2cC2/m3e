@@ -33,7 +33,11 @@
 
 #include "zip_archive_private.h"
 
+#if defined(__APPLE__)
+static size_t kBufSize = 65535;
+#else  // __APPLE__
 static constexpr size_t kBufSize = 65535;
+#endif // __APPLE__
 
 bool ZipArchiveStreamEntry::Init(const ZipEntry& entry) {
   ZipArchive* archive = reinterpret_cast<ZipArchive*>(handle_);
