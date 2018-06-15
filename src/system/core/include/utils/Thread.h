@@ -44,9 +44,9 @@ public:
     // Create a Thread object, but doesn't create or start the associated
     // thread. See the run() method.
     explicit Thread(bool canCallJava = true
-#ifdef ENABLE_CUSTOMISE
+#ifdef ENABLE_AFFINITY
                               , int32_t iAffinity = 0x00000000
-#endif // ENABLE_CUSTOMISE
+#endif // ENABLE_AFFINITY
           );
     virtual             ~Thread();
 
@@ -113,9 +113,9 @@ private:
             pid_t           mTid;
 #endif
 
-#ifdef ENABLE_CUSTOMISE
+#ifdef ENABLE_AFFINITY
     int32_t         mAffinity;
-#endif // ENABLE_CUSTOMISE
+#endif // ENABLE_AFFINITY
 };
 
 

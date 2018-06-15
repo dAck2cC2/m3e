@@ -32,6 +32,7 @@ ${SOURCE_PATH}/sys/*.cpp
 
 # header and source code for MSVC
 if(MSVC)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${MSVC_PATH}/stdint.h)
     set(CUTILS_SOURCE_FILES ${CUTILS_SOURCE_FILES} ${MSVC_PATH}/ffs.c)
     #set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${MSVC_PATH}/sys/time.h)

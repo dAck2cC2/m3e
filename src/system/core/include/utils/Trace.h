@@ -61,8 +61,27 @@ private:
 
 #else // !__ANDROID__
 
+#include <cutils/trace.h>
+
 #define ATRACE_NAME(...)
 #define ATRACE_CALL()
+
+namespace android {
+
+	class ScopedTrace {
+	public:
+		inline ScopedTrace(uint64_t tag, const char* name)
+			: mTag(tag) {
+		}
+
+		inline ~ScopedTrace() {
+		}
+
+	private:
+		uint64_t mTag;
+	};
+
+}; // namespace android
 
 #endif // __ANDROID__
 

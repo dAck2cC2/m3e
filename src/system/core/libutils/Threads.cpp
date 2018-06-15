@@ -719,9 +719,9 @@ void Condition::broadcast()
  */
 
 Thread::Thread(bool canCallJava
-#ifdef ENABLE_CUSTOMISE
+#ifdef ENABLE_AFFINITY
                , int32_t iAffinity
-#endif // ENABLE_CUSTOMISE
+#endif // ENABLE_AFFINITY
               )
     :   mCanCallJava(canCallJava),
         mThread(thread_id_t(-1)),
@@ -731,9 +731,9 @@ Thread::Thread(bool canCallJava
 #ifdef HAVE_ANDROID_OS
         , mTid(-1)
 #endif
-#ifdef ENABLE_CUSTOMISE
+#ifdef ENABLE_AFFINITY
         , mAffinity(iAffinity)
-#endif // ENABLE_CUSTOMISE
+#endif // ENABLE_AFFINITY
 {
 }
 
@@ -803,7 +803,7 @@ int Thread::_threadLoop(void* user)
     wp<Thread> weak(strong);
     self->mHoldSelf.clear();
 
-#if defined(ENABLE_CUSTOMISE)
+#if defined(ENABLE_AFFINITY)
 #if defined(HAVE_PTHREADS) && !defined(_CYGWIN) && !defined(_MACOSX)
     {
         int iCoreCnt = sysconf(_SC_NPROCESSORS_ONLN);
@@ -831,7 +831,7 @@ int Thread::_threadLoop(void* user)
 #else  // HAVE_PTHREADS || HAVE_WIN32_THREADS
     // EMPTY
 #endif // HAVE_PTHREADS || HAVE_WIN32_THREADS
-#endif // ENABLE_CUSTOMISE
+#endif // ENABLE_AFFINITY
 
 #ifdef HAVE_ANDROID_OS
     // this is very useful for debugging with gdb
