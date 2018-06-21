@@ -339,7 +339,9 @@ void *Loader::load_driver(const char* kind,
             int emulationStatus = checkGlesEmulationStatus();
             switch (emulationStatus) {
                 case 0:
-#if defined(__LP64__)
+#if defined(__APPLE__)
+                    result.setTo("/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib");
+#elif defined(__LP64__)
                     result.setTo("/system/lib64/egl/libGLES_android.so");
 #else
                     result.setTo("/system/lib/egl/libGLES_android.so");

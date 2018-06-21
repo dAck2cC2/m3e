@@ -100,7 +100,7 @@ namespace android {
             : "cc"                                              \
             );
 
-#elif defined(__x86_64__)
+#elif defined(__x86_64__) && !defined(__APPLE__)
 
     #define API_ENTRY(_api) __attribute__((noinline,optimize("omit-frame-pointer"))) _api
 

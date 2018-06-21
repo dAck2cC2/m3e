@@ -225,7 +225,7 @@ static const extention_map_t sExtensionMap[] = {
     { "eglQueryTimestampSupportedANDROID",
             (__eglMustCastToProperFunctionPointerType)&eglQueryTimestampSupportedANDROID },
 #else  // EGL_EGLEXT_PROTOTYPES
-	NULL, 
+	NULL,
 #endif // EGL_EGLEXT_PROTOTYPES
 };
 
@@ -276,8 +276,11 @@ static inline EGLContext getContext() { return egl_tls_t::getContext(); }
 EGLDisplay KHRONOS_APIENTRY eglGetDisplay(EGLNativeDisplayType display)
 {
     clearError();
-
+#if defined(__APPLE__)
+    uintptr_t index = (uintptr_t)display;
+#else  // __APPLE__
     uintptr_t index = reinterpret_cast<uintptr_t>(display);
+#endif // __APPLE__
     if (index >= NUM_DISPLAYS) {
         return setError(EGL_BAD_PARAMETER, EGL_NO_DISPLAY);
     }

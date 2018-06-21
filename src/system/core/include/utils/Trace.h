@@ -61,27 +61,72 @@ private:
 
 #else // !__ANDROID__
 
-#include <cutils/trace.h>
-
 #define ATRACE_NAME(...)
 #define ATRACE_CALL()
 
 namespace android {
-
-	class ScopedTrace {
-	public:
-		inline ScopedTrace(uint64_t tag, const char* name)
-			: mTag(tag) {
-		}
-
-		inline ~ScopedTrace() {
-		}
-
-	private:
-		uint64_t mTag;
-	};
-
+    
+    class ScopedTrace {
+    public:
+        inline ScopedTrace(uint64_t tag, const char* name)
+        : mTag(tag) {
+        }
+        
+        inline ~ScopedTrace() {
+        }
+        
+    private:
+        uint64_t mTag;
+    };
+    
 }; // namespace android
+
+#if defined(_MSC_VER)
+
+#include <cutils/trace.h>
+
+#elif defined(__APPLE__)
+
+#define ATRACE_TAG_NEVER            0       // This tag is never enabled.
+#define ATRACE_TAG_ALWAYS           (1<<0)  // This tag is always enabled.
+#define ATRACE_TAG_GRAPHICS         (1<<1)
+#define ATRACE_TAG_INPUT            (1<<2)
+#define ATRACE_TAG_VIEW             (1<<3)
+#define ATRACE_TAG_WEBVIEW          (1<<4)
+#define ATRACE_TAG_WINDOW_MANAGER   (1<<5)
+#define ATRACE_TAG_ACTIVITY_MANAGER (1<<6)
+#define ATRACE_TAG_SYNC_MANAGER     (1<<7)
+#define ATRACE_TAG_AUDIO            (1<<8)
+#define ATRACE_TAG_VIDEO            (1<<9)
+#define ATRACE_TAG_CAMERA           (1<<10)
+#define ATRACE_TAG_HAL              (1<<11)
+#define ATRACE_TAG_APP              (1<<12)
+#define ATRACE_TAG_RESOURCES        (1<<13)
+#define ATRACE_TAG_DALVIK           (1<<14)
+#define ATRACE_TAG_RS               (1<<15)
+#define ATRACE_TAG_BIONIC           (1<<16)
+#define ATRACE_TAG_POWER            (1<<17)
+#define ATRACE_TAG_PACKAGE_MANAGER  (1<<18)
+#define ATRACE_TAG_SYSTEM_SERVER    (1<<19)
+#define ATRACE_TAG_DATABASE         (1<<20)
+#define ATRACE_TAG_LAST             ATRACE_TAG_DATABASE
+
+// Reserved for initialization.
+#define ATRACE_TAG_NOT_READY        (1ULL<<63)
+
+#define ATRACE_TAG_VALID_MASK ((ATRACE_TAG_LAST - 1) | ATRACE_TAG_LAST)
+
+#ifndef ATRACE_TAG
+#define ATRACE_TAG ATRACE_TAG_NEVER
+#elif ATRACE_TAG > ATRACE_TAG_VALID_MASK
+#error ATRACE_TAG must be defined to be one of the tags defined in cutils/trace.h
+#endif
+
+
+#define ATRACE_INT(name, value)
+
+
+#endif // _MSC_VER
 
 #endif // __ANDROID__
 

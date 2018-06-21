@@ -1,8 +1,13 @@
 
+#include <initrc.h>
+
 #include <EGL/egl.h>
 
 int main(int argc, char** argv)
 {
+    
+    android::InitRC::getInstance().Entry(argc, argv);
+    
 	const EGLint attribs[] = {
 		EGL_RED_SIZE,   8,
 		EGL_GREEN_SIZE, 8,

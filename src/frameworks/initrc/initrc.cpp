@@ -37,6 +37,9 @@ InitRC::~InitRC()
 
 void InitRC::ResetProperties()
 {
+    // OpenGL & EGL
+    property_set("ro.kernel.qemu", "1");
+    
     // native display
     property_set("native.display.name",   "M3E");
     property_set("native.display.width",  "800");
