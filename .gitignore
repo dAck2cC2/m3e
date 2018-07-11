@@ -3,3 +3,6 @@ external
 proj
 backup
 
+!/cmake/external
+!/cmake/test/external
+!/src/external
