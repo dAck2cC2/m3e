@@ -16,6 +16,7 @@
 
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 
+#include <EGL/egl.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 

@@ -7,8 +7,13 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
 
+# Surface Flinger
+if (ENABLE_NATIVE_GL)
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+elseif (ENABLE_ANGLE)
+    include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
+endif()
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger)
 
 

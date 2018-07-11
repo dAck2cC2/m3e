@@ -2,4 +2,7 @@
 
 add_subdirectory(binder)
 add_subdirectory(surfaceflinger)
-add_subdirectory(opengl)
+
+if (ENABLE_NATIVE_GL)
+    add_subdirectory(opengl)
+endif(ENABLE_NATIVE_GL)

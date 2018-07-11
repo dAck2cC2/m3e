@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <EGL/egl.h>
 #include <GLES/gl.h>
 
 #include <cutils/compiler.h>

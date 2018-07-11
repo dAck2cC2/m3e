@@ -292,13 +292,13 @@ void SurfaceFlinger::CreateEGLWindow()
 EGLDisplay SurfaceFlinger::initEGL()
 {
 	CreateEGLWindow();
-    
+
     EGLDisplay display = EGL_NO_DISPLAY;
     
     if (mNativeWindow == NULL) {
         return display;
     }
-    
+#if 0
     std::vector<EGLAttrib> displayAttributes;
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
@@ -312,7 +312,9 @@ EGLDisplay SurfaceFlinger::initEGL()
     display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE,
                                      reinterpret_cast<void *>(mNativeWindow->getNativeDisplay()),
                                      &displayAttributes[0]);
-    
+#else
+	display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#endif
     return display;
 }
     

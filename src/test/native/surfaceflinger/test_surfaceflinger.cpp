@@ -1,6 +1,4 @@
 
-#include "shader_utils.h"
-
 #include <initrc.h>
 
 #include <ui/DisplayInfo.h>
@@ -15,6 +13,10 @@
 #include <GLES/glext.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+
+#if defined(ENABLE_ANGLE)
+#include "shader_utils.h"
+#endif
 
 using namespace android;
 
@@ -34,6 +36,7 @@ public:
     
     virtual bool initialize()
     {
+#if defined(ENABLE_ANGLE)
         const std::string vs =
         R"(attribute vec4 vPosition;
         void main()
@@ -55,13 +58,14 @@ public:
         }
         
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        
+#endif
         return true;
     }
 
     
     void draw()
     {
+#if defined(ENABLE_ANGLE)
         GLfloat vertices[] =
         {
             0.0f,  0.5f, 0.0f,
@@ -83,7 +87,29 @@ public:
         glEnableVertexAttribArray(0);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
-        
+#else
+		static GLfloat r = 1.0f;
+		static GLfloat g = 0.0f;
+		static GLfloat b = 1.0f;
+
+		r -= 0.01f;
+		if (r < 0.0f) r = 1.0f;
+
+		b += 0.01f;
+		if (b > 1.0f) b = 0.0f;
+
+		/* rotate a triangle around */
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBegin(GL_TRIANGLES);
+		glColor3f(r, 0.0f, 0.0f);
+		glVertex2i(0, 1);
+		glColor3f(0.0f, g, 0.0f);
+		glVertex2i(-1, -1);
+		glColor3f(0.0f, 0.0f, b);
+		glVertex2i(1, -1);
+		glEnd();
+		glFlush();
+#endif
         eglSwapBuffers(mDisplay, mSurface);
     };
     

@@ -1217,8 +1217,10 @@ status_t GLConsumer::EglImage::createIfNeeded(EGLDisplay eglDisplay,
 }
 
 void GLConsumer::EglImage::bindToTextureTarget(uint32_t texTarget) {
+#ifdef GL_OES_EGL_image
     glEGLImageTargetTexture2DOES(texTarget,
             static_cast<GLeglImageOES>(mEglImage));
+#endif
 }
 
 EGLImageKHR GLConsumer::EglImage::createImage(EGLDisplay dpy,

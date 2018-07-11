@@ -15,13 +15,15 @@
  */
 
 #include <cutils/log.h>
+#include <utils/KeyedVector.h>
 #include <ui/Rect.h>
 #include <ui/Region.h>
 
 #include "RenderEngine.h"
 //#include "GLES10RenderEngine.h"
 //#include "GLES11RenderEngine.h"
-#include "GLES20RenderEngine.h"
+//#include "GLES20RenderEngine.h"
+#include "GLRenderEngine.h"
 #include "GLExtensions.h"
 #include "Mesh.h"
 
@@ -160,7 +162,7 @@ RenderEngine* RenderEngine::create(EGLDisplay display, int hwcFormat) {
 
     // initialize the renderer while GL is current
 
-    RenderEngine* engine = NULL;
+	RenderEngine* engine = new GLRenderEngine(); // NULL;
     switch (version) {
     case GLES_VERSION_1_0:
         //engine = new GLES10RenderEngine();
@@ -170,7 +172,7 @@ RenderEngine* RenderEngine::create(EGLDisplay display, int hwcFormat) {
         //break;
     case GLES_VERSION_2_0:
     case GLES_VERSION_3_0:
-        engine = new GLES20RenderEngine();
+        //engine = new GLES20RenderEngine();
         break;
     }
     engine->setEGLHandles(config, ctxt);
@@ -306,9 +308,10 @@ RenderEngine::BindImageAsFramebuffer::BindImageAsFramebuffer(
         RenderEngine& engine, EGLImageKHR image) : mEngine(engine)
 {
     mEngine.bindImageAsFramebuffer(image, &mTexName, &mFbName, &mStatus);
-
+#ifdef GL_OES_framebuffer_object
     ALOGE_IF(mStatus != GL_FRAMEBUFFER_COMPLETE_OES,
             "glCheckFramebufferStatusOES error %d", mStatus);
+#endif
 }
 
 RenderEngine::BindImageAsFramebuffer::~BindImageAsFramebuffer() {
@@ -317,7 +320,11 @@ RenderEngine::BindImageAsFramebuffer::~BindImageAsFramebuffer() {
 }
 
 status_t RenderEngine::BindImageAsFramebuffer::getStatus() const {
+#ifdef GL_OES_framebuffer_object
     return mStatus == GL_FRAMEBUFFER_COMPLETE_OES ? NO_ERROR : BAD_VALUE;
+#else
+	return BAD_VALUE;
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -481,7 +488,7 @@ EGLConfig RenderEngine::chooseEglConfig(EGLDisplay display, int format) {
 void RenderEngine::primeCache() const {
     // Getting the ProgramCache instance causes it to prime its shader cache,
     // which is performed in its constructor
-    ProgramCache::getInstance();
+    //ProgramCache::getInstance();
 }
     
 // ---------------------------------------------------------------------------

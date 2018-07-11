@@ -2,8 +2,6 @@
 #ifndef SF_NATIVE_TIMER_H
 #define SF_NATIVE_TIMER_H
 
-#include <export.h>
-
 namespace android {
 
 class Timer

@@ -8,7 +8,6 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
@@ -20,13 +19,21 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/gui )
 
 # dependency
 set(GUI_DEPLIB
-angle
 ui
 binder
 utils
 cutils
 log
 )
+
+# EGL and OpenGL
+if (ENABLE_NATIVE_GL)
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+    list(APPEND GUI_DEPLIB ${OPENGL_DEPLIB})
+elseif (ENABLE_ANGLE)
+    include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
+    list(APPEND GUI_DEPLIB angle)
+endif()
 
 # header files
 file(GLOB GUI_HEADER_FILES  ${HEADER_PATH}/gui/*.h)

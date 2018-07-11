@@ -39,9 +39,8 @@ void GLExtensions::initWithGLStrings(
     mVendor     = (char const*)vendor;
     mRenderer   = (char const*)renderer;
     mVersion    = (char const*)version;
-    mExtensions = (char const*)extensions;
-
-    char const* curr = (char const*)extensions;
+	mExtensions = (char const*)(extensions ? extensions : (GLubyte *)"");
+    char const* curr = (char const*)mExtensions;
     char const* head = curr;
     do {
         head = strchr(curr, ' ');

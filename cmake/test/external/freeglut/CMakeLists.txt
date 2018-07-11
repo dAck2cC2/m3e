@@ -37,3 +37,4 @@ ADD_DEMO(glut_subwin          ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/fr
 ADD_DEMO(glut_timer           ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/timer/timer.c)
 ADD_DEMO(glut_timer_callback  ${M3E_SOURCE_DIR}/${EXT_PATH}/FreeGLUT/freeglut/freeglut/progs/demos/timer_callback/timer.c)
 
+ADD_DEMO(glut_simple  ${M3E_SOURCE_DIR}/src/${EXT_PATH}/freeglut/test_simple.c)

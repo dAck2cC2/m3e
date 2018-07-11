@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <EGL/egl.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
@@ -119,7 +120,9 @@ ProgramCache::Key ProgramCache::computeKey(const Description& description) {
     Key needs;
     needs.set(Key::TEXTURE_MASK,
             !description.mTextureEnabled ? Key::TEXTURE_OFF :
+#ifdef GL_OES_EGL_image_external
             description.mTexture.getTextureTarget() == GL_TEXTURE_EXTERNAL_OES ? Key::TEXTURE_EXT :
+#endif
             description.mTexture.getTextureTarget() == GL_TEXTURE_2D           ? Key::TEXTURE_2D :
             Key::TEXTURE_OFF)
     .set(Key::PLANE_ALPHA_MASK,
