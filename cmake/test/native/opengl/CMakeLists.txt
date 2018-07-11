@@ -21,7 +21,7 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/angle/t
 
 if(APPLE)
     find_library(APPKIT_LIBRARY AppKit)
-    list(APPEND SURFACEFLINGER_DEPLIB ${APPKIT_LIBRARY})
+    list(APPEND DEMO_DEPLIBS ${APPKIT_LIBRARY})
 
     list(APPEND NATIVE_WINDOW_SOURCE 
     ${NATIVE_WINDOW_PATH}/osx/OSXtimer.h

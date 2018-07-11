@@ -231,7 +231,32 @@ if(MSVC)
 #  CGL
 ###############################################################################
 elseif(APPLE)    
+    set(CMAKE_C_FLAGS "-x objective-c")
 
+    list(APPEND EGL_DEPLIB ${OPENGL_gl_LIBRARY})
+
+    find_library(COREGRAPHICS_LIBRARY CoreGraphics)
+    list(APPEND EGL_DEPLIB ${COREGRAPHICS_LIBRARY})
+    find_library(QUARTZCORE_LIBRARY QuartzCore)
+    list(APPEND EGL_DEPLIB ${QUARTZCORE_LIBRARY})
+    find_library(IOSURFACE_LIBRARY IOSurface)
+    list(APPEND EGL_DEPLIB ${IOSURFACE_LIBRARY})
+
+    set(EGL_CGL_SOURCE_FILES
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/DisplayCGL.h
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/DisplayCGL.mm
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/IOSurfaceSurfaceCGL.h
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/IOSurfaceSurfaceCGL.mm  
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/WindowSurfaceCGL.h   
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/WindowSurfaceCGL.mm 
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/PbufferSurfaceCGL.h   
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/PbufferSurfaceCGL.mm
+    )
+    source_group(CGL FILES ${EGL_CGL_SOURCE_FILES})
+
+    list(APPEND EGL_SOURCE_FILES
+    ${EGL_CGL_SOURCE_FILES}
+    )
 endif()
 
 # target files
