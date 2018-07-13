@@ -590,7 +590,8 @@ void OSXWindow::destroy()
 
 EGLNativeWindowType OSXWindow::getNativeWindow() const
 {
-    return [mView layer];
+    //return [mView layer];
+    return getNSWindow();
 }
 
 EGLNativeDisplayType OSXWindow::getNativeDisplay() const

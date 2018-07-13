@@ -242,6 +242,13 @@ elseif(APPLE)
     find_library(IOSURFACE_LIBRARY IOSurface)
     list(APPEND EGL_DEPLIB ${IOSURFACE_LIBRARY})
 
+    FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+    LIST(APPEND EGL_DEPLIB ${COCOA_LIBRARY})
+    FIND_LIBRARY(COREVIDEO_LIBRARY CoreVideo)
+    LIST(APPEND EGL_DEPLIB ${COREVIDEO_LIBRARY})
+    FIND_LIBRARY(IOKIT_LIBRARY IOKit)
+    LIST(APPEND EGL_DEPLIB ${IOKIT_LIBRARY})   
+
     set(EGL_CGL_SOURCE_FILES
     ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/DisplayCGL.h
     ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/DisplayCGL.mm
@@ -251,6 +258,8 @@ elseif(APPLE)
     ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/WindowSurfaceCGL.mm 
     ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/PbufferSurfaceCGL.h   
     ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/PbufferSurfaceCGL.mm
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/ContextCocoa.h   
+    ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/cgl/ContextCocoa.mm
     )
     source_group(CGL FILES ${EGL_CGL_SOURCE_FILES})
 

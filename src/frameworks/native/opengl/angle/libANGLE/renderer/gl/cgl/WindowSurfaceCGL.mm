@@ -11,12 +11,16 @@
 #import <Cocoa/Cocoa.h>
 #include <OpenGL/OpenGL.h>
 #import <QuartzCore/QuartzCore.h>
+#import <AppKit/NSWindow.h>
 
 #include "common/debug.h"
 #include "libANGLE/renderer/gl/cgl/DisplayCGL.h"
 //#include "libANGLE/renderer/gl/FramebufferGL.h"
 //#include "libANGLE/renderer/gl/RendererGL.h"
 //#include "libANGLE/renderer/gl/StateManagerGL.h"
+
+#include "libANGLE/renderer/gl/cgl/ContextCocoa.h"
+
 
 @interface SwapLayer : CAOpenGLLayer
 {
@@ -35,7 +39,7 @@
 
 @implementation SwapLayer
 - (id)initWithSharedState:(rx::SharedSwapState *)swapState
-              withContext:(CGLContextObj)displayContext
+          withContext:(CGLContextObj)displayContext
             withFunctions:(const rx::FunctionsGL *)functions
     {
         self = [super init];
@@ -137,20 +141,23 @@
                    forLayerTime:timeInterval
                     displayTime:timeStamp];
     }
-    @end
+@end
 
-    namespace rx
-    {
 
-    WindowSurfaceCGL::WindowSurfaceCGL(const egl::SurfaceState &state,
+namespace rx
+{
+
+WindowSurfaceCGL::WindowSurfaceCGL(const egl::SurfaceState &state,
                                        RendererGL *renderer,
-                                       EGLNativeWindowType layer,
+                                       EGLNativeWindowType window,
                                        const FunctionsGL *functions,
                                        CGLContextObj context)
         : SurfaceGL(state, renderer),
           mSwapLayer(nil),
           mCurrentSwapId(0),
-          mLayer(reinterpret_cast<CALayer *>(layer)),
+          mNSContext(nullptr),
+          mNSWindow(reinterpret_cast<NSWindow *>(window)),
+          mLayer([[mNSWindow contentView] layer]),
           mContext(context),
           mFunctions(functions),
           //mStateManager(renderer->getStateManager()),
@@ -160,8 +167,8 @@
           mWorkarounds(nullptr),
           mFramebuffer(0),
           mDSRenderbuffer(0)
-    {
-        pthread_mutex_init(&mSwapState.mutex, nullptr);
+{
+    pthread_mutex_init(&mSwapState.mutex, nullptr);
 }
 
 WindowSurfaceCGL::~WindowSurfaceCGL()
@@ -231,11 +238,24 @@ egl::Error WindowSurfaceCGL::initialize(const egl::Display *display)
     mFunctions->framebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
                                         mDSRenderbuffer);
 
+    mNSContext = CreateOpenGLContext();
+    if (mNSContext == nil) {
+         return egl::EglNotInitialized() << "Could not create the CGL context.";
+    }
+    
     return egl::Error(EGL_SUCCESS);
 }
 
 egl::Error WindowSurfaceCGL::makeCurrent()
 {
+    if (mNSContext) {
+        [mNSContext setWindow:this];
+        [mNSContext update];
+        [mNSContext makeCurrentContext];
+    } else {
+        [NSOpenGLContext clearCurrentContext];
+    }
+    
     return egl::Error(EGL_SUCCESS);
 }
 
@@ -338,5 +358,5 @@ FramebufferImpl *WindowSurfaceCGL::createDefaultFramebuffer(const gl::Framebuffe
     return nullptr;
 #endif
 }
-
+   
 }  // namespace rx

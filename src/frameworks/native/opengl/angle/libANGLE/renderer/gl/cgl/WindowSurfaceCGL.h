@@ -17,6 +17,11 @@ typedef _CGLContextObject *CGLContextObj;
 struct __IOSurface;
 typedef __IOSurface *IOSurfaceRef;
 
+@class NSWindow;
+@class NSOpenGLContext;
+@class CGLOpenGLContext;
+
+
 @class SwapLayer;
 
 namespace rx
@@ -56,7 +61,7 @@ class WindowSurfaceCGL : public SurfaceGL
   public:
     WindowSurfaceCGL(const egl::SurfaceState &state,
                      RendererGL *renderer,
-                     EGLNativeWindowType layer,
+                     EGLNativeWindowType window,
                      const FunctionsGL *functions,
                      CGLContextObj context);
     ~WindowSurfaceCGL() override;
@@ -82,12 +87,17 @@ class WindowSurfaceCGL : public SurfaceGL
     EGLint getSwapBehavior() const override;
 
     FramebufferImpl *createDefaultFramebuffer(const gl::FramebufferState &state) override;
+    
+    NSWindow*  getNSWindow() {return mNSWindow;};
+    egl::Error createNSContext();
 
   private:
     SwapLayer *mSwapLayer;
     SharedSwapState mSwapState;
     uint64_t mCurrentSwapId;
 
+    CGLOpenGLContext *mNSContext;
+    NSWindow *mNSWindow;
     CALayer *mLayer;
     CGLContextObj mContext;
     const FunctionsGL *mFunctions;

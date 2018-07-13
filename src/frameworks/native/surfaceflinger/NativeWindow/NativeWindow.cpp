@@ -1,16 +1,17 @@
 
 #include "NativeWindow.h"
 
-#include <iostream>
-#include <sstream>
 
 #ifndef DEBUG_EVENTS
 #define DEBUG_EVENTS 0
 #endif
 
-namespace android {
 
 #if DEBUG_EVENTS
+
+#include <iostream>
+#include <sstream>
+    
 static const char *MouseButtonName(MouseButton button)
 {
     switch (button)
@@ -235,6 +236,8 @@ static void PrintEvent(const Event& event)
 }
 #endif
 
+namespace android {
+    
 NativeWindow::NativeWindow()
     : mX(0),
       mY(0),
