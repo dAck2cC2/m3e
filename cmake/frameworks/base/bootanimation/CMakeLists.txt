@@ -9,6 +9,7 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/base/androidfw/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/skia/include.cmake)
 
@@ -25,16 +26,8 @@ ui
 gui
 androidfw
 skia
+${OPENGL_DEPLIB}
 )
-
-# EGL and OpenGL
-if (ENABLE_NATIVE_GL)
-    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
-    list(APPEND BOOTANIMATION_DEPLIB ${OPENGL_DEPLIB})
-elseif (ENABLE_ANGLE)
-    include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
-    list(APPEND BOOTANIMATION_DEPLIB angle)
-endif()
 
 # source files
 set( BOOTANIMATION_HEADER_FILES 

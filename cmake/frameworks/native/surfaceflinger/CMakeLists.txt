@@ -7,6 +7,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 
 add_definitions(-DANDROID_IMPLEMENTATION=1)
 
@@ -30,16 +31,8 @@ cutils
 utils
 binder
 gui
+${OPENGL_DEPLIB}
 )
-
-# EGL and OpenGL
-if (ENABLE_NATIVE_GL)
-    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
-    list(APPEND SURFACEFLINGER_DEPLIB ${OPENGL_DEPLIB})
-elseif (ENABLE_ANGLE)
-    include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
-    list(APPEND SURFACEFLINGER_DEPLIB angle)
-endif()
 
 ###############################################################################
 #  Flinger
