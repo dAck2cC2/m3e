@@ -65,29 +65,7 @@ public:
     
     void draw()
     {
-#if defined(ENABLE_ANGLE)
-        GLfloat vertices[] =
-        {
-            0.0f,  0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-        };
-        
-        // Set the viewport
-        glViewport(0, 0, mWidth, mHeight);
-
-        // Clear the color buffer
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        // Use the program object
-        glUseProgram(mProgram);
-        
-        // Load the vertex data
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-        glEnableVertexAttribArray(0);
-
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-#else
+#if (ENABLE_DESKTOP_GL)
 		static GLfloat r = 1.0f;
 		static GLfloat g = 0.0f;
 		static GLfloat b = 1.0f;
@@ -109,6 +87,28 @@ public:
 		glVertex2i(1, -1);
 		glEnd();
 		glFlush();
+#else
+        GLfloat vertices[] =
+        {
+            0.0f,  0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+        };
+        
+        // Set the viewport
+        glViewport(0, 0, mWidth, mHeight);
+
+        // Clear the color buffer
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // Use the program object
+        glUseProgram(mProgram);
+        
+        // Load the vertex data
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+        glEnableVertexAttribArray(0);
+
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 #endif
         eglSwapBuffers(mDisplay, mSurface);
     };

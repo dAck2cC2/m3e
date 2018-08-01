@@ -65,25 +65,32 @@ ${HEADER_PATH}/RenderEngine/Texture.h
 ${HEADER_PATH}/RenderEngine/Description.h
 ${HEADER_PATH}/RenderEngine/GLExtensions.h
 ${HEADER_PATH}/RenderEngine/Mesh.h
-#${HEADER_PATH}/RenderEngine/Program.h
-#${HEADER_PATH}/RenderEngine/ProgramCache.h
 ${HEADER_PATH}/RenderEngine/RenderEngine.h
-#${HEADER_PATH}/RenderEngine/GLES20RenderEngine.h
-#${HEADER_PATH}/RenderEngine/GLES11RenderEngine.h
-#${HEADER_PATH}/RenderEngine/GLES10RenderEngine.h
-${HEADER_PATH}/RenderEngine/GLRenderEngine.h
 ${SOURCE_PATH}/RenderEngine/Texture.cpp
 ${SOURCE_PATH}/RenderEngine/Description.cpp
 ${SOURCE_PATH}/RenderEngine/GLExtensions.cpp
 ${SOURCE_PATH}/RenderEngine/Mesh.cpp
-#${SOURCE_PATH}/RenderEngine/Program.cpp
-#${SOURCE_PATH}/RenderEngine/ProgramCache.cpp
 ${SOURCE_PATH}/RenderEngine/RenderEngine.cpp
-#${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp
-#${SOURCE_PATH}/RenderEngine/GLES11RenderEngine.cpp
-#${SOURCE_PATH}/RenderEngine/GLES10RenderEngine.cpp
-${SOURCE_PATH}/RenderEngine/GLRenderEngine.cpp
 )
+if (ENABLE_DESKTOP_GL)
+    list(APPEND SF_RENDERENGINE_SOURCE_FILES
+    ${HEADER_PATH}/RenderEngine/GLRenderEngine.h 
+    ${SOURCE_PATH}/RenderEngine/GLRenderEngine.cpp
+    )
+else ()
+    list(APPEND SF_RENDERENGINE_SOURCE_FILES
+    ${HEADER_PATH}/RenderEngine/Program.h
+    ${SOURCE_PATH}/RenderEngine/Program.cpp
+    ${HEADER_PATH}/RenderEngine/ProgramCache.h  
+    ${SOURCE_PATH}/RenderEngine/ProgramCache.cpp  
+    ${HEADER_PATH}/RenderEngine/GLES20RenderEngine.h
+    ${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp 
+    #${SOURCE_PATH}/RenderEngine/GLES11RenderEngine.cpp
+    #${HEADER_PATH}/RenderEngine/GLES11RenderEngine.h
+    #${HEADER_PATH}/RenderEngine/GLES10RenderEngine.h
+    #${SOURCE_PATH}/RenderEngine/GLES10RenderEngine.cpp 
+    )
+endif ()
 source_group(RenderEngine FILES ${SF_RENDERENGINE_SOURCE_FILES})
 
 list(APPEND SURFACEFLINGER_SOURCE_FILES

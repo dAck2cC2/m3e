@@ -20,10 +20,14 @@
 #include <ui/Region.h>
 
 #include "RenderEngine.h"
+#if ENABLE_DESKTOP_GL
+#include "GLRenderEngine.h"
+#else  // ENABLE_DESKTOP_GL
+#include "ProgramCache.h"
 //#include "GLES10RenderEngine.h"
 //#include "GLES11RenderEngine.h"
-//#include "GLES20RenderEngine.h"
-#include "GLRenderEngine.h"
+#include "GLES20RenderEngine.h"
+#endif // ENABLE_DESKTOP_GL
 #include "GLExtensions.h"
 #include "Mesh.h"
 
@@ -162,7 +166,10 @@ RenderEngine* RenderEngine::create(EGLDisplay display, int hwcFormat) {
 
     // initialize the renderer while GL is current
 
-	RenderEngine* engine = new GLRenderEngine(); // NULL;
+#if ENABLE_DESKTOP_GL
+	RenderEngine* engine = new GLRenderEngine();
+#else  // ENABLE_DESKTOP_GL
+	RenderEngine* engine = NULL;
     switch (version) {
     case GLES_VERSION_1_0:
         //engine = new GLES10RenderEngine();
@@ -172,9 +179,10 @@ RenderEngine* RenderEngine::create(EGLDisplay display, int hwcFormat) {
         //break;
     case GLES_VERSION_2_0:
     case GLES_VERSION_3_0:
-        //engine = new GLES20RenderEngine();
+        engine = new GLES20RenderEngine();
         break;
     }
+#endif // ENABLE_DESKTOP_GL
     engine->setEGLHandles(config, ctxt);
 
     ALOGI("OpenGL ES informations:");
@@ -488,7 +496,9 @@ EGLConfig RenderEngine::chooseEglConfig(EGLDisplay display, int format) {
 void RenderEngine::primeCache() const {
     // Getting the ProgramCache instance causes it to prime its shader cache,
     // which is performed in its constructor
-    //ProgramCache::getInstance();
+#if !defined(ENABLE_DESKTOP_GL)
+    ProgramCache::getInstance();
+#endif // ENABLE_DESKTOP_GL
 }
     
 // ---------------------------------------------------------------------------

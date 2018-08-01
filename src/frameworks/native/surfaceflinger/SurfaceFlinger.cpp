@@ -298,7 +298,7 @@ EGLDisplay SurfaceFlinger::initEGL()
     if (mNativeWindow == NULL) {
         return display;
     }
-#if 0
+#if ENABLE_ANGLE
     std::vector<EGLAttrib> displayAttributes;
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);

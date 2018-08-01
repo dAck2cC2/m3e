@@ -1,8 +1,6 @@
 project(ANGLE_UTIL)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/angle/include_util.cmake)
 
 if(ENABLE_ANGLE)
     OPTION( BUILD_NATIVE_WINDOW
@@ -16,14 +14,18 @@ else(ENABLE_ANGLE)
     )
 endif(ENABLE_ANGLE)
 
-add_definitions(-DLIBANGLE_IMPLEMENTATION=1)
+add_definitions(-DLIBANGLE_UTIL_IMPLEMENTATION=1)
 
 set(ANGLE_UTIL_DEPLIB
-angle 
+EGL
+GLESv2
 )
 
 file(GLOB ANGLE_UTIL_HEAD ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/*.h)
 file(GLOB ANGLE_UTIL_SRC  ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/*.cpp)
+
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src)
 
 if(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
