@@ -26,6 +26,7 @@ file(GLOB ANGLE_UTIL_SRC  ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/*.cpp)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/include)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util)
 
 if(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
@@ -46,7 +47,7 @@ if(APPLE)
         )
     endif(BUILD_NATIVE_WINDOW)
 elseif(MSVC)
-    if (BUILD_NATIVE_WINDOW)
+    #if (BUILD_NATIVE_WINDOW)
         list(APPEND ANGLE_UTIL_HEAD 
         ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/WindowsTimer.h
         ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32Pixmap.h
@@ -59,7 +60,7 @@ elseif(MSVC)
         ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32Window.cpp
         ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32_system_utils.cpp
         )
-    endif(BUILD_NATIVE_WINDOW)
+    #endif(BUILD_NATIVE_WINDOW)
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

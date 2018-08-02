@@ -50,7 +50,7 @@ public:
         {
             gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
         })";
-        
+     
         mProgram = CompileProgram(vs, fs);
         if (!mProgram)
         {
@@ -112,6 +112,11 @@ public:
 #endif
         eglSwapBuffers(mDisplay, mSurface);
     };
+
+	void rotating()
+	{
+
+	};
     
 private:
     virtual bool        threadLoop()
@@ -155,12 +160,16 @@ private:
 
         // initialize opengl and egl
         const EGLint attribs[] = {
-            //EGL_RED_SIZE,   8,
-            //EGL_GREEN_SIZE, 8,
-            //EGL_BLUE_SIZE,  8,
-            //EGL_DEPTH_SIZE, 0,
+            EGL_RED_SIZE,   8,
+            EGL_GREEN_SIZE, 8,
+            EGL_BLUE_SIZE,  8,
+            EGL_DEPTH_SIZE, 0,
             EGL_NONE
         };
+		const EGLint attribsContext[] = {
+			EGL_CONTEXT_MAJOR_VERSION_KHR, 2,
+			EGL_NONE
+		};
         EGLint w, h;
         EGLint numConfigs;
         EGLConfig config;
@@ -173,7 +182,7 @@ private:
         eglBindAPI(EGL_OPENGL_ES_API);
         eglChooseConfig(display, attribs, &config, 1, &numConfigs);
         surface = eglCreateWindowSurface(display, config, handle->getNativeWindow(), NULL);
-        context = eglCreateContext(display, config, NULL, attribs);
+        context = eglCreateContext(display, config, NULL, attribsContext);
         eglQuerySurface(display, surface, EGL_WIDTH, &w);
         eglQuerySurface(display, surface, EGL_HEIGHT, &h);
         
@@ -213,6 +222,8 @@ private:
     sp<SurfaceControl> mFlingerSurfaceControl;
     sp<Surface> mFlingerSurface;
     GLuint mProgram;
+	// Current rotation
+	float mRotation;
 };
 
 

@@ -4,7 +4,7 @@ project(ANGLE_GLESV2)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
 #add_definitions(-DNDEBUG=1)
-add_definitions(-DLIBGLESV2_IMPLEMENTATION=1)
+add_definitions(-DLIBANGLE_IMPLEMENTATION=1)
 add_definitions(-DGL_GLEXT_PROTOTYPES=1)
 if(MSVC)
     add_definitions(-DGL_API=__declspec\(dllexport\))

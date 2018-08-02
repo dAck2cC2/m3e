@@ -43,7 +43,7 @@ DisplayDevice::DisplayDevice(const sp<SurfaceFlinger>& flinger,
     if (config == EGL_NO_CONFIG) {
         config = RenderEngine::chooseEglConfig(display, PIXEL_FORMAT_RGBA_8888);
     }
-    //eglSurface = eglCreateWindowSurface(display, config, window, NULL);
+    eglSurface = eglCreateWindowSurface(display, config, window, NULL);
     eglQuerySurface(display, eglSurface, EGL_WIDTH,  &mDisplayWidth);
     eglQuerySurface(display, eglSurface, EGL_HEIGHT, &mDisplayHeight);
     
@@ -71,11 +71,7 @@ DisplayDevice::DisplayDevice(const sp<SurfaceFlinger>& flinger,
 
 DisplayDevice::~DisplayDevice() 
 {
-    if (mNativeWindow) {
-		mNativeWindow->destroy();
-        delete mNativeWindow;
-		mNativeWindow = NULL;
-    }
+
 }
 
 EGLBoolean DisplayDevice::makeCurrent(EGLDisplay dpy, EGLContext ctx) const {

@@ -42,6 +42,7 @@ Layer::Layer(SurfaceFlinger* flinger, const sp<Client>& client,
     
     mName = name;
     
+	mNativeWindow = mFlinger->CreateOSWindow(mName.string());
 }
 
 void Layer::onFirstRef() {
@@ -59,7 +60,14 @@ status_t Layer::setBuffers( uint32_t w, uint32_t h,
 {
     return NO_ERROR;
 }
-    
+  
+void Layer::update()
+{
+	if (mNativeWindow != NULL) {
+		mNativeWindow->messageLoop();
+	}
+}
+
 /*
  * The layer handle is just a BBinder object passed to the client
  * (remote process) -- we don't keep any reference on our side such that
@@ -81,10 +89,15 @@ public:
     {
         EGLNativeWindowType win = 0;
         
-        sp<SurfaceFlinger> flinger = mFlinger.promote();
-        if (flinger != NULL) {
-            win = flinger->getNativeWindow()->getNativeWindow();
-        }
+        //sp<SurfaceFlinger> flinger = mFlinger.promote();
+        //if (flinger != NULL) {
+        //    win = flinger->getNativeWindow()->getNativeWindow();
+        //}
+
+		sp<Layer> layer = mOwner.promote();
+		if (layer != NULL) {
+			win = layer->getNativeWindow()->getNativeWindow();
+		}
         
         return win;
     };

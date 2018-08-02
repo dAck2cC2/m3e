@@ -124,9 +124,95 @@ RenderEngine* RenderEngine::create(EGLDisplay display, int hwcFormat) {
         LOG_ALWAYS_FATAL("no supported EGL_RENDERABLE_TYPEs");
     }
 
+#if ENABLE_ANGLE
+	const char *displayExtensions = eglQueryString(display, EGL_EXTENSIONS);
+
+	std::vector<EGLint> configAttributes = {
+		EGL_RED_SIZE,       8,
+		EGL_GREEN_SIZE,     8,
+		EGL_BLUE_SIZE,      8,
+		EGL_ALPHA_SIZE,     8,
+		EGL_DEPTH_SIZE,     24,
+		EGL_STENCIL_SIZE,   8,
+		EGL_SAMPLE_BUFFERS, 0,
+		EGL_SAMPLES,        EGL_DONT_CARE,
+	};
+
+	bool hasPixelFormatFloat = strstr(displayExtensions, "EGL_EXT_pixel_format_float") != nullptr;
+	if (hasPixelFormatFloat) {
+		configAttributes.push_back(EGL_COLOR_COMPONENT_TYPE_EXT);
+		configAttributes.push_back(EGL_COLOR_COMPONENT_TYPE_FIXED_EXT);
+	}
+
+	// Finish the attribute list
+	configAttributes.push_back(EGL_NONE);
+
+	EGLBoolean check = FindEGLConfig(display, configAttributes.data(), &config);
+
+	if (!FindEGLConfig(display, configAttributes.data(), &config)) {
+		LOG_ALWAYS_FATAL("Could not find a suitable EGL config!");
+		return NULL;
+	}
+
+	// initialize the context
+	bool hasKHRCreateContext = strstr(displayExtensions, "EGL_KHR_create_context") != nullptr;
+	bool hasWebGLCompatibility =
+		strstr(displayExtensions, "EGL_ANGLE_create_context_webgl_compatibility") != nullptr;
+	bool hasCreateContextExtensionsEnabled =
+		strstr(displayExtensions, "EGL_ANGLE_create_context_extensions_enabled") != nullptr;
+	bool hasRobustness = strstr(displayExtensions, "EGL_EXT_create_context_robustness") != nullptr;
+	bool hasBindGeneratesResource =
+		strstr(displayExtensions, "EGL_CHROMIUM_create_context_bind_generates_resource") != nullptr;
+	bool hasClientArraysExtension =
+		strstr(displayExtensions, "EGL_ANGLE_create_context_client_arrays") != nullptr;
+	bool hasProgramCacheControlExtension =
+		strstr(displayExtensions, "EGL_ANGLE_program_cache_control ") != nullptr;
+
+	std::vector<EGLint> contextAttributes;
+	if (hasKHRCreateContext) {
+		contextAttributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
+		contextAttributes.push_back(contextClientVersion);
+
+		contextAttributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
+		contextAttributes.push_back(0);
+
+		contextAttributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
+		contextAttributes.push_back(EGL_FALSE);
+
+		// TODO(jmadill): Check for the extension string.
+		// bool hasKHRCreateContextNoError = strstr(displayExtensions,
+		// "EGL_KHR_create_context_no_error") != nullptr;
+
+		contextAttributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
+		contextAttributes.push_back(EGL_FALSE);
+
+		if (hasWebGLCompatibility) {
+			contextAttributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
+			contextAttributes.push_back(EGL_FALSE);
+		}
+
+		if (hasRobustness) {
+			contextAttributes.push_back(EGL_CONTEXT_OPENGL_ROBUST_ACCESS_EXT);
+			contextAttributes.push_back(EGL_FALSE);
+		}
+
+		if (hasBindGeneratesResource) {
+			contextAttributes.push_back(EGL_CONTEXT_BIND_GENERATES_RESOURCE_CHROMIUM);
+			contextAttributes.push_back(EGL_TRUE);
+		}
+
+		if (hasClientArraysExtension) {
+			contextAttributes.push_back(EGL_CONTEXT_CLIENT_ARRAYS_ENABLED_ANGLE);
+			contextAttributes.push_back(EGL_TRUE);
+		}
+	}
+	contextAttributes.push_back(EGL_NONE);
+
+	EGLContext ctxt = eglCreateContext(display, config, NULL, &contextAttributes[0]);
+#else // ENABLE_ANGLE
     // Also create our EGLContext
     EGLint contextAttributes[] = {
-            //EGL_CONTEXT_CLIENT_VERSION, contextClientVersion,      // MUST be first
+            EGL_CONTEXT_CLIENT_VERSION, contextClientVersion,      // MUST be first
 #ifdef EGL_IMG_context_priority
 #ifdef HAS_CONTEXT_PRIORITY
 #warning "using EGL_IMG_context_priority"
@@ -135,8 +221,8 @@ RenderEngine* RenderEngine::create(EGLDisplay display, int hwcFormat) {
 #endif
             EGL_NONE, EGL_NONE
     };
-    FindEGLConfig(display, contextAttributes, &config);
     EGLContext ctxt = eglCreateContext(display, config, NULL, contextAttributes);
+#endif // ENABLE_ANGLE
 
     // if can't create a GL context, we can only abort.
     LOG_ALWAYS_FATAL_IF(ctxt==EGL_NO_CONTEXT, "EGLContext creation failed");

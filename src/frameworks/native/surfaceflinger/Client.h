@@ -35,6 +35,8 @@ public:
     
     sp<Layer> getLayerUser(const sp<IBinder>& handle) const;
 
+	void updateLayer();
+
 private:
     // ISurfaceComposerClient interface
     virtual status_t createSurface(

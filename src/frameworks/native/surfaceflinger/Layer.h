@@ -41,12 +41,15 @@ public:
 
     // the this layer's size and format
     status_t setBuffers(uint32_t w, uint32_t h, PixelFormat format, uint32_t flags);
-
-
-    class Handle;
-    sp<IBinder> getHandle();
-    //sp<IGraphicBufferProducer> getProducer() const;
+	
+	//sp<IGraphicBufferProducer> getProducer() const;
     const String8& getName() const { return mName; }; 
+
+	class Handle;
+
+	sp<IBinder> getHandle();
+	void update();
+	sp<NativeWindow> getNativeWindow() { return mNativeWindow; };
 
     // -----------------------------------------------------------------------
     // Virtuals
@@ -76,6 +79,7 @@ private:
     mutable bool mHasSurface;
     const wp<Client> mClientRef;
     
+	sp<NativeWindow> mNativeWindow;
     sp<Handle> mHandle;
 };
 

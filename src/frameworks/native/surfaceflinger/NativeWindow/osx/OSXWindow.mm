@@ -687,7 +687,7 @@ NSWindow* OSXWindow::getNSWindow() const
     return mWindow;
 }
 
-android::NativeWindow *android::CreateNativeWindow()
+android::sp<android::NativeWindow> android::CreateNativeWindow()
 {
     return new OSXWindow;
 }

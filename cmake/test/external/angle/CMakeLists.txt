@@ -14,7 +14,9 @@ elseif(MSVC)
 endif()
 
 set(DEMO_DEPLIBS 
-angle
+EGL
+GLESv2
+GLESv1_CM
 angle_util
 )
 

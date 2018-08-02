@@ -35,8 +35,8 @@ SurfaceFlinger::~SurfaceFlinger()
 sp<ISurfaceComposerClient> SurfaceFlinger::createConnection()
 {
     /*
-     * Not sure how to support such usage currently. Use static variable to keep
-     * the instance of binder native instead.
+     * Not sure how to support such usage currently.
+     * Where to keep the Binder Native(server) instance ?
      */
 #if TODO
     sp<ISurfaceComposerClient> bclient;
@@ -46,12 +46,16 @@ sp<ISurfaceComposerClient> SurfaceFlinger::createConnection()
         bclient = client;
     }
 #else
-    static sp<ISurfaceComposerClient> bclient;
+	 /*
+	 * Anyway, we have to keep the client for mutli-window update.
+	 */
+    sp<ISurfaceComposerClient> bclient;
     if (bclient == NULL) {
         sp<Client> client(new Client(this));
         status_t err = client->initCheck();
         if (err == NO_ERROR) {
             bclient = client;
+			mClients.push_back(client);
         }
     }
 #endif
@@ -271,41 +275,50 @@ status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
     return NO_INIT;
 }
 
-void SurfaceFlinger::CreateEGLWindow()
+sp<NativeWindow> SurfaceFlinger::CreateOSWindow(const char* name)
 {
-    if (mNativeWindow == NULL) {
-		mNativeWindow = CreateNativeWindow();
-    }
-    
-    if (mNativeWindow) {
-        char name[PROPERTY_VALUE_MAX];
-        property_get("native.display.name", name, "default");
+	sp<NativeWindow> nativeWindow = CreateNativeWindow();
+	LOG_ALWAYS_FATAL_IF((nativeWindow == NULL), "Failed to create native window %s:%d", __FILE__, __LINE__);
+
+    if (nativeWindow != NULL) {
+        char defaultName[PROPERTY_VALUE_MAX];
+        property_get("native.display.name", defaultName, "default");
+		if (!name) {
+			name = defaultName;
+		}
+
         int32_t width  = property_get_int32("native.display.width",  400);
         int32_t height = property_get_int32("native.display.height", 300);
         
-		mNativeWindow->initialize(name, width, height);
-		mNativeWindow->setVisible(true);
+		bool check = nativeWindow->initialize(name, width, height);
+		LOG_ALWAYS_FATAL_IF((check == false), "Failed to intialize native window %s:%d", __FILE__, __LINE__);
+
+		nativeWindow->setVisible(true);
     }
+
+	return nativeWindow;
 }
 
     
 EGLDisplay SurfaceFlinger::initEGL()
 {
-	CreateEGLWindow();
+	mNativeWindow = CreateOSWindow();
 
     EGLDisplay display = EGL_NO_DISPLAY;
     
     if (mNativeWindow == NULL) {
         return display;
     }
+
+	// initializeDisplayAndSurface
 #if ENABLE_ANGLE
     std::vector<EGLAttrib> displayAttributes;
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE);
-    displayAttributes.push_back(2);
+    displayAttributes.push_back(-1);
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE);
-    displayAttributes.push_back(0);
+    displayAttributes.push_back(-1);
     
     displayAttributes.push_back(EGL_NONE);
     
@@ -315,6 +328,7 @@ EGLDisplay SurfaceFlinger::initEGL()
 #else
 	display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #endif
+
     return display;
 }
     
@@ -327,8 +341,12 @@ void SurfaceFlinger::init()
         Mutex::Autolock _l(mStateLock);
         
         // initialize EGL for the default display
+#if 0
 		mEGLDisplay = initEGL();
-        //mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#else
+		mNativeWindow = CreateOSWindow();
+        mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#endif 
         eglInitialize(mEGLDisplay, NULL, NULL);
         
         // Get a RenderEngine for the given display / config (can't fail)
@@ -542,10 +560,16 @@ status_t SurfaceFlinger::postMessageSync(const sp<MessageBase>& msg,
 }
 
 void SurfaceFlinger::run() {
-    if (mNativeWindow){
+    if (mNativeWindow != NULL){
         bool mRunning = true;
         
         while (mRunning) {
+			// message loop of sub window
+			const size_t count = mClients.size();
+			for (size_t i = 0; i<count; i++) {
+				mClients[i]->updateLayer();
+			}
+
             // Clear events that the application did not process from this frame
             Event event;
             while (mNativeWindow->popEvent(&event)) {
@@ -558,12 +582,11 @@ void SurfaceFlinger::run() {
             if (!mRunning) {
                 break;
             }
-            
+
             //waitForEvent(1000/60);
             //IPCThreadState::self()->handlePolledCommands();
             
             mNativeWindow->messageLoop();
-            
         } // while (mRunning)
     } // if (mNativeWindow)
 }

@@ -39,15 +39,17 @@ ${OPENGL_DEPLIB}
 ###############################################################################
 set( SF_FLINGER_SOURCE_FILES 
 ${HEADER_PATH}/clz.h
-${HEADER_PATH}/Transform.h
 ${HEADER_PATH}/Barrier.h
-${HEADER_PATH}/Client.h
-${HEADER_PATH}/Layer.h
+${HEADER_PATH}/Transform.h
 ${SOURCE_PATH}/Transform.cpp
+${HEADER_PATH}/Client.h
 ${SOURCE_PATH}/Client.cpp
+${HEADER_PATH}/Layer.h
 ${SOURCE_PATH}/Layer.cpp
 ${SOURCE_PATH}/MessageQueue.cpp
+${SOURCE_PATH}/DisplayDevice.h
 ${SOURCE_PATH}/DisplayDevice.cpp
+${SOURCE_PATH}/SurfaceFlinger.h
 ${SOURCE_PATH}/SurfaceFlinger.cpp
 ${SOURCE_PATH}/main_surfaceflinger.cpp
 )

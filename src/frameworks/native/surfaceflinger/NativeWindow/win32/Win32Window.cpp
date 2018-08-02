@@ -730,7 +730,7 @@ void Win32Window::setMousePosition(int x, int y)
     SetCursorPos(topLeft.x + x, topLeft.y + y);
 }
 
-NativeWindow *CreateNativeWindow()
+sp<NativeWindow> CreateNativeWindow()
 {
     return new Win32Window();
 }

@@ -8,13 +8,14 @@
 #include <string>
 
 #include <EGL/egl.h>
-//#include <EGL/eglext.h>
+
+#include <utils/RefBase.h>
 
 #include "NativeWindow/Event.h"
 
 namespace android {
 
-class NativeWindow
+class NativeWindow : public RefBase
 {
   public:
     NativeWindow();
@@ -61,7 +62,7 @@ class NativeWindow
     std::list<Event> mEvents;
 };
 
-NativeWindow *CreateNativeWindow();
+sp<NativeWindow> CreateNativeWindow();
 
 } /* namespace android */
 

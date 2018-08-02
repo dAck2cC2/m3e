@@ -46,6 +46,16 @@ void Client::detachLayer(const Layer* layer)
     }
 }
 
+void Client::updateLayer()
+{
+	Mutex::Autolock _l(mLock);
+
+	const size_t count = mLayers.size();
+	for (size_t i = 0; i<count; i++) {
+		mLayers.valueAt(i)->update();
+	}
+}
+
 sp<Layer> Client::getLayerUser(const sp<IBinder>& handle) const
 {
     Mutex::Autolock _l(mLock);

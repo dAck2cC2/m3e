@@ -53,13 +53,13 @@ private:
     int mActiveConfig;
     
     // Window of operation system
-	NativeWindow*   mNativeWindow;
-    EGLConfig       mConfig;
-    EGLDisplay      mDisplay;
-    EGLSurface      mSurface;
-    int             mDisplayWidth;
-    int             mDisplayHeight;
-    String8         mDisplayName;
+	sp<NativeWindow> mNativeWindow;
+    EGLConfig        mConfig;
+    EGLDisplay       mDisplay;
+    EGLSurface       mSurface;
+    int              mDisplayWidth;
+    int              mDisplayHeight;
+    String8          mDisplayName;
     
     /*
      * Transaction state
