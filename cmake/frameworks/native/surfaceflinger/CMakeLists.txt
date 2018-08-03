@@ -36,7 +36,7 @@ ${OPENGL_DEPLIB}
 
 # test function for angle
 if (ENABLE_ANGLE)
-    #set(ENABLE_CORE       "TRUE")  
+    #set(ENABLE_ANGLE_TEST       "TRUE")  
 endif(ENABLE_ANGLE) 
 
 if (ENABLE_ANGLE_TEST)

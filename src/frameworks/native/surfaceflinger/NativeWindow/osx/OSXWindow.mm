@@ -590,8 +590,11 @@ void OSXWindow::destroy()
 
 EGLNativeWindowType OSXWindow::getNativeWindow() const
 {
-    //return [mView layer];
+#if ENABLE_DESKTOP_GL
     return getNSWindow();
+#else
+    return [mView layer];
+#endif
 }
 
 EGLNativeDisplayType OSXWindow::getNativeDisplay() const

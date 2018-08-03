@@ -89,16 +89,17 @@ public:
     {
         EGLNativeWindowType win = 0;
         
-        //sp<SurfaceFlinger> flinger = mFlinger.promote();
-        //if (flinger != NULL) {
-        //    win = flinger->getNativeWindow()->getNativeWindow();
-        //}
-
+#if 0
+        sp<SurfaceFlinger> flinger = mFlinger.promote();
+        if (flinger != NULL) {
+            win = flinger->getNativeWindow()->getNativeWindow();
+        }
+#else
 		sp<Layer> layer = mOwner.promote();
 		if (layer != NULL) {
 			win = layer->getNativeWindow()->getNativeWindow();
 		}
-        
+#endif
         return win;
     };
     

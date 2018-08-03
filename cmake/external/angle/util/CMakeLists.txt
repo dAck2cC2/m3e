@@ -15,6 +15,7 @@ else(ENABLE_ANGLE)
 endif(ENABLE_ANGLE)
 
 add_definitions(-DLIBANGLE_UTIL_IMPLEMENTATION=1)
+add_definitions(-DGL_GLEXT_PROTOTYPES=1)
 
 set(ANGLE_UTIL_DEPLIB
 EGL
@@ -47,7 +48,7 @@ if(APPLE)
         )
     endif(BUILD_NATIVE_WINDOW)
 elseif(MSVC)
-    #if (BUILD_NATIVE_WINDOW)
+    if (BUILD_NATIVE_WINDOW)
         list(APPEND ANGLE_UTIL_HEAD 
         ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/WindowsTimer.h
         ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32Pixmap.h
@@ -60,7 +61,7 @@ elseif(MSVC)
         ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32Window.cpp
         ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/windows/win32/Win32_system_utils.cpp
         )
-    #endif(BUILD_NATIVE_WINDOW)
+    endif(BUILD_NATIVE_WINDOW)
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

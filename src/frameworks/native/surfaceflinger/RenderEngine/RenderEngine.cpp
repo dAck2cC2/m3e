@@ -582,7 +582,10 @@ EGLConfig RenderEngine::chooseEglConfig(EGLDisplay display, int format) {
 void RenderEngine::primeCache() const {
     // Getting the ProgramCache instance causes it to prime its shader cache,
     // which is performed in its constructor
-#if !defined(ENABLE_DESKTOP_GL)
+#if !defined(ENABLE_DESKTOP_GL) && !defined(__APPLE__)
+    /*
+     *  It will fail to create program in ANGLE for Mac.
+     */
     ProgramCache::getInstance();
 #endif // ENABLE_DESKTOP_GL
 }

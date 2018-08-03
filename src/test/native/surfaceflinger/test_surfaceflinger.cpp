@@ -175,8 +175,12 @@ private:
         EGLConfig config;
         EGLSurface surface;
         EGLContext context;
-        
+
+#if defined(__APPLE__)
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY + 1);
+#else
         EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#endif
         
         eglInitialize(display, 0, 0);
         eglBindAPI(EGL_OPENGL_ES_API);
