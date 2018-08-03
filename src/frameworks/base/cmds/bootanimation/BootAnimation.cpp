@@ -24,7 +24,9 @@
 #include <dirent.h>
 #include <time.h>
 #else  // _MSC_VER
+#if !defined(__APPLE__)
 #include <sys/inotify.h>
+#endif // __APPLE__
 #include <sys/poll.h>
 #endif // _MSC_VER
 #include <sys/stat.h>

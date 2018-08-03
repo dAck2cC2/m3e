@@ -6,14 +6,14 @@ elseif (MSVC)
 endif ()
 
 # core
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include)
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/config)
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/core)
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/gpu)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome/include/config)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome/include/core)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome/include/gpu)
 
 # additonal
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/views)
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include/utils)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome/include/views)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome/include/utils)
 
 #extend
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/skia/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/skia_chrome/include)

@@ -51,7 +51,7 @@ endif(ENABLE_CORE)
 
 if (ENABLE_AV_UTILS)
     add_subdirectory(zlib)
-    add_subdirectory(skia_chrome) 
+    #add_subdirectory(skia_chrome) 
     #add_subdirectory(skia_android) 
 endif(ENABLE_AV_UTILS)
 
