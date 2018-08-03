@@ -34,6 +34,19 @@ gui
 ${OPENGL_DEPLIB}
 )
 
+# test function for angle
+if (ENABLE_ANGLE)
+    #set(ENABLE_CORE       "TRUE")  
+endif(ENABLE_ANGLE) 
+
+if (ENABLE_ANGLE_TEST)
+    add_definitions(-DENABLE_ANGLE_TEST=1)
+    include(${M3E_SOURCE_DIR}/cmake/${EXT_PATH}/angle/include_util.cmake)
+    include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src)    
+    include_directories(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/angle)
+    list(APPEND SURFACEFLINGER_DEPLIB angle_util)
+endif(ENABLE_ANGLE_TEST)
+
 ###############################################################################
 #  Flinger
 ###############################################################################

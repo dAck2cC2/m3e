@@ -18,7 +18,11 @@ namespace android {
 
 		void Start() {
 			mService.waitForStarted();
-			mMessage.waitForStarted();
+
+			/*
+			*  The message must be executed in main thread. Because it may create surface.
+			*/
+			//mMessage.waitForStarted();
 		}
 
 	private:

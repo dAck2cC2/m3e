@@ -42,6 +42,9 @@ public:
     int getActiveConfig() const;
     void setActiveConfig(int mode);
     
+
+	EGLSurface getEGLSurface() { return (mSurface); };
+
 private:
     /*
      *  Constants, set during initialization

@@ -16,6 +16,11 @@
 #include "RenderEngine/RenderEngine.h"
 #include "NativeWindow/NativeWindow.h"
 
+#if ENABLE_ANGLE_TEST
+#include "angle_test.hpp"
+static sp<angle::MultiWindowSample> g_TestAngle;
+#endif // ENABLE_ANGLE
+
 namespace android {
 
 SurfaceFlinger::SurfaceFlinger()
@@ -564,6 +569,17 @@ void SurfaceFlinger::run() {
         bool mRunning = true;
         
         while (mRunning) {
+#if ENABLE_ANGLE_TEST
+			if (g_TestAngle == NULL) {
+				g_TestAngle = new angle::MultiWindowSample(mNativeWindow, mEGLDisplay, mRenderEngine->getEGLConfig(), mDisplays.valueAt(0)->getEGLSurface(), mRenderEngine->getEGLContext());
+				g_TestAngle->initialize();
+			}
+			if (g_TestAngle != NULL) {
+				g_TestAngle->step();
+				g_TestAngle->draw();
+			}
+#endif // ENABLE_ANGLE_TEST
+
 			// message loop of sub window
 			const size_t count = mClients.size();
 			for (size_t i = 0; i<count; i++) {
@@ -583,8 +599,10 @@ void SurfaceFlinger::run() {
                 break;
             }
 
-            //waitForEvent(1000/60);
-            //IPCThreadState::self()->handlePolledCommands();
+			// The message which is used to create surface must be executed in main thread.
+            waitForEvent(1000/60);
+            
+			//IPCThreadState::self()->handlePolledCommands();
             
             mNativeWindow->messageLoop();
         } // while (mRunning)
