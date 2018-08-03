@@ -11,7 +11,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/base/androidfw/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/skia/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/skia_chrome/include.cmake)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/cmds/bootanimation )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/cmds/bootanimation )
@@ -25,7 +25,7 @@ log
 ui
 gui
 androidfw
-skia
+skia_chrome
 ${OPENGL_DEPLIB}
 )
 

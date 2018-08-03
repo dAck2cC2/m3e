@@ -1,20 +1,20 @@
 
-project(SKIA)
+project(SKIA_CHROME)
 
-if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
-	message(STATUS "Download\tskia")
+if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome)
+	message(STATUS "Download\tskia chrome")
 	exec_program("git clone https://skia.googlesource.com/skia.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
-	exec_program("git checkout chrome/m65" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
+	exec_program("git checkout chrome/m65" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome)
 	if (MSVC)
-		exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/skia/skia.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia)
+		exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/skia_chrome/skia.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome)
 	endif(MSVC)
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/include )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia/src )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_chrome/src )
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/skia/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/skia_chrome/include.cmake)
 #include(${M3E_SOURCE_DIR}/cmake/external/jsoncpp/include.cmake)
 #include(${M3E_SOURCE_DIR}/cmake/external/imgui/include.cmake)
 
@@ -442,5 +442,5 @@ ${VIEWS_SOURCE}
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(skia SHARED ${SKIA_SOURCE_FILES} ${SKIA_HEADER_FILES})
-target_link_libraries(skia ${SKIA_DEPLIB})
+add_library(skia_chrome SHARED ${SKIA_SOURCE_FILES} ${SKIA_HEADER_FILES})
+target_link_libraries(skia_chrome ${SKIA_DEPLIB})

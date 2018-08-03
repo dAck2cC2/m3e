@@ -27,13 +27,13 @@ if (ENABLE_ANGLE)
 endif()
 
 # skia
-if(ENABLE_SKIA)
-    add_subdirectory(skia)
+if(ENABLE_SKIA_CHROME)
+    add_subdirectory(skia_chrome)
     add_subdirectory(freeglut)
     #add_subdirectory(imgui)
 
     #add_subdirectory(jsoncpp)
-endif(ENABLE_SKIA)
+endif(ENABLE_SKIA_CHROME)
 
 # freeglut
 if(ENABLE_GLUT)
@@ -51,7 +51,8 @@ endif(ENABLE_CORE)
 
 if (ENABLE_AV_UTILS)
     add_subdirectory(zlib)
-    #add_subdirectory(skia) 
+    add_subdirectory(skia_chrome) 
+    #add_subdirectory(skia_android) 
 endif(ENABLE_AV_UTILS)
 
 if(ENABLE_TEST)
