@@ -1,3 +1,16 @@
+diff --git a/include/core/SkImageDecoder.h b/include/core/SkImageDecoder.h
+index 5060a1e..29716b6 100644
+--- a/include/core/SkImageDecoder.h
++++ b/include/core/SkImageDecoder.h
+@@ -23,7 +23,7 @@ class SkStreamRewindable;
+ 
+     Base class for decoding compressed images into a SkBitmap
+ */
+-class SkImageDecoder : SkNoncopyable {
++class SK_API SkImageDecoder : SkNoncopyable {
+ public:
+     virtual ~SkImageDecoder();
+ 
 diff --git a/include/core/SkUserConfig.h b/include/core/SkUserConfig.h
 index 0cf628c..8a3b4d0 100644
 --- a/include/core/SkUserConfig.h

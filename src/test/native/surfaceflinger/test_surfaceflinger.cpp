@@ -1,6 +1,8 @@
 
 #include <initrc.h>
 
+#include <cutils/properties.h>
+
 #include <ui/DisplayInfo.h>
 
 #include <gui/ISurfaceComposer.h>
@@ -237,6 +239,8 @@ int main(int argc, char** argv)
     
     sp<Animation> animation = new Animation();
     
+	property_set("ctl.start", "");
+
     InitRC::getInstance().Run();
     
     return 0;

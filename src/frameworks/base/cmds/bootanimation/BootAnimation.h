@@ -110,6 +110,7 @@ private:
         ZipFileRO* zip;
     };
 
+	status_t initShader();
     status_t initTexture(Texture* texture, AssetManager& asset, const char* name);
     status_t initTexture(const Animation::Frame& frame);
     bool android();
@@ -144,6 +145,7 @@ private:
 #if ENABLE_TIME_CHECK
     sp<TimeCheckThread> mTimeCheckThread;
 #endif // ENABLE_TIME_CHECK
+	GLuint mProgram;
 };
 
 // ---------------------------------------------------------------------------

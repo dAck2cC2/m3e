@@ -13,6 +13,7 @@ ANDROID_SINGLETON_STATIC_INSTANCE(InitRC);
 enum {
     SERVICE_SM = 0,
     SERVICE_SF,
+	SERVICE_BOOT_ANIM,
     SERVICE_CNT
 };
     
@@ -22,7 +23,8 @@ static struct {
 }
 gServiceList[SERVICE_CNT] = {
     {"servicemanager", NULL},
-    {"surfaceflinger", NULL}
+    {"surfaceflinger", NULL},
+	{"bootanimation", NULL}
 };
 
 InitRC::InitRC()
@@ -81,12 +83,19 @@ status_t InitRC::Entry(int argc, char** argv)
 
 void InitRC::Run()
 {
+	char prop[PROPERTY_VALUE_MAX];
+
     if ((NULL == gServiceList[SERVICE_SF].handler)
     ||  (NULL == gServiceList[SERVICE_SF].handler->module)
     ||  (NULL == gServiceList[SERVICE_SF].handler->module->dso)) {
         return;
     }
     
+	property_get("ctl.start", prop, "");
+	if (!strcmp("bootanim", prop)) {
+		StartService(SERVICE_BOOT_ANIM);
+	}
+
     sp<SurfaceFlinger> flinger = (SurfaceFlinger *)(gServiceList[SERVICE_SF].handler->module->dso);
     flinger->run();
 }

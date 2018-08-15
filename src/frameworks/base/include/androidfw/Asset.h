@@ -256,8 +256,11 @@ private:
      * a buffer or memory-map it.  For small files it's probably best to
      * just read them in.
      */
-    enum { kReadVsMapThreshold = 4096 };
-
+#if defined(_MSC_VER)
+    enum { kReadVsMapThreshold = 4096 * 1024 };
+#else
+	enum { kReadVsMapThreshold = 4096 };
+#endif
     FileMap*    mMap;           // for memory map
     unsigned char* mBuf;        // for read
     

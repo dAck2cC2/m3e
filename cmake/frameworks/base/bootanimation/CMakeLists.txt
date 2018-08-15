@@ -11,7 +11,9 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/base/androidfw/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/skia_chrome/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/skia_android/include.cmake)
+
+add_definitions(-DANDROID_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/cmds/bootanimation )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/cmds/bootanimation )
@@ -25,7 +27,7 @@ log
 ui
 gui
 androidfw
-skia_chrome
+skia_android
 ${OPENGL_DEPLIB}
 )
 
@@ -36,10 +38,12 @@ ${HEADER_PATH}/BootAnimation.h
 
 set( BOOTANIMATION_SOURCE_FILES 
 ${SOURCE_PATH}/BootAnimation.cpp
+${SOURCE_PATH}/main_bootanimation.cpp
 )
 
 if(MSVC)
     #add_definitions(-DNOMINMAX=1)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     add_definitions(-Dstrcasecmp=strcmp)
 
     include_directories(AFTER ${MSVC_PATH})
@@ -59,3 +63,17 @@ set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(${LIB_NAME} SHARED ${BOOTANIMATION_SOURCE_FILES} ${BOOTANIMATION_HEADER_FILES})
 target_link_libraries(${LIB_NAME} ${BOOTANIMATION_DEPLIB})
 
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E make_directory 
+$<TARGET_FILE_DIR:${LIB_NAME}>/assets/
+)
+
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory
+${M3E_SOURCE_DIR}/src/frameworks/base/core/res/assets/images/ $<TARGET_FILE_DIR:${LIB_NAME}>/assets/
+)
+
+# test 
+if (ENABLE_TEST)
+    add_subdirectory(test)
+endif(ENABLE_TEST)

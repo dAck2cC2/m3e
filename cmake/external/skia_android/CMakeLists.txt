@@ -34,6 +34,7 @@ add_definitions(-D_FORTIFY_SOURCE=1)
 add_definitions(-DSKIA_IMPLEMENTATION=1)
 
 if(MSVC)
+    add_definitions(-DSKIA_DLL=1)
     add_definitions(-D__BIG_ENDIAN=4321)
     add_definitions(-D__LITTLE_ENDIAN=1234)
     add_definitions(-D__BYTE_ORDER=1234)

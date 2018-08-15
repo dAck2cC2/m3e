@@ -54,6 +54,7 @@
 #include <gui/ISurfaceComposer.h>
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
+#include <gui/ISurfaceHandle.h>
 
 // TODO: Fix Skia.
 #pragma GCC diagnostic push
@@ -72,6 +73,9 @@
 #if ENABLE_AUDIOPLAY
 #include "audioplay.h"
 #endif // ENABLE_AUDIOPLAY
+
+#include "shader_utils.h"
+
 namespace android {
 
 static const char OEM_BOOTANIMATION_FILE[] = "/oem/media/bootanimation.zip";
@@ -263,8 +267,13 @@ status_t BootAnimation::initTexture(const Animation::Frame& frame)
 }
 
 status_t BootAnimation::readyToRun() {
+#if 0
     mAssets.addDefaultAssets();
-
+#else
+	String8 path(".");
+	path.appendPath("");
+	mAssets.addAssetPath(path, NULL, false /* appAsLib */, true /* isSystemAsset */);
+#endif
     sp<IBinder> dtoken(SurfaceComposerClient::getBuiltInDisplay(
             ISurfaceComposer::eDisplayIdMain));
     DisplayInfo dinfo;
@@ -281,6 +290,7 @@ status_t BootAnimation::readyToRun() {
     SurfaceComposerClient::closeGlobalTransaction();
 
     sp<Surface> s = control->getSurface();
+	sp<ISurfaceHandle> handle = interface_cast<ISurfaceHandle>(control->getHandle());
 
     // initialize opengl and egl
     const EGLint attribs[] = {
@@ -296,12 +306,20 @@ status_t BootAnimation::readyToRun() {
     EGLSurface surface;
     EGLContext context;
 
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#if defined(__APPLE__)
+	EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY + 1);
+#else
+	EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#endif
 
     eglInitialize(display, 0, 0);
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-    //surface = eglCreateWindowSurface(display, config, s.get(), NULL);
-    context = eglCreateContext(display, config, NULL, NULL);
+	surface = eglCreateWindowSurface(display, config, handle->getNativeWindow(), NULL);
+	const EGLint attribsContext[] = {
+		EGL_CONTEXT_MAJOR_VERSION_KHR, 2,
+		EGL_NONE
+	};
+    context = eglCreateContext(display, config, NULL, attribsContext);
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
@@ -315,6 +333,11 @@ status_t BootAnimation::readyToRun() {
     mHeight = h;
     mFlingerSurfaceControl = control;
     mFlingerSurface = s;
+
+	status_t hr = initShader();
+	if (NO_ERROR != hr) {
+		return hr;
+	}
 
     // If the device has encryption turned on or is in process
     // of being encrypted we show the encrypted boot animation.
@@ -358,8 +381,8 @@ bool BootAnimation::threadLoop()
 
 bool BootAnimation::android()
 {
-    initTexture(&mAndroid[0], mAssets, "images/android-logo-mask.png");
-    initTexture(&mAndroid[1], mAssets, "images/android-logo-shine.png");
+    initTexture(&mAndroid[0], mAssets, "android-logo-mask.png");
+    initTexture(&mAndroid[1], mAssets, "android-logo-shine.png");
 
     // clear screen
     glShadeModel(GL_FLAT);
@@ -390,6 +413,9 @@ bool BootAnimation::android()
         float t = 4.0f * float(time / us2ns(16667)) / mAndroid[1].w;
         GLint offset = (1 - (t - floorf(t))) * mAndroid[1].w;
         GLint x = xc - offset;
+
+		// Use the program object
+		//glUseProgram(mProgram);
 
         glDisable(GL_SCISSOR_TEST);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -1102,6 +1128,35 @@ status_t BootAnimation::TimeCheckThread::readyToRun() {
     return NO_ERROR;
 }
 #endif // ENABLE_TIME_CHECK
+
+status_t BootAnimation::initShader() {
+	const std::string vs =
+		R"(attribute vec4 a_position;
+            attribute vec2 a_texCoord;
+            varying vec2 v_texCoord;
+            void main()
+            {
+                gl_Position = a_position;
+                v_texCoord = a_texCoord;
+            })";
+
+	const std::string fs =
+		R"(precision mediump float;
+            varying vec2 v_texCoord;
+            uniform sampler2D s_texture;
+            void main()
+            {
+                gl_FragColor = texture2D(s_texture, v_texCoord);
+            })";
+
+	mProgram = CompileProgram(vs, fs);
+	if (!mProgram)
+	{
+		return NO_INIT;
+	}
+
+	return NO_ERROR;
+}
 // ---------------------------------------------------------------------------
 
 }
