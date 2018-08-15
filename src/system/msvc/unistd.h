@@ -20,6 +20,18 @@
 #include <process.h> /* for getpid() and the exec..() family */
 #include <direct.h> /* for _getcwd() and _chdir() */
 
+
+/* Read user permission */
+#if !defined(S_IRUSR)
+#   define S_IRUSR S_IREAD
+#endif
+
+/* Write user permission */
+#if !defined(S_IWUSR)
+#   define S_IWUSR S_IWRITE
+#endif
+
+
 #define srandom srand
 #define random rand
 

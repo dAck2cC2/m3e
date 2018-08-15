@@ -6,6 +6,10 @@ include(${M3E_SOURCE_DIR}/cmake/external/png/include.cmake)
 
 GET_ANDROID_MODULE(libpng)
 
+if(MSVC)
+    include_directories(AFTER ${MSVC_PATH})
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/libpng )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/libpng )
 

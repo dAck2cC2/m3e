@@ -1,6 +1,7 @@
 
 # define
 if(MSVC)
+    include_directories(AFTER ${MSVC_PATH})
     add_definitions(-DZLIB_DLL)
 endif(MSVC)
 

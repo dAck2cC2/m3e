@@ -203,7 +203,7 @@ endif()
 #
 # Targets
 #
-
+include(CheckTypeSize)
 check_type_size("size_t" SIZEOF_SIZE_T)
 if (SIZEOF_SIZE_T EQUAL 8)
     add_definitions(-DSIZEOF_SIZE_T=8)
