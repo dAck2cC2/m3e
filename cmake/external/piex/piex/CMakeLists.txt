@@ -10,6 +10,10 @@ image_type_recognition
 tiff_directory
 )
 
+if(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/piex/src/ )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/piex/src/ )
 

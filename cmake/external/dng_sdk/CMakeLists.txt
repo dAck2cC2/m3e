@@ -20,6 +20,12 @@ add_definitions(-DqDNGUseXMP=0)
 add_definitions(-DqDNGValidate=0)
 add_definitions(-DqDNGValidateTarget=1)
 
+if(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+    find_library(APPKIT_LIBRARY AppKit)
+    list(APPEND DNG_DEPLIB ${APPKIT_LIBRARY})
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/dng_sdk/source )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/dng_sdk/source )
 
@@ -94,12 +100,6 @@ ${SOURCE_PATH}/dng_utils.cpp
 ${SOURCE_PATH}/dng_xy_coord.cpp 
 ${SOURCE_PATH}/dng_xmp.cpp
 )
-
-if (MSVC)
-    set(LIB_TYPE STATIC)
-else()
-    set(LIB_TYPE SHARED)
-endif()
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(dng_sdk ${LIB_TYPE} ${DNG_SOURCE_FILES} ${DNG_HEADER_FILES})

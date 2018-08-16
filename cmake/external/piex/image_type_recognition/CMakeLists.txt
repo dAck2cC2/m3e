@@ -8,6 +8,10 @@ set(IMAGE_TYPE_DEPLIB
 binary_parse
 )
 
+if(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/piex/src/image_type_recognition )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/piex/src/image_type_recognition )
 

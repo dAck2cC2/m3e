@@ -33,11 +33,15 @@ ${OPENGL_DEPLIB}
 add_definitions(-D_FORTIFY_SOURCE=1)
 add_definitions(-DSKIA_IMPLEMENTATION=1)
 
+add_definitions(-D__BIG_ENDIAN=4321)
+add_definitions(-D__LITTLE_ENDIAN=1234)
+
 if(MSVC)
     add_definitions(-DSKIA_DLL=1)
-    add_definitions(-D__BIG_ENDIAN=4321)
-    add_definitions(-D__LITTLE_ENDIAN=1234)
     add_definitions(-D__BYTE_ORDER=1234)
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+    add_definitions(-D__BYTE_ORDER=1234)    
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/skia_android/include )
@@ -73,6 +77,10 @@ if (MSVC)
     include_directories(AFTER ${HEADER_PATH}/utils/win)
     file(GLOB UTILS_WIN_HEADER ${HEADER_PATH}/utils/win/*.h)
     list(APPEND UTILS_HEADER ${UTILS_WIN_HEADER})
+elseif(APPLE)
+    include_directories(AFTER ${HEADER_PATH}/utils/mac)
+    file(GLOB UTILS_MAC_HEADER ${HEADER_PATH}/utils/mac/*.h)
+    list(APPEND UTILS_HEADER ${UTILS_MAC_HEADER})
 endif() 
 source_group(public\\utils FILES ${UTILS_HEADER})
 
@@ -798,12 +806,19 @@ if (MSVC)
     ${SOURCE_PATH}/ports/SkScalerContext_win_dw.h
     ${SOURCE_PATH}/ports/SkTLS_win.cpp
     )
-else()
+else(MSVC)
     list(APPEND PORTS_SOURCE
     ${SOURCE_PATH}/ports/SkDebug_stdio.cpp 
     ${SOURCE_PATH}/ports/SkTLS_pthread.cpp 
+    ${SOURCE_PATH}/ports/SkOSFile_posix.cpp     
     )
-endif()
+
+    if (APPLE)
+        list(APPEND PORTS_SOURCE
+        ${SOURCE_PATH}/ports/SkFontHost_mac.cpp   
+        )   
+    endif(APPLE) 
+endif(MSVC)
 
 source_group(ports FILES ${PORTS_SOURCE})
 
