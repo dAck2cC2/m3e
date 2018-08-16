@@ -4,6 +4,12 @@ set(BUILD_PATH  ${M3E_BINARY_DIR}/build)
 set(MSVC_PATH   ${M3E_SOURCE_DIR}/src/system/msvc)
 set(EXT_PATH    external)
 
+if (MSVC)
+    set(LIB_TYPE STATIC)
+else(MSVC)
+    set(LIB_TYPE SHARED)
+endif(MSVC)
+
 # external module from android
 set(EXT_LINK https://android.googlesource.com/platform)
 set(EXT_TAG android-7.1.0_r7)

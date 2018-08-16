@@ -1,8 +1,8 @@
 diff --git a/util/EGLWindow.cpp b/util/EGLWindow.cpp
-index bbe6f2d..d00ad0c 100644
+index e67dddc..2fb444f 100644
 --- a/util/EGLWindow.cpp
 +++ b/util/EGLWindow.cpp
-@@ -296,7 +296,7 @@ bool EGLWindow::initializeDisplayAndSurface(OSWindow *osWindow)
+@@ -298,7 +298,7 @@ bool EGLWindow::initializeDisplayAndSurface(OSWindow *osWindow)
          destroyGL();
          return false;
      }

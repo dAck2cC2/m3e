@@ -1,0 +1,14 @@
+diff --git a/include/GL/glui.h b/include/GL/glui.h
+index 6c1aba7..87e5276 100644
+--- a/include/GL/glui.h
++++ b/include/GL/glui.h
+@@ -38,6 +38,9 @@
+ #include <OpenGL/GL.h>
+ #include <OpenGL/GLU.h>
+ #else
++#if defined(_MSC_VER)
++#include <windows.h>
++#endif // _MSC_VER
+ #include <GL/gl.h>
+ #include <GL/glu.h>
+ #endif

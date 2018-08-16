@@ -74,8 +74,6 @@
 #include "audioplay.h"
 #endif // ENABLE_AUDIOPLAY
 
-#include "shader_utils.h"
-
 namespace android {
 
 static const char OEM_BOOTANIMATION_FILE[] = "/oem/media/bootanimation.zip";
@@ -157,7 +155,7 @@ status_t BootAnimation::initTexture(Texture* texture, AssetManager& assets,
 
     // ensure we can call getPixels(). No need to call unlock, since the
     // bitmap will go out of scope when we return from this method.
-    //bitmap.lockPixels();
+    bitmap.lockPixels();
 
     const int w = bitmap.width();
     const int h = bitmap.height();
@@ -221,7 +219,7 @@ status_t BootAnimation::initTexture(const Animation::Frame& frame)
 
     // ensure we can call getPixels(). No need to call unlock, since the
     // bitmap will go out of scope when we return from this method.
-   // bitmap.lockPixels();
+    bitmap.lockPixels();
 
     const int w = bitmap.width();
     const int h = bitmap.height();
@@ -315,11 +313,7 @@ status_t BootAnimation::readyToRun() {
     eglInitialize(display, 0, 0);
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
 	surface = eglCreateWindowSurface(display, config, handle->getNativeWindow(), NULL);
-	const EGLint attribsContext[] = {
-		EGL_CONTEXT_MAJOR_VERSION_KHR, 2,
-		EGL_NONE
-	};
-    context = eglCreateContext(display, config, NULL, attribsContext);
+    context = eglCreateContext(display, config, NULL, NULL);
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
@@ -333,11 +327,6 @@ status_t BootAnimation::readyToRun() {
     mHeight = h;
     mFlingerSurfaceControl = control;
     mFlingerSurface = s;
-
-	status_t hr = initShader();
-	if (NO_ERROR != hr) {
-		return hr;
-	}
 
     // If the device has encryption turned on or is in process
     // of being encrypted we show the encrypted boot animation.
@@ -413,9 +402,6 @@ bool BootAnimation::android()
         float t = 4.0f * float(time / us2ns(16667)) / mAndroid[1].w;
         GLint offset = (1 - (t - floorf(t))) * mAndroid[1].w;
         GLint x = xc - offset;
-
-		// Use the program object
-		//glUseProgram(mProgram);
 
         glDisable(GL_SCISSOR_TEST);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -1128,35 +1114,6 @@ status_t BootAnimation::TimeCheckThread::readyToRun() {
     return NO_ERROR;
 }
 #endif // ENABLE_TIME_CHECK
-
-status_t BootAnimation::initShader() {
-	const std::string vs =
-		R"(attribute vec4 a_position;
-            attribute vec2 a_texCoord;
-            varying vec2 v_texCoord;
-            void main()
-            {
-                gl_Position = a_position;
-                v_texCoord = a_texCoord;
-            })";
-
-	const std::string fs =
-		R"(precision mediump float;
-            varying vec2 v_texCoord;
-            uniform sampler2D s_texture;
-            void main()
-            {
-                gl_FragColor = texture2D(s_texture, v_texCoord);
-            })";
-
-	mProgram = CompileProgram(vs, fs);
-	if (!mProgram)
-	{
-		return NO_INIT;
-	}
-
-	return NO_ERROR;
-}
 // ---------------------------------------------------------------------------
 
 }

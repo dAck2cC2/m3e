@@ -20,6 +20,7 @@ GLESv1_CM
 angle_util
 )
 
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src/)
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util)
 
@@ -87,6 +88,11 @@ ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
 ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/tri_fan_microbench/TriFanMicroBench.cpp
 )
 
+ADD_DEMO(angle_gles1_DrawTexture
+${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/SampleApplication.cpp
+${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/sample_util/texture_utils.cpp
+${M3E_SOURCE_DIR}/${EXT_PATH}/angle/samples/gles1/DrawTexture.cpp
+)
 
 if (NOT MSVC)
     ADD_DEMO(angle_multi_texture

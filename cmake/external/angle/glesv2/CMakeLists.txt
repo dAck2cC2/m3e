@@ -45,6 +45,9 @@ ${SOURCE_PATH}/common/utilities.cpp
 ${SOURCE_PATH}/common/uniform_type_info_autogen.cpp
 ${SOURCE_PATH}/common/third_party/base/anglebase/sha1.h
 ${SOURCE_PATH}/common/third_party/base/anglebase/sha1.cc
+${SOURCE_PATH}/common/PackedGLEnums_autogen.cpp
+${SOURCE_PATH}/common/PackedEGLEnums_autogen.cpp
+${SOURCE_PATH}/common/PackedEnums.cpp
 )
 source_group(common FILES ${ANGLE_SOURCE_COMMON})
 
@@ -56,37 +59,37 @@ ${SOURCE_PATH}/compiler/translator/*.h
 ${SOURCE_PATH}/compiler/translator/*.inl
 )
 list(APPEND ANGLE_SOURCE_COMPILER_TRANSLATOR
-${SOURCE_PATH}/compiler/translator/AddAndTrueToLoopCondition.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/AddAndTrueToLoopCondition.cpp
 ${SOURCE_PATH}/compiler/translator/BuiltInFunctionEmulator.cpp
 ${SOURCE_PATH}/compiler/translator/CallDAG.cpp
-${SOURCE_PATH}/compiler/translator/ClampFragDepth.cpp
-${SOURCE_PATH}/compiler/translator/ClampPointSize.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/ClampFragDepth.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/ClampPointSize.cpp
 ${SOURCE_PATH}/compiler/translator/CodeGen.cpp
 ${SOURCE_PATH}/compiler/translator/CollectVariables.cpp
 ${SOURCE_PATH}/compiler/translator/ConstantUnion.cpp
 ${SOURCE_PATH}/compiler/translator/Compiler.cpp
 ${SOURCE_PATH}/compiler/translator/Declarator.cpp
-${SOURCE_PATH}/compiler/translator/DeclareAndInitBuiltinsForInstancedMultiview.cpp
-${SOURCE_PATH}/compiler/translator/DeferGlobalInitializers.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/DeclareAndInitBuiltinsForInstancedMultiview.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/DeferGlobalInitializers.cpp
 ${SOURCE_PATH}/compiler/translator/Diagnostics.cpp
 ${SOURCE_PATH}/compiler/translator/DirectiveHandler.cpp
-${SOURCE_PATH}/compiler/translator/EmulatePrecision.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/EmulatePrecision.cpp
 ${SOURCE_PATH}/compiler/translator/ExtensionBehavior.cpp
-${SOURCE_PATH}/compiler/translator/FoldExpressions.cpp
-${SOURCE_PATH}/compiler/translator/FindMain.cpp
-${SOURCE_PATH}/compiler/translator/FindSymbolNode.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/FoldExpressions.cpp
+${SOURCE_PATH}/compiler/translator/tree_util/FindMain.cpp
+${SOURCE_PATH}/compiler/translator/tree_util/FindSymbolNode.cpp
 ${SOURCE_PATH}/compiler/translator/FunctionLookup.cpp
 ${SOURCE_PATH}/compiler/translator/glslang_lex.cpp
 ${SOURCE_PATH}/compiler/translator/glslang_tab.cpp
 ${SOURCE_PATH}/compiler/translator/HashNames.cpp
 ${SOURCE_PATH}/compiler/translator/Initialize.cpp
 ${SOURCE_PATH}/compiler/translator/InitializeDll.cpp
-${SOURCE_PATH}/compiler/translator/InitializeVariables.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/InitializeVariables.cpp
 ${SOURCE_PATH}/compiler/translator/InfoSink.cpp
 ${SOURCE_PATH}/compiler/translator/IntermNode.cpp
-${SOURCE_PATH}/compiler/translator/IntermNodePatternMatcher.cpp
-${SOURCE_PATH}/compiler/translator/IntermNode_util.cpp
-${SOURCE_PATH}/compiler/translator/IntermTraverse.cpp
+${SOURCE_PATH}/compiler/translator/tree_util/IntermNodePatternMatcher.cpp
+${SOURCE_PATH}/compiler/translator/tree_util/IntermNode_util.cpp
+${SOURCE_PATH}/compiler/translator/tree_util/IntermTraverse.cpp
 ${SOURCE_PATH}/compiler/translator/ImmutableString.cpp
 ${SOURCE_PATH}/compiler/translator/ImmutableStringBuilder.cpp
 ${SOURCE_PATH}/compiler/translator/IsASTDepthBelowLimit.cpp
@@ -94,32 +97,32 @@ ${SOURCE_PATH}/compiler/translator/Operator.cpp
 ${SOURCE_PATH}/compiler/translator/OutputTree.cpp
 ${SOURCE_PATH}/compiler/translator/ParseContext.cpp
 ${SOURCE_PATH}/compiler/translator/PoolAlloc.cpp
-${SOURCE_PATH}/compiler/translator/PruneEmptyCases.cpp
-${SOURCE_PATH}/compiler/translator/PruneNoOps.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/PruneEmptyCases.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/PruneNoOps.cpp
 ${SOURCE_PATH}/compiler/translator/QualifierTypes.cpp
-${SOURCE_PATH}/compiler/translator/RemoveArrayLengthMethod.cpp
-${SOURCE_PATH}/compiler/translator/RemoveInvariantDeclaration.cpp
-${SOURCE_PATH}/compiler/translator/RemoveUnreferencedVariables.cpp
-${SOURCE_PATH}/compiler/translator/ReplaceVariable.cpp
-${SOURCE_PATH}/compiler/translator/RegenerateStructNames.cpp
-${SOURCE_PATH}/compiler/translator/RewriteDoWhile.cpp
-${SOURCE_PATH}/compiler/translator/RewriteTexelFetchOffset.cpp
-${SOURCE_PATH}/compiler/translator/RewriteUnaryMinusOperatorFloat.cpp
-${SOURCE_PATH}/compiler/translator/RemovePow.cpp
-${SOURCE_PATH}/compiler/translator/RunAtTheEndOfShader.cpp
-${SOURCE_PATH}/compiler/translator/ScalarizeVecAndMatConstructorArgs.cpp
-${SOURCE_PATH}/compiler/translator/SeparateDeclarations.cpp
-${SOURCE_PATH}/compiler/translator/SimplifyLoopConditions.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RemoveArrayLengthMethod.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RemoveInvariantDeclaration.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RemoveUnreferencedVariables.cpp
+${SOURCE_PATH}/compiler/translator/tree_util/ReplaceVariable.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RegenerateStructNames.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RewriteDoWhile.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RewriteTexelFetchOffset.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RewriteUnaryMinusOperatorFloat.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RemovePow.cpp
+${SOURCE_PATH}/compiler/translator/tree_util/RunAtTheEndOfShader.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/ScalarizeVecAndMatConstructorArgs.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/SeparateDeclarations.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/SimplifyLoopConditions.cpp
 ${SOURCE_PATH}/compiler/translator/ShaderLang.cpp
 ${SOURCE_PATH}/compiler/translator/ShaderVars.cpp
-${SOURCE_PATH}/compiler/translator/SplitSequenceOperator.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/SplitSequenceOperator.cpp
 ${SOURCE_PATH}/compiler/translator/Symbol.cpp
 ${SOURCE_PATH}/compiler/translator/SymbolTable.cpp
 ${SOURCE_PATH}/compiler/translator/SymbolTable_autogen.cpp
 ${SOURCE_PATH}/compiler/translator/SymbolUniqueId.cpp
 ${SOURCE_PATH}/compiler/translator/Types.cpp
-${SOURCE_PATH}/compiler/translator/UnfoldShortCircuitAST.cpp
-${SOURCE_PATH}/compiler/translator/UseInterfaceBlockFields.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/UnfoldShortCircuitAST.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/UseInterfaceBlockFields.cpp
 ${SOURCE_PATH}/compiler/translator/util.cpp
 ${SOURCE_PATH}/compiler/translator/ValidateGlobalInitializer.cpp
 ${SOURCE_PATH}/compiler/translator/ValidateLimitations.cpp
@@ -128,14 +131,16 @@ ${SOURCE_PATH}/compiler/translator/ValidateOutputs.cpp
 ${SOURCE_PATH}/compiler/translator/ValidateVaryingLocations.cpp
 ${SOURCE_PATH}/compiler/translator/ValidateSwitch.cpp
 ${SOURCE_PATH}/compiler/translator/VariablePacker.cpp
-${SOURCE_PATH}/compiler/translator/VectorizeVectorScalarArithmetic.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/VectorizeVectorScalarArithmetic.cpp
 ${SOURCE_PATH}/compiler/translator/BuiltInFunctionEmulatorGLSL.cpp
-${SOURCE_PATH}/compiler/translator/EmulateGLFragColorBroadcast.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/EmulateGLFragColorBroadcast.cpp
 ${SOURCE_PATH}/compiler/translator/ExtensionGLSL.cpp
 ${SOURCE_PATH}/compiler/translator/OutputGLSL.cpp
 ${SOURCE_PATH}/compiler/translator/OutputGLSLBase.cpp
 ${SOURCE_PATH}/compiler/translator/TranslatorGLSL.cpp
 ${SOURCE_PATH}/compiler/translator/VersionGLSL.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RewriteAtomicFunctionExpressions.cpp
+${SOURCE_PATH}/compiler/translator/tree_ops/RewriteRepeatedAssignToSwizzled.cpp
 )
 source_group(compiler\\translator FILES ${ANGLE_SOURCE_COMPILER_TRANSLATOR})
 
@@ -209,6 +214,7 @@ ${SOURCE_PATH}/libANGLE/formatutils.cpp
 ${SOURCE_PATH}/libANGLE/Framebuffer.cpp
 ${SOURCE_PATH}/libANGLE/FramebufferAttachment.cpp
 ${SOURCE_PATH}/libANGLE/GLES1State.cpp
+${SOURCE_PATH}/libANGLE/GLES1Renderer.cpp
 ${SOURCE_PATH}/libANGLE/HandleAllocator.cpp
 ${SOURCE_PATH}/libANGLE/HandleRangeAllocator.cpp
 ${SOURCE_PATH}/libANGLE/Image.cpp
@@ -217,8 +223,6 @@ ${SOURCE_PATH}/libANGLE/IndexRangeCache.cpp
 ${SOURCE_PATH}/libANGLE/LoggingAnnotator.cpp
 ${SOURCE_PATH}/libANGLE/MemoryProgramCache.cpp
 ${SOURCE_PATH}/libANGLE/Observer.cpp
-${SOURCE_PATH}/libANGLE/PackedGLEnums.cpp
-${SOURCE_PATH}/libANGLE/PackedGLEnums_autogen.cpp
 ${SOURCE_PATH}/libANGLE/params.cpp
 ${SOURCE_PATH}/libANGLE/Path.cpp
 ${SOURCE_PATH}/libANGLE/Platform.cpp
@@ -297,19 +301,19 @@ if(MSVC)
     ${SOURCE_PATH}/compiler/translator/StructureHLSL.cpp
     ${SOURCE_PATH}/compiler/translator/TextureFunctionHLSL.cpp
     ${SOURCE_PATH}/compiler/translator/UniformHLSL.cpp
-    ${SOURCE_PATH}/compiler/translator/AddDefaultReturnStatements.cpp
-    ${SOURCE_PATH}/compiler/translator/ArrayReturnValueToOutParameter.cpp
-    ${SOURCE_PATH}/compiler/translator/BreakVariableAliasingInInnerLoops.cpp
-    ${SOURCE_PATH}/compiler/translator/ExpandIntegerPowExpressions.cpp
-    ${SOURCE_PATH}/compiler/translator/RemoveDynamicIndexing.cpp
-    ${SOURCE_PATH}/compiler/translator/RewriteElseBlocks.cpp
-    ${SOURCE_PATH}/compiler/translator/RewriteUnaryMinusOperatorInt.cpp
-    ${SOURCE_PATH}/compiler/translator/SeparateArrayConstructorStatements.cpp
-    ${SOURCE_PATH}/compiler/translator/SeparateArrayInitialization.cpp
-    ${SOURCE_PATH}/compiler/translator/SeparateExpressionsReturningArrays.cpp
-    ${SOURCE_PATH}/compiler/translator/UnfoldShortCircuitToIf.cpp
-    ${SOURCE_PATH}/compiler/translator/WrapSwitchStatementsInBlocks.cpp
-    ${SOURCE_PATH}/compiler/translator/RemoveSwitchFallThrough.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/AddDefaultReturnStatements.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/ArrayReturnValueToOutParameter.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/BreakVariableAliasingInInnerLoops.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/ExpandIntegerPowExpressions.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/RemoveDynamicIndexing.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/RewriteElseBlocks.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/RewriteUnaryMinusOperatorInt.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/SeparateArrayConstructorStatements.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/SeparateArrayInitialization.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/SeparateExpressionsReturningArrays.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/UnfoldShortCircuitToIf.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/WrapSwitchStatementsInBlocks.cpp
+    ${SOURCE_PATH}/compiler/translator/tree_ops/RemoveSwitchFallThrough.cpp
     ) 
     source_group(angle\\d3d FILES ${ANGLE_SOURCE_ANGLE_D3D})
     list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_ANGLE_D3D} ) 
