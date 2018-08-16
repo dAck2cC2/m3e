@@ -161,7 +161,7 @@ status_t BootAnimation::initTexture(Texture* texture, AssetManager& assets,
     const int h = bitmap.height();
     const void* p = bitmap.getPixels();
 
-    GLint crop[4] = { 0, h, w, -h };
+	GLint crop[4] = { 0, h, w, -h };
     texture->w = w;
     texture->h = h;
 
@@ -190,8 +190,13 @@ status_t BootAnimation::initTexture(Texture* texture, AssetManager& assets,
     }
 
     glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_CROP_RECT_OES, crop);
+#if ENABLE_ANGLE
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+#else  // ENABLE_ANGLE
     glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+#endif // ENABLE_ANGLE
     glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     return NO_ERROR;
@@ -403,18 +408,18 @@ bool BootAnimation::android()
         GLint offset = (1 - (t - floorf(t))) * mAndroid[1].w;
         GLint x = xc - offset;
 
-        glDisable(GL_SCISSOR_TEST);
-        glClear(GL_COLOR_BUFFER_BIT);
+		glDisable(GL_SCISSOR_TEST);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-        glEnable(GL_SCISSOR_TEST);
-        glDisable(GL_BLEND);
-        glBindTexture(GL_TEXTURE_2D, mAndroid[1].name);
-        glDrawTexiOES(x,                 yc, 0, mAndroid[1].w, mAndroid[1].h);
-        glDrawTexiOES(x + mAndroid[1].w, yc, 0, mAndroid[1].w, mAndroid[1].h);
+		glEnable(GL_SCISSOR_TEST);
+		glDisable(GL_BLEND);
+		glBindTexture(GL_TEXTURE_2D, mAndroid[1].name);
+		glDrawTexiOES(x,                 yc, 0, mAndroid[1].w, mAndroid[1].h);
+		glDrawTexiOES(x + mAndroid[1].w, yc, 0, mAndroid[1].w, mAndroid[1].h);
 
-        glEnable(GL_BLEND);
-        glBindTexture(GL_TEXTURE_2D, mAndroid[0].name);
-        glDrawTexiOES(xc, yc, 0, mAndroid[0].w, mAndroid[0].h);
+		glEnable(GL_BLEND);
+		glBindTexture(GL_TEXTURE_2D, mAndroid[0].name);
+		glDrawTexiOES(xc, yc, 0, mAndroid[0].w, mAndroid[0].h);
 
         EGLBoolean res = eglSwapBuffers(mDisplay, mSurface);
         if (res == EGL_FALSE)

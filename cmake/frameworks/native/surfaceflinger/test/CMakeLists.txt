@@ -1,3 +1,4 @@
+
 # demo program
 
 project(TEST_SURFACEFLINGER)
@@ -12,10 +13,13 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include_util.cmake)
 
+add_definitions(-DANDROID_IMPLEMENTATION=0)
+
 # dependency
 
 set(DEMO_DEPLIBS
 cutils
+utils
 initrc
 gui
 ${OPENGL_DEPLIB}
@@ -27,4 +31,5 @@ if (ENABLE_ANGLE)
     list(APPEND DEMO_DEPLIBS angle_util)
 endif()
 
-ADD_DEMO(surfaceflinger   ${M3E_SOURCE_DIR}/src/test/native/surfaceflinger/test_surfaceflinger.cpp)
+ADD_DEMO(surfaceflinger_Triangle      ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger/test/test_Triangle.cpp)
+ADD_DEMO(surfaceflinger_DrawTexture   ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger/test/test_DrawTexture.cpp)

@@ -166,3 +166,8 @@ set(LIB_NAME surfaceflinger_default)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(${LIB_NAME} SHARED ${SURFACEFLINGER_SOURCE_FILES})
 target_link_libraries(${LIB_NAME} ${SURFACEFLINGER_DEPLIB})
+
+
+if(ENABLE_TEST)
+    add_subdirectory(test)
+endif(ENABLE_TEST)

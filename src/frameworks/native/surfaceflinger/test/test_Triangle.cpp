@@ -22,16 +22,16 @@
 
 using namespace android;
 
-class Animation : public Thread
+class Sample : public Thread
 {
 public:
-    Animation()
+    Sample()
     :   Thread(false)
     {
         mSession = new SurfaceComposerClient();
     };
     
-    ~Animation()
+    ~Sample()
     {
         
     };
@@ -150,12 +150,12 @@ private:
             return -1;
 
         // create the native surface
-        sp<SurfaceControl> control = session()->createSurface(String8("Animation"),
+        sp<SurfaceControl> control = session()->createSurface(String8("Sample"),
                                                               dinfo.w, dinfo.h, PIXEL_FORMAT_RGB_565);
         
-        //SurfaceComposerClient::openGlobalTransaction();
-        //control->setLayer(0x40000000);
-        //SurfaceComposerClient::closeGlobalTransaction();
+        SurfaceComposerClient::openGlobalTransaction();
+        control->setLayer(0x40000000);
+        SurfaceComposerClient::closeGlobalTransaction();
         
         sp<Surface> s = control->getSurface();
         sp<ISurfaceHandle> handle = interface_cast<ISurfaceHandle>(control->getHandle());
@@ -210,7 +210,7 @@ private:
     
     virtual void        onFirstRef()
     {
-        run("BootAnimation", PRIORITY_DISPLAY);
+        run("Sample", PRIORITY_DISPLAY);
     };
 
     sp<SurfaceComposerClient> session() const
@@ -237,7 +237,7 @@ int main(int argc, char** argv)
 {
     InitRC::getInstance().Entry(argc, argv);
     
-    sp<Animation> animation = new Animation();
+    sp<Sample> sample = new Sample();
     
 	property_set("ctl.start", "");
 
