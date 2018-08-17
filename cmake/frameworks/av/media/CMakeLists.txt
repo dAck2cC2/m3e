@@ -2,23 +2,23 @@
 project(MEDIA)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
+
+# dependency
+
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
-
-# dependency
 set(MEDIA_DEPLIB
 utils
 binder
 stagefright_foundation
 )
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
 
 # define
 if(APPLE)

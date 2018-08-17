@@ -1,6 +1,9 @@
 project(AUDIOFLINGER)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+
+# dependency
+
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
@@ -11,7 +14,6 @@ include(${M3E_SOURCE_DIR}/cmake/external/sonic/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/media/audio_effects/include)
 
-# dependency
 set( AUDIOFLINGER_DEPLIB
 log
 cutils
@@ -20,7 +22,6 @@ binder
 audioutils
 )
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
 if (MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-D__unused= )

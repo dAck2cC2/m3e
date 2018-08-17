@@ -2,28 +2,29 @@
 project(EGL)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+
+# dependency
+
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+
+set(EGL_DEPLIB
+utils
+log
+ui
+)
+
+add_definitions(-DEGL_EGLEXT_PROTOTYPES=1)
+add_definitions(-DEGL_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/libs )
 
 include_directories(AFTER ${SOURCE_PATH})
 include_directories(AFTER ${SOURCE_PATH}/EGL)
-
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-add_definitions(-DEGL_EGLEXT_PROTOTYPES=1)
-add_definitions(-DEGL_IMPLEMENTATION=1)
-
-# dependency
-set(EGL_DEPLIB
-utils
-log
-ui
-)
 
 # header files
 file(GLOB EGL_HEADER_FILES  

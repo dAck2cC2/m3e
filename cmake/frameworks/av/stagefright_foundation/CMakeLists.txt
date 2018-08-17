@@ -21,8 +21,6 @@ binder
 
 # define
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
 if(CYGWIN)
     add_definitions(-D_GNU_SOURCE)
 elseif(MSVC)
