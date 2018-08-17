@@ -1,7 +1,8 @@
 
 # define
+DLL_PUBLIC(UTILS)
+
 if(MSVC)
-    add_definitions(-DANDROID_DLL)
     add_definitions(-DHAVE_MS_C_RUNTIME)
     add_definitions(-DHAVE_WIN32_THREADS)
     add_definitions(-D__PRETTY_FUNCTION__=__FUNCTION__)

@@ -2,13 +2,24 @@
 project(UI)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
+
+# dependency
+
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/sync/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
+
+set(UI_DEPLIB
+binder
+utils
+log
+sync
+hardware
+)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
@@ -24,17 +35,9 @@ elseif(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")    
 endif()
 
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/ui )
-
-# dependency
-set(UI_DEPLIB
-binder
-utils
-log
-sync
-hardware
-)
 
 # header files
 file(GLOB UI_HEADER_FILES  ${HEADER_PATH}/ui/*.h)

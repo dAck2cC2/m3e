@@ -17,8 +17,6 @@
 #ifndef _LIBS_UTILS_CONDITION_H
 #define _LIBS_UTILS_CONDITION_H
 
-#include <cutils/compiler.h>
-
 #include <limits.h>
 #include <stdint.h>
 #include <sys/types.h>
@@ -44,7 +42,7 @@ namespace android {
  * or unlock the mutex and continue.  All threads calling wait() must
  * use the same mutex for a given Condition.
  */
-class ANDROID_API Condition {
+class ANDROID_API_UTILS Condition {
 public:
     enum {
         PRIVATE = 0,

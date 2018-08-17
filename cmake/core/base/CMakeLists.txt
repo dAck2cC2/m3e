@@ -3,16 +3,19 @@ project(BASE)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
+
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
+
+set(BASE_DEPLIB
+log
+)
 
 add_definitions(-DANDROID_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/base/include/android-base )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/base )
 
-set(BASE_DEPLIB
-log
-)
 
 # header files
 file(GLOB BASE_HEADER_FILES

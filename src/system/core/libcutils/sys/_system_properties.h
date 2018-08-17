@@ -2,8 +2,6 @@
 #ifndef _DEBUGGERD_TEST_SYS_SYSTEM_PROPERTIES_H
 #define _DEBUGGERD_TEST_SYS_SYSTEM_PROPERTIES_H
 
-#include <cutils/compiler.h>
-
 #include <cutils/properties.h>
 
 // This is just enough to get the property code to compile on

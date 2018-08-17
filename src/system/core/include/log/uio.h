@@ -27,8 +27,6 @@
 extern "C" {
 #endif
 
-#include <cutils/compiler.h>
-
 //
 // Implementation of sys/uio.h for Win32.
 //

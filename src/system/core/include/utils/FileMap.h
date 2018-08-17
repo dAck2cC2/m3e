@@ -20,8 +20,6 @@
 #ifndef __LIBS_FILE_MAP_H
 #define __LIBS_FILE_MAP_H
 
-#include <cutils/compiler.h>
-
 #include <sys/types.h>
 
 #include <utils/Compat.h>
@@ -51,7 +49,7 @@ namespace android {
  * completing the refcounting stuff and possibly introducing the notion
  * of a FileMap hierarchy.
  */
-class ANDROID_API FileMap {
+class ANDROID_API_UTILS FileMap {
 public:
     FileMap(void);
 

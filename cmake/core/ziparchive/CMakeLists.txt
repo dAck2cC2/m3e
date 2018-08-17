@@ -2,21 +2,23 @@
 project(ZIPARCHIVE)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/ziparchive/include.cmake)
+
+include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/zlib/include.cmake)
-
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/ziparchive )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libziparchive )
 
 set(ZIPARCHIVE_DEPLIB
 base
 utils
 zlib
 )
+
+add_definitions(-DANDROID_IMPLEMENTATION=1)
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/ziparchive )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libziparchive )
 
 # header files
 file(GLOB ZIPARCHIVE_HEADER_FILES

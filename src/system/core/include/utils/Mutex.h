@@ -17,8 +17,6 @@
 #ifndef _LIBS_UTILS_MUTEX_H
 #define _LIBS_UTILS_MUTEX_H
 
-#include <cutils/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 #include <time.h>
@@ -46,7 +44,7 @@ class Condition;
  * The mutex must be unlocked by the thread that locked it.  They are not
  * recursive, i.e. the same thread can't lock it multiple times.
  */
-class ANDROID_API Mutex {
+class ANDROID_API_UTILS Mutex {
 public:
     enum {
         PRIVATE = 0,
@@ -82,7 +80,7 @@ public:
 
     // Manages the mutex automatically. It'll be locked when Autolock is
     // constructed and released when Autolock goes out of scope.
-    class ANDROID_API Autolock {
+    class ANDROID_API_UTILS Autolock {
     public:
         inline Autolock(Mutex& mutex) : mLock(mutex)  { mLock.lock(); }
         inline Autolock(Mutex* mutex) : mLock(*mutex) { mLock.lock(); }

@@ -2,26 +2,27 @@
 project(STAGEFRIGHT_FOUNDATION)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
+
+# dependency
+
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media/stagefright/foundation )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation )
-
-# dependency
 set(STAGEFRIGHT_FOUNDATION_DEPLIB
 utils
 binder
 )
 
 # define
+
+add_definitions(-DANDROID_IMPLEMENTATION=1)
+
 if(CYGWIN)
     add_definitions(-D_GNU_SOURCE)
 elseif(MSVC)
@@ -29,6 +30,9 @@ elseif(MSVC)
     add_definitions(-Dstrncasecmp=_strnicmp)
     add_definitions(-Dstrcasecmp=_stricmp)
 endif()
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media/stagefright/foundation )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation )
 
 # include files
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)

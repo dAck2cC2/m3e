@@ -2,21 +2,20 @@
 project(CUTILS)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
+# dependency
+
+include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
+
+set(CUTILS_DEPLIB
+log
+)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/cutils )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils )
 
 include_directories(AFTER ${SOURCE_PATH})
-
-# dependency
-
-set(CUTILS_DEPLIB
-log
-)
 
 # header files
 file(GLOB CUTILS_HEADER_FILES

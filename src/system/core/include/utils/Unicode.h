@@ -17,21 +17,19 @@
 #ifndef ANDROID_UNICODE_H
 #define ANDROID_UNICODE_H
 
-#include <cutils/compiler.h>
-
 #include <sys/types.h>
 #include <stdint.h>
 
 extern "C" {
 
 // Standard string functions on char16_t strings.
-ANDROID_API int strcmp16(const char16_t *, const char16_t *);
-ANDROID_API int strncmp16(const char16_t *s1, const char16_t *s2, size_t n);
-ANDROID_API size_t strlen16(const char16_t *);
-ANDROID_API size_t strnlen16(const char16_t *, size_t);
-ANDROID_API char16_t *strcpy16(char16_t *, const char16_t *);
-ANDROID_API char16_t *strncpy16(char16_t *, const char16_t *, size_t);
-ANDROID_API char16_t *strstr16(const char16_t*, const char16_t*);
+ANDROID_API_UTILS int strcmp16(const char16_t *, const char16_t *);
+ANDROID_API_UTILS int strncmp16(const char16_t *s1, const char16_t *s2, size_t n);
+ANDROID_API_UTILS size_t strlen16(const char16_t *);
+ANDROID_API_UTILS size_t strnlen16(const char16_t *, size_t);
+ANDROID_API_UTILS char16_t *strcpy16(char16_t *, const char16_t *);
+ANDROID_API_UTILS char16_t *strncpy16(char16_t *, const char16_t *, size_t);
+ANDROID_API_UTILS char16_t *strstr16(const char16_t*, const char16_t*);
 
 // Version of comparison that supports embedded nulls.
 // This is different than strncmp() because we don't stop
@@ -40,20 +38,20 @@ ANDROID_API char16_t *strstr16(const char16_t*, const char16_t*);
 // lengths of both strings).  This can also be used when
 // your string is not nul-terminated as it will have the
 // equivalent result as strcmp16 (unlike strncmp16).
-ANDROID_API int strzcmp16(const char16_t *s1, size_t n1, const char16_t *s2, size_t n2);
+ANDROID_API_UTILS int strzcmp16(const char16_t *s1, size_t n1, const char16_t *s2, size_t n2);
 
 // Version of strzcmp16 for comparing strings in different endianness.
-ANDROID_API int strzcmp16_h_n(const char16_t *s1H, size_t n1, const char16_t *s2N, size_t n2);
+ANDROID_API_UTILS int strzcmp16_h_n(const char16_t *s1H, size_t n1, const char16_t *s2N, size_t n2);
 
 // Standard string functions on char32_t strings.
-ANDROID_API size_t strlen32(const char32_t *);
-ANDROID_API size_t strnlen32(const char32_t *, size_t);
+ANDROID_API_UTILS size_t strlen32(const char32_t *);
+ANDROID_API_UTILS size_t strnlen32(const char32_t *, size_t);
 
 /**
  * Measure the length of a UTF-32 string in UTF-8. If the string is invalid
  * such as containing a surrogate character, -1 will be returned.
  */
-ANDROID_API ssize_t utf32_to_utf8_length(const char32_t *src, size_t src_len);
+ANDROID_API_UTILS ssize_t utf32_to_utf8_length(const char32_t *src, size_t src_len);
 
 /**
  * Stores a UTF-8 string converted from "src" in "dst", if "dst_length" is not
@@ -90,7 +88,7 @@ ANDROID_API ssize_t utf32_to_utf8_length(const char32_t *src, size_t src_len);
  * "dst" becomes \xE3\x81\x82\xE3\x81\x84
  * (note that "dst" is NOT null-terminated, like strncpy)
  */
-ANDROID_API void utf32_to_utf8(const char32_t* src, size_t src_len, char* dst, size_t dst_len);
+ANDROID_API_UTILS void utf32_to_utf8(const char32_t* src, size_t src_len, char* dst, size_t dst_len);
 
 /**
  * Returns the unicode value at "index".
@@ -99,20 +97,20 @@ ANDROID_API void utf32_to_utf8(const char32_t* src, size_t src_len, char* dst, s
  * is unsigned. Then, if "next_index" is not NULL, the next index to be used is
  * stored in "next_index". "next_index" can be NULL.
  */
-ANDROID_API int32_t utf32_from_utf8_at(const char *src, size_t src_len, size_t index, size_t *next_index);
+ANDROID_API_UTILS int32_t utf32_from_utf8_at(const char *src, size_t src_len, size_t index, size_t *next_index);
 
 
 /**
  * Returns the UTF-8 length of UTF-16 string "src".
  */
-ANDROID_API ssize_t utf16_to_utf8_length(const char16_t *src, size_t src_len);
+ANDROID_API_UTILS ssize_t utf16_to_utf8_length(const char16_t *src, size_t src_len);
 
 /**
  * Converts a UTF-16 string to UTF-8. The destination buffer must be large
  * enough to fit the UTF-16 as measured by utf16_to_utf8_length with an added
  * NULL terminator.
  */
-ANDROID_API void utf16_to_utf8(const char16_t* src, size_t src_len, char* dst, size_t dst_len);
+ANDROID_API_UTILS void utf16_to_utf8(const char16_t* src, size_t src_len, char* dst, size_t dst_len);
 
 /**
  * Returns the length of "src" when "src" is valid UTF-8 string.
@@ -130,45 +128,45 @@ ANDROID_API void utf16_to_utf8(const char16_t* src, size_t src_len, char* dst, s
  * If you do not care whether "src" is valid UTF-8 or not, you should use
  * strlen() as usual, which should be much faster.
  */
-ANDROID_API ssize_t utf8_length(const char *src);
+ANDROID_API_UTILS ssize_t utf8_length(const char *src);
 
 /**
  * Measure the length of a UTF-32 string.
  */
-ANDROID_API size_t utf8_to_utf32_length(const char *src, size_t src_len);
+ANDROID_API_UTILS size_t utf8_to_utf32_length(const char *src, size_t src_len);
 
 /**
  * Stores a UTF-32 string converted from "src" in "dst". "dst" must be large
  * enough to store the entire converted string as measured by
  * utf8_to_utf32_length plus space for a NULL terminator.
  */
-ANDROID_API void utf8_to_utf32(const char* src, size_t src_len, char32_t* dst);
+ANDROID_API_UTILS void utf8_to_utf32(const char* src, size_t src_len, char32_t* dst);
 
 /**
  * Returns the UTF-16 length of UTF-8 string "src".
  */
-ANDROID_API ssize_t utf8_to_utf16_length(const uint8_t* src, size_t srcLen);
+ANDROID_API_UTILS ssize_t utf8_to_utf16_length(const uint8_t* src, size_t srcLen);
 
 /**
  * Convert UTF-8 to UTF-16 including surrogate pairs.
  * Returns a pointer to the end of the string (where a null terminator might go
  * if you wanted to add one).
  */
-ANDROID_API char16_t* utf8_to_utf16_no_null_terminator(const uint8_t* src, size_t srcLen, char16_t* dst);
+ANDROID_API_UTILS char16_t* utf8_to_utf16_no_null_terminator(const uint8_t* src, size_t srcLen, char16_t* dst);
 
 /**
  * Convert UTF-8 to UTF-16 including surrogate pairs. The destination buffer
  * must be large enough to hold the result as measured by utf8_to_utf16_length
  * plus an added NULL terminator.
  */
-ANDROID_API void utf8_to_utf16(const uint8_t* src, size_t srcLen, char16_t* dst);
+ANDROID_API_UTILS void utf8_to_utf16(const uint8_t* src, size_t srcLen, char16_t* dst);
 
 /**
  * Like utf8_to_utf16_no_null_terminator, but you can supply a maximum length of the
  * decoded string.  The decoded string will fill up to that length; if it is longer
  * the returned pointer will be to the character after dstLen.
  */
-ANDROID_API char16_t* utf8_to_utf16_n(const uint8_t* src, size_t srcLen, char16_t* dst, size_t dstLen);
+ANDROID_API_UTILS char16_t* utf8_to_utf16_n(const uint8_t* src, size_t srcLen, char16_t* dst, size_t dstLen);
 
 }
 

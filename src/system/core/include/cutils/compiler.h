@@ -44,18 +44,10 @@
 #endif
 
 #ifndef ANDROID_API
-    #if defined(ANDROID_DLL)
-        #if defined(_MSC_VER)
-            #if ANDROID_IMPLEMENTATION
-                #define ANDROID_API __declspec(dllexport)
-            #else
-                #define ANDROID_API __declspec(dllimport)
-            #endif
-        #elif defined(__GNUC__) && __GNUC__ >= 4
-            #define ANDROID_API __attribute__((visibility("default")))
-        #else
-            #define ANDROID_API
-        #endif
+    #if defined(_MSC_VER)
+        #define ANDROID_API __declspec(dllexport)
+    #elif defined(__GNUC__) && __GNUC__ >= 4
+        #define ANDROID_API __attribute__((visibility("default")))
     #else
         #define ANDROID_API
     #endif

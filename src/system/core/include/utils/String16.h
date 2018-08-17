@@ -17,8 +17,6 @@
 #ifndef ANDROID_STRING16_H
 #define ANDROID_STRING16_H
 
-#include <cutils/compiler.h>
-
 #include <utils/Errors.h>
 #include <utils/Unicode.h>
 #include <utils/TypeHelpers.h>
@@ -40,7 +38,7 @@ class String8;
 class TextOutput;
 
 //! This is a string holding UTF-16 characters.
-class ANDROID_API String16
+class ANDROID_API_UTILS String16
 {
 public:
     /* use String16(StaticLinkage) if you're statically linking against

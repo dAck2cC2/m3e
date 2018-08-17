@@ -28,8 +28,6 @@
 #ifndef _LIBS_LOG_LOG_H
 #define _LIBS_LOG_LOG_H
 
-#include <cutils/compiler.h>
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/types.h>

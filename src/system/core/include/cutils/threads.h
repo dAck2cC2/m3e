@@ -17,8 +17,6 @@
 #ifndef _LIBS_CUTILS_THREADS_H
 #define _LIBS_CUTILS_THREADS_H
 
-#include <cutils/compiler.h>
-
 #include  <sys/types.h>
 
 #if !defined(_WIN32)
@@ -43,7 +41,7 @@ extern "C" {
 /***********************************************************************/
 /***********************************************************************/
 
-ANDROID_API
+ANDROID_API_CUTILS
 extern pid_t gettid();
 
 #if !defined(_WIN32)
@@ -71,10 +69,10 @@ typedef struct {
 
 typedef void  (*thread_store_destruct_t)(void*  value);
 
-ANDROID_API 
+ANDROID_API_CUTILS 
 extern void*  thread_store_get(thread_store_t*  store);
 
-ANDROID_API
+ANDROID_API_CUTILS
 extern void   thread_store_set(thread_store_t*          store,
                                void*                    value,
                                thread_store_destruct_t  destroy);

@@ -7,7 +7,7 @@
 
 namespace android {
 
-class ANDROID_API InitRC : public Singleton<InitRC>
+class ANDROID_API_INITRC InitRC : public Singleton<InitRC>
 {
 public:
     status_t Entry(int argc, char** argv);
@@ -23,6 +23,8 @@ private:
     void StartService(int index);
 };
     
+ANDROID_SINGLETON_STATIC_INSTANCE(InitRC);
+
 }; // namespace android
 
 #endif // _ANDROID_INIT_RC_H

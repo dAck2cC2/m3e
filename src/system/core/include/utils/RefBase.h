@@ -170,8 +170,6 @@
 #ifndef ANDROID_REF_BASE_H
 #define ANDROID_REF_BASE_H
 
-#include <cutils/compiler.h>
-
 #include <atomic>
 
 #include <stdint.h>
@@ -233,7 +231,7 @@ public:
 
 // ---------------------------------------------------------------------------
 
-class ANDROID_API RefBase
+class ANDROID_API_UTILS RefBase
 {
 public:
             void            incStrong(const void* id) const;
@@ -244,7 +242,7 @@ public:
             //! DEBUGGING ONLY: Get current strong ref count.
             int32_t         getStrongCount() const;
 
-    class ANDROID_API weakref_type
+    class ANDROID_API_UTILS weakref_type
     {
     public:
         RefBase*            refBase() const;

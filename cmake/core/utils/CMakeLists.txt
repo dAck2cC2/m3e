@@ -2,22 +2,22 @@
 project(UTILS)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-#include(${M3E_SOURCE_DIR}/cmake/external/safe-iop/include.cmake)
-
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/utils )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/ )
 
 # dependency
+
+include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/external/safe-iop/include.cmake)
 
 set(UTILS_DEPLIB
 log
 cutils
 #safeiop
 )
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/utils )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/ )
 
 # header files
 file(GLOB UTILS_HEADER_FILES ${HEADER_PATH}/*.h)

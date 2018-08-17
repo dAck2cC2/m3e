@@ -17,8 +17,6 @@
 #ifndef ANDROID_STRING8_H
 #define ANDROID_STRING8_H
 
-#include <cutils/compiler.h>
-
 #include <utils/Errors.h>
 #include <utils/Unicode.h>
 #include <utils/TypeHelpers.h>
@@ -35,7 +33,7 @@ class TextOutput;
 
 //! This is a string holding UTF-8 characters. Does not allow the value more
 // than 0x10FFFF, which is not valid unicode codepoint.
-class ANDROID_API String8
+class ANDROID_API_UTILS String8
 {
 public:
     /* use String8(StaticLinkage) if you're statically linking against

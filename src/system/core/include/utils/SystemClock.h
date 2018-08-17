@@ -17,20 +17,18 @@
 #ifndef ANDROID_UTILS_SYSTEMCLOCK_H
 #define ANDROID_UTILS_SYSTEMCLOCK_H
 
-#include <cutils/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 
 namespace android {
 
-ANDROID_API
+ANDROID_API_UTILS
 int64_t uptimeMillis();
 
-ANDROID_API
+ANDROID_API_UTILS
 int64_t elapsedRealtime();
 
-ANDROID_API
+ANDROID_API_UTILS
 int64_t elapsedRealtimeNano();
 
 }; // namespace android

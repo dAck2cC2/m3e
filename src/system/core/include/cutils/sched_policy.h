@@ -17,8 +17,6 @@
 #ifndef __CUTILS_SCHED_POLICY_H
 #define __CUTILS_SCHED_POLICY_H
 
-#include <cutils/compiler.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -45,7 +43,7 @@ extern int set_cpuset_policy(int tid, SchedPolicy policy);
  * On platforms which support gettid(), zero tid means current thread.
  * Return value: 0 for success, or -errno for error.
  */
-ANDROID_API
+ANDROID_API_CUTILS
 extern int set_sched_policy(int tid, SchedPolicy policy);
 
 /* Return the policy associated with the cgroup of thread tid via policy pointer.

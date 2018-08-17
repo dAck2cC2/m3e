@@ -20,8 +20,6 @@
 #ifndef _LIBS_UTILS_MISC_H
 #define _LIBS_UTILS_MISC_H
 
-#include <cutils/compiler.h>
-
 #include <utils/Endian.h>
 
 /* get #of elements in a static array */
@@ -34,7 +32,7 @@ namespace android {
 typedef void (*sysprop_change_callback)(void);
 void add_sysprop_change_callback(sysprop_change_callback cb, int priority);
 
-ANDROID_API 
+ANDROID_API_UTILS 
 void report_sysprop_change();
 
 }; // namespace android

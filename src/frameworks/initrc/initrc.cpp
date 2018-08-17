@@ -7,8 +7,6 @@
 #include "initrc.h"
 
 namespace android {
-    
-ANDROID_SINGLETON_STATIC_INSTANCE(InitRC);
 
 enum {
     SERVICE_SM = 0,

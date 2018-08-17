@@ -17,8 +17,6 @@
 #ifndef _LIBS_UTILS_ANDROID_THREADS_H
 #define _LIBS_UTILS_ANDROID_THREADS_H
 
-#include <cutils/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -47,7 +45,7 @@ extern int androidCreateThreadEtc(android_thread_func_t entryFunction,
                                   android_thread_id_t *threadId);
 
 // Get some sort of unique identifier for the current thread.
-ANDROID_API
+ANDROID_API_UTILS
 extern android_thread_id_t androidGetThreadId();
 
 // Low-level thread creation -- never creates threads that can
@@ -60,7 +58,7 @@ extern int androidCreateRawThreadEtc(android_thread_func_t entryFunction,
                                      android_thread_id_t *threadId);
 
 // set the same of the running thread
-ANDROID_API
+ANDROID_API_UTILS
 extern void androidSetThreadName(const char* name);
 
 // Used by the Java Runtime to control how threads are created, so that

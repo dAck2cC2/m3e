@@ -67,8 +67,6 @@
  * NOTE: These functions MUST be implemented by /system/lib/liblog.so
  */
 
-#include <cutils/compiler.h>
-
 #include <stdarg.h>
 
 #ifdef __cplusplus

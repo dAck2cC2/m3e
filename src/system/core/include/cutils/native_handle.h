@@ -17,8 +17,6 @@
 #ifndef NATIVE_HANDLE_H_
 #define NATIVE_HANDLE_H_
 
-#include <cutils/compiler.h>
-
 #if defined(_MSC_VER)
 #define alignof __alignof
 #else  // _MSC_VER
@@ -45,7 +43,7 @@ typedef struct native_handle
  * return 0 on success, or a negative error code on failure
  * 
  */
-ANDROID_API
+ANDROID_API_CUTILS
 int native_handle_close(const native_handle_t* h);
 
 
@@ -56,7 +54,7 @@ int native_handle_close(const native_handle_t* h);
  * native_handle_delete().
  * 
  */
-ANDROID_API
+ANDROID_API_CUTILS
 native_handle_t* native_handle_create(int numFds, int numInts);
 
 /*
@@ -69,7 +67,7 @@ native_handle_t* native_handle_create(int numFds, int numInts);
  * return 0 on success, or a negative error code on failure
  * 
  */
-ANDROID_API
+ANDROID_API_CUTILS
 int native_handle_delete(native_handle_t* h);
 
 
