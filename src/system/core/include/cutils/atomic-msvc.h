@@ -3,6 +3,7 @@
 
 #include <intrin.h>
 #include <stdint.h>
+#include <windows.h>
 
 extern inline void android_compiler_barrier(void)
 {

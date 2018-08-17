@@ -18,6 +18,8 @@
 
 #define MEDIA_BUFFER_GROUP_H_
 
+#include <cutils/compiler.h>
+
 #include <media/stagefright/MediaBuffer.h>
 #include <utils/Errors.h>
 #include <utils/threads.h>
@@ -27,7 +29,7 @@ namespace android {
 class MediaBuffer;
 class MetaData;
 
-class MediaBufferGroup : public MediaBufferObserver {
+class ANDROID_API MediaBufferGroup : public MediaBufferObserver {
 public:
     MediaBufferGroup(size_t growthLimit = 0);
 

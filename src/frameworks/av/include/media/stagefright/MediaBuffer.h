@@ -18,6 +18,8 @@
 
 #define MEDIA_BUFFER_H_
 
+#include <cutils/compiler.h>
+
 #include <atomic>
 #include <list>
 #include <media/stagefright/foundation/MediaBufferBase.h>
@@ -48,7 +50,7 @@ private:
     MediaBufferObserver &operator=(const MediaBufferObserver &);
 };
 
-class MediaBuffer : public MediaBufferBase {
+class ANDROID_API MediaBuffer : public MediaBufferBase {
 public:
     // allocations larger than or equal to this will use shared memory.
     static const size_t kSharedMemThreshold = 64 * 1024;

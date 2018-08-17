@@ -19,7 +19,7 @@
 //#include <getopt.h> /* getopt at: https://gist.github.com/ashelly/7776712 */
 #include <process.h> /* for getpid() and the exec..() family */
 #include <direct.h> /* for _getcwd() and _chdir() */
-
+#include <stdint.h>
 
 /* Read user permission */
 #if !defined(S_IRUSR)
@@ -73,5 +73,7 @@ typedef unsigned __int64  uint64_t;
 #ifndef TEMP_FAILURE_RETRY
 #define TEMP_FAILURE_RETRY(exp)  exp
 #endif // TEMP_FAILURE_RETRY
+
+inline static uid_t getuid() { return 1000; };
 
 #endif /* unistd.h  */

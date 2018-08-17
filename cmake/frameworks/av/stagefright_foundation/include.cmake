@@ -3,6 +3,7 @@
 if(MSVC)
     add_definitions(-DANDROID_DLL)
     add_definitions(-D__STDC_LIMIT_MACROS=1)
+    add_definitions(-DNOMINMAX=1)
 else()
     add_definitions(-Wno-multichar)
     add_definitions(-Wno-attributes)

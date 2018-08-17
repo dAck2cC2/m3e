@@ -46,7 +46,6 @@
 #include <unistd.h>
 
 #if defined(_MSC_VER)
-    uid_t getuid() { return 1000; };
     #if defined IN
         #undef IN
     #endif

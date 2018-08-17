@@ -1,10 +1,11 @@
 # the subdirectory
 if(ENABLE_AV_UTILS)
     add_subdirectory(stagefright_foundation)
+    #add_subdirectory(audioflinger) 
+    #add_subdirectory(media)
 endif(ENABLE_AV_UTILS)
 
 if(ENABLE_AV_BASE)
-    add_subdirectory(media)
     add_subdirectory(stagefright)
 endif(ENABLE_AV_BASE)
 

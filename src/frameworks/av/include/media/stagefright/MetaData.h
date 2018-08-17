@@ -18,6 +18,8 @@
 
 #define META_DATA_H_
 
+#include <cutils/compiler.h>
+
 #include <sys/types.h>
 
 #include <stdint.h>
@@ -222,7 +224,7 @@ enum {
     kTypeD263        = 'd263',
 };
 
-class MetaData : public RefBase {
+class ANDROID_API MetaData : public RefBase {
 public:
     MetaData();
     MetaData(const MetaData &from);

@@ -641,7 +641,7 @@ int android_log_destroy(android_log_context *ctx);
 /* If passed multiple args, returns ',' followed by all but 1st arg, otherwise
  * returns nothing.
  */
-#define __android_rest(first, ...)               , ## __VA_ARGS__
+#define __android_rest(first, ...)               //, ## __VA_ARGS__
 #if defined(_MSC_VER)
 #define android_printAssert(cond, tag, fmt, ...) \
     __android_log_assert(cond, tag, \
@@ -687,12 +687,12 @@ int android_log_destroy(android_log_context *ctx);
  * ANDROID_LOG_FATAL. default_prio if no property. Undefined behavior if
  * any other value.
  */
-ANDROID_API
+ANDROID_API_LOG
 int __android_log_is_loggable(int prio, const char *tag, int default_prio);
 
 int __android_log_security(); /* Device Owner is present */
 
-ANDROID_API
+ANDROID_API_LOG
 int __android_log_error_write(int tag, const char *subTag, int32_t uid, const char *data,
                               uint32_t dataLen);
 

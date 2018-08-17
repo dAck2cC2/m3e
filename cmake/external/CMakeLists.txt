@@ -51,7 +51,6 @@ endif(ENABLE_CORE)
 
 if (ENABLE_AV_UTILS)
     add_subdirectory(zlib)
-    add_subdirectory(skia_chrome) 
     
     add_subdirectory(skia_android) 
     add_subdirectory(png) 
@@ -60,6 +59,8 @@ if (ENABLE_AV_UTILS)
     add_subdirectory(dng_sdk)
     add_subdirectory(webp)
     add_subdirectory(piex)
+
+    add_subdirectory(sonic) 
 endif(ENABLE_AV_UTILS)
 
 if(ENABLE_TEST)

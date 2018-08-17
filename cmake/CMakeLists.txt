@@ -10,14 +10,20 @@ if(CFG_NO_DEFAULT)
   elseif (CFG_ENABLE_AV_UTILS)
     set(ENABLE_CORE       "TRUE")  
     set(ENABLE_NATIVE     "TRUE")
+
     #set(ENABLE_DESKTOP_GL  "TRUE") 
     set(ENABLE_ANGLE      "TRUE")
-	  set(ENABLE_AV_UTILS   "TRUE")
-    set(ENABLE_HARDWARE   "TRUE") 
+    set(ENABLE_HARDWARE   "TRUE")
+
+    set(ENABLE_AV_UTILS   "TRUE") 
   
   elseif(CFG_ENABLE_AV_BASE)
     set(ENABLE_CORE      "TRUE")  
     set(ENABLE_NATIVE    "TRUE")
+
+    set(ENABLE_ANGLE      "TRUE")
+    set(ENABLE_HARDWARE   "TRUE") 
+
  	  set(ENABLE_AV_UTILS  "TRUE") 
     set(ENABLE_AV_BASE   "TRUE")   
  
@@ -25,7 +31,10 @@ if(CFG_NO_DEFAULT)
     set(ENABLE_CORE      "TRUE")  
     set(ENABLE_NATIVE    "TRUE")
 
-	set(ENABLE_AV_UTILS    "TRUE")      
+    set(ENABLE_ANGLE      "TRUE")
+    set(ENABLE_HARDWARE   "TRUE") 
+
+	  set(ENABLE_AV_UTILS    "TRUE")      
     set(ENABLE_AV_BASE   "TRUE")    
     set(ENABLE_AV_CODEC  "TRUE")
 
@@ -49,9 +58,11 @@ else(CFG_NO_DEFAULT)
   set(ENABLE_CORE      "TRUE")
   set(ENABLE_NATIVE    "TRUE")
   set(ENABLE_AV_UTILS  "TRUE")  
-  set(ENABLE_AV_BASE   "TRUE")
-  set(ENABLE_APP       "TRUE")  
-#  set(ENABLE_TEST  "TRUE")
+  set(ENABLE_ANGLE     "TRUE")
+  set(ENABLE_HARDWARE  "TRUE")
+  set(ENABLE_AV_BASE   "TRUE") 
+  #set(ENABLE_APP       "TRUE")  
+  #set(ENABLE_TEST      "TRUE")
 endif(CFG_NO_DEFAULT)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
@@ -65,6 +76,7 @@ endif()
 # the subdirectory
 add_subdirectory(external)
 add_subdirectory(frameworks)
+add_subdirectory(system)
 
 if(ENABLE_CORE)
   add_subdirectory(core)
@@ -73,11 +85,6 @@ endif(ENABLE_CORE)
 if(ENABLE_HARDWARE)
   add_subdirectory(hardware)
 endif(ENABLE_HARDWARE)
-
-if(ENABLE_AV_BASE)
-  #add_subdirectory(media)
-  #add_subdirectory(audio)
-endif(ENABLE_AV_BASE)
 
 if(ENABLE_APP)
   #add_subdirectory(engine)

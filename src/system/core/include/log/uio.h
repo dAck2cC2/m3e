@@ -42,7 +42,7 @@ struct iovec {
 
 extern int  readv( int  fd, struct iovec*  vecs, int  count );
 
-ANDROID_API
+ANDROID_API_LOG
 extern int  writev( int  fd, const struct iovec*  vecs, int  count );
 
 #ifdef __cplusplus

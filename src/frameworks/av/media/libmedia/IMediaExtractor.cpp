@@ -28,6 +28,11 @@
 
 namespace android {
 
+#if defined(_MSC_VER)
+/* static */
+std::atomic_int_least32_t MediaBuffer::mUseSharedMemory(0);
+#endif // _MSC_VER
+
 enum {
     COUNTTRACKS = IBinder::FIRST_CALL_TRANSACTION,
     GETTRACK,

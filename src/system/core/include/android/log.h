@@ -98,13 +98,13 @@ void __android_log_close();
 /*
  * Send a simple string to the log.
  */
-ANDROID_API
+ANDROID_API_LOG
 int __android_log_write(int prio, const char *tag, const char *text);
 
 /*
  * Send a formatted string to the log, used like printf(fmt,...)
  */
-ANDROID_API
+ANDROID_API_LOG
 int __android_log_print(int prio, const char *tag,  const char *fmt, ...)
 #if defined(__GNUC__)
 #ifdef __USE_MINGW_ANSI_STDIO
@@ -130,7 +130,7 @@ int __android_log_vprint(int prio, const char *tag,
  * Log an assertion failure and abort the process to have a chance
  * to inspect it if a debugger is attached. This uses the FATAL priority.
  */
-ANDROID_API
+ANDROID_API_LOG
 void __android_log_assert(const char *cond, const char *tag,
                           const char *fmt, ...)
 #if defined(__GNUC__)

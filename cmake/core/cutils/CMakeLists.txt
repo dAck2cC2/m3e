@@ -2,6 +2,7 @@
 project(CUTILS)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 
 add_definitions(-DANDROID_IMPLEMENTATION=1)

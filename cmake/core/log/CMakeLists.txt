@@ -2,9 +2,15 @@
 project(LOG)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/core/include)
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
+add_definitions(-DFAKE_LOG_DEVICE=1)
+#add_definitions(-DANDROID_IMPLEMENTATION=1)
+if (MSVC)
+    add_definitions(-DANDROID_API_LOG=__declspec\(dllexport\))
+else(MSVC)
+    add_definitions(-DANDROID_API_LOG= )
+endif(MSVC)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/log )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/liblog )
@@ -14,7 +20,6 @@ OPTION( LOG_ENABLE_LOGGABLE
   OFF
 )
 
-add_definitions(-DFAKE_LOG_DEVICE=1)
 
 set(LOG_DEPLIB )
 

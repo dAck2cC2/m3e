@@ -2,6 +2,11 @@
 #define LOG_NDEBUG 0
 #define LOG_TAG "BootAnimation"
 
+#if defined(_MSC_VER)
+#include <winsock2.h>
+#include <windows.h>
+#endif  // _MSC_VER
+
 #include <cutils/compiler.h>
 #include <utils/Errors.h>
 #include <hardware/hardware.h>

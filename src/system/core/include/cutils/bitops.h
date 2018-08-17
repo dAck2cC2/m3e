@@ -27,6 +27,7 @@ __BEGIN_DECLS
 #if defined(_MSC_VER)
 #  include <windows.h>
 #  include <intrin.h>
+#  include <stdint.h>
 #  define __builtin_popcount   __popcnt
 #  define __builtin_popcountl  __popcnt
 #  define __builtin_popcountll __popcnt
