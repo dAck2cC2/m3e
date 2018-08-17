@@ -11,6 +11,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
@@ -23,9 +24,6 @@ cutils
 log
 ${OPENGL_DEPLIB}
 )
-
-add_definitions(-DANDROID_GUI_IMPLEMENTATION=1)
-add_definitions(-DANDROID_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/gui )

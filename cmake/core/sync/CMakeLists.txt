@@ -2,10 +2,7 @@
 project(SYNC)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/sync/include.cmake)
-
-add_definitions(-DANDROID_IMPLEMENTATION=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libsync/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libsync/ )

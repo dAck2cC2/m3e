@@ -17,8 +17,6 @@
 #ifndef ANDROID_PROCESS_STATE_H
 #define ANDROID_PROCESS_STATE_H
 
-#include <cutils/compiler.h>
-
 #include <binder/IBinder.h>
 #include <utils/KeyedVector.h>
 #include <utils/String8.h>
@@ -33,7 +31,7 @@ namespace android {
 
 class IPCThreadState;
 
-class ANDROID_API ProcessState : public virtual RefBase
+class ANDROID_API_BINDER ProcessState : public virtual RefBase
 {
 public:
     static  sp<ProcessState>    self();

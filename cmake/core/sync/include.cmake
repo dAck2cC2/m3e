@@ -1,6 +1,7 @@
 # define
+DLL_PUBLIC(SYNC)
+
 if(MSVC)
-    add_definitions(-DANDROID_DLL)
     include_directories(AFTER ${MSVC_PATH})
 endif()
 

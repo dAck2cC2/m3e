@@ -2,6 +2,10 @@
 project(ANDROIDFW)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/base/androidfw/include.cmake)
+
+# dependency
+
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
@@ -11,14 +15,6 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/zlib/include.cmake)
 
-include(${M3E_SOURCE_DIR}/cmake/frameworks/base/androidfw/include.cmake)
-
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/include/androidfw )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/androidfw )
-
-# dependency
 set(ANDROIDFW_DEPLIB
 cutils
 utils
@@ -29,6 +25,9 @@ gui
 zlib
 ziparchive
 )
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/include/androidfw )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/androidfw )
 
 file(GLOB ANDROIDFW_HEADER_FILES
 ${HEADER_PATH}/*.h

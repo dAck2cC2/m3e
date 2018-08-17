@@ -30,8 +30,6 @@
 #ifndef __LIBS_ZIPFILERO_H
 #define __LIBS_ZIPFILERO_H
 
-#include <cutils/compiler.h>
-
 #include <utils/Compat.h>
 #include <utils/Errors.h>
 #include <utils/FileMap.h>
@@ -68,7 +66,7 @@ typedef void* ZipEntryRO;
  * you must be on a platform that implements pread() to guarantee correctness
  * on the shared file descriptors.
  */
-class ANDROID_API ZipFileRO {
+class ANDROID_API_ANDROIDFW ZipFileRO {
 public:
     /* Zip compression methods we support */
     enum : uint16_t {

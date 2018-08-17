@@ -17,8 +17,6 @@
 #ifndef ANDROID_UI_REGION_H
 #define ANDROID_UI_REGION_H
 
-#include <ui/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -33,7 +31,7 @@ namespace android {
 class String8;
 
 // ---------------------------------------------------------------------------
-class ANDROID_UI_API Region : public LightFlattenable<Region>
+class ANDROID_API_UI Region : public LightFlattenable<Region>
 {
 public:
     static const Region INVALID_REGION;

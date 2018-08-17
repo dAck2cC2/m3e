@@ -17,8 +17,6 @@
 #ifndef ANDROID_GUI_IGRAPHIC_BUFFER_ALLOC_H
 #define ANDROID_GUI_IGRAPHIC_BUFFER_ALLOC_H
 
-#include <gui/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -32,7 +30,7 @@
 namespace android {
 // ----------------------------------------------------------------------------
 
-class ANDROID_GUI_API IGraphicBufferAlloc : public IInterface
+class ANDROID_API_GUI IGraphicBufferAlloc : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(GraphicBufferAlloc);

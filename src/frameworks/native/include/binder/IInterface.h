@@ -18,15 +18,13 @@
 #ifndef ANDROID_IINTERFACE_H
 #define ANDROID_IINTERFACE_H
 
-#include <cutils/compiler.h>
-
 #include <binder/Binder.h>
 
 namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API IInterface : public virtual RefBase
+class ANDROID_API_BINDER IInterface : public virtual RefBase
 {
 public:
             IInterface();

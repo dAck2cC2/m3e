@@ -17,8 +17,6 @@
 #ifndef ANDROID_GUI_ISURFACE_COMPOSER_CLIENT_H
 #define ANDROID_GUI_ISURFACE_COMPOSER_CLIENT_H
 
-#include <gui/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -35,7 +33,7 @@ namespace android {
 
 class IGraphicBufferProducer;
 
-class ANDROID_GUI_API ISurfaceComposerClient : public IInterface
+class ANDROID_API_GUI ISurfaceComposerClient : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(SurfaceComposerClient);
@@ -86,7 +84,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_GUI_API BnSurfaceComposerClient: public BnInterface<ISurfaceComposerClient> {
+class ANDROID_API_GUI BnSurfaceComposerClient: public BnInterface<ISurfaceComposerClient> {
 public:
     virtual status_t onTransact(uint32_t code, const Parcel& data,
             Parcel* reply, uint32_t flags = 0);

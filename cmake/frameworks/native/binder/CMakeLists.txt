@@ -2,28 +2,27 @@
 project(BINDER)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+
+# dependency
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/binder )
+set(BINDER_DEPLIB
+utils
+log
+)
 
 OPTION( BINDER_ENABLE_LOCAL
   "Set to ON to enable local binder implementation"
   ON
 )
 
-# dependency
-set(BINDER_DEPLIB
-utils
-log
-)
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/binder )
 
 # header files
 file(GLOB BINDER_HEADER_FILES  ${HEADER_PATH}/binder/*.h)

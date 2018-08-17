@@ -4,18 +4,17 @@
 project(TEST_SURFACEFLINGER)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+
+# dependency
+
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
-
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include_util.cmake)
-
-add_definitions(-DANDROID_IMPLEMENTATION=0)
-
-# dependency
 
 set(DEMO_DEPLIBS
 cutils

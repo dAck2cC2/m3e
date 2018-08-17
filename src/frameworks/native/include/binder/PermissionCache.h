@@ -17,8 +17,6 @@
 #ifndef BINDER_PERMISSION_H
 #define BINDER_PERMISSION_H
 
-#include <cutils/compiler.h>
-
 #include <stdint.h>
 #include <unistd.h>
 
@@ -40,7 +38,7 @@ namespace android {
  *
  */
 
-class ANDROID_API PermissionCache : Singleton<PermissionCache> {
+class ANDROID_API_BINDER PermissionCache : Singleton<PermissionCache> {
     struct Entry {
         String16    name;
         uid_t       uid;

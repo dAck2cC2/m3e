@@ -1,7 +1,8 @@
 
 # definition
+DLL_PUBLIC(STAGEFRIGHT_FOUNDATION)
+
 if(MSVC)
-    add_definitions(-DANDROID_DLL)
     add_definitions(-D__STDC_LIMIT_MACROS=1)
     add_definitions(-DNOMINMAX=1)
 else()

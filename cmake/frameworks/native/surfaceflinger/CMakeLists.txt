@@ -1,30 +1,17 @@
 project(SURFACEFLINGER)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+
+# dependency
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 
-add_definitions(-DANDROID_IMPLEMENTATION=1)
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
-
-include_directories(AFTER ${HEADER_PATH})
-add_definitions(-D_LIBCPP_HAS_NO_ATOMIC_HEADER=1)
-
-if(MSVC)
-    #add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
-    #add_definitions(-D__STDC_LIMIT_MACROS=1)
-    add_definitions(-D_USE_MATH_DEFINES=1)
-    add_definitions(-DNOMINMAX=1)
-endif()
-
-# dependency
 set( SURFACEFLINGER_DEPLIB
 log
 cutils
@@ -33,6 +20,15 @@ binder
 gui
 ${OPENGL_DEPLIB}
 )
+
+add_definitions(-D_LIBCPP_HAS_NO_ATOMIC_HEADER=1)
+
+if(MSVC)
+    #add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+    #add_definitions(-D__STDC_LIMIT_MACROS=1)
+    add_definitions(-D_USE_MATH_DEFINES=1)
+    add_definitions(-DNOMINMAX=1)
+endif()
 
 # test function for angle
 if (ENABLE_ANGLE)
@@ -46,6 +42,12 @@ if (ENABLE_ANGLE_TEST)
     include_directories(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/angle)
     list(APPEND SURFACEFLINGER_DEPLIB angle_util)
 endif(ENABLE_ANGLE_TEST)
+
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
+
+include_directories(AFTER ${HEADER_PATH})
 
 ###############################################################################
 #  Flinger

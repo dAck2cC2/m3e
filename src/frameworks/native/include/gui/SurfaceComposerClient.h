@@ -17,8 +17,6 @@
 #ifndef ANDROID_GUI_SURFACE_COMPOSER_CLIENT_H
 #define ANDROID_GUI_SURFACE_COMPOSER_CLIENT_H
 
-#include <gui/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -49,7 +47,7 @@ class Region;
 
 // ---------------------------------------------------------------------------
 
-class ANDROID_GUI_API SurfaceComposerClient : public RefBase
+class ANDROID_API_GUI SurfaceComposerClient : public RefBase
 {
     friend class Composer;
 public:

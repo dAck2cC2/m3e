@@ -17,8 +17,6 @@
 #ifndef ANDROID_IMEMORY_H
 #define ANDROID_IMEMORY_H
 
-#include <cutils/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 //#include <sys/mman.h>
@@ -31,7 +29,7 @@ namespace android {
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API IMemoryHeap : public IInterface
+class ANDROID_API_BINDER IMemoryHeap : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MemoryHeap);
@@ -69,7 +67,7 @@ protected:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API IMemory : public IInterface
+class ANDROID_API_BINDER IMemory : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(Memory);

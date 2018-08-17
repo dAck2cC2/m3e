@@ -17,8 +17,6 @@
 #ifndef ANDROID_GUI_ISURFACE_COMPOSER_H
 #define ANDROID_GUI_ISURFACE_COMPOSER_H
 
-#include <gui/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -50,7 +48,7 @@ class Rect;
  * This class defines the Binder IPC interface for accessing various
  * SurfaceFlinger features.
  */
-class ANDROID_GUI_API ISurfaceComposer: public IInterface {
+class ANDROID_API_GUI ISurfaceComposer: public IInterface {
 public:
     DECLARE_META_INTERFACE(SurfaceComposer);
 
@@ -177,7 +175,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_GUI_API BnSurfaceComposer: public BnInterface<ISurfaceComposer> {
+class ANDROID_API_GUI BnSurfaceComposer: public BnInterface<ISurfaceComposer> {
 public:
     enum {
         // Note: BOOT_FINISHED must remain this value, it is called from

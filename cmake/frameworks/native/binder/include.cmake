@@ -1,7 +1,9 @@
 
 # define
+DLL_PUBLIC(BINDER)
+
 if(MSVC)
-    add_definitions(-DANDROID_DLL)
+
 elseif(APPLE)
     add_definitions(-Doff64_t=off_t)
     add_definitions(-Wno-attributes)

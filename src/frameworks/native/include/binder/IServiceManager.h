@@ -18,8 +18,6 @@
 #ifndef ANDROID_ISERVICE_MANAGER_H
 #define ANDROID_ISERVICE_MANAGER_H
 
-#include <cutils/compiler.h>
-
 #include <binder/IInterface.h>
 //#include <binder/IPermissionController.h>
 #include <utils/Vector.h>
@@ -29,7 +27,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API IServiceManager : public IInterface
+class ANDROID_API_BINDER IServiceManager : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ServiceManager);
@@ -65,7 +63,7 @@ public:
     };
 };
 
-ANDROID_API sp<IServiceManager> defaultServiceManager();
+ANDROID_API_BINDER sp<IServiceManager> defaultServiceManager();
 
 template<typename INTERFACE>
 status_t getService(const String16& name, sp<INTERFACE>* outService)

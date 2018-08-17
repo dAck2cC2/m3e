@@ -17,8 +17,6 @@
 #ifndef ANDROID_GRAPHIC_BUFFER_H
 #define ANDROID_GRAPHIC_BUFFER_H
 
-#include <ui/compiler.h>
-
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -40,7 +38,7 @@ class GraphicBufferMapper;
 // GraphicBuffer
 // ===========================================================================
 
-class ANDROID_UI_API GraphicBuffer
+class ANDROID_API_UI GraphicBuffer
     : public ANativeObjectBase< ANativeWindowBuffer, GraphicBuffer, RefBase >,
       public Flattenable<GraphicBuffer>
 {
