@@ -5,6 +5,7 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 
 set(BASE_DEPLIB
 log

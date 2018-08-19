@@ -14,8 +14,8 @@ set(AUDIO_UTILS_DEPLIB
 log
 )
 
+add_definitions(-Dtypeof=decltype)
 if (MSVC)
-    add_definitions(-Dtypeof=decltype)
     add_definitions(-D__unused= )
     add_definitions(-D_USE_MATH_DEFINES=1)
 endif(MSVC)
