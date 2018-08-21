@@ -27,7 +27,7 @@ namespace android {
 
 class String8;
 
-class NBLog {
+class ANDROID_API_NBAIO NBLog {
 
 public:
 
@@ -85,7 +85,7 @@ public:
 
 // FIXME Timeline was intended to wrap Writer and Reader, but isn't actually used yet.
 // For now it is just a namespace for sharedSize().
-class Timeline : public RefBase {
+class ANDROID_API_NBAIO Timeline : public RefBase {
 public:
 #if 0
     Timeline(size_t size, void *shared = NULL);
@@ -111,7 +111,7 @@ private:
 
 // Writer is thread-safe with respect to Reader, but not with respect to multiple threads
 // calling Writer methods.  If you need multi-thread safety for writing, use LockedWriter.
-class Writer : public RefBase {
+class ANDROID_API_NBAIO Writer : public RefBase {
 public:
     Writer();                   // dummy nop implementation without shared memory
 

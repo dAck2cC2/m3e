@@ -23,9 +23,11 @@
 #include "Configuration.h"
 #include <math.h>
 #include <fcntl.h>
+#if ENABLE_FUTEX
 #include <linux/futex.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#endif // ENABLE_FUTEX
 #include <cutils/properties.h>
 #include <media/AudioParameter.h>
 #include <media/AudioResamplerPublic.h>
@@ -49,10 +51,12 @@
 #include <media/nbaio/Pipe.h>
 #include <media/nbaio/PipeReader.h>
 #include <media/nbaio/SourceAudioBufferProvider.h>
+#if ENABLE_BATTERY
 #include <mediautils/BatteryNotifier.h>
-
+#endif
+#if ENABLE_POWERMANAGER
 #include <powermanager/PowerManager.h>
-
+#endif
 #include "AudioFlinger.h"
 #include "AudioMixer.h"
 #include "BufferProviders.h"
@@ -73,6 +77,13 @@
 
 #include "AutoPark.h"
 
+#include "cutils/threads.h"
+
+#if defined(_MSC_VER)
+#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+#define dprintf(a, ...)  do { } while(0)
+#endif // _MSC_VER
+
 // ----------------------------------------------------------------------------
 
 // Note: the following macro is used for extremely verbose logging message.  In
@@ -85,7 +96,7 @@
 #ifdef VERY_VERY_VERBOSE_LOGGING
 #define ALOGVV ALOGV
 #else
-#define ALOGVV(a...) do { } while(0)
+#define ALOGVV(a, ...) do { } while(0)
 #endif
 
 // TODO: Move these macro/inlines to a header file.
@@ -228,7 +239,7 @@ static void addBatteryData(uint32_t params) {
 struct {
     // call when you acquire a partial wakelock
     void acquire(const sp<IBinder> &wakeLockToken) {
-        pthread_mutex_lock(&mLock);
+        mutex_lock(&mLock);
         if (wakeLockToken.get() == nullptr) {
             adjustTimebaseOffset(&mBoottimeOffset, ExtendedTimestamp::TIMEBASE_BOOTTIME);
         } else {
@@ -237,7 +248,7 @@ struct {
             }
             ++mCount;
         }
-        pthread_mutex_unlock(&mLock);
+        mutex_unlock(&mLock);
     }
 
     // call when you release a partial wakelock.
@@ -245,19 +256,19 @@ struct {
         if (wakeLockToken.get() == nullptr) {
             return;
         }
-        pthread_mutex_lock(&mLock);
+        mutex_lock(&mLock);
         if (--mCount < 0) {
             ALOGE("negative wakelock count");
             mCount = 0;
         }
-        pthread_mutex_unlock(&mLock);
+        mutex_unlock(&mLock);
     }
 
     // retrieves the boottime timebase offset from monotonic.
     int64_t getBoottimeOffset() {
-        pthread_mutex_lock(&mLock);
+        mutex_lock(&mLock);
         int64_t boottimeOffset = mBoottimeOffset;
-        pthread_mutex_unlock(&mLock);
+        mutex_unlock(&mLock);
         return boottimeOffset;
     }
 
@@ -308,10 +319,10 @@ struct {
         }
     }
 
-    pthread_mutex_t mLock;
+    mutex_t mLock;
     int32_t mCount;
     int64_t mBoottimeOffset;
-} gBoottime = { PTHREAD_MUTEX_INITIALIZER, 0, 0 }; // static, so use POD initialization
+} gBoottime = { MUTEX_INITIALIZER, 0, 0 }; // static, so use POD initialization
 
 // ----------------------------------------------------------------------------
 //      CPU Stats
@@ -653,10 +664,12 @@ AudioFlinger::ThreadBase::~ThreadBase()
 
     // do not lock the mutex in destructor
     releaseWakeLock_l();
+#if ENABLE_POWERMANAGER
     if (mPowerManager != 0) {
         sp<IBinder> binder = IInterface::asBinder(mPowerManager);
         binder->unlinkToDeath(mDeathRecipient);
     }
+#endif
 }
 
 status_t AudioFlinger::ThreadBase::readyToRun()
@@ -1010,6 +1023,7 @@ String16 AudioFlinger::ThreadBase::getWakeLockTag()
 void AudioFlinger::ThreadBase::acquireWakeLock_l(int uid)
 {
     getPowerManager_l();
+#if ENABLE_POWERMANAGER
     if (mPowerManager != 0) {
         sp<IBinder> binder = new BBinder();
         status_t status;
@@ -1032,11 +1046,13 @@ void AudioFlinger::ThreadBase::acquireWakeLock_l(int uid)
         }
         ALOGV("acquireWakeLock_l() %s status %d", mThreadName, status);
     }
-
+#endif
+#if ENABLE_BATTERY
     if (!mNotifiedBatteryStart) {
         BatteryNotifier::getInstance().noteStartAudio();
         mNotifiedBatteryStart = true;
     }
+#endif
     gBoottime.acquire(mWakeLockToken);
     mTimestamp.mTimebaseOffset[ExtendedTimestamp::TIMEBASE_BOOTTIME] =
             gBoottime.getBoottimeOffset();
@@ -1053,17 +1069,20 @@ void AudioFlinger::ThreadBase::releaseWakeLock_l()
     gBoottime.release(mWakeLockToken);
     if (mWakeLockToken != 0) {
         ALOGV("releaseWakeLock_l() %s", mThreadName);
+#if ENABLE_POWERMANAGER
         if (mPowerManager != 0) {
             mPowerManager->releaseWakeLock(mWakeLockToken, 0,
                     true /* FIXME force oneway contrary to .aidl */);
         }
+#endif
         mWakeLockToken.clear();
     }
-
+#if ENABLE_BATTERY
     if (mNotifiedBatteryStart) {
         BatteryNotifier::getInstance().noteStopAudio();
         mNotifiedBatteryStart = false;
     }
+#endif
 }
 
 void AudioFlinger::ThreadBase::updateWakeLockUids(const SortedVector<int> &uids) {
@@ -1072,6 +1091,7 @@ void AudioFlinger::ThreadBase::updateWakeLockUids(const SortedVector<int> &uids)
 }
 
 void AudioFlinger::ThreadBase::getPowerManager_l() {
+#if ENABLE_POWERMANAGER
     if (mSystemReady && mPowerManager == 0) {
         // use checkService() to avoid blocking if power service is not up yet
         sp<IBinder> binder =
@@ -1083,6 +1103,7 @@ void AudioFlinger::ThreadBase::getPowerManager_l() {
             binder->linkToDeath(mDeathRecipient);
         }
     }
+#endif
 }
 
 void AudioFlinger::ThreadBase::updateWakeLockUids_l(const SortedVector<int> &uids) {
@@ -1095,6 +1116,7 @@ void AudioFlinger::ThreadBase::updateWakeLockUids_l(const SortedVector<int> &uid
         }
         return;
     }
+#if ENABLE_POWERMANAGER
     if (mPowerManager != 0) {
         sp<IBinder> binder = new BBinder();
         status_t status;
@@ -1102,13 +1124,16 @@ void AudioFlinger::ThreadBase::updateWakeLockUids_l(const SortedVector<int> &uid
                     true /* FIXME force oneway contrary to .aidl */);
         ALOGV("updateWakeLockUids_l() %s status %d", mThreadName, status);
     }
+#endif
 }
 
 void AudioFlinger::ThreadBase::clearPowerManager()
 {
     Mutex::Autolock _l(mLock);
     releaseWakeLock_l();
+#if ENABLE_POWERMANAGER
     mPowerManager.clear();
+#endif
 }
 
 void AudioFlinger::ThreadBase::PMDeathRecipient::binderDied(const wp<IBinder>& who __unused)
@@ -3772,7 +3797,9 @@ AudioFlinger::MixerThread::~MixerThread()
         if (state->mCommand == FastMixerState::COLD_IDLE) {
             int32_t old = android_atomic_inc(&mFastMixerFutex);
             if (old == -1) {
+#if ENABLE_FUTEX
                 (void) syscall(__NR_futex, &mFastMixerFutex, FUTEX_WAKE_PRIVATE, 1);
+#endif
             }
         }
         state->mCommand = FastMixerState::EXIT;
@@ -3835,7 +3862,9 @@ ssize_t AudioFlinger::MixerThread::threadLoop_write()
 
                 int32_t old = android_atomic_inc(&mFastMixerFutex);
                 if (old == -1) {
+#if ENABLE_FUTEX
                     (void) syscall(__NR_futex, &mFastMixerFutex, FUTEX_WAKE_PRIVATE, 1);
+#endif
                 }
 #ifdef AUDIO_WATCHDOG
                 if (mAudioWatchdog != 0) {
@@ -6005,7 +6034,9 @@ AudioFlinger::RecordThread::~RecordThread()
         if (state->mCommand == FastCaptureState::COLD_IDLE) {
             int32_t old = android_atomic_inc(&mFastCaptureFutex);
             if (old == -1) {
+#if ENABLE_FUTEX
                 (void) syscall(__NR_futex, &mFastCaptureFutex, FUTEX_WAKE_PRIVATE, 1);
+#endif
             }
         }
         state->mCommand = FastCaptureState::EXIT;
@@ -6211,7 +6242,9 @@ reacquire_wakelock:
                 if (state->mCommand == FastCaptureState::COLD_IDLE) {
                     int32_t old = android_atomic_inc(&mFastCaptureFutex);
                     if (old == -1) {
+#if ENABLE_FUTEX
                         (void) syscall(__NR_futex, &mFastCaptureFutex, FUTEX_WAKE_PRIVATE, 1);
+#endif
                     }
                 }
                 state->mCommand = FastCaptureState::READ_WRITE;
@@ -6349,7 +6382,7 @@ reacquire_wakelock:
                 activeTrack->mSink.frameCount = ~0;
                 status_t status = activeTrack->getNextBuffer(&activeTrack->mSink);
                 size_t framesOut = activeTrack->mSink.frameCount;
-                LOG_ALWAYS_FATAL_IF((status == OK) != (framesOut > 0));
+                LOG_ALWAYS_FATAL_IF((status == OK) != (framesOut > 0),"");
 
                 // check available frames and handle overrun conditions
                 // if the record track isn't draining fast enough.
@@ -6956,7 +6989,7 @@ status_t AudioFlinger::RecordThread::ResamplerBufferProvider::getNextBuffer(
     ssize_t filled = rear - front;
     // FIXME should not be P2 (don't want to increase latency)
     // FIXME if client not keeping up, discard
-    LOG_ALWAYS_FATAL_IF(!(0 <= filled && (size_t) filled <= recordThread->mRsmpInFrames));
+    LOG_ALWAYS_FATAL_IF(!(0 <= filled && (size_t) filled <= recordThread->mRsmpInFrames), "");
     // 'filled' may be non-contiguous, so return only the first contiguous chunk
     front &= recordThread->mRsmpInFramesP2 - 1;
     size_t part1 = recordThread->mRsmpInFramesP2 - front;

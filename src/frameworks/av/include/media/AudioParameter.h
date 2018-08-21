@@ -23,7 +23,7 @@
 
 namespace android {
 
-class AudioParameter {
+class ANDROID_API_MEDIA AudioParameter {
 
 public:
     AudioParameter() {}

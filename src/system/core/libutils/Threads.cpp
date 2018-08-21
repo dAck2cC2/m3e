@@ -22,7 +22,7 @@
 #include "utils/Log.h"
 
 #include "cutils/sched_policy.h"
-//#include "cutils/properties.h"
+#include "cutils/threads.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -960,6 +960,15 @@ pid_t Thread::getTid() const
     }
 
     return tid;
+}
+#else
+pid_t Thread::getTid() const
+{
+	Mutex::Autolock _l(mLock);
+
+	pid_t tid = gettid();
+
+	return tid;
 }
 #endif
 

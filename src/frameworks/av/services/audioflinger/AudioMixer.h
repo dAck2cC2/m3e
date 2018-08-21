@@ -32,6 +32,8 @@
 #include "AudioResampler.h"
 #include "BufferProviders.h"
 
+#include <cutils/threads.h>
+
 // FIXME This is actually unity gain, which might not be max in future, expressed in U.12
 #define MAX_GAIN_INT AudioMixer::UNITY_GAIN_INT
 
@@ -333,9 +335,9 @@ private:
     static void process__genericNoResampling(state_t* state);
     static void process__genericResampling(state_t* state);
     static void process__OneTrack16BitsStereoNoResampling(state_t* state);
-#if !defined(_MSC_VER)
+
     static pthread_once_t   sOnceControl;
-#endif // _MSC_VER
+
     static void             sInitRoutine();
 
     /* multi-format volume mixing function (calls template functions

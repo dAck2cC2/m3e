@@ -35,7 +35,7 @@ class StaticAudioTrackClientProxy;
 
 // ----------------------------------------------------------------------------
 
-class AudioTrack : public RefBase
+class ANDROID_API_MEDIA AudioTrack : public RefBase
 {
 public:
 
@@ -884,7 +884,13 @@ protected:
             //      NS_WHENEVER still active but no particular deadline
             //      NS_INACTIVE inactive so don't run again until re-started
             //      NS_NEVER    never again
+#if defined(_MSC_VER)
+			static const nsecs_t NS_WHENEVER = -1;
+			static const nsecs_t NS_INACTIVE = -2;
+			static const nsecs_t NS_NEVER = -3;
+#else
             static const nsecs_t NS_WHENEVER = -1, NS_INACTIVE = -2, NS_NEVER = -3;
+#endif
             nsecs_t processAudioBuffer();
 
             // caller must hold lock on mLock for all _l methods

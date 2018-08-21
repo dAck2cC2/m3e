@@ -39,7 +39,7 @@ class IAudioFlinger;
 class IAudioPolicyService;
 class String8;
 
-class AudioSystem
+class ANDROID_API_MEDIA AudioSystem
 {
 public:
 

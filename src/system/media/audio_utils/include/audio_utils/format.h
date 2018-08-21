@@ -60,6 +60,7 @@ __BEGIN_DECLS
  *
  * Logs a fatal error if dst or src format is not allowed by the conversion rules above.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_by_audio_format(void *dst, audio_format_t dst_format,
         const void *src, audio_format_t src_format, size_t count);
 
@@ -81,6 +82,7 @@ void memcpy_by_audio_format(void *dst, audio_format_t dst_format,
  * This may be greater than idxcount, so the return value should be checked
  * if idxary size is less than 32. Returns zero if the input masks are unrecognized.
  */
+ANDROID_API_AUDIO_UTILS
 size_t memcpy_by_index_array_initialization_from_channel_mask(int8_t *idxary, size_t arysize,
         audio_channel_mask_t dst_channel_mask, audio_channel_mask_t src_channel_mask);
 

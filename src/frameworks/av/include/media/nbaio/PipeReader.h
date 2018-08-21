@@ -22,7 +22,7 @@
 namespace android {
 
 // PipeReader is safe for only a single thread
-class PipeReader : public NBAIO_Source {
+class ANDROID_API_NBAIO PipeReader : public NBAIO_Source {
 
 public:
 

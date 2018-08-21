@@ -124,7 +124,7 @@ typedef SingleStateQueue<ExtendedTimestamp> ExtendedTimestampQueue;
 // ----------------------------------------------------------------------------
 
 // Important: do not add any virtual methods, including ~
-struct audio_track_cblk_t
+struct ANDROID_API_MEDIA audio_track_cblk_t
 {
                 // Since the control block is always located in shared memory, this constructor
                 // is only used for placement new().  It is never used for regular new() or stack.
@@ -233,7 +233,7 @@ protected:
 // ----------------------------------------------------------------------------
 
 // Proxy seen by AudioTrack client and AudioRecord client
-class ClientProxy : public Proxy {
+class ANDROID_API_MEDIA ClientProxy : public Proxy {
 public:
     ClientProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount, size_t frameSize,
             bool isOut, bool clientInServer);
@@ -351,7 +351,7 @@ private:
 // ----------------------------------------------------------------------------
 
 // Proxy used by AudioTrack client, which also includes AudioFlinger::PlaybackThread::OutputTrack
-class AudioTrackClientProxy : public ClientProxy {
+class ANDROID_API_MEDIA AudioTrackClientProxy : public ClientProxy {
 public:
     AudioTrackClientProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount,
             size_t frameSize, bool clientInServer = false)
@@ -474,7 +474,7 @@ public:
 // ----------------------------------------------------------------------------
 
 // Proxy used by AudioFlinger server
-class ServerProxy : public Proxy {
+class ANDROID_API_MEDIA ServerProxy : public Proxy {
 protected:
     ServerProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount, size_t frameSize,
             bool isOut, bool clientInServer);
@@ -539,7 +539,7 @@ protected:
 };
 
 // Proxy used by AudioFlinger for servicing AudioTrack
-class AudioTrackServerProxy : public ServerProxy {
+class ANDROID_API_MEDIA AudioTrackServerProxy : public ServerProxy {
 public:
     AudioTrackServerProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount,
             size_t frameSize, bool clientInServer = false, uint32_t sampleRate = 0)
@@ -605,7 +605,7 @@ private:
     std::atomic<bool>             mDrained; // is the track buffer drained
 };
 
-class StaticAudioTrackServerProxy : public AudioTrackServerProxy {
+class ANDROID_API_MEDIA StaticAudioTrackServerProxy : public AudioTrackServerProxy {
 public:
     StaticAudioTrackServerProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount,
             size_t frameSize);

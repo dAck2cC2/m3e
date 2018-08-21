@@ -20,7 +20,8 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
-#include <dlfcn.h>
+//#include <dlfcn.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 #include <cutils/compiler.h>
@@ -166,7 +167,7 @@ template<typename TC, typename TI, typename TO>
 AudioResamplerDyn<TC, TI, TO>::AudioResamplerDyn(
         int inChannelCount, int32_t sampleRate, src_quality quality)
     : AudioResampler(inChannelCount, sampleRate, quality),
-      mResampleFunc(0), mFilterSampleRate(0), mFilterQuality(DEFAULT_QUALITY),
+      mResampleFunc(0), mFilterSampleRate(0), mFilterQuality(DEFAULT_SRC_QUALITY),
     mCoefBuffer(NULL)
 {
     mVolumeSimd[0] = mVolumeSimd[1] = 0;

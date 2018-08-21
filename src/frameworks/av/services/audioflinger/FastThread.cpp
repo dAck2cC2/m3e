@@ -20,12 +20,17 @@
 #define ATRACE_TAG ATRACE_TAG_AUDIO
 
 #include "Configuration.h"
+#if ENABLE_FUTEX
 #include <linux/futex.h>
 #include <sys/syscall.h>
+#endif
 #include <utils/Log.h>
 #include <utils/Trace.h>
 #include "FastThread.h"
 #include "FastThreadDumpState.h"
+
+#include <cutils/threads.h>
+#include <cutils/memory.h>
 
 #define FAST_DEFAULT_NS    999999999L   // ~1 sec: default time to sleep
 #define FAST_HOT_IDLE_NS     1000000L   // 1 ms: time to sleep while hot idling
@@ -98,7 +103,9 @@ bool FastThread::threadLoop()
                 const struct timespec req = {0, mSleepNs};
                 nanosleep(&req, NULL);
             } else {
+#if defined(__linux__)
                 sched_yield();
+#endif
             }
         }
         // default to long sleep for next cycle
@@ -164,6 +171,7 @@ bool FastThread::threadLoop()
                 int32_t *coldFutexAddr = mCurrent->mColdFutexAddr;
                 ALOG_ASSERT(coldFutexAddr != NULL);
                 int32_t old = android_atomic_dec(coldFutexAddr);
+#if ENABLE_FUTEX
                 if (old <= 0) {
                     syscall(__NR_futex, coldFutexAddr, FUTEX_WAIT_PRIVATE, old - 1, NULL);
                 }
@@ -171,6 +179,7 @@ bool FastThread::threadLoop()
                 if (!(policy == SCHED_FIFO || policy == SCHED_RR)) {
                     ALOGE("did not receive expected priority boost");
                 }
+#endif
                 // This may be overly conservative; there could be times that the normal mixer
                 // requests such a brief cold idle that it doesn't require resetting this flag.
                 mIsWarm = false;
@@ -194,7 +203,7 @@ bool FastThread::threadLoop()
             onExit();
             return false;
         default:
-            LOG_ALWAYS_FATAL_IF(!isSubClassCommand(mCommand));
+            LOG_ALWAYS_FATAL_IF(!isSubClassCommand(mCommand), "");
             break;
         }
 

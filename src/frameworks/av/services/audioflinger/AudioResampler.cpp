@@ -28,6 +28,8 @@
 #include "AudioResamplerCubic.h"
 #include "AudioResamplerDyn.h"
 
+#include <cutils/threads.h>
+
 #ifdef __arm__
     // bug 13102576
     //#define ASM_ARM_RESAMP1 // enable asm optimisation for ResamplerOrder1
@@ -100,7 +102,7 @@ bool AudioResampler::qualityIsSupported(src_quality quality)
 // ----------------------------------------------------------------------------
 
 static pthread_once_t once_control = PTHREAD_ONCE_INIT;
-static AudioResampler::src_quality defaultQuality = AudioResampler::DEFAULT_QUALITY;
+static AudioResampler::src_quality defaultQuality = AudioResampler::DEFAULT_SRC_QUALITY;
 
 void AudioResampler::init_routine()
 {
@@ -111,8 +113,8 @@ void AudioResampler::init_routine()
         if (*endptr == '\0') {
             defaultQuality = (src_quality) l;
             ALOGD("forcing AudioResampler quality to %d", defaultQuality);
-            if (defaultQuality < DEFAULT_QUALITY || defaultQuality > DYN_HIGH_QUALITY) {
-                defaultQuality = DEFAULT_QUALITY;
+            if (defaultQuality < DEFAULT_SRC_QUALITY || defaultQuality > DYN_HIGH_QUALITY) {
+                defaultQuality = DEFAULT_SRC_QUALITY;
             }
         }
     }
@@ -122,7 +124,7 @@ uint32_t AudioResampler::qualityMHz(src_quality quality)
 {
     switch (quality) {
     default:
-    case DEFAULT_QUALITY:
+    case DEFAULT_SRC_QUALITY:
     case LOW_QUALITY:
         return 3;
     case MED_QUALITY:
@@ -141,7 +143,7 @@ uint32_t AudioResampler::qualityMHz(src_quality quality)
 }
 
 static const uint32_t maxMHz = 130; // an arbitrary number that permits 3 VHQ, should be tunable
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static mutex_t mutex = MUTEX_INITIALIZER;
 static uint32_t currentMHz = 0;
 
 AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount,
@@ -171,7 +173,7 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
     }
 
     // naive implementation of CPU load throttling doesn't account for whether resampler is active
-    pthread_mutex_lock(&mutex);
+    mutex_lock(&mutex);
     for (;;) {
         uint32_t deltaMHz = qualityMHz(quality);
         uint32_t newMHz = currentMHz + deltaMHz;
@@ -207,7 +209,7 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
             break;
         }
     }
-    pthread_mutex_unlock(&mutex);
+    mutex_unlock(&mutex);
 
     AudioResampler* resampler;
 
@@ -215,22 +217,22 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
     default:
     case LOW_QUALITY:
         ALOGV("Create linear Resampler");
-        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT);
+        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
         resampler = new AudioResamplerOrder1(inChannelCount, sampleRate);
         break;
     case MED_QUALITY:
         ALOGV("Create cubic Resampler");
-        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT);
+        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
         resampler = new AudioResamplerCubic(inChannelCount, sampleRate);
         break;
     case HIGH_QUALITY:
         ALOGV("Create HIGH_QUALITY sinc Resampler");
-        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT);
+        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
         resampler = new AudioResamplerSinc(inChannelCount, sampleRate);
         break;
     case VERY_HIGH_QUALITY:
         ALOGV("Create VERY_HIGH_QUALITY sinc Resampler = %d", quality);
-        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT);
+        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
         resampler = new AudioResamplerSinc(inChannelCount, sampleRate, quality);
         break;
     case DYN_LOW_QUALITY:
@@ -241,7 +243,7 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
             resampler = new AudioResamplerDyn<float, float, float>(inChannelCount,
                     sampleRate, quality);
         } else {
-            LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT);
+            LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
             if (quality == DYN_HIGH_QUALITY) {
                 resampler = new AudioResamplerDyn<int32_t, int16_t, int32_t>(inChannelCount,
                         sampleRate, quality);
@@ -281,7 +283,7 @@ AudioResampler::AudioResampler(int inChannelCount,
 }
 
 AudioResampler::~AudioResampler() {
-    pthread_mutex_lock(&mutex);
+    mutex_lock(&mutex);
     src_quality quality = getQuality();
     uint32_t deltaMHz = qualityMHz(quality);
     int32_t newMHz = currentMHz - deltaMHz;
@@ -289,7 +291,7 @@ AudioResampler::~AudioResampler() {
             currentMHz, newMHz, deltaMHz, quality);
     LOG_ALWAYS_FATAL_IF(newMHz < 0, "negative resampler load %d MHz", newMHz);
     currentMHz = newMHz;
-    pthread_mutex_unlock(&mutex);
+    mutex_unlock(&mutex);
 }
 
 void AudioResampler::setSampleRate(int32_t inSampleRate) {

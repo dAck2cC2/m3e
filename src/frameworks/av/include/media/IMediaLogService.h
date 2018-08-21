@@ -23,7 +23,7 @@
 
 namespace android {
 
-class IMediaLogService: public IInterface
+class ANDROID_API_MEDIA IMediaLogService: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaLogService);

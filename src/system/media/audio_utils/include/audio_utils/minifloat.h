@@ -74,9 +74,11 @@ static inline gain_minifloat_t gain_minifloat_unpack_right(gain_minifloat_packed
  * There are 13 significand bits specified, 1 implied hidden bit, 3 exponent bits,
  * and no sign bit.  Denormals are supported.
  */
+ANDROID_API_AUDIO_UTILS
 gain_minifloat_t gain_from_float(float f);
 
 /** Convert the internal representation used for gains to float */
+ANDROID_API_AUDIO_UTILS
 float float_from_gain(gain_minifloat_t gain);
 
 /** \cond */

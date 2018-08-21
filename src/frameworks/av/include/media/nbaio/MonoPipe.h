@@ -31,7 +31,7 @@ typedef SingleStateQueue<ExtendedTimestamp> ExtendedTimestampSingleStateQueue;
 //  - write() can optionally block if the pipe is full
 // Like Pipe, it is not multi-thread safe for either writer or reader
 // but writer and reader can be different threads.
-class MonoPipe : public NBAIO_Sink {
+class ANDROID_API_NBAIO MonoPipe : public NBAIO_Sink {
 
     friend class MonoPipeReader;
 

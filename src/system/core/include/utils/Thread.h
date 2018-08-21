@@ -74,11 +74,9 @@ public:
     // Indicates whether this thread is running or not.
     bool        isRunning() const { return mRunning; };
 
-#if defined(__ANDROID__)
     // Return the thread's kernel ID, same as the thread itself calling gettid(),
     // or -1 if the thread is not running.
             pid_t       getTid() const;
-#endif
 
 protected:
     // exitPending() returns true if requestExit() has been called.

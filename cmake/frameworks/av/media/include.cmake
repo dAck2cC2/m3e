@@ -1,6 +1,7 @@
+DLL_PUBLIC(MEDIA)
 
 if(MSVC)
-add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 endif()
 
 # include

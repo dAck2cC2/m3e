@@ -39,7 +39,7 @@ namespace android {
 
 // ----------------------------------------------------------------------------
 
-class IAudioFlinger : public IInterface
+class ANDROID_API_MEDIA IAudioFlinger : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(AudioFlinger);
@@ -250,7 +250,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnAudioFlinger : public BnInterface<IAudioFlinger>
+class ANDROID_API_MEDIA BnAudioFlinger : public BnInterface<IAudioFlinger>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

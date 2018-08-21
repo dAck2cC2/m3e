@@ -22,7 +22,7 @@
 namespace android {
 
 // MonoPipeReader is safe for only a single reader thread
-class MonoPipeReader : public NBAIO_Source {
+class ANDROID_API_NBAIO MonoPipeReader : public NBAIO_Source {
 
 public:
 

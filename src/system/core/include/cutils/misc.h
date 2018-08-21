@@ -26,7 +26,8 @@ extern "C" {
          * sz is non-zero, return the size of the file via sz.
          * Returns 0 on failure.
          */
-extern void *load_file(const char *fn, unsigned *sz);
+ANDROID_API_CUTILS
+void *load_file(const char *fn, unsigned *sz);
 
         /* This is the range of UIDs (and GIDs) that are reserved
          * for assigning to applications.

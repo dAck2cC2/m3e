@@ -65,7 +65,14 @@ static int64_t convertTimespecToUs(const struct timespec &tv)
 static int64_t getNowUs()
 {
     struct timespec tv;
+#if defined(_linux)
     (void) clock_gettime(CLOCK_MONOTONIC, &tv);
+#else
+	struct timeval ts;
+	gettimeofday(&ts, NULL);
+	tv.tv_sec = ts.tv_sec;
+	tv.tv_nsec = ts.tv_usec * 1000;
+#endif
     return convertTimespecToUs(tv);
 }
 
@@ -623,9 +630,11 @@ status_t AudioTrack::start()
                 t->resume();
             }
         } else {
+#if ENABLE_THREAD_PIO
             mPreviousPriority = getpriority(PRIO_PROCESS, 0);
             get_sched_policy(0, &mPreviousSchedulingGroup);
             androidSetThreadPriority(0, ANDROID_PRIORITY_AUDIO);
+#endif
         }
     } else {
         ALOGE("start() status %d", status);
@@ -635,8 +644,10 @@ status_t AudioTrack::start()
                 t->pause();
             }
         } else {
+#if ENABLE_THREAD_PIO
             setpriority(PRIO_PROCESS, 0, mPreviousPriority);
             set_sched_policy(0, mPreviousSchedulingGroup);
+#endif
         }
     }
 
@@ -675,8 +686,10 @@ void AudioTrack::stop()
             t->pause();
         }
     } else {
+#if ENABLE_THREAD_PIO
         setpriority(PRIO_PROCESS, 0, mPreviousPriority);
         set_sched_policy(0, mPreviousSchedulingGroup);
+#endif
     }
 }
 
@@ -1768,7 +1781,7 @@ nsecs_t AudioTrack::processAudioBuffer()
     // Currently the AudioTrack thread is not created if there are no callbacks.
     // Would it ever make sense to run the thread, even without callbacks?
     // If so, then replace this by checks at each use for mCbf != NULL.
-    LOG_ALWAYS_FATAL_IF(mCblk == NULL);
+    LOG_ALWAYS_FATAL_IF(mCblk == NULL, "");
 
     mLock.lock();
     if (mAwaitBoost) {
@@ -1778,10 +1791,12 @@ nsecs_t AudioTrack::processAudioBuffer()
         int32_t tryCounter = kMaxTries;
         uint32_t pollUs = 10000;
         do {
+#if ENABLE_THREAD_PIO
             int policy = sched_getscheduler(0) & ~SCHED_RESET_ON_FORK;
             if (policy == SCHED_FIFO || policy == SCHED_RR) {
                 break;
             }
+#endif
             usleep(pollUs);
             pollUs <<= 1;
         } while (tryCounter-- > 0);
@@ -2412,7 +2427,14 @@ status_t AudioTrack::getTimestamp(AudioTimestamp& timestamp)
         if (isOffloaded_l() && (mState == STATE_PAUSED || mState == STATE_PAUSED_STOPPING)) {
             // use cached paused position in case another offloaded track is running.
             timestamp.mPosition = mPausedPosition;
+#if defined(_linux)
             clock_gettime(CLOCK_MONOTONIC, &timestamp.mTime);
+#else
+			struct timeval tv;
+			gettimeofday(&tv, NULL);
+			timestamp.mTime.tv_sec = tv.tv_sec;
+			timestamp.mTime.tv_nsec = tv.tv_usec * 1000;
+#endif
             return NO_ERROR;
         }
 

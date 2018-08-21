@@ -24,7 +24,7 @@
 
 namespace android {
 
-class IEffect: public IInterface
+class ANDROID_API_MEDIA IEffect: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(Effect);
@@ -46,7 +46,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnEffect: public BnInterface<IEffect>
+class ANDROID_API_MEDIA BnEffect: public BnInterface<IEffect>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

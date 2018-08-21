@@ -21,7 +21,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
-#include <dlfcn.h>
+//#include <dlfcn.h>
 
 #include <cutils/compiler.h>
 #include <cutils/properties.h>
@@ -30,6 +30,8 @@
 #include <audio_utils/primitives.h>
 
 #include "AudioResamplerSinc.h"
+
+#include <cutils/threads.h>
 
 #if defined(__clang__) && !__has_builtin(__builtin_assume_aligned)
 #define __builtin_assume_aligned(p, a) \
@@ -101,28 +103,53 @@ void AudioResamplerSinc::init_routine()
     veryHighQualityConstants = highQualityConstants;
 
     // Open the dll to get the coefficients for VERY_HIGH_QUALITY
+#if defined(_MSC_VER)
+	void *resampleCoeffLib = LoadLibrary("libaudio-resampler.so");
+#else
     void *resampleCoeffLib = dlopen("libaudio-resampler.so", RTLD_NOW);
+#endif
     ALOGV("Open libaudio-resampler library = %p", resampleCoeffLib);
     if (resampleCoeffLib == NULL) {
+#if defined(_MSC_VER)
+		ALOGE("Could not open audio-resampler library: %d", GetLastError());
+#else
         ALOGE("Could not open audio-resampler library: %s", dlerror());
+#endif
         return;
     }
 
     readResampleFirNumCoeffFn readResampleFirNumCoeff;
     readResampleFirLerpIntBitsFn readResampleFirLerpIntBits;
 
+#if defined(_MSC_VER) 
+	readResampleCoefficients = (readCoefficientsFn)
+		GetProcAddress((HMODULE)resampleCoeffLib, "readResamplerCoefficients");
+	readResampleFirNumCoeff = (readResampleFirNumCoeffFn)
+		GetProcAddress((HMODULE)resampleCoeffLib, "readResampleFirNumCoeff");
+	readResampleFirLerpIntBits = (readResampleFirLerpIntBitsFn)
+		GetProcAddress((HMODULE)resampleCoeffLib, "readResampleFirLerpIntBits");
+#else
     readResampleCoefficients = (readCoefficientsFn)
             dlsym(resampleCoeffLib, "readResamplerCoefficients");
     readResampleFirNumCoeff = (readResampleFirNumCoeffFn)
             dlsym(resampleCoeffLib, "readResampleFirNumCoeff");
     readResampleFirLerpIntBits = (readResampleFirLerpIntBitsFn)
             dlsym(resampleCoeffLib, "readResampleFirLerpIntBits");
+#endif
 
     if (!readResampleCoefficients || !readResampleFirNumCoeff || !readResampleFirLerpIntBits) {
         readResampleCoefficients = NULL;
+#if defined(_MSC_VER)
+		FreeLibrary((HMODULE)resampleCoeffLib);
+#else
         dlclose(resampleCoeffLib);
+#endif
         resampleCoeffLib = NULL;
+#if defined(_MSC_VER)
+		ALOGE("Could not find symbol: %d", GetLastError());
+#else
         ALOGE("Could not find symbol: %s", dlerror());
+#endif
         return;
     }
 

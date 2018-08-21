@@ -49,6 +49,7 @@ __BEGIN_DECLS
  * The out and sums buffers must either be completely separate (non-overlapping), or
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  */
+ANDROID_API_AUDIO_UTILS
 void ditherAndClamp(int32_t* out, const int32_t *sums, size_t c);
 
 /**
@@ -115,6 +116,7 @@ void memcpy_to_i16_from_i32(int16_t *dst, const int32_t *src, size_t count);
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  * The conversion is done by truncation, without dithering, so it loses resolution.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_i16_from_float(int16_t *dst, const float *src, size_t count);
 
 /**
@@ -130,6 +132,7 @@ void memcpy_to_i16_from_float(int16_t *dst, const float *src, size_t count);
  * The destination and source buffers must either be completely separate (non-overlapping), or
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_float_from_q4_27(float *dst, const int32_t *src, size_t count);
 
 /**
@@ -414,6 +417,7 @@ void upmix_to_stereo_i16_from_mono_i16(int16_t *dst, const int16_t *src, size_t 
  * The destination and source buffers must be completely separate (non-overlapping),
  * or they must both start at the same address.
  */
+ANDROID_API_AUDIO_UTILS
 void downmix_to_mono_float_from_stereo_float(float *dst, const float *src, size_t count);
 
 /**
@@ -426,6 +430,7 @@ void downmix_to_mono_float_from_stereo_float(float *dst, const float *src, size_
  *
  * The destination and source buffers must be completely separate (non-overlapping).
  */
+ANDROID_API_AUDIO_UTILS
 void upmix_to_stereo_float_from_mono_float(float *dst, const float *src, size_t count);
 
 /**
@@ -506,6 +511,7 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
  * The destination and source buffers must be completely separate (non-overlapping).
  * If the sample size is not in range, the function will abort.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_by_index_array(void *dst, uint32_t dst_channels,
         const void *src, uint32_t src_channels,
         const int8_t *idxary, size_t sample_size, size_t count);

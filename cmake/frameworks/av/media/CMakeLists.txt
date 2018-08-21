@@ -12,25 +12,31 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 
 set(MEDIA_DEPLIB
 utils
 binder
 stagefright_foundation
+audioutils
 )
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
 
 # define
 if(APPLE)
     add_definitions(-Disnanf=isnan)
 elseif(MSVC)
     add_definitions(-D__unused= )
+    add_definitions(-Disnanf=isnan)
 endif()
 
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
+
 # header files
-file(GLOB MEDIA_HEADER_FILES ${HEADER_PATH}/*.h )
+file(GLOB MEDIA_HEADER_FILES 
+${HEADER_PATH}/*.h 
+${M3E_SOURCE_DIR}/src/frameworks/av/include/private/media/*.h
+)
 
 # source files
 #file(GLOB MEDIA_SOURCE_FILES 
@@ -40,6 +46,8 @@ set(MEDIA_SOURCE_FILES
 ${SOURCE_PATH}/AudioParameter.cpp
 ${SOURCE_PATH}/AudioSystem.cpp
 ${SOURCE_PATH}/AudioPolicy.cpp
+${SOURCE_PATH}/AudioTrack.cpp
+${SOURCE_PATH}/AudioTrackShared.cpp
 ${SOURCE_PATH}/IEffect.cpp
 ${SOURCE_PATH}/IEffectClient.cpp
 ${SOURCE_PATH}/IAudioTrack.cpp
@@ -52,6 +60,8 @@ ${SOURCE_PATH}/IDataSource.cpp
 ${SOURCE_PATH}/IMediaExtractor.cpp
 ${SOURCE_PATH}/IMediaExtractorService.cpp
 ${SOURCE_PATH}/IMediaSource.cpp
+${SOURCE_PATH}/IMediaLogService.cpp
+${SOURCE_PATH}/MemoryLeakTrackUtil.cpp
 )
 
 if(ENABLE_AV_CODEC)
@@ -73,6 +83,7 @@ endif(ENABLE_AV_CODEC)
 if(MSVC)
     list(APPEND MEDIA_SOURCE_FILES
     ${MSVC_PATH}/sys/time.c
+    ${MSVC_PATH}/backtrace.cc
     ) 
 endif()
 

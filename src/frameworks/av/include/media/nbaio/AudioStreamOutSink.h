@@ -23,7 +23,7 @@
 namespace android {
 
 // not multi-thread safe
-class AudioStreamOutSink : public NBAIO_Sink {
+class ANDROID_API_NBAIO AudioStreamOutSink : public NBAIO_Sink {
 
 public:
     AudioStreamOutSink(audio_stream_out *stream);

@@ -31,7 +31,7 @@ namespace android {
 
 // ----------------------------------------------------------------------------
 
-class IAudioTrack : public IInterface
+class ANDROID_API_MEDIA IAudioTrack : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(AudioTrack);
@@ -78,7 +78,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnAudioTrack : public BnInterface<IAudioTrack>
+class ANDROID_API_MEDIA BnAudioTrack : public BnInterface<IAudioTrack>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

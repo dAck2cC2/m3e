@@ -89,6 +89,7 @@ __BEGIN_DECLS
  * This function should not be explicitly called, the first call to any normal
  * trace function will cause it to be run safely.
  */
+ANDROID_API_CUTILS
 void atrace_setup();
 
 /**
@@ -116,6 +117,7 @@ void atrace_set_tracing_enabled(bool enabled);
  * Nonzero indicates setup has completed.
  * Note: This does NOT indicate whether or not setup was successful.
  */
+ANDROID_API_CUTILS
 extern atomic_bool atrace_is_ready;
 
 /**
@@ -123,12 +125,14 @@ extern atomic_bool atrace_is_ready;
  * A value of zero indicates setup has failed.
  * Any other nonzero value indicates setup has succeeded, and tracing is on.
  */
+ANDROID_API_CUTILS
 extern uint64_t atrace_enabled_tags;
 
 /**
  * Handle to the kernel's trace buffer, initialized to -1.
  * Any other value indicates setup has succeeded, and is a valid fd for tracing.
  */
+ANDROID_API_CUTILS
 extern int atrace_marker_fd;
 
 /**
@@ -171,11 +175,13 @@ static inline uint64_t atrace_is_tag_enabled(uint64_t tag)
  * Trace the beginning of a context.  name is used to identify the context.
  * This is often used to time function execution.
  */
+ANDROID_API_CUTILS 
+void atrace_begin_body(const char*);
+
 #define ATRACE_BEGIN(name) atrace_begin(ATRACE_TAG, name)
 static inline void atrace_begin(uint64_t tag, const char* name)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-        void atrace_begin_body(const char*);
         atrace_begin_body(name);
     }
 }
@@ -228,11 +234,13 @@ static inline void atrace_async_end(uint64_t tag, const char* name, int32_t cook
  * Traces an integer counter value.  name is used to identify the counter.
  * This can be used to track how a value changes over time.
  */
+ANDROID_API_CUTILS
+void atrace_int_body(const char*, int32_t);
+
 #define ATRACE_INT(name, value) atrace_int(ATRACE_TAG, name, value)
 static inline void atrace_int(uint64_t tag, const char* name, int32_t value)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-        void atrace_int_body(const char*, int32_t);
         atrace_int_body(name, value);
     }
 }

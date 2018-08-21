@@ -146,7 +146,49 @@ static __inline__ void  mutex_destroy(mutex_t*  lock)
         DeleteCriticalSection(lock->lock);
     }
 }
+
 #endif // !defined(_WIN32)
+
+/***********************************************************************/
+/***********************************************************************/
+/*****                                                             *****/
+/*****         pthread_once                                        *****/
+/*****                                                             *****/
+/***********************************************************************/
+/***********************************************************************/
+
+#if defined(_WIN32)
+
+struct _pthread_once_t {
+	int inited;
+	long semaphore;
+};
+
+typedef struct _pthread_once_t pthread_once_t;
+#define PTHREAD_ONCE_INIT { 0, -1 }
+
+ANDROID_API_CUTILS
+int pthread_once(pthread_once_t *once, void(*init_func)());
+
+#endif // _WIN32
+
+/***********************************************************************/
+/***********************************************************************/
+/*****                                                             *****/
+/*****         clock_gettime                                       *****/
+/*****                                                             *****/
+/***********************************************************************/
+/***********************************************************************/
+
+#if !defined(__linux__)
+
+typedef enum {
+	CLOCK_MONOTONIC = 0,
+} clockid_t;
+
+ANDROID_API_CUTILS
+int clock_gettime(clockid_t clk_id, struct timespec *tp);
+#endif // _linux
 
 #ifdef __cplusplus
 }

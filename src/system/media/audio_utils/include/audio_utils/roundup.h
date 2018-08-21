@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 /** Round up to the next highest power of 2 */
+ANDROID_API_AUDIO_UTILS
 unsigned roundup(unsigned v);
 
 #ifdef __cplusplus

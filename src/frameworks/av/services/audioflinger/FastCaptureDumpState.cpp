@@ -22,6 +22,10 @@
 #include "FastCaptureDumpState.h"
 #include "FastCaptureState.h"
 
+#if defined(_MSC_VER)
+#define dprintf(a, ...)  do { } while(0)
+#endif // _MSC_VER
+
 namespace android {
 
 FastCaptureDumpState::FastCaptureDumpState() : FastThreadDumpState(),

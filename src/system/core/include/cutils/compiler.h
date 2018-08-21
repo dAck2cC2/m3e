@@ -53,4 +53,10 @@
     #endif
 #endif // ANDROID_API
 
+#if defined(_MSC_VER)
+	#if !defined(posix_memalign)
+		#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+	#endif
+#endif
+
 #endif // ANDROID_CUTILS_COMPILER_H

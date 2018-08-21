@@ -40,6 +40,7 @@
 #include "AudioMixerOps.h"
 #include "AudioMixer.h"
 
+
 // The FCC_2 macro refers to the Fixed Channel Count of 2 for the legacy integer mixer.
 #ifndef FCC_2
 #define FCC_2 2
@@ -57,7 +58,7 @@
 #define ALOGVV ALOGV
 //define ALOGVV printf  // for test-mixer.cpp
 #else
-#define ALOGVV(a...) do { } while (0)
+#define ALOGVV(a, ...) do { } while (0)
 #endif
 
 #ifndef ARRAY_SIZE
@@ -768,7 +769,7 @@ bool AudioMixer::track_t::setResampler(uint32_t trackSampleRate, uint32_t devSam
                 // quality level based on the initial ratio, but that could change later.
                 // Should have a way to distinguish tracks with static ratios vs. dynamic ratios.
                 if (isMusicRate(trackSampleRate)) {
-                    quality = AudioResampler::DEFAULT_QUALITY;
+                    quality = AudioResampler::DEFAULT_SRC_QUALITY;
                 } else {
                     quality = AudioResampler::DYN_LOW_QUALITY;
                 }
@@ -1975,7 +1976,7 @@ AudioMixer::hook_t AudioMixer::getTrackHook(int trackType, uint32_t channelCount
             break;
         }
     }
-    LOG_ALWAYS_FATAL_IF(channelCount > MAX_NUM_CHANNELS);
+    LOG_ALWAYS_FATAL_IF(channelCount > MAX_NUM_CHANNELS, "");
     switch (trackType) {
     case TRACKTYPE_NOP:
         return track__nop;
@@ -2042,7 +2043,7 @@ AudioMixer::process_hook_t AudioMixer::getProcessHook(int processType, uint32_t 
     if (!kUseNewMixer && channelCount == FCC_2 && mixerInFormat == AUDIO_FORMAT_PCM_16_BIT) {
         return process__OneTrack16BitsStereoNoResampling;
     }
-    LOG_ALWAYS_FATAL_IF(channelCount > MAX_NUM_CHANNELS);
+    LOG_ALWAYS_FATAL_IF(channelCount > MAX_NUM_CHANNELS, "");
     switch (mixerInFormat) {
     case AUDIO_FORMAT_PCM_FLOAT:
         switch (mixerOutFormat) {

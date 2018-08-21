@@ -42,6 +42,10 @@
 #include "AudioMixer.h"
 #include "FastMixer.h"
 
+#if defined(_MSC_VER)
+#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+#endif // _MSC_VER
+
 namespace android {
 
 /*static*/ const FastMixerState FastMixer::sInitial;
@@ -162,7 +166,7 @@ void FastMixer::onStateChange()
             mFormat = mOutputSink->format();
             mSampleRate = Format_sampleRate(mFormat);
             mSinkChannelCount = Format_channelCount(mFormat);
-            LOG_ALWAYS_FATAL_IF(mSinkChannelCount > AudioMixer::MAX_NUM_CHANNELS);
+            LOG_ALWAYS_FATAL_IF(mSinkChannelCount > AudioMixer::MAX_NUM_CHANNELS, "");
 
             // TODO: Add channel mask to NBAIO_Format
             // We assume that the channel mask must be a valid positional channel mask.

@@ -27,15 +27,21 @@ ${SOURCE_PATH}/sys/*.h
 # source files
 file(GLOB CUTILS_SOURCE_FILES 
 ${SOURCE_PATH}/*.c
+${SOURCE_PATH}/*.cc
 ${SOURCE_PATH}/sys/*.cpp
 )
 
 # header and source code for MSVC
 if(MSVC)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
-    set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${MSVC_PATH}/stdint.h)
-    set(CUTILS_SOURCE_FILES ${CUTILS_SOURCE_FILES} ${MSVC_PATH}/ffs.c)
-    #set(CUTILS_HEADER_FILES ${CUTILS_HEADER_FILES} ${MSVC_PATH}/sys/time.h)
+    list(APPEND CUTILS_HEADER_FILES
+    ${MSVC_PATH}/stdint.h
+    ${MSVC_PATH}/sys/time.h
+    )
+    list(APPEND CUTILS_SOURCE_FILES
+    ${MSVC_PATH}/ffs.c
+    ${MSVC_PATH}/sys/time.c
+    )
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
 elseif(CYGWIN)

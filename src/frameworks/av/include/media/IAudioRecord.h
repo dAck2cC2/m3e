@@ -30,7 +30,7 @@ namespace android {
 
 // ----------------------------------------------------------------------------
 
-class IAudioRecord : public IInterface
+class ANDROID_API_MEDIA IAudioRecord : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(AudioRecord);
@@ -50,7 +50,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnAudioRecord : public BnInterface<IAudioRecord>
+class ANDROID_API_MEDIA BnAudioRecord : public BnInterface<IAudioRecord>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

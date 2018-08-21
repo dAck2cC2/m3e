@@ -59,3 +59,18 @@ int clock_nanosleep(int clock_id, int flags,
 
 	return 0;
 }
+
+int nanosleep(const struct timespec *req, struct timespec *rem)
+{
+	if (req) {
+		DWORD usec = req->tv_sec * 1000 + req->tv_nsec / 1000;
+		usleep(usec);
+	}
+
+	if (rem) {
+		rem->tv_sec = 0;
+		rem->tv_nsec = 0;
+	}
+
+	return 0;
+}

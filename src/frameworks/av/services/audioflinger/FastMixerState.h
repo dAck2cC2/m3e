@@ -24,6 +24,8 @@
 #include <media/nbaio/NBLog.h>
 #include "FastThreadState.h"
 
+#include <cutils/threads.h>
+
 namespace android {
 
 struct FastMixerDumpState;
@@ -60,9 +62,9 @@ struct FastMixerState : FastThreadState {
     static const unsigned kDefaultFastTracks = 8;
 
     static unsigned sMaxFastTracks;             // Configured maximum number of fast tracks
-#if !defined(_MSC_VER)
+
     static pthread_once_t sMaxFastTracksOnce;   // Protects initializer for sMaxFastTracks
-#endif // _MSC_VER
+
     // all pointer fields use raw pointers; objects are owned and ref-counted by the normal mixer
     FastTrack   mFastTracks[kMaxFastTracks];
     int         mFastTracksGen; // increment when any mFastTracks[i].mGeneration is incremented

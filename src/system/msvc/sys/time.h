@@ -31,4 +31,9 @@ int clock_nanosleep(int clock_id, int flags,
 	const struct timespec *request,
 	struct timespec *remain);
 
+#ifdef __cplusplus
+extern "C"
+#endif
+int nanosleep(const struct timespec *req, struct timespec *rem);
+
 #endif // _MSC_TIME_H_ ]

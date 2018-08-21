@@ -20,6 +20,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 
+#include <cutils/misc.h>
+
 void *load_file(const char *fn, unsigned *_sz)
 {
     char *data;

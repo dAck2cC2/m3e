@@ -106,4 +106,47 @@ void   thread_store_set( thread_store_t*          store,
 
     TlsSetValue( store->tls, value );
 }
+
+int pthread_once(pthread_once_t *once, void(*init_func)())
+{
+	if (once == NULL || init_func == NULL)
+		return EINVAL;
+
+	if (once->inited)
+		return 0;
+
+	if (InterlockedIncrement(&once->semaphore) == 0)
+	{
+		init_func();
+		once->inited = 1;
+	}
+	else
+	{
+		while (!once->inited)
+			Sleep(0);
+	}
+
+	return 0;
+}
+
 #endif /* !defined(_WIN32) */
+
+#if !defined(__linux__)
+
+#include <sys/time.h>
+
+int clock_gettime(clockid_t clk_id, struct timespec *ts)
+{
+	if (!ts) {
+		return -1;
+	}
+
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	ts->tv_sec = tv.tv_sec;
+	ts->tv_nsec = tv.tv_usec * 1000;
+
+	return 0;
+};
+
+#endif // __linux__

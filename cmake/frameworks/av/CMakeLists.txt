@@ -2,7 +2,10 @@
 if(ENABLE_AV_UTILS)
     add_subdirectory(stagefright_foundation)
     add_subdirectory(media)
-    #add_subdirectory(audioflinger) 
+    add_subdirectory(mediautils) 
+    add_subdirectory(nbaio) 
+    add_subdirectory(effects) 
+    add_subdirectory(audioflinger) 
 endif(ENABLE_AV_UTILS)
 
 if(ENABLE_AV_BASE)
