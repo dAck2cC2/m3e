@@ -124,6 +124,9 @@ namespace android {
 
 
 #define ATRACE_INT(name, value)
+#define ATRACE_BEGIN(name)
+#define ATRACE_END() 
+#define ATRACE_ENABLED() 0
 
 
 #endif // _MSC_VER

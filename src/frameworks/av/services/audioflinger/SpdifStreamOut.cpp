@@ -102,13 +102,13 @@ status_t SpdifStreamOut::open(
     return status;
 }
 
-int SpdifStreamOut::flush()
+status_t SpdifStreamOut::flush()
 {
     mSpdifEncoder.reset();
     return AudioStreamOut::flush();
 }
 
-int SpdifStreamOut::standby()
+status_t SpdifStreamOut::standby()
 {
     mSpdifEncoder.reset();
     return AudioStreamOut::standby();
