@@ -11,6 +11,7 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
@@ -104,6 +105,7 @@ if(ENABLE_AV_CODEC)
     )
 
     set(STAGEFRIGHT_SOURCE_FILES ${STAGEFRIGHT_SOURCE_FILES}
+    ${SOURCE_PATH}/MediaCodecSource.cpp  
     ${SOURCE_PATH}/SimpleDecodingSource.cpp
     ${SOURCE_PATH}/MediaCodecListOverrides.cpp
     ${SOURCE_PATH}/MediaCodecList.cpp

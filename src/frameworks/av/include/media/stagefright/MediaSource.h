@@ -30,7 +30,7 @@ namespace android {
 class MediaBuffer;
 class MetaData;
 
-struct MediaSource : public BnMediaSource {
+struct ANDROID_API_STAGEFRIGHT MediaSource : public BnMediaSource {
     MediaSource();
 
     // To be called before any other methods on this object, except

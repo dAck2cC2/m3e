@@ -29,7 +29,7 @@ struct AudioPlaybackRate;
 class AudioTrack;
 struct AwesomePlayer;
 
-class AudioPlayer {
+class ANDROID_API_STAGEFRIGHT AudioPlayer {
 public:
     enum {
         REACHED_EOS,

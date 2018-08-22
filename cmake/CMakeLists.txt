@@ -14,28 +14,25 @@ if(CFG_NO_DEFAULT)
     #set(ENABLE_DESKTOP_GL  "TRUE") 
     set(ENABLE_ANGLE      "TRUE")
     set(ENABLE_HARDWARE   "TRUE")
-
     set(ENABLE_AV_UTILS   "TRUE") 
   
   elseif(CFG_ENABLE_AV_BASE)
     set(ENABLE_CORE      "TRUE")  
     set(ENABLE_NATIVE    "TRUE")
-
     set(ENABLE_ANGLE      "TRUE")
     set(ENABLE_HARDWARE   "TRUE") 
-
- 	  set(ENABLE_AV_UTILS  "TRUE") 
+    set(ENABLE_AV_UTILS  "TRUE") 
+     
     set(ENABLE_AV_BASE   "TRUE")   
  
   elseif(CFG_ENABLE_AV_CODEC)
     set(ENABLE_CORE      "TRUE")  
     set(ENABLE_NATIVE    "TRUE")
-
     set(ENABLE_ANGLE      "TRUE")
     set(ENABLE_HARDWARE   "TRUE") 
-
 	  set(ENABLE_AV_UTILS    "TRUE")      
-    set(ENABLE_AV_BASE   "TRUE")    
+    set(ENABLE_AV_BASE   "TRUE")  
+
     set(ENABLE_AV_CODEC  "TRUE")
 
   elseif(CFG_ENABLE_APP)

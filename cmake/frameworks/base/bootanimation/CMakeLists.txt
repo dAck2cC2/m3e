@@ -73,6 +73,7 @@ ${M3E_SOURCE_DIR}/src/frameworks/base/core/res/assets/images/ $<TARGET_FILE_DIR:
 )
 
 # test 
+set(ENABLE_TEST true)
 if (ENABLE_TEST)
     add_subdirectory(test)
 endif(ENABLE_TEST)

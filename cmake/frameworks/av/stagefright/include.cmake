@@ -1,4 +1,6 @@
 
+DLL_PUBLIC(STAGEFRIGHT)
+
 # definition
 if(MSVC)
 else()
@@ -6,6 +8,5 @@ else()
     add_definitions(-Wno-attributes)
 endif()
 
-
 # include
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/include)

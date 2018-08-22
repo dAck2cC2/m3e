@@ -82,7 +82,7 @@ private:
         STARTED,
         STOPPING,
         STOPPED,
-        ERROR,
+        //ERROR,
     };
     AString mComponentName;
 
