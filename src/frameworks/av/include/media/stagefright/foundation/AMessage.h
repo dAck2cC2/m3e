@@ -58,7 +58,7 @@ private:
     status_t setReply(const sp<AMessage> &reply);
 };
 
-struct AMessage : public RefBase {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION AMessage : public RefBase {
     AMessage();
     AMessage(uint32_t what, const sp<const AHandler> &handler);
 

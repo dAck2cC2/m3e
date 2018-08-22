@@ -11,6 +11,7 @@ namespace android {
 enum {
     SERVICE_SM = 0,
     SERVICE_SF,
+	SERVICE_AF,
 	SERVICE_BOOT_ANIM,
     SERVICE_CNT
 };
@@ -22,7 +23,8 @@ static struct {
 gServiceList[SERVICE_CNT] = {
     {"servicemanager", NULL},
     {"surfaceflinger", NULL},
-	{"bootanimation", NULL}
+	{"audioflinger",   NULL},
+	{"bootanimation",  NULL}
 };
 
 InitRC::InitRC()
@@ -75,6 +77,7 @@ void InitRC::StartService(int index)
 status_t InitRC::Entry(int argc, char** argv)
 {
     StartService(SERVICE_SF);
+	StartService(SERVICE_AF);
     
     return OK;
 }

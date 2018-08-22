@@ -6,6 +6,9 @@ if(ENABLE_AV_UTILS)
     add_subdirectory(nbaio) 
     add_subdirectory(effects) 
     add_subdirectory(audioflinger) 
+
+    add_subdirectory(stagefright)
+    add_subdirectory(drm) 
 endif(ENABLE_AV_UTILS)
 
 if(ENABLE_AV_BASE)

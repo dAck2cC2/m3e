@@ -44,7 +44,11 @@ FileSource::FileSource(const char *filename)
         mName = String8::format("FileSource(%s)", filename);
     }
     ALOGV("%s", filename);
-    mFd = open(filename, O_LARGEFILE | O_RDONLY);
+    mFd = open(filename,
+#ifdef O_LARGEFILE
+		O_LARGEFILE |
+#endif
+		O_RDONLY);
 
     if (mFd >= 0) {
         mLength = lseek64(mFd, 0, SEEK_END);

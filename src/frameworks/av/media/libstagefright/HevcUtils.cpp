@@ -30,6 +30,10 @@
 #include <media/stagefright/MediaErrors.h>
 #include <media/stagefright/Utils.h>
 
+#if defined(_MSC_VER)
+#include<algorithm>
+#endif 
+
 namespace android {
 
 static const uint8_t kHevcNalUnitTypes[5] = {

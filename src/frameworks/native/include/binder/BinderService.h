@@ -48,6 +48,15 @@ public:
 
     static void instantiate() { publish(); }
 
+	static sp<SERVICE> create() {
+		sp<IServiceManager> sm(defaultServiceManager());
+		sp<SERVICE> instance = new SERVICE();
+		sm->addService(
+			String16(SERVICE::getServiceName()),
+			instance, false);
+		return instance;
+	}
+
     static status_t shutdown() { return NO_ERROR; }
 
 private:

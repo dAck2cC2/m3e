@@ -29,7 +29,7 @@
 
 namespace android {
 
-struct ColorUtils {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ColorUtils {
     /*
      * Media-platform color constants. MediaCodec uses (an extended version of) platform-defined
      * constants that are derived from HAL_DATASPACE, since these are directly exposed to the user.

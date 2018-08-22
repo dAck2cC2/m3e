@@ -22,11 +22,16 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/ALooper.h>
+#include <media/stagefright/foundation/AMessage.h>
 
 #include <cutils/properties.h>
 #include <cutils/qtaguid.h>
 
-#include <NetdClient.h>
+//#include <NetdClient.h>
+
+#if defined(_MSC_VER)
+#define geteuid() 1000
+#endif
 
 namespace android {
 
@@ -132,7 +137,7 @@ void HTTPBase::UnRegisterSocketUserTag(int sockfd) {
 
 // static
 void HTTPBase::RegisterSocketUserMark(int sockfd, uid_t uid) {
-    setNetworkForUser(uid, sockfd);
+    //setNetworkForUser(uid, sockfd);
 }
 
 // static

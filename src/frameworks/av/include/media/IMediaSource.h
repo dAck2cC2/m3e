@@ -38,7 +38,7 @@ struct MediaSource;
 class MetaData;
 class MediaBufferGroup;
 
-class IMediaSource : public IInterface {
+class ANDROID_API_MEDIA IMediaSource : public IInterface {
 public:
     DECLARE_META_INTERFACE(MediaSource);
 
@@ -65,7 +65,7 @@ public:
     // Options that modify read() behaviour. The default is to
     // a) not request a seek
     // b) not be late, i.e. lateness_us = 0
-    struct ReadOptions {
+    struct ANDROID_API_MEDIA ReadOptions {
         enum SeekMode : int32_t {
             SEEK_PREVIOUS_SYNC,
             SEEK_NEXT_SYNC,
@@ -156,7 +156,7 @@ public:
 
 };
 
-class BnMediaSource: public BnInterface<IMediaSource>
+class ANDROID_API_MEDIA BnMediaSource: public BnInterface<IMediaSource>
 {
 public:
     BnMediaSource();

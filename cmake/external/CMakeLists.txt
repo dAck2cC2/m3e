@@ -61,6 +61,8 @@ if (ENABLE_AV_UTILS)
     add_subdirectory(piex)
 
     add_subdirectory(sonic) 
+    add_subdirectory(sonivox) 
+    add_subdirectory(vpx) 
 endif(ENABLE_AV_UTILS)
 
 if(ENABLE_TEST)

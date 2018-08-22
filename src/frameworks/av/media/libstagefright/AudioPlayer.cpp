@@ -25,6 +25,7 @@
 #include <media/AudioTrack.h>
 #include <media/openmax/OMX_Audio.h>
 #include <media/stagefright/foundation/ADebug.h>
+#include <media/stagefright/foundation/AMessage.h>
 #include <media/stagefright/foundation/ALookup.h>
 #include <media/stagefright/foundation/ALooper.h>
 #include <media/stagefright/AudioPlayer.h>
@@ -238,7 +239,7 @@ status_t AudioPlayer::start(bool sourceAlreadyStarted) {
 
         mAudioTrack = new AudioTrack(
                 AUDIO_STREAM_MUSIC, mSampleRate, AUDIO_FORMAT_PCM_16_BIT, audioMask,
-                0 /*frameCount*/, AUDIO_OUTPUT_FLAG_NONE, &AudioCallback, this,
+                0 /*frameCount*/, AUDIO_OUTPUT_FLAG_NONE, &AudioPlayer::AudioCallback, this,
                 0 /*notificationFrames*/);
 
         if ((err = mAudioTrack->initCheck()) != OK) {

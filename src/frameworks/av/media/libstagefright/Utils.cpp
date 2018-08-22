@@ -45,6 +45,21 @@
 #include <media/stagefright/Utils.h>
 #include <media/AudioParameter.h>
 
+#if defined(_WIN32)
+# undef  nhtol
+# undef  htonl
+# undef  nhtos
+# undef  htons
+
+# define ntohl(x)    ( ((x) << 24) | (((x) >> 24) & 255) | (((x) << 8) & 0xff0000) | (((x) >> 8) & 0xff00) )
+# define htonl(x)    ntohl(x)
+# define ntohs(x)    ( (((x) << 8) & 0xff00) | (((x) >> 8) & 255) )
+# define htons(x)    ntohs(x)
+#else
+# include <netinet/in.h>
+#endif
+
+
 namespace android {
 
 uint16_t U16_AT(const uint8_t *ptr) {
@@ -1752,6 +1767,7 @@ AString nameForFd(int fd) {
     char buffer[SIZE];
     AString result;
     snprintf(buffer, SIZE, "/proc/%d/fd/%d", getpid(), fd);
+#if !defined(_MSC_VER)
     struct stat s;
     if (lstat(buffer, &s) == 0) {
         if ((s.st_mode & S_IFMT) == S_IFLNK) {
@@ -1772,7 +1788,9 @@ AString nameForFd(int fd) {
             result.append("unexpected type for ");
             result.append(buffer);
         }
-    } else {
+    } else 
+#endif
+	{
         result.append("couldn't open ");
         result.append(buffer);
     }

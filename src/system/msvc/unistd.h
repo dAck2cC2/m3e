@@ -76,4 +76,6 @@ typedef unsigned __int64  uint64_t;
 
 inline static uid_t getuid() { return 1000; };
 
+void *memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
+
 #endif /* unistd.h  */

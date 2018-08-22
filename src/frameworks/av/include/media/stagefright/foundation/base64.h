@@ -25,6 +25,7 @@ namespace android {
 struct ABuffer;
 struct AString;
 
+ANDROID_API_STAGEFRIGHT_FOUNDATION
 sp<ABuffer> decodeBase64(const AString &s);
 void encodeBase64(const void *data, size_t size, AString *out);
 

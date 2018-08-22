@@ -33,6 +33,12 @@
 
 #define CHANNEL_MASK_USE_CHANNEL_ORDER 0
 
+#if defined(_MSC_VER)
+#if defined(WAVE_FORMAT_PCM)
+#undef WAVE_FORMAT_PCM
+#endif
+#endif 
+
 namespace android {
 
 enum {

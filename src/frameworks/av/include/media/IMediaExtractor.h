@@ -25,7 +25,7 @@ namespace android {
 
 class MetaData;
 
-class IMediaExtractor : public IInterface {
+class ANDROID_API_MEDIA IMediaExtractor : public IInterface {
 public:
     DECLARE_META_INTERFACE(MediaExtractor);
 
@@ -63,7 +63,7 @@ public:
 };
 
 
-class BnMediaExtractor: public BnInterface<IMediaExtractor>
+class ANDROID_API_MEDIA BnMediaExtractor: public BnInterface<IMediaExtractor>
 {
 public:
     virtual status_t    onTransact(uint32_t code, const Parcel& data, Parcel* reply,

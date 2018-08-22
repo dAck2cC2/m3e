@@ -25,7 +25,7 @@
 
 namespace android {
 
-class ABitReader {
+class ANDROID_API_STAGEFRIGHT_FOUNDATION ABitReader {
 public:
     ABitReader(const uint8_t *data, size_t size);
     virtual ~ABitReader();
@@ -72,7 +72,7 @@ protected:
     DISALLOW_EVIL_CONSTRUCTORS(ABitReader);
 };
 
-class NALBitReader : public ABitReader {
+class ANDROID_API_STAGEFRIGHT_FOUNDATION NALBitReader : public ABitReader {
 public:
     NALBitReader(const uint8_t *data, size_t size);
 

@@ -29,7 +29,7 @@ namespace android {
 struct AMessage;
 class MediaBufferBase;
 
-struct ABuffer : public RefBase {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ABuffer : public RefBase {
     ABuffer(size_t capacity);
     ABuffer(void *data, size_t capacity);
 

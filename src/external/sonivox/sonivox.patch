@@ -1,0 +1,22 @@
+diff --git a/arm-wt-22k/host_src/eas_hostmm.c b/arm-wt-22k/host_src/eas_hostmm.c
+index f9dcd86..8bf3379 100644
+--- a/arm-wt-22k/host_src/eas_hostmm.c
++++ b/arm-wt-22k/host_src/eas_hostmm.c
+@@ -54,7 +54,7 @@
+ #include <sys/mman.h>
+ #include <errno.h>
+ #include <signal.h>
+-#include <pthread.h>
++//#include <pthread.h>
+ #include <media/MediaPlayerInterface.h>
+ #endif
+ 
+@@ -96,7 +96,7 @@ typedef struct eas_hw_inst_data_tag
+     EAS_HW_FILE files[EAS_MAX_FILE_HANDLES];
+ } EAS_HW_INST_DATA;
+ 
+-pthread_key_t EAS_sigbuskey;
++//pthread_key_t EAS_sigbuskey;
+ 
+ /*----------------------------------------------------------------------------
+  * EAS_HWInit

@@ -62,6 +62,7 @@ void ditherAndClamp(int32_t* out, const int32_t *sums, size_t c);
  * The destination and source buffers must either be completely separate (non-overlapping), or
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_i16_from_u8(int16_t *dst, const uint8_t *src, size_t count);
 
 /**
@@ -101,6 +102,7 @@ void memcpy_to_u8_from_float(uint8_t *dst, const float *src, size_t count);
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  * The conversion is done by truncation, without dithering, so it loses resolution.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_i16_from_i32(int16_t *dst, const int32_t *src, size_t count);
 
 /**
@@ -187,6 +189,7 @@ void memcpy_to_float_from_p24(float *dst, const uint8_t *src, size_t count);
  * The destination and source buffers must either be completely separate (non-overlapping), or
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_i16_from_p24(int16_t *dst, const uint8_t *src, size_t count);
 
 /**

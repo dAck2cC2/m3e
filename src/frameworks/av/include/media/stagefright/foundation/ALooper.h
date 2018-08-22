@@ -32,7 +32,7 @@ struct AHandler;
 struct AMessage;
 struct AReplyToken;
 
-struct ALooper : public RefBase {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ALooper : public RefBase {
     typedef int32_t event_id;
     typedef int32_t handler_id;
 

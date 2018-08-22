@@ -76,6 +76,7 @@ ${SOURCE_PATH}/AudioResampler.cpp
 ${SOURCE_PATH}/AudioResamplerCubic.cpp
 ${SOURCE_PATH}/AudioResamplerDyn.cpp
 ${SOURCE_PATH}/AudioResamplerSinc.cpp
+${SOURCE_PATH}/main_audioflinger.cpp
 )
 
 if(MSVC)
@@ -90,7 +91,7 @@ if(MSVC)
 endif(MSVC)
 
 # target files
-set(LIB_NAME audioflinger)
+set(LIB_NAME audioflinger_default)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(${LIB_NAME} SHARED ${AUDIOFLINGER_SOURCE_FILES} ${AUDIOFLINGER_HEADER_FILES})
 target_link_libraries(${LIB_NAME} ${AUDIOFLINGER_DEPLIB})

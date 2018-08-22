@@ -39,7 +39,7 @@ class DrmManagerClientImpl;
  * services through this class.
  *
  */
-class DrmManagerClient {
+class ANDROID_API_DRMFW DrmManagerClient {
 public:
     DrmManagerClient();
 
