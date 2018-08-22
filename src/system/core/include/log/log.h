@@ -434,8 +434,11 @@ extern "C" {
  * Stripped out of release builds.  Uses the current LOG_TAG.
  */
 #ifndef ALOG_ASSERT
-//#define ALOG_ASSERT(cond, ...) LOG_FATAL_IF(!(cond), ## __VA_ARGS__)
+#if defined(_MSC_VER)
 #define ALOG_ASSERT(cond) LOG_FATAL_IF(!(cond), "Assertion failed: " #cond)
+#else
+#define ALOG_ASSERT(cond, ...) LOG_FATAL_IF(!(cond), ## __VA_ARGS__)
+#endif
 #endif
 
 // ---------------------------------------------------------------------

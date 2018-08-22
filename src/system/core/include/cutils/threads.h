@@ -180,7 +180,7 @@ int pthread_once(pthread_once_t *once, void(*init_func)());
 /***********************************************************************/
 /***********************************************************************/
 
-#if !defined(__linux__)
+#if defined(_MSC_VER)
 
 typedef enum {
 	CLOCK_MONOTONIC = 0,

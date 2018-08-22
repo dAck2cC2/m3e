@@ -18,10 +18,21 @@
 //#define LOG_NDEBUG 0
 
 #define __STDC_CONSTANT_MACROS
+#if !defined(__APPLE__)
 #include <malloc.h>
+#else
+#include <stdlib.h>
+static inline void * memalign(size_t align, size_t size) {
+    void* addr = NULL;
+    int ret = posix_memalign(&addr, align, size);
+    return addr;
+};
+#endif
 #include <string.h>
 #include <stdlib.h>
-//#include <dlfcn.h>
+#if !defined(_MSC_VER)
+#include <dlfcn.h>
+#endif
 
 #include <cutils/compiler.h>
 #include <cutils/properties.h>

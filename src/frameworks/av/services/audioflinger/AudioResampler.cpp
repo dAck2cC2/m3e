@@ -85,7 +85,7 @@ const double AudioResampler::kPhaseMultiplier = 1L << AudioResampler::kNumPhaseB
 bool AudioResampler::qualityIsSupported(src_quality quality)
 {
     switch (quality) {
-    case DEFAULT_QUALITY:
+    case DEFAULT_SRC_QUALITY:
     case LOW_QUALITY:
     case MED_QUALITY:
     case HIGH_QUALITY:
@@ -150,7 +150,7 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
         int32_t sampleRate, src_quality quality) {
 
     bool atFinalQuality;
-    if (quality == DEFAULT_QUALITY) {
+    if (quality == DEFAULT_SRC_QUALITY) {
         // read the resampler default quality property the first time it is needed
         int ok = pthread_once(&once_control, init_routine);
         if (ok != 0) {
@@ -168,7 +168,7 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
      * due to estimated CPU load of having too many active resamplers
      * (the code below the if).
      */
-    if (quality == DEFAULT_QUALITY) {
+    if (quality == DEFAULT_SRC_QUALITY) {
         quality = DYN_MED_QUALITY;
     }
 

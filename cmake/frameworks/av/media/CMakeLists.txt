@@ -80,10 +80,15 @@ if(ENABLE_AV_CODEC)
 )
 endif(ENABLE_AV_CODEC)
 
+if (MSVC OR APPLE)
+    list(APPEND MEDIA_SOURCE_FILES
+    ${SOURCE_PATH}/backtrace.cpp
+    )
+endif()
+
 if(MSVC)
     list(APPEND MEDIA_SOURCE_FILES
     ${MSVC_PATH}/sys/time.c
-    ${MSVC_PATH}/backtrace.cc
     ) 
 endif()
 

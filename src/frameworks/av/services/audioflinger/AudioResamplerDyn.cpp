@@ -16,8 +16,9 @@
 
 #define LOG_TAG "AudioResamplerDyn"
 //#define LOG_NDEBUG 0
-
+#if !defined(__APPLE__)
 #include <malloc.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
 //#include <dlfcn.h>

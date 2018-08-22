@@ -29,6 +29,7 @@
 #define strndup(a, b) strdup(a)
 #else
 #include <dlfcn.h>
+#include <limits.h>
 #endif // _MSC_VER
 #include <cutils/misc.h>
 #include <cutils/config_utils.h>

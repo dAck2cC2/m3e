@@ -28,6 +28,8 @@
 #include <utils/Log.h>
 #include <utils/String8.h>
 
+#include <limits.h>
+
 #if defined(_MSC_VER)
 #define dprintf(a, ...)  do { } while(0)
 #endif // _MSC_VER

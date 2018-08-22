@@ -20,6 +20,7 @@ OPTION( LOG_ENABLE_LOGGABLE
 file(GLOB LOG_HEADER_FILES
 ${HEADER_PATH}/*.h
 ${SOURCE_PATH}/*.h 
+${M3E_SOURCE_DIR}/src/system/core/include/android/*.h
 )
 
 # source files

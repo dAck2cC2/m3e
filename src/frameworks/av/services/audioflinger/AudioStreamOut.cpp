@@ -179,7 +179,7 @@ audio_channel_mask_t AudioStreamOut::getChannelMask() const
     return stream->common.get_channels(&stream->common);
 }
 
-int AudioStreamOut::flush()
+status_t AudioStreamOut::flush()
 {
     ALOG_ASSERT(stream != NULL, "");
     mRenderPosition = 0;
@@ -191,7 +191,7 @@ int AudioStreamOut::flush()
     return NO_ERROR;
 }
 
-int AudioStreamOut::standby()
+status_t AudioStreamOut::standby()
 {
     ALOG_ASSERT(stream != NULL, "");
     mRenderPosition = 0;
