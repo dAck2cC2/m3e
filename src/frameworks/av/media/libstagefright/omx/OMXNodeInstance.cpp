@@ -35,6 +35,7 @@
 #include <HardwareAPI.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/ABuffer.h>
+#include <media/stagefright/foundation/AMessage.h>
 #include <media/stagefright/MediaErrors.h>
 #include <utils/misc.h>
 #include <utils/NativeHandle.h>
@@ -42,6 +43,36 @@
 static const OMX_U32 kPortIndexInput = 0;
 static const OMX_U32 kPortIndexOutput = 1;
 
+#if defined(_MSC_VER)
+#define CLOGW(fmt, ...) 
+#define CLOG_ERROR_IF(cond, fn, err, fmt, ...) 
+#define CLOG_ERROR(fn, err, fmt, ...) 
+#define CLOG_IF_ERROR(fn, err, fmt, ...) 
+
+#define CLOGI_(level, fn, fmt, ...) 
+#define CLOGD_(level, fn, fmt, ...)  
+
+#define CLOG_LIFE(fn, fmt, ...)  
+#define CLOG_STATE(fn, fmt, ...)  
+#define CLOG_CONFIG(fn, fmt, ...) 
+#define CLOG_INTERNAL(fn, fmt, ...) 
+
+#define CLOG_DEBUG_IF(cond, fn, fmt, ...) 
+#define CLOG_BUFFER(fn, fmt, ...) 
+#define CLOG_BUMPED_BUFFER(fn, fmt, ...) 
+
+#define BUFFER_FMT(port, fmt, ...) 
+#define NEW_BUFFER_FMT(buffer_id, port, fmt, ...)  
+#define SIMPLE_BUFFER(port, size, data) 
+#define SIMPLE_NEW_BUFFER(buffer_id, port, size, data)  
+
+#define EMPTY_BUFFER(addr, header, fenceFd) 
+#define FULL_BUFFER(addr, header, fenceFd)  
+
+#define WITH_STATS_WRAPPER(fmt, ...) 
+#define WITH_STATS(fmt, ...) 
+
+#else
 #define CLOGW(fmt, ...) ALOGW("[%x:%s] " fmt, mNodeID, mName, ##__VA_ARGS__)
 
 #define CLOG_ERROR_IF(cond, fn, err, fmt, ...) \
@@ -89,6 +120,7 @@ static const OMX_U32 kPortIndexOutput = 1;
     mOutputBuffersWithCodec.size(), mNumPortBuffers[kPortIndexOutput]
 // TRICKY: this is needed so formatting macros expand before substitution
 #define WITH_STATS(fmt, ...) WITH_STATS_WRAPPER(fmt, ##__VA_ARGS__)
+#endif
 
 namespace android {
 

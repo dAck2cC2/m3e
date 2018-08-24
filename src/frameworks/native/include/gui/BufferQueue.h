@@ -29,7 +29,7 @@
 
 namespace android {
 
-class BufferQueue {
+class ANDROID_API_GUI BufferQueue {
 public:
     // BufferQueue will keep track of at most this value of buffers.
     // Attempts at runtime to increase the number of buffers past this will fail.
@@ -58,7 +58,7 @@ public:
     // reference in the BufferQueue class is because we're planning to expose the
     // consumer side of a BufferQueue as a binder interface, which doesn't support
     // weak references.
-    class ProxyConsumerListener : public BnConsumerListener {
+    class ANDROID_API_GUI ProxyConsumerListener : public BnConsumerListener {
     public:
         ProxyConsumerListener(const wp<ConsumerListener>& consumerListener);
         virtual ~ProxyConsumerListener();

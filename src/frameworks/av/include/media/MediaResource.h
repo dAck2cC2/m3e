@@ -23,7 +23,7 @@
 
 namespace android {
 
-class MediaResource {
+class ANDROID_API_MEDIA MediaResource {
 public:
     enum Type {
         kUnspecified = 0,

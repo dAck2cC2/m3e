@@ -53,7 +53,7 @@ class Surface;
  *
  * This class was previously called ISurfaceTexture.
  */
-class IGraphicBufferProducer : public IInterface
+class ANDROID_API_GUI IGraphicBufferProducer : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(GraphicBufferProducer);

@@ -24,7 +24,7 @@
 
 namespace android {
 
-class IResourceManagerClient: public IInterface
+class ANDROID_API_MEDIA IResourceManagerClient: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ResourceManagerClient);
@@ -35,7 +35,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnResourceManagerClient: public BnInterface<IResourceManagerClient>
+class ANDROID_API_MEDIA BnResourceManagerClient: public BnInterface<IResourceManagerClient>
 {
 public:
     virtual status_t onTransact(uint32_t code,

@@ -28,8 +28,12 @@
 #include <media/MediaResourcePolicy.h>
 #include <media/openmax/OMX_IVCommon.h>
 #include <media/stagefright/foundation/AMessage.h>
+#include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/MediaCodec.h>
 #include <media/stagefright/MediaCodecList.h>
+
+#include <utils/NativeHandle.h>
+#include <binder/IMemory.h>
 
 namespace android {
 

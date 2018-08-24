@@ -30,7 +30,7 @@
 
 namespace android {
 
-class IResourceManagerService: public IInterface
+class ANDROID_API_MEDIA IResourceManagerService: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ResourceManagerService);

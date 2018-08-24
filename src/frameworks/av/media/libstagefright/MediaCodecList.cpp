@@ -119,7 +119,7 @@ sp<IMediaCodecList> MediaCodecList::getLocalInstance() {
         MediaCodecList *codecList = new MediaCodecList;
         if (codecList->initCheck() == OK) {
             sCodecList = codecList;
-
+#if ENABLE_PROFILING
             if (isProfilingNeeded()) {
                 ALOGV("Codec profiling needed, will be run in separated thread.");
                 pthread_t profiler;
@@ -127,6 +127,7 @@ sp<IMediaCodecList> MediaCodecList::getLocalInstance() {
                     ALOGW("Failed to create thread for codec profiling.");
                 }
             }
+#endif
         } else {
             // failure to initialize may be temporary. retry on next call.
             delete codecList;
@@ -182,7 +183,7 @@ MediaCodecList::MediaCodecList()
 
 void MediaCodecList::parseTopLevelXMLFile(const char *codecs_xml, bool ignore_errors) {
     // get href_base
-    char *href_base_end = strrchr(codecs_xml, '/');
+    char *href_base_end = strrchr((char *)codecs_xml, '/');
     if (href_base_end != NULL) {
         mHrefBase = AString(codecs_xml, href_base_end - codecs_xml + 1);
     }
@@ -196,7 +197,7 @@ void MediaCodecList::parseTopLevelXMLFile(const char *codecs_xml, bool ignore_er
     if (mInitCheck != OK) {
         return;  // this may fail if IMediaPlayerService is not available.
     }
-    mOMX = client.interface();
+    mOMX = client.interfaced();
     parseXMLFile(codecs_xml);
     mOMX.clear();
 

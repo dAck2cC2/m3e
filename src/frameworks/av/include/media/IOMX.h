@@ -40,7 +40,7 @@ class IOMXRenderer;
 class NativeHandle;
 class Surface;
 
-class IOMX : public IInterface {
+class ANDROID_API_MEDIA IOMX : public IInterface {
 public:
     DECLARE_META_INTERFACE(OMX);
 
@@ -243,7 +243,7 @@ struct omx_message {
     } u;
 };
 
-class IOMXObserver : public IInterface {
+class ANDROID_API_MEDIA IOMXObserver : public IInterface {
 public:
     DECLARE_META_INTERFACE(OMXObserver);
 
@@ -253,7 +253,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class BnOMX : public BnInterface<IOMX> {
+class ANDROID_API_MEDIA BnOMX : public BnInterface<IOMX> {
 public:
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,
@@ -266,7 +266,7 @@ protected:
     }
 };
 
-class BnOMXObserver : public BnInterface<IOMXObserver> {
+class ANDROID_API_MEDIA BnOMXObserver : public BnInterface<IOMXObserver> {
 public:
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,

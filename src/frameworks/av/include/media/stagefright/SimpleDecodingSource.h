@@ -34,7 +34,7 @@ class MediaBuffer;
 struct MediaCodec;
 class MetaData;
 
-class SimpleDecodingSource : public MediaSource {
+class ANDROID_API_STAGEFRIGHT SimpleDecodingSource : public MediaSource {
 public:
     // Creates a MediaSource that uses MediaCodec to decode a compressed input |source|.
     // The selected codec can be influenced using |flags|. This source only supports the
@@ -82,7 +82,7 @@ private:
         STARTED,
         STOPPING,
         STOPPED,
-        //ERROR,
+        ERR,
     };
     AString mComponentName;
 

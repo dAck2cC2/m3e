@@ -67,9 +67,24 @@ ${SOURCE_PATH}/MemoryLeakTrackUtil.cpp
 )
 
 if(ENABLE_AV_CODEC)
-    include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
+    add_definitions(-Dtypeof=decltype)
 
-    set(MEDIA_SOURCE_FILES ${MEDIA_SOURCE_FILES}
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/av/camera/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
+
+    include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
+    include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
+    
+    list(APPEND MEDIA_DEPLIB
+    ui
+    gui
+    camera_client
+    )
+
+    list(APPEND MEDIA_SOURCE_FILES
     ${SOURCE_PATH}/IOMX.cpp
     ${SOURCE_PATH}/IMediaCodecList.cpp
     ${SOURCE_PATH}/IMediaCodecService.cpp
@@ -78,8 +93,19 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/MediaCodecInfo.cpp
     ${SOURCE_PATH}/MediaResource.cpp
     ${SOURCE_PATH}/MediaResourcePolicy.cpp
-    ${SOURCE_PATH}/IMediaPlayerService.cpp
-)
+    ${SOURCE_PATH}/IMediaPlayerService.cpp    
+    ${SOURCE_PATH}/IMediaPlayerClient.cpp 
+    ${SOURCE_PATH}/IMediaPlayer.cpp 
+    ${SOURCE_PATH}/IMediaMetadataRetriever.cpp
+    ${SOURCE_PATH}/IMediaRecorder.cpp
+    ${SOURCE_PATH}/IMediaRecorderClient.cpp
+    ${SOURCE_PATH}/IRemoteDisplay.cpp
+    ${SOURCE_PATH}/IRemoteDisplayClient.cpp
+    ${SOURCE_PATH}/IMediaHTTPService.cpp
+    ${SOURCE_PATH}/IMediaHTTPConnection.cpp
+    ${SOURCE_PATH}/IStreamSource.cpp
+    ${SOURCE_PATH}/IHDCP.cpp
+    )
 endif(ENABLE_AV_CODEC)
 
 if (MSVC OR APPLE)

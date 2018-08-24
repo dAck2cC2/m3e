@@ -88,7 +88,7 @@ public:
 };
 
 
-class IConsumerListener : public ConsumerListener, public IInterface
+class ANDROID_API_GUI IConsumerListener : public ConsumerListener, public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ConsumerListener);
@@ -96,7 +96,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnConsumerListener : public BnInterface<IConsumerListener>
+class ANDROID_API_GUI BnConsumerListener : public BnInterface<IConsumerListener>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

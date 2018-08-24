@@ -40,7 +40,7 @@ class IRemoteDisplay;
 class IRemoteDisplayClient;
 struct IStreamSource;
 
-class IMediaPlayerService: public IInterface
+class ANDROID_API_MEDIA IMediaPlayerService: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaPlayerService);

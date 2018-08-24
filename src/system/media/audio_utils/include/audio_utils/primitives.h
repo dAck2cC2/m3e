@@ -76,6 +76,7 @@ void memcpy_to_i16_from_u8(int16_t *dst, const uint8_t *src, size_t count);
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  * The conversion is done by truncation, without dithering, so it loses resolution.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_u8_from_i16(uint8_t *dst, const int16_t *src, size_t count);
 
 /**
@@ -89,6 +90,7 @@ void memcpy_to_u8_from_i16(uint8_t *dst, const int16_t *src, size_t count);
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  * The conversion is done by truncation, without dithering, so it loses resolution.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_u8_from_float(uint8_t *dst, const float *src, size_t count);
 
 /**
@@ -148,6 +150,7 @@ void memcpy_to_float_from_q4_27(float *dst, const int32_t *src, size_t count);
  *
  * The destination and source buffers must be completely separate.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_float_from_i16(float *dst, const int16_t *src, size_t count);
 
 /**
@@ -161,6 +164,7 @@ void memcpy_to_float_from_i16(float *dst, const int16_t *src, size_t count);
  *
  * The destination and source buffers must be completely separate.
  */
+ANDROID_API_AUDIO_UTILS
 void memcpy_to_float_from_u8(float *dst, const uint8_t *src, size_t count);
 
 /**

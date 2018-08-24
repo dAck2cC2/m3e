@@ -28,6 +28,8 @@
 #include <media/stagefright/SimpleDecodingSource.h>
 #include <media/stagefright/Utils.h>
 
+#include <utils/NativeHandle.h>
+
 using namespace android;
 
 const int64_t kTimeoutWaitForOutputUs = 500000; // 0.5 seconds
@@ -120,7 +122,7 @@ status_t SimpleDecodingSource::start(MetaData *params) {
         me->mQueuedInputEOS = false;
         me->mGotOutputEOS = false;
     } else {
-        me->mState = ERROR;
+        me->mState = ERR;
     }
 
     return res;
@@ -146,7 +148,7 @@ status_t SimpleDecodingSource::stop() {
     if (res1 == OK && res2 == OK) {
         me->mState = STOPPED;
     } else {
-        me->mState = ERROR;
+        me->mState = ERR;
     }
     return res1 != OK ? res1 : res2;
 }
@@ -233,7 +235,7 @@ status_t SimpleDecodingSource::doRead(
             if (res != OK || in_buffer == NULL) {
                 ALOGW("[%s] could not get input buffer #%zu",
                         mComponentName.c_str(), in_ix);
-                me->mState = ERROR;
+                me->mState = ERR;
                 return UNKNOWN_ERROR;
             }
 
@@ -255,13 +257,13 @@ status_t SimpleDecodingSource::doRead(
                                  in_ix, 0 /* offset */, 0 /* size */,
                                  0 /* pts */, MediaCodec::BUFFER_FLAG_EOS) != OK) {
                         ALOGI("[%s] failed to queue input EOS", mComponentName.c_str());
-                        me->mState = ERROR;
+                        me->mState = ERR;
                         return UNKNOWN_ERROR;
                     }
 
                     // don't stop on EOS, but report error or EOS on stop
                     if (res != ERROR_END_OF_STREAM) {
-                        me->mState = ERROR;
+                        me->mState = ERR;
                         return res;
                     }
                     if (me->mState != STARTED) {
@@ -293,7 +295,7 @@ status_t SimpleDecodingSource::doRead(
                         timestampUs, 0 /* flags */);
                 if (res != OK) {
                     ALOGI("[%s] failed to queue input buffer #%zu", mComponentName.c_str(), in_ix);
-                    me->mState = ERROR;
+                    me->mState = ERR;
                 }
                 in_buf->release();
             }
@@ -318,7 +320,7 @@ status_t SimpleDecodingSource::doRead(
             continue;
         } else if (res == INFO_FORMAT_CHANGED) {
             if (mCodec->getOutputFormat(&me->mFormat) != OK) {
-                me->mState = ERROR;
+                me->mState = ERR;
                 res = UNKNOWN_ERROR;
             }
             return res;
@@ -326,7 +328,7 @@ status_t SimpleDecodingSource::doRead(
             ALOGV("output buffers changed");
             continue;
         } else if (res != OK) {
-            me->mState = ERROR;
+            me->mState = ERR;
             return res;
         }
 
@@ -335,7 +337,7 @@ status_t SimpleDecodingSource::doRead(
         if (res != OK) {
             ALOGW("[%s] could not get output buffer #%zu",
                     mComponentName.c_str(), out_ix);
-            me->mState = ERROR;
+            me->mState = ERR;
             return UNKNOWN_ERROR;
         }
         if (out_flags & MediaCodec::BUFFER_FLAG_EOS) {

@@ -27,7 +27,7 @@ namespace android {
 
 struct MediaCodecInfo;
 
-class IMediaCodecList: public IInterface
+class ANDROID_API_MEDIA IMediaCodecList: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaCodecList);
@@ -45,7 +45,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnMediaCodecList: public BnInterface<IMediaCodecList>
+class ANDROID_API_MEDIA BnMediaCodecList: public BnInterface<IMediaCodecList>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

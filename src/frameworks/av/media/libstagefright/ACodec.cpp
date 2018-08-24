@@ -56,6 +56,8 @@
 #include "include/DataConverter.h"
 #include "omx/OMXUtils.h"
 
+#include <cutils/threads.h>
+
 namespace android {
 
 enum {
@@ -1302,7 +1304,7 @@ status_t ACodec::waitForFence(int fd, const char *dbg ) {
 }
 
 // static
-const char *ACodec::_asString(BufferInfo::Status_t s) {
+const char *ACodec::_asString(BufferInfo::Status s) {
     switch (s) {
         case BufferInfo::OWNED_BY_US:            return "OUR";
         case BufferInfo::OWNED_BY_COMPONENT:     return "COMPONENT";
@@ -5828,7 +5830,7 @@ bool ACodec::BaseState::onOMXEmptyBufferDone(IOMX::buffer_id bufferID, int fence
          mCodec->mComponentName.c_str(), bufferID);
 
     BufferInfo *info = mCodec->findBufferByID(kPortIndexInput, bufferID);
-    BufferInfo::Status_t status = BufferInfo::getSafeStatus(info);
+    BufferInfo::Status status = BufferInfo::getSafeStatus(info);
     if (status != BufferInfo::OWNED_BY_COMPONENT) {
         ALOGE("Wrong ownership in EBD: %s(%d) buffer #%u", _asString(status), status, bufferID);
         mCodec->dumpBuffers(kPortIndexInput);
@@ -5927,7 +5929,7 @@ void ACodec::BaseState::onInputBufferFilled(const sp<AMessage> &msg) {
     }
 
     BufferInfo *info = mCodec->findBufferByID(kPortIndexInput, bufferID);
-    BufferInfo::Status_t status = BufferInfo::getSafeStatus(info);
+    BufferInfo::Status status = BufferInfo::getSafeStatus(info);
     if (status != BufferInfo::OWNED_BY_UPSTREAM) {
         ALOGE("Wrong ownership in IBF: %s(%d) buffer #%u", _asString(status), status, bufferID);
         mCodec->dumpBuffers(kPortIndexInput);
@@ -6194,7 +6196,7 @@ bool ACodec::BaseState::onOMXFillBufferDone(
 
     BufferInfo *info =
         mCodec->findBufferByID(kPortIndexOutput, bufferID, &index);
-    BufferInfo::Status_t status = BufferInfo::getSafeStatus(info);
+    BufferInfo::Status status = BufferInfo::getSafeStatus(info);
     if (status != BufferInfo::OWNED_BY_COMPONENT) {
         ALOGE("Wrong ownership in FBD: %s(%d) buffer #%u", _asString(status), status, bufferID);
         mCodec->dumpBuffers(kPortIndexOutput);
@@ -6353,7 +6355,7 @@ void ACodec::BaseState::onOutputBufferDrained(const sp<AMessage> &msg) {
     CHECK(msg->findInt32("buffer-id", (int32_t*)&bufferID));
     ssize_t index;
     BufferInfo *info = mCodec->findBufferByID(kPortIndexOutput, bufferID, &index);
-    BufferInfo::Status_t status = BufferInfo::getSafeStatus(info);
+    BufferInfo::Status status = BufferInfo::getSafeStatus(info);
     if (status != BufferInfo::OWNED_BY_DOWNSTREAM) {
         ALOGE("Wrong ownership in OBD: %s(%d) buffer #%u", _asString(status), status, bufferID);
         mCodec->dumpBuffers(kPortIndexOutput);
@@ -6593,7 +6595,7 @@ bool ACodec::UninitializedState::onAllocateComponent(const sp<AMessage> &msg) {
         return false;
     }
 
-    sp<IOMX> omx = client.interface();
+    sp<IOMX> omx = client.interfaced();
 
     sp<AMessage> notify = new AMessage(kWhatOMXDied, mCodec);
 
@@ -8084,7 +8086,7 @@ status_t ACodec::queryCapabilities(
         return err;
     }
 
-    sp<IOMX> omx = client.interface();
+    sp<IOMX> omx = client.interfaced();
     sp<CodecObserver> observer = new CodecObserver;
     IOMX::node_id node = 0;
 

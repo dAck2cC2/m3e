@@ -36,13 +36,14 @@ class Parcel;
 
 typedef KeyedVector<AString, AString> CodecSettings;
 
-struct MediaCodecInfo : public RefBase {
+struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase {
+public:
     struct ProfileLevel {
         uint32_t mProfile;
         uint32_t mLevel;
     };
 
-    struct Capabilities : public RefBase {
+    struct ANDROID_API_MEDIA Capabilities : public RefBase {
         enum {
             // decoder flags
             kFlagSupportsAdaptivePlayback = 1 << 0,
@@ -72,14 +73,14 @@ struct MediaCodecInfo : public RefBase {
         static sp<Capabilities> FromParcel(const Parcel &parcel);
         status_t writeToParcel(Parcel *parcel) const;
 
-        DISALLOW_EVIL_CONSTRUCTORS(Capabilities);
+        //DISALLOW_EVIL_CONSTRUCTORS(Capabilities);
 
         friend class MediaCodecInfo;
     };
 
     // Use a subclass to allow setting fields on construction without allowing
     // to do the same throughout the framework.
-    struct CapabilitiesBuilder : public Capabilities {
+    struct ANDROID_API_MEDIA CapabilitiesBuilder : public Capabilities {
         void addProfileLevel(uint32_t profile, uint32_t level);
         void addColorFormat(uint32_t format);
         void addFlags(uint32_t flags);

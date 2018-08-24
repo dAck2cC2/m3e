@@ -30,7 +30,7 @@ namespace android {
 
 class Rect;
 
-class GraphicBufferMapper : public Singleton<GraphicBufferMapper>
+class ANDROID_API_UI GraphicBufferMapper : public Singleton<GraphicBufferMapper>
 {
 public:
     static inline GraphicBufferMapper& get() { return getInstance(); }

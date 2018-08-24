@@ -89,9 +89,9 @@ ${SOURCE_PATH}/AudioPlayer.cpp
 
 # codec selector
 if(ENABLE_AV_CODEC)
-    message(STATUS "ENABLE_AV_CODEC:${ENABLE_AV_CODEC}")
+    #message(STATUS "ENABLE_AV_CODEC:${ENABLE_AV_CODEC}")
 
-    set(STAGEFRIGHT_DEPLIB ${STAGEFRIGHT_DEPLIB}
+    list(APPEND STAGEFRIGHT_DEPLIB
     expat
     stagefright_mediafilter
     stagefright_omx
@@ -99,12 +99,9 @@ if(ENABLE_AV_CODEC)
     )
 
     include(${M3E_SOURCE_DIR}/cmake/external/expat/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
 
-    set(STAGEFRIGHT_HEADER_FILES ${STAGEFRIGHT_HEADER_FILES}
-    ${SOURCE_PATH}/MediaCodecListOverrides.h
-    )
-
-    set(STAGEFRIGHT_SOURCE_FILES ${STAGEFRIGHT_SOURCE_FILES}
+    list(APPEND STAGEFRIGHT_SOURCE_FILES 
     ${SOURCE_PATH}/MediaCodecSource.cpp  
     ${SOURCE_PATH}/SimpleDecodingSource.cpp
     ${SOURCE_PATH}/MediaCodecListOverrides.cpp
@@ -118,6 +115,12 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/SkipCutBuffer.cpp
     ${SOURCE_PATH}/FrameRenderTracker.cpp
     )
+
+    if (MSVC)
+        #add_definitions(-DNOMINMAX=1)
+        add_definitions(-D__unused= )
+        add_definitions(-Dstrcasestr=strstr)
+    endif() 
 endif(ENABLE_AV_CODEC)
 
 
@@ -135,7 +138,13 @@ if(MSVC)
 endif(MSVC)
 
 # target files
-# dependency
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(stagefright SHARED ${STAGEFRIGHT_SOURCE_FILES} ${STAGEFRIGHT_HEADER_FILES})
 target_link_libraries(stagefright ${STAGEFRIGHT_DEPLIB})
+
+
+# sub module
+if(ENABLE_AV_CODEC)
+    add_subdirectory(stagefright_color_conversion)
+    add_subdirectory(stagefright_mediafilter)
+endif()

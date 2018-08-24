@@ -17,7 +17,7 @@
 #ifndef ANDROID_UTILS_FLATTENABLE_H
 #define ANDROID_UTILS_FLATTENABLE_H
 
-
+#include <cutils/compiler.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <utils/Errors.h>
@@ -80,7 +80,7 @@ public:
  */
 
 template <typename T>
-class Flattenable {
+class ANDROID_API Flattenable {
 public:
     // size in bytes of the flattened object
     inline size_t getFlattenedSize() const;

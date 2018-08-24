@@ -62,7 +62,7 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
 struct OMX::CallbackDispatcher : public RefBase {
     CallbackDispatcher(OMXNodeInstance *owner);
 
@@ -92,7 +92,7 @@ private:
     CallbackDispatcher(const CallbackDispatcher &);
     CallbackDispatcher &operator=(const CallbackDispatcher &);
 };
-
+*/
 OMX::CallbackDispatcher::CallbackDispatcher(OMXNodeInstance *owner)
     : mOwner(owner),
       mDone(false) {

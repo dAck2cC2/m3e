@@ -48,7 +48,7 @@ namespace binder {
 //         // exception during handling.
 //     }
 //
-class Status final {
+class ANDROID_API_BINDER Status final {
 public:
     // Keep the exception codes in sync with android/os/Parcel.java.
     enum Exception {

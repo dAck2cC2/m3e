@@ -8,6 +8,8 @@
 
 namespace android {
 
+ANDROID_SINGLETON_STATIC_INSTANCE(InitRC);
+
 enum {
     SERVICE_SM = 0,
     SERVICE_SF,

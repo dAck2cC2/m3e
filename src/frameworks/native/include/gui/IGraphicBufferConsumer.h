@@ -41,7 +41,7 @@ class GraphicBuffer;
 class IConsumerListener;
 class NativeHandle;
 
-class IGraphicBufferConsumer : public IInterface {
+class ANDROID_API_GUI IGraphicBufferConsumer : public IInterface {
 
 public:
     enum {

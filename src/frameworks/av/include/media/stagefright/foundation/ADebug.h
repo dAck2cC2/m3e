@@ -108,7 +108,7 @@ MAKE_COMPARATOR(GT,>)
             __FILE__ ":" LITERAL_TO_STRING(__LINE__)            \
                 " Should not be here.");
 
-struct ADebug {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ADebug {
     enum Level {
         kDebugNone,             // no debug
         kDebugLifeCycle,        // lifecycle events: creation/deletion

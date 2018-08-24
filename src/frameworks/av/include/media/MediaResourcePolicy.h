@@ -23,10 +23,10 @@
 
 namespace android {
 
-extern const char kPolicySupportsMultipleSecureCodecs[];
-extern const char kPolicySupportsSecureWithNonSecureCodec[];
+extern ANDROID_API_MEDIA const char kPolicySupportsMultipleSecureCodecs[];
+extern ANDROID_API_MEDIA const char kPolicySupportsSecureWithNonSecureCodec[];
 
-class MediaResourcePolicy {
+class ANDROID_API_MEDIA MediaResourcePolicy {
 public:
     MediaResourcePolicy();
     MediaResourcePolicy(String8 type, String8 value);

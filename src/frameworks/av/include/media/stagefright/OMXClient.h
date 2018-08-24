@@ -29,7 +29,7 @@ public:
     status_t connect();
     void disconnect();
 
-    sp<IOMX> interface() {
+    sp<IOMX> interfaced() {
         return mOMX;
     }
 

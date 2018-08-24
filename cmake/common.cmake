@@ -1,4 +1,4 @@
-
+###############################################################################
 # common definition
 set(BUILD_PATH  ${M3E_BINARY_DIR}/build)
 set(MSVC_PATH   ${M3E_SOURCE_DIR}/src/system/msvc)
@@ -10,10 +10,12 @@ else(MSVC)
     set(LIB_TYPE SHARED)
 endif(MSVC)
 
+###############################################################################
 # external module from android
 set(EXT_LINK https://android.googlesource.com/platform)
 set(EXT_TAG android-7.1.0_r7)
 
+###############################################################################
 # download module
 macro(GET_ANDROID_MODULE name)
     if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/${name})
@@ -28,6 +30,7 @@ macro(GET_ANDROID_MODULE name)
     endif()
 endmacro()
 
+###############################################################################
 # test application
 macro(ADD_DEMO name)
     set(EXECUTABLE_OUTPUT_PATH ${BUILD_PATH})
@@ -38,6 +41,7 @@ macro(ADD_DEMO name)
     endif()
 endmacro()
 
+###############################################################################
 # public the API for dll
 macro(DLL_PUBLIC name)
     if(${PROJECT_NAME} STREQUAL ${name})
@@ -54,4 +58,12 @@ macro(DLL_PUBLIC name)
         endif(MSVC)
         #add_definitions(-DANDROID_API= )
     endif()
+endmacro()
+
+###############################################################################
+# buid library
+macro(ADD_LIB name)
+    set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
+    add_library(${name} ${LIB_TYPE} ${${PROJECT_NAME}_SOURCE_FILES} ${${PROJECT_NAME}_HEADER_FILES})
+    target_link_libraries(${name} ${${PROJECT_NAME}_DEPLIB})
 endmacro()

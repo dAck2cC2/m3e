@@ -50,6 +50,7 @@ extern int set_sched_policy(int tid, SchedPolicy policy);
  * On platforms which support gettid(), zero tid means current thread.
  * Return value: 0 for success, or -1 for error and set errno.
  */
+ANDROID_API_CUTILS
 extern int get_sched_policy(int tid, SchedPolicy *policy);
 
 /* Return a displayable string corresponding to policy.

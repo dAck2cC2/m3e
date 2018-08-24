@@ -267,13 +267,10 @@ sp<IMediaSource> DRMExtractor::getTrack(size_t index) {
     DrmBuffer ipmpBox;
     ipmpBox.data = mOriginalExtractor->getDrmTrackInfo(trackID, &(ipmpBox.length));
     CHECK(ipmpBox.length > 0);
-#if defined(ENABLE_CUSTOMISE)
-	return NULL;
-#else  // ENABLE_CUSTOMISE
+
     return interface_cast<IMediaSource>(
             new DRMSource(originalMediaSource, mDecryptHandle, mDrmManagerClient,
             trackID, &ipmpBox));
-#endif // ENABLE_CUSTOMISE
 }
 
 sp<MetaData> DRMExtractor::getTrackMetaData(size_t index, uint32_t flags) {

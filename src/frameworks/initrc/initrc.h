@@ -22,8 +22,6 @@ private:
     void ResetProperties();
     void StartService(int index);
 };
-    
-ANDROID_SINGLETON_STATIC_INSTANCE(InitRC);
 
 }; // namespace android
 

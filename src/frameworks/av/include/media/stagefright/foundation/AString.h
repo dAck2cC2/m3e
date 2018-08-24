@@ -106,6 +106,7 @@ private:
     void makeMutable();
 };
 
+ANDROID_API_STAGEFRIGHT_FOUNDATION 
 AString AStringPrintf(const char *format, ...);
 
 }  // namespace android

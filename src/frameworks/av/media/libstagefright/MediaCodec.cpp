@@ -46,7 +46,9 @@
 #include <media/stagefright/OMXClient.h>
 #include <media/stagefright/PersistentSurface.h>
 #include <media/stagefright/SurfaceUtils.h>
+#if ENABLE_BATTERY
 #include <mediautils/BatteryNotifier.h>
+#endif
 #include <private/android_filesystem_config.h>
 #include <utils/Log.h>
 #include <utils/Singleton.h>
@@ -54,8 +56,7 @@
 namespace android {
 
 static int64_t getId(sp<IResourceManagerClient> client) {
-    //return (int64_t) client.get();
-    return 0;
+    return (int64_t) client.get();
 }
 
 static bool isResourceError(status_t err) {
@@ -69,7 +70,6 @@ struct ResourceManagerClient : public BnResourceManagerClient {
     ResourceManagerClient(MediaCodec* codec) : mMediaCodec(codec) {}
 
     virtual bool reclaimResource() {
-        #
         sp<MediaCodec> codec = mMediaCodec.promote();
         if (codec == NULL) {
             // codec is already gone.
@@ -214,7 +214,7 @@ status_t MediaCodec::QueryCapabilities(
 sp<PersistentSurface> MediaCodec::CreatePersistentInputSurface() {
     OMXClient client;
     CHECK_EQ(client.connect(), (status_t)OK);
-    sp<IOMX> omx = client.interface();
+    sp<IOMX> omx = client.interfaced();
 
     const sp<IMediaCodecList> mediaCodecList = MediaCodecList::getInstance();
     if (mediaCodecList == NULL) {
@@ -2907,7 +2907,7 @@ void MediaCodec::updateBatteryStat() {
     if (!mIsVideo) {
         return;
     }
-
+#if ENABLE_BATTERY
     if (mState == CONFIGURED && !mBatteryStatNotified) {
         BatteryNotifier::getInstance().noteStartVideo();
         mBatteryStatNotified = true;
@@ -2915,6 +2915,7 @@ void MediaCodec::updateBatteryStat() {
         BatteryNotifier::getInstance().noteStopVideo();
         mBatteryStatNotified = false;
     }
+#endif
 }
 
 }  // namespace android

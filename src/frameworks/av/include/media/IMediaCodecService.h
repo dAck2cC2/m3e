@@ -25,7 +25,7 @@
 
 namespace android {
 
-class IMediaCodecService: public IInterface
+class ANDROID_API_MEDIA IMediaCodecService: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaCodecService);

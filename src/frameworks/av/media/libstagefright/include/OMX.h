@@ -26,7 +26,7 @@ namespace android {
 struct OMXMaster;
 struct OMXNodeInstance;
 
-class OMX : public BnOMX,
+class ANDROID_API_STAGEFRIGHT_OMX OMX : public BnOMX,
             public IBinder::DeathRecipient {
 public:
     OMX();
@@ -168,7 +168,38 @@ protected:
 
 private:
     struct CallbackDispatcherThread;
-    struct CallbackDispatcher;
+    //struct CallbackDispatcher;
+
+	struct CallbackDispatcher : public RefBase {
+		CallbackDispatcher(OMXNodeInstance *owner);
+
+		// Posts |msg| to the listener's queue. If |realTime| is true, the listener thread is notified
+		// that a new message is available on the queue. Otherwise, the message stays on the queue, but
+		// the listener is not notified of it. It will process this message when a subsequent message
+		// is posted with |realTime| set to true.
+		void post(const omx_message &msg, bool realTime = true);
+
+		bool loop();
+
+	protected:
+		virtual ~CallbackDispatcher();
+
+	private:
+		Mutex mLock;
+
+		OMXNodeInstance *mOwner;
+		bool mDone;
+		Condition mQueueChanged;
+		std::list<omx_message> mQueue;
+
+		sp<CallbackDispatcherThread> mThread;
+
+		void dispatch(std::list<omx_message> &messages);
+
+		CallbackDispatcher(const CallbackDispatcher &);
+		CallbackDispatcher &operator=(const CallbackDispatcher &);
+	};
+
 
     Mutex mLock;
     OMXMaster *mMaster;

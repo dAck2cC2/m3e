@@ -46,7 +46,7 @@ namespace android {
  * to the BufferQueue's producer interface, providing the new frame to a
  * consumer such as GLConsumer.
  */
-class Surface
+class ANDROID_API_GUI Surface
     : public ANativeObjectBase<ANativeWindow, Surface, RefBase>
 {
 public:

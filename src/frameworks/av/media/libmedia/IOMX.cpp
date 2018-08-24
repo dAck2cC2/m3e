@@ -749,6 +749,7 @@ status_t BnOMX::onTransact(
                 ALOGE("b/27207275 (%zu) (%d/%d)", size, int(index), int(code));
                 android_errorWriteLog(0x534e4554, "27207275");
             } else {
+#if !defined(_MSC_VER)
                 err = NO_MEMORY;
                 pageSize = (size_t) sysconf(_SC_PAGE_SIZE);
                 if (size > SIZE_MAX - (pageSize * 2)) {
@@ -810,6 +811,7 @@ status_t BnOMX::onTransact(
                 } else {
                     ALOGE("couldn't map: %s", strerror(errno));
                 }
+#endif
             }
 
             reply->writeInt32(err);
@@ -819,7 +821,9 @@ status_t BnOMX::onTransact(
             }
 
             if (params) {
+#if !defined(_MSC_VER)
                 munmap(params, allocSize);
+#endif
             }
             params = NULL;
 

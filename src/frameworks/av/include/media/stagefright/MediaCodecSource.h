@@ -33,7 +33,7 @@ class IGraphicBufferProducer;
 struct MediaCodec;
 class MetaData;
 
-struct MediaCodecSource : public MediaSource,
+struct ANDROID_API_STAGEFRIGHT MediaCodecSource : public MediaSource,
                           public MediaBufferObserver {
     enum FlagBits {
         FLAG_USE_SURFACE_INPUT      = 1,

@@ -26,7 +26,7 @@ namespace android {
 // ---------------------------------------------------------------------------
 
 template <typename TYPE>
-class ANDROID_API Singleton
+class Singleton
 {
 public:
     static TYPE& getInstance() {
@@ -51,8 +51,8 @@ protected:
 private:
     Singleton(const Singleton&);
     Singleton& operator = (const Singleton&);
-    static Mutex sLock;
-    static TYPE* sInstance;
+	static Mutex sLock;
+	static TYPE* sInstance;
 };
 
 /*

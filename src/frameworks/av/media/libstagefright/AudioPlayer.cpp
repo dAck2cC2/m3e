@@ -372,7 +372,7 @@ void AudioPlayer::reset() {
     } else {
         mSource.clear();
     }
-    //IPCThreadState::self()->flushCommands();
+    IPCThreadState::self()->flushCommands();
 
     mNumFramesPlayed = 0;
     mNumFramesPlayedSysTimeUs = ALooper::GetNowUs();

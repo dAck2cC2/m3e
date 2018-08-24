@@ -23,6 +23,9 @@
 #include <gui/IConsumerListener.h>
 #include <gui/BufferItem.h>
 
+#include <ui/GraphicBuffer.h>
+#include <ui/Fence.h>
+
 // ---------------------------------------------------------------------------
 namespace android {
 // ---------------------------------------------------------------------------
