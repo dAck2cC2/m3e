@@ -47,8 +47,10 @@
 
 #include <media/AudioPolicyHelper.h>
 #include <media/IMediaHTTPService.h>
+#if ENABLE_REMOTEDISPLAY
 #include <media/IRemoteDisplay.h>
 #include <media/IRemoteDisplayClient.h>
+#endif
 #include <media/MediaPlayerInterface.h>
 #include <media/mediarecorder.h>
 #include <media/MediaMetadataRetrieverInterface.h>
@@ -269,9 +271,11 @@ static bool checkPermission(const char* permissionString) {
 /* static */ int MediaPlayerService::AudioOutput::mMinBufferCount = 4;
 /* static */ bool MediaPlayerService::AudioOutput::mIsOnEmulator = false;
 
-void MediaPlayerService::instantiate() {
+sp<MediaPlayerService> MediaPlayerService::instantiate() {
+    sp<MediaPlayerService> player = new MediaPlayerService();
     defaultServiceManager()->addService(
-            String16("media.player"), new MediaPlayerService());
+            String16("media.player"), player);
+    return player;
 }
 
 MediaPlayerService::MediaPlayerService()
@@ -372,11 +376,15 @@ sp<IHDCP> MediaPlayerService::makeHDCP(bool createEncryptionModule) {
 sp<IRemoteDisplay> MediaPlayerService::listenForRemoteDisplay(
         const String16 &opPackageName,
         const sp<IRemoteDisplayClient>& client, const String8& iface) {
+#if ENABLE_REMOTEDISPLAY
     if (!checkPermission("android.permission.CONTROL_WIFI_DISPLAY")) {
         return NULL;
     }
 
     return new RemoteDisplay(opPackageName, client, iface.string());
+#else
+    return NULL;
+#endif
 }
 
 status_t MediaPlayerService::AudioOutput::dump(int fd, const Vector<String16>& args) const

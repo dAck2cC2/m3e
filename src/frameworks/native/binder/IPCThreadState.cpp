@@ -524,7 +524,7 @@ void IPCThreadState::joinThreadPool(bool isMain)
 
         if (result < NO_ERROR && result != TIMED_OUT && result != -ECONNREFUSED && result != -EBADF) {
             ALOGE("getAndExecuteCommand(fd=%d) returned unexpected error %d, aborting",
-                  mProcess->mDriverFD, result);
+                  mProcess->mDriverFD, (int)result);
             abort();
         }
         

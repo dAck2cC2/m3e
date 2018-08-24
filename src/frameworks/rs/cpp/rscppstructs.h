@@ -23,6 +23,7 @@
 //#include <pthread.h>
 #include <cutils/threads.h>
 #include <dirent.h>
+#include <limits.h>
 
 
 /**

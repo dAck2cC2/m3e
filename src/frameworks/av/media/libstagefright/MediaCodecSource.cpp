@@ -157,7 +157,7 @@ status_t MediaCodecSource::Puller::postSynchronouslyAndReturnError(
         return err;
     }
 
-    if (!response->findInt32("err", &err)) {
+    if (!response->findInt32("err", (int32_t *)&err)) {
         err = OK;
     }
 
@@ -582,7 +582,7 @@ status_t MediaCodecSource::postSynchronouslyAndReturnError(
         return err;
     }
 
-    if (!response->findInt32("err", &err)) {
+    if (!response->findInt32("err", (int32_t *)&err)) {
         err = OK;
     }
 
@@ -924,7 +924,7 @@ void MediaCodecSource::onMessageReceived(const sp<AMessage> &msg) {
             mEncoder->releaseOutputBuffer(index);
        } else if (cbID == MediaCodec::CB_ERROR) {
             status_t err;
-            CHECK(msg->findInt32("err", &err));
+            CHECK(msg->findInt32("err", (int32_t *)&err));
             ALOGE("Encoder (%s) reported error : 0x%x",
                     mIsVideo ? "video" : "audio", err);
             signalEOS();

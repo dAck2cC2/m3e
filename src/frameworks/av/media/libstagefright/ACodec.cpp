@@ -588,7 +588,7 @@ status_t ACodec::setSurface(const sp<Surface> &surface) {
     status_t err = msg->postAndAwaitResponse(&response);
 
     if (err == OK) {
-        (void)response->findInt32("err", &err);
+        (void)response->findInt32("err", (int32_t *)&err);
     }
     return err;
 }

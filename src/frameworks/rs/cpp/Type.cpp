@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+#if !defined(__APPLE__)
 #include <malloc.h>
+#endif
 #include <string.h>
 
 #include "RenderScript.h"

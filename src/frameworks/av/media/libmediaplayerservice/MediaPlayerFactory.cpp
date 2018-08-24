@@ -218,7 +218,11 @@ class NuPlayerFactory : public MediaPlayerFactory::IFactory {
 
     virtual sp<MediaPlayerBase> createPlayer(pid_t pid) {
         ALOGV(" create NuPlayer");
+#if ENABLE_NUPLAYER
         return new NuPlayerDriver(pid);
+#else
+        return NULL;
+#endif
     }
 };
 

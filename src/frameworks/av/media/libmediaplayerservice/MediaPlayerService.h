@@ -208,7 +208,7 @@ class MediaPlayerService : public BnMediaPlayerService
 
 
 public:
-    static  void                instantiate();
+    static  sp<MediaPlayerService>                instantiate();
 
     // IMediaPlayerService interface
     virtual sp<IMediaRecorder>  createMediaRecorder(const String16 &opPackageName);

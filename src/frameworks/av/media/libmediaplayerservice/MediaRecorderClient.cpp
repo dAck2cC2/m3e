@@ -325,7 +325,11 @@ MediaRecorderClient::MediaRecorderClient(const sp<MediaPlayerService>& service, 
 {
     ALOGV("Client constructor");
     mPid = pid;
+#if ENABLE_RECORDER
     mRecorder = new StagefrightRecorder(opPackageName);
+#else
+    mRecorder = NULL;
+#endif
     mMediaPlayerService = service;
 }
 

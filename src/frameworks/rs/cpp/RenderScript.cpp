@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+#if !defined(__APPLE__)
 #include <malloc.h>
+#endif
 #include <string.h>
 //#include <pthread.h>
 #include <cutils/threads.h>
@@ -24,7 +26,9 @@
 #include "rsCppStructs.h"
 #include "rsCppInternal.h"
 
-//#include <dlfcn.h>
+#if !defined(_MSC_VER)
+#include <dlfcn.h>
+#endif
 #include <unistd.h>
 
 #if !defined(RS_SERVER) && !defined(RS_COMPATIBILITY_LIB) //&& defined(__ANDROID__)

@@ -114,6 +114,7 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/OMXClient.cpp
     ${SOURCE_PATH}/SkipCutBuffer.cpp
     ${SOURCE_PATH}/FrameRenderTracker.cpp
+    #${SOURCE_PATH}/StagefrightMetadataRetriever.cpp
     )
 
     if (MSVC)
@@ -155,8 +156,8 @@ if(ENABLE_AV_CODEC)
     )
 
     add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${M3E_SOURCE_DIR}/src/device/ $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${M3E_SOURCE_DIR}/src/device/media_codecs.xml $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
     ) 
 endif(ENABLE_AV_CODEC)
 

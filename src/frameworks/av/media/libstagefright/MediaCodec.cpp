@@ -297,7 +297,7 @@ status_t MediaCodec::PostAndAwaitResponse(
         return err;
     }
 
-    if (!(*response)->findInt32("err", &err)) {
+    if (!(*response)->findInt32("err", (int32_t *)&err)) {
         err = OK;
     }
 
@@ -1287,7 +1287,7 @@ void MediaCodec::onMessageReceived(const sp<AMessage> &msg) {
                     // response to initiateCreateInputSurface()
                     status_t err = NO_ERROR;
                     sp<AMessage> response = new AMessage;
-                    if (!msg->findInt32("err", &err)) {
+                    if (!msg->findInt32("err", (int32_t *)&err)) {
                         sp<RefBase> obj;
                         msg->findObject("input-surface", &obj);
                         CHECK(msg->findMessage("input-format", &mInputFormat));
@@ -1311,7 +1311,7 @@ void MediaCodec::onMessageReceived(const sp<AMessage> &msg) {
                     // response to initiateSetInputSurface()
                     status_t err = NO_ERROR;
                     sp<AMessage> response = new AMessage();
-                    if (!msg->findInt32("err", &err)) {
+                    if (!msg->findInt32("err", (int32_t *)&err)) {
                         mHaveInputSurface = true;
                     } else {
                         response->setInt32("err", err);
@@ -1325,7 +1325,7 @@ void MediaCodec::onMessageReceived(const sp<AMessage> &msg) {
                     // response to signalEndOfInputStream()
                     sp<AMessage> response = new AMessage;
                     status_t err;
-                    if (msg->findInt32("err", &err)) {
+                    if (msg->findInt32("err", (int32_t *)&err)) {
                         response->setInt32("err", err);
                     }
                     response->postReply(mReplyID);

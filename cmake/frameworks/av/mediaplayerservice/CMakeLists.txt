@@ -20,6 +20,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/frameworks/av/camera/include.cmake)
 
 set( ${PROJECT_NAME}_DEPLIB
 log
@@ -34,7 +35,9 @@ stagefright
 )
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/hardware)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/wifi-display)
 
 if (MSVC)
     add_definitions(-DNOMINMAX=1)
@@ -44,6 +47,10 @@ endif()
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmediaplayerservice )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmediaplayerservice )
 
+include_directories(AFTER ${SOURCE_PATH})
+include_directories(AFTER ${SOURCE_PATH}/nuplayer)
+
+
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES  
 ${HEADER_PATH}/*.h
@@ -51,7 +58,17 @@ ${HEADER_PATH}/nuplayer/*.h
 )
 
 set(${PROJECT_NAME}_HEADER_FILES
+${SOURCE_PATH}/main_mediaplayerservice.cpp
 ${SOURCE_PATH}/MediaPlayerService.cpp
+${SOURCE_PATH}/MediaPlayerFactory.cpp
+${SOURCE_PATH}/TestPlayerStub.cpp
+${SOURCE_PATH}/HDCP.cpp
+${SOURCE_PATH}/MetadataRetrieverClient.cpp
+${SOURCE_PATH}/MediaRecorderClient.cpp
+${SOURCE_PATH}/ActivityManager.cpp
+#${SOURCE_PATH}/StagefrightRecorder.cpp
+#${SOURCE_PATH}/nuplayer/NuPlayerDriver.cpp
+#${SOURCE_PATH}/nuplayer/NuPlayer.cpp
 )
 
 set(LIB_TYPE SHARED)

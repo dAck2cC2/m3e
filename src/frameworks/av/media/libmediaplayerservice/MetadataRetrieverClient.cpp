@@ -87,10 +87,12 @@ static sp<MediaMetadataRetrieverBase> createRetriever(player_type playerType)
     switch (playerType) {
         case STAGEFRIGHT_PLAYER:
         case NU_PLAYER:
+#if ENABLE_RETRIEVER
         {
             p = new StagefrightMetadataRetriever;
             break;
         }
+#endif
         default:
             // TODO:
             // support for TEST_PLAYER

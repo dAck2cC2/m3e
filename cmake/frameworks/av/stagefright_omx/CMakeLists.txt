@@ -29,6 +29,7 @@ media
 stagefright_foundation
 )
 
+add_definitions(-Dtypeof=decltype)
 if(MSVC)
     add_definitions(-Dstrcasecmp=_stricmp)
 endif()
