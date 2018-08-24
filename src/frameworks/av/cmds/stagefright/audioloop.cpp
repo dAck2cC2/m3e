@@ -39,6 +39,10 @@
 #define sleep Sleep
 #endif
 
+#include <initrc.h>
+
+#include <media/stagefright/MediaCodecList.h>
+
 using namespace android;
 
 static void usage(const char* name)
@@ -60,6 +64,9 @@ int main(int argc, char* argv[])
     bool outputWBAMR = false;
     bool playToSpeaker = true;
     const char* fileOut = NULL;
+
+	InitRC::getInstance().Entry(argc, argv);
+
 #if !defined(_MSC_VER)
     int ch;
     while ((ch = getopt(argc, argv, "d:mw")) != -1) {
@@ -123,7 +130,7 @@ int main(int argc, char* argv[])
     looper->start();
 
     sp<IMediaSource> encoder = MediaCodecSource::Create(looper, meta, source);
-
+	//MediaCodecList::getLocalInstance();
     if (fileOut != NULL) {
 #if ENABLE_RECODER
         // target file specified, write encoded AMR output

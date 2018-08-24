@@ -2587,10 +2587,10 @@ bool AudioTrack::isOffloadedOrDirect() const
     return isOffloadedOrDirect_l();
 }
 
-#if TODO
+
 status_t AudioTrack::dump(int fd, const Vector<String16>& args __unused) const
 {
-
+#if TODO
     const size_t SIZE = 256;
     char buffer[SIZE];
     String8 result;
@@ -2608,9 +2608,10 @@ status_t AudioTrack::dump(int fd, const Vector<String16>& args __unused) const
     snprintf(buffer, 255, "  state(%d), latency (%d)\n", mState, mLatency);
     result.append(buffer);
     ::write(fd, result.string(), result.size());
+#endif
     return NO_ERROR;
 }
-#endif
+
 uint32_t AudioTrack::getUnderrunCount() const
 {
     AutoMutex lock(mLock);

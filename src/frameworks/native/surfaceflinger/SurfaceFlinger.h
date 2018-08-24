@@ -64,7 +64,7 @@ public:
         return mNativeWindow;
     }
 
-	sp<NativeWindow> CreateOSWindow(const char* name = NULL);
+	sp<NativeWindow> CreateOSWindow(const char* name = NULL, bool visible = false);
     
 private:
     friend class Client;

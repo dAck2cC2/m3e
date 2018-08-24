@@ -90,6 +90,7 @@ void writeToAMessage(sp<AMessage> msg, const AVSyncSettings &sync, float videoFp
 void readFromAMessage(
         const sp<AMessage> &msg, AVSyncSettings *sync /* nonnull */, float *videoFps /* nonnull */);
 
+ANDROID_API_STAGEFRIGHT
 AString nameForFd(int fd);
 
 }  // namespace android

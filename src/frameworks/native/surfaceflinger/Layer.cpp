@@ -42,7 +42,7 @@ Layer::Layer(SurfaceFlinger* flinger, const sp<Client>& client,
     
     mName = name;
     
-	mNativeWindow = mFlinger->CreateOSWindow(mName.string());
+	mNativeWindow = mFlinger->CreateOSWindow(mName.string(), true);
 }
 
 void Layer::onFirstRef() {

@@ -22,7 +22,7 @@
 #include <utils/List.h>
 #include <utils/Errors.h>
 #include <utils/String8.h>
-#include <pthread.h>
+//#include <pthread.h>
 
 struct dirent;
 
@@ -43,7 +43,7 @@ enum MediaScanResult {
     MEDIA_SCAN_RESULT_ERROR,
 };
 
-struct MediaAlbumArt {
+struct ANDROID_API_MEDIA MediaAlbumArt {
 public:
     static MediaAlbumArt *fromData(int32_t size, const void* data);
 
@@ -63,10 +63,11 @@ private:
     int32_t mSize;
     char mData[];
 
+public:
     // You can't construct instances of this class directly because this is a
     // variable-sized object passed through the binder.
-    MediaAlbumArt();
-} __packed;
+	MediaAlbumArt() {};
+}; //__packed;
 
 struct MediaScanner {
     MediaScanner();

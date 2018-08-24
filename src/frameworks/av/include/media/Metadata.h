@@ -44,7 +44,7 @@ namespace media {
 //  data.updateLength();
 //
 
-class Metadata {
+class ANDROID_API_MEDIA Metadata {
   public:
     typedef int32_t Type;
     typedef SortedVector<Type> Filter;

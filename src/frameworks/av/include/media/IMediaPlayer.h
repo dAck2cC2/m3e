@@ -38,7 +38,7 @@ struct IMediaHTTPService;
 struct AudioPlaybackRate;
 struct AVSyncSettings;
 
-class IMediaPlayer: public IInterface
+class ANDROID_API_MEDIA IMediaPlayer: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaPlayer);
@@ -113,7 +113,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnMediaPlayer: public BnInterface<IMediaPlayer>
+class ANDROID_API_MEDIA BnMediaPlayer: public BnInterface<IMediaPlayer>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

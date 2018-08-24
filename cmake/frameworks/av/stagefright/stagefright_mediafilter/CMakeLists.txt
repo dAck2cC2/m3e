@@ -1,5 +1,6 @@
 
-project(STAGEFRIGHT_MEDIAFILTER)
+#project(STAGEFRIGHT_MEDIAFILTER)
+project(STAGEFRIGHT)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 

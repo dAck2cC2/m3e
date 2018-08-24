@@ -16,8 +16,6 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/effects/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/sonic/include.cmake)
 
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/media/audio_effects/include)
-
 set( AUDIOFLINGER_DEPLIB
 log
 cutils
@@ -44,6 +42,8 @@ else(APPLE)
 endif()
 
 add_definitions(-DSTATE_QUEUE_INSTANTIATIONS=\"StateQueueInstantiations.cpp\")
+
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/media/audio_effects/include)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/audioflinger )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/audioflinger )

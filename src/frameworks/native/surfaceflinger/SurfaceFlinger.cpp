@@ -280,7 +280,7 @@ status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
     return NO_INIT;
 }
 
-sp<NativeWindow> SurfaceFlinger::CreateOSWindow(const char* name)
+sp<NativeWindow> SurfaceFlinger::CreateOSWindow(const char* name, bool visible)
 {
 	sp<NativeWindow> nativeWindow = CreateNativeWindow();
 	LOG_ALWAYS_FATAL_IF((nativeWindow == NULL), "Failed to create native window %s:%d", __FILE__, __LINE__);
@@ -298,7 +298,7 @@ sp<NativeWindow> SurfaceFlinger::CreateOSWindow(const char* name)
 		bool check = nativeWindow->initialize(name, width, height);
 		LOG_ALWAYS_FATAL_IF((check == false), "Failed to intialize native window %s:%d", __FILE__, __LINE__);
 
-		nativeWindow->setVisible(true);
+		nativeWindow->setVisible(visible);
     }
 
 	return nativeWindow;

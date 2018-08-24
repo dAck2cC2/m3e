@@ -90,7 +90,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnMediaPlayerService: public BnInterface<IMediaPlayerService>
+class ANDROID_API_MEDIA BnMediaPlayerService: public BnInterface<IMediaPlayerService>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

@@ -36,7 +36,7 @@ extern const char *kMaxEncoderInputBuffers;
 
 struct AMessage;
 
-struct MediaCodecList : public BnMediaCodecList {
+struct ANDROID_API_STAGEFRIGHT MediaCodecList : public BnMediaCodecList {
     static sp<IMediaCodecList> getInstance();
 
     virtual ssize_t findCodecByType(
@@ -57,7 +57,7 @@ struct MediaCodecList : public BnMediaCodecList {
     virtual const sp<AMessage> getGlobalSettings() const;
 
     // to be used by MediaPlayerService alone
-    static sp<IMediaCodecList> getLocalInstance();
+	static sp<IMediaCodecList> getLocalInstance();
 
     // only to be used by getLocalInstance
     static void *profilerThreadWrapper(void * /*arg*/);

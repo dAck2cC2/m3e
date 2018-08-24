@@ -25,13 +25,14 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
-
 set(AUDIOLOOP_DEPLIBS
 initrc
 media
 stagefright_foundation
 stagefright
 )
+
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
 
 set(AUDIOLOOP_SOURCE_FILES
 ${SOURCE_PATH}/SineSource.cpp    

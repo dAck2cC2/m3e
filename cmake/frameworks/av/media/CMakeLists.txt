@@ -77,6 +77,7 @@ if(ENABLE_AV_CODEC)
 
     include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
     include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
+    include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/include/media)
     
     list(APPEND MEDIA_DEPLIB
     ui
@@ -105,6 +106,9 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/IMediaHTTPConnection.cpp
     ${SOURCE_PATH}/IStreamSource.cpp
     ${SOURCE_PATH}/IHDCP.cpp
+    ${SOURCE_PATH}/Metadata.cpp
+    ${SOURCE_PATH}/MediaScanner.cpp
+    ${SOURCE_PATH}/MediaScannerClient.cpp
     )
 endif(ENABLE_AV_CODEC)
 

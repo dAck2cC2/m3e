@@ -138,10 +138,27 @@ if(MSVC)
 endif(MSVC)
 
 # target files
+set(LIB_NAME stagefright)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(stagefright SHARED ${STAGEFRIGHT_SOURCE_FILES} ${STAGEFRIGHT_HEADER_FILES})
-target_link_libraries(stagefright ${STAGEFRIGHT_DEPLIB})
+add_library(${LIB_NAME} SHARED ${STAGEFRIGHT_SOURCE_FILES} ${STAGEFRIGHT_HEADER_FILES})
+target_link_libraries(${LIB_NAME} ${STAGEFRIGHT_DEPLIB})
 
+if(ENABLE_AV_CODEC)
+    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory 
+    $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
+    )
+
+    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/data/ $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
+    )
+
+    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${M3E_SOURCE_DIR}/src/device/ $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
+    ) 
+endif(ENABLE_AV_CODEC)
 
 # sub module
 if(ENABLE_AV_CODEC)

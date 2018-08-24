@@ -31,7 +31,7 @@
 
 namespace android {
 
-ALooperRoster gLooperRoster;
+ANDROID_API_STAGEFRIGHT_FOUNDATION ALooperRoster gLooperRoster;
 
 struct ALooper::LooperThread : public Thread {
     LooperThread(ALooper *looper, bool canCallJava)
