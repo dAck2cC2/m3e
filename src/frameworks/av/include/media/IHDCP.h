@@ -31,7 +31,7 @@ private:
     DISALLOW_EVIL_CONSTRUCTORS(IHDCPObserver);
 };
 
-struct IHDCP : public IInterface {
+struct ANDROID_API_MEDIA IHDCP : public IInterface {
     DECLARE_META_INTERFACE(HDCP);
 
     // Called to specify the observer that receives asynchronous notifications
@@ -109,7 +109,7 @@ struct BnHDCPObserver : public BnInterface<IHDCPObserver> {
             uint32_t flags = 0);
 };
 
-struct BnHDCP : public BnInterface<IHDCP> {
+struct ANDROID_API_MEDIA BnHDCP : public BnInterface<IHDCP> {
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,
             uint32_t flags = 0);

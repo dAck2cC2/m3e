@@ -27,7 +27,7 @@ namespace android {
 
 // ---------------------------------------------------------------------------
 
-class MemoryHeapBase : public virtual BnMemoryHeap
+class ANDROID_API_BINDER MemoryHeapBase : public virtual BnMemoryHeap
 {
 public:
     enum {

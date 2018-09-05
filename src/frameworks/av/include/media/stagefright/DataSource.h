@@ -37,7 +37,7 @@ struct IMediaHTTPService;
 class String8;
 struct HTTPBase;
 
-class DataSource : public RefBase {
+class ANDROID_API_STAGEFRIGHT DataSource : public RefBase {
 public:
     enum Flags {
         kWantsPrefetching      = 1,

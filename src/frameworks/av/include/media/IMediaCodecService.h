@@ -33,7 +33,7 @@ public:
     virtual sp<IOMX> getOMX() = 0;
 };
 
-class BnMediaCodecService: public BnInterface<IMediaCodecService>
+class ANDROID_API_MEDIA BnMediaCodecService: public BnInterface<IMediaCodecService>
 {
 public:
     virtual status_t    onTransact(uint32_t code, const Parcel& data, Parcel* reply,

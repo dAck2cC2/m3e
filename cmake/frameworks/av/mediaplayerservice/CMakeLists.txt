@@ -42,6 +42,8 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefrig
 if (MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-D__unused= )
+    add_definitions(-Dstrcasecmp=_stricmp)
+    add_definitions(-Dstrncasecmp=_strnicmp)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmediaplayerservice )
@@ -57,7 +59,7 @@ ${HEADER_PATH}/*.h
 ${HEADER_PATH}/nuplayer/*.h
 )
 
-set(${PROJECT_NAME}_HEADER_FILES
+set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/main_mediaplayerservice.cpp
 ${SOURCE_PATH}/MediaPlayerService.cpp
 ${SOURCE_PATH}/MediaPlayerFactory.cpp
@@ -70,6 +72,18 @@ ${SOURCE_PATH}/ActivityManager.cpp
 #${SOURCE_PATH}/nuplayer/NuPlayerDriver.cpp
 #${SOURCE_PATH}/nuplayer/NuPlayer.cpp
 )
+
+if(MSVC)
+    include_directories(AFTER ${MSVC_PATH})
+
+    list(APPEND ${PROJECT_NAME}_HEADER_FILES
+    ${MSVC_PATH}/unistd.h
+    ${MSVC_PATH}/sys/time.h
+    )
+    list(APPEND ${PROJECT_NAME}_SOURCE_FILES
+    ${MSVC_PATH}/sys/time.c
+    )    
+endif(MSVC)
 
 set(LIB_TYPE SHARED)
 ADD_LIB(mediaplayerservice_default)

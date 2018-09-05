@@ -29,7 +29,7 @@ namespace android {
 class IDataSource;
 struct IMediaHTTPService;
 
-class IMediaMetadataRetriever: public IInterface
+class ANDROID_API_MEDIA IMediaMetadataRetriever: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaMetadataRetriever);
@@ -49,7 +49,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnMediaMetadataRetriever: public BnInterface<IMediaMetadataRetriever>
+class ANDROID_API_MEDIA BnMediaMetadataRetriever: public BnInterface<IMediaMetadataRetriever>
 {
 public:
     virtual status_t    onTransact(uint32_t code,

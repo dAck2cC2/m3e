@@ -76,7 +76,84 @@ void MediaPlayerFactory::unregisterFactory(player_type type) {
     Mutex::Autolock lock_(&sLock);
     sFactoryMap.removeItem(type);
 }
+#if defined(_MSC_VER)
 
+#define GET_PLAYER_TYPE_IMPL_2(a, b)                      \
+    Mutex::Autolock lock_(&sLock);                      \
+                                                        \
+    player_type ret = STAGEFRIGHT_PLAYER;               \
+    float bestScore = 0.0;                              \
+                                                        \
+    for (size_t i = 0; i < sFactoryMap.size(); ++i) {   \
+                                                        \
+        IFactory* v = sFactoryMap.valueAt(i);           \
+        float thisScore;                                \
+        CHECK(v != NULL);                               \
+        thisScore = v->scoreFactory(a, b, bestScore);      \
+        if (thisScore > bestScore) {                    \
+            ret = sFactoryMap.keyAt(i);                 \
+            bestScore = thisScore;                      \
+        }                                               \
+    }                                                   \
+                                                        \
+    if (0.0 == bestScore) {                             \
+        ret = getDefaultPlayerType();                   \
+    }                                                   \
+                                                        \
+    return ret;
+
+
+#define GET_PLAYER_TYPE_IMPL_4(a, b, c, d)                      \
+    Mutex::Autolock lock_(&sLock);                      \
+                                                        \
+    player_type ret = STAGEFRIGHT_PLAYER;               \
+    float bestScore = 0.0;                              \
+                                                        \
+    for (size_t i = 0; i < sFactoryMap.size(); ++i) {   \
+                                                        \
+        IFactory* v = sFactoryMap.valueAt(i);           \
+        float thisScore;                                \
+        CHECK(v != NULL);                               \
+        thisScore = v->scoreFactory(a, b, c, d, bestScore);      \
+        if (thisScore > bestScore) {                    \
+            ret = sFactoryMap.keyAt(i);                 \
+            bestScore = thisScore;                      \
+        }                                               \
+    }                                                   \
+                                                        \
+    if (0.0 == bestScore) {                             \
+        ret = getDefaultPlayerType();                   \
+    }                                                   \
+                                                        \
+    return ret;
+
+
+player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
+	const char* url) {
+	GET_PLAYER_TYPE_IMPL_2(client, url);
+}
+
+player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
+	int fd,
+	int64_t offset,
+	int64_t length) {
+	GET_PLAYER_TYPE_IMPL_4(client, fd, offset, length);
+}
+
+player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
+	const sp<IStreamSource> &source) {
+	GET_PLAYER_TYPE_IMPL_2(client, source);
+}
+
+player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
+	const sp<DataSource> &source) {
+	GET_PLAYER_TYPE_IMPL_2(client, source);
+}
+
+#undef GET_PLAYER_TYPE_IMPL_2
+#undef GET_PLAYER_TYPE_IMPL_4
+
+#else // _MSC_VER
 #define GET_PLAYER_TYPE_IMPL(a...)                      \
     Mutex::Autolock lock_(&sLock);                      \
                                                         \
@@ -103,7 +180,7 @@ void MediaPlayerFactory::unregisterFactory(player_type type) {
 
 player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
                                               const char* url) {
-    GET_PLAYER_TYPE_IMPL(client, url);
+	GET_PLAYER_TYPE_IMPL(client, url);
 }
 
 player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
@@ -124,6 +201,7 @@ player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
 }
 
 #undef GET_PLAYER_TYPE_IMPL
+#endif // _MSC_VER
 
 sp<MediaPlayerBase> MediaPlayerFactory::createPlayer(
         player_type playerType,

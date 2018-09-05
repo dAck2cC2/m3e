@@ -20,6 +20,16 @@
 #include <utils/KeyedVector.h>
 #include <utils/String8.h>
 
+#if defined(_MSC_VER)
+#ifdef TRUE
+#undef TRUE
+#endif
+
+#ifdef FALSE
+#undef FALSE
+#endif
+#endif
+
 namespace android {
 
 struct Size {

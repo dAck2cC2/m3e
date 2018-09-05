@@ -27,7 +27,7 @@ namespace android {
 
 // ---------------------------------------------------------------------------
 
-class MemoryBase : public BnMemory 
+class ANDROID_API_BINDER MemoryBase : public BnMemory 
 {
 public:
     MemoryBase(const sp<IMemoryHeap>& heap, ssize_t offset, size_t size);

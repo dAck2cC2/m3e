@@ -42,10 +42,14 @@ HDCP::HDCP(bool createEncryptionModule)
 
     CreateHDCPModuleFunc createHDCPModule =
         mIsEncryptionModule
+#if defined(_MSC_VER)
+		? (CreateHDCPModuleFunc)GetProcAddress((HMODULE)mLibHandle, "createHDCPModule")
+		: (CreateHDCPModuleFunc)GetProcAddress((HMODULE)mLibHandle, "createHDCPModuleForDecryption");
+#else
             ? (CreateHDCPModuleFunc)dlsym(mLibHandle, "createHDCPModule")
             : (CreateHDCPModuleFunc)dlsym(
                     mLibHandle, "createHDCPModuleForDecryption");
-
+#endif
     if (createHDCPModule == NULL) {
         ALOGE("Unable to find symbol 'createHDCPModule'.");
     } else if ((mHDCPModule = createHDCPModule(

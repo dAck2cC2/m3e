@@ -4,6 +4,7 @@
 #include <binder/ProcessState.h>
 #include <binder/IPCThreadState.h>
 #include "MediaPlayerService.h"
+#include "MediaRecorderClient.h"
 
 namespace android {
     

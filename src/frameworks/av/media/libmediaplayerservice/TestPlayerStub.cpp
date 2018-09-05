@@ -129,23 +129,36 @@ status_t TestPlayerStub::setDataSource(
         return status;
     }
 
+#if defined(_MSC_VER)
+	GetLastError();
+#else
     ::dlerror();  // Clears any pending error.
-
+#endif
     // Load the test player from the url. dlopen will fail if the lib
     // is not there. dls are under /system/lib
     // None of the entry points should be NULL.
     mHandle = ::dlopen(mFilename, RTLD_NOW | RTLD_GLOBAL);
     if (!mHandle) {
+#if defined(_MSC_VER)
+		ALOGE("dlopen failed: %d", GetLastError());
+#else
         ALOGE("dlopen failed: %s", ::dlerror());
+#endif
         resetInternal();
         return UNKNOWN_ERROR;
     }
 
     // Load the 2 entry points to create and delete instances.
     const char *err;
+#if defined(_MSC_VER)
+	mNewPlayer = reinterpret_cast<NEW_PLAYER>(GetProcAddress((HMODULE)mHandle,
+		"newPlayer"));
+	err = NULL;
+#else
     mNewPlayer = reinterpret_cast<NEW_PLAYER>(dlsym(mHandle,
                                                     "newPlayer"));
     err = ::dlerror();
+#endif
     if (err || mNewPlayer == NULL) {
         // if err is NULL the string <null> is inserted in the logs =>
         // mNewPlayer was NULL.
@@ -153,10 +166,15 @@ status_t TestPlayerStub::setDataSource(
         resetInternal();
         return UNKNOWN_ERROR;
     }
-
+#if defined(_MSC_VER)
+	mDeletePlayer = reinterpret_cast<DELETE_PLAYER>(GetProcAddress((HMODULE)mHandle,
+		"deletePlayer"));
+	err = NULL;
+#else
     mDeletePlayer = reinterpret_cast<DELETE_PLAYER>(dlsym(mHandle,
                                                           "deletePlayer"));
     err = ::dlerror();
+#endif
     if (err || mDeletePlayer == NULL) {
         ALOGE("dlsym for deletePlayer failed %s", err);
         resetInternal();

@@ -31,7 +31,7 @@ class IMediaRecorderClient;
 class IGraphicBufferConsumer;
 class IGraphicBufferProducer;
 
-class IMediaRecorder: public IInterface
+class ANDROID_API_MEDIA IMediaRecorder: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaRecorder);
@@ -66,7 +66,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnMediaRecorder: public BnInterface<IMediaRecorder>
+class ANDROID_API_MEDIA BnMediaRecorder: public BnInterface<IMediaRecorder>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

@@ -36,7 +36,8 @@ extern const char *kMaxEncoderInputBuffers;
 
 struct AMessage;
 
-struct ANDROID_API_STAGEFRIGHT MediaCodecList : public BnMediaCodecList {
+class ANDROID_API_STAGEFRIGHT MediaCodecList : public BnMediaCodecList {
+public:
     static sp<IMediaCodecList> getInstance();
 
     virtual ssize_t findCodecByType(
