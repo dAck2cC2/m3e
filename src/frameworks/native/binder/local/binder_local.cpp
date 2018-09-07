@@ -229,6 +229,7 @@ private:
                     //tr->target.handle = mMsgSender;
                     
                     // the data will be released by caller, we have to make a copy for receiver.
+					// this new copy should be released by BC_FREE_BUFFER.
                     void* copyData = malloc(tr->data_size);
                     LOG_ALWAYS_FATAL_IF((copyData == NULL), "Handler[%d] No memory when creating data copy. %s:%d", mHandler, __FILE__, __LINE__);
                     if (copyData == NULL) return NO_MEMORY;
@@ -237,6 +238,13 @@ private:
                     
                     // map the native binder to proxy
                     if (tr->data.ptr.offsets && tr->offsets_size) {
+						// the offsets will be released by caller, we have to make a copy for receiver.
+						// this new copy should be released by BC_FREE_BUFFER.
+						void* copyOffsets = malloc(tr->offsets_size);
+						LOG_ALWAYS_FATAL_IF((copyData == NULL), "Handler[%d] No memory when creating offsets copy. %s:%d", mHandler, __FILE__, __LINE__);
+						if (copyOffsets == NULL) return NO_MEMORY;
+						memcpy(copyOffsets, tr->data.ptr.offsets, tr->offsets_size);
+						tr->data.ptr.offsets = copyOffsets;
                         result = RegisterBn(*tr);
                         if (result) return result;
                     }
@@ -269,12 +277,19 @@ private:
                 case BC_FREE_BUFFER: {
                     LOG_ALWAYS_FATAL_IF(size < (BINDER_CMD_SIZE + sizeof(uintptr_t)), "Handler[%d] Wrong data format. %s:%d", mHandler, __FILE__, __LINE__);
                     
+					// copy of tr->data.ptr.buffer
                     uintptr_t buf = *((uintptr_t *)(data + BINDER_CMD_SIZE));
                     pbwr->write_consumed += sizeof(uintptr_t);
-                    
                     if (buf != 0) {
                         free((void*)buf);
                     }
+
+					// copy of tr->data.ptr.offset
+					buf = *((uintptr_t *)(data + BINDER_CMD_SIZE) + 1);
+					pbwr->write_consumed += sizeof(uintptr_t);
+					if (buf != 0) {
+						free((void*)buf);
+					}
                     
                     // local command
                     bNeedRead = 0;
@@ -451,7 +466,9 @@ private:
                 case BR_TRANSACTION: {
                     binder_transaction_data* tr = (binder_transaction_data *)(pbwr->read_buffer + BINDER_CMD_SIZE);
                     pbwr->read_consumed += sizeof(binder_transaction_data);
+					LOG_ALWAYS_FATAL_IF((pbwr->read_consumed != mMsgCache->dataSize()), "Handler[%d] wrong data format (consumed:%d, actual:%d). %s:%d", mHandler, pbwr->read_consumed, mMsgCache->dataSize(), __FILE__, __LINE__);
 
+					// the message is not for the current native server, but for the children.
                     if (mBnList.indexOfKey(tr->target.handle) >= 0) {
                         flat_binder_object& obj = mBnList.editValueFor(tr->target.handle);
                         tr->target.ptr = (void *)(obj.binder);
@@ -613,7 +630,8 @@ private:
                 for (int i = 0; i < mBnList.size(); ++i) {
                     if (obj->handle == mBnList.keyAt(i)) {
                         (*obj) = mBnList[i];
-                     }
+						break;
+                    }
                 }
             }
         } // for

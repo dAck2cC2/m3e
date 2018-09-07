@@ -246,7 +246,7 @@ typedef uint64_t  uintmax_t;
 #endif // __STDC_CONSTANT_MACROS ]
 
 // disable the __builtin_expect
-#define __builtin_expect(cond, result)  ((cond)?result:!result) 
+#define __builtin_expect(cond, result)  ((cond) != result) 
 
 // disable the __attribute__
 #define __attribute__(A) /* do nothing */

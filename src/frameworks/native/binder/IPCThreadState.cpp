@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "IPCThreadState"
-#define LOG_NDEBUG 1
+#define LOG_NDEBUG 0
 
 #include <binder/IPCThreadState.h>
 
@@ -1208,7 +1208,7 @@ void IPCThreadState::threadDestructor(void *st)
 
 void IPCThreadState::freeBuffer(Parcel* parcel, const uint8_t* data,
                                 size_t /*dataSize*/,
-                                const binder_size_t* /*objects*/,
+                                const binder_size_t* objects,
                                 size_t /*objectsSize*/, void* /*cookie*/)
 {
     //ALOGI("Freeing parcel %p", &parcel);
@@ -1220,6 +1220,7 @@ void IPCThreadState::freeBuffer(Parcel* parcel, const uint8_t* data,
     IPCThreadState* state = self();
     state->mOut.writeInt32(BC_FREE_BUFFER);
     state->mOut.writePointer((uintptr_t)data);
+	state->mOut.writePointer((uintptr_t)objects);
 }
 
 }; // namespace android

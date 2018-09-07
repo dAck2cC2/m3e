@@ -270,7 +270,7 @@ BufferedTextOutput::BufferState* BufferedTextOutput::getBuffer() const
             BufferState* bs = ts->states[mIndex].get();
             if (bs != NULL && bs->seq == mSeq) return bs;
             
-            ts->states.editItemAt(mIndex) = new BufferState(mIndex);
+            ts->states.editItemAt(mIndex) = new BufferState(mSeq /*mIndex*/);
             bs = ts->states[mIndex].get();
             if (bs != NULL) return bs;
         }

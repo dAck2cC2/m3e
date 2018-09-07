@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <log/log.h>
 #include <log/logd.h>
 
 #include "fake_log_device.h"
