@@ -10,6 +10,8 @@ endif()
 #####################################################################
 # download and include external module
 
+add_subdirectory(gtest)
+
 # wxWidgets
 if (ENABLE_WXWIDGETS)
     add_subdirectory(wxwidgets)
@@ -65,13 +67,7 @@ if (ENABLE_AV_UTILS)
     add_subdirectory(vpx) 
 endif(ENABLE_AV_UTILS)
 
-if(ENABLE_TEST)
-    set(EXT_MODULES ${EXT_MODULES} gtest)
-    add_subdirectory(gtest)
-endif(ENABLE_TEST)
-
 if(ENABLE_AV_CODEC)
     add_subdirectory(expat)
-    add_subdirectory(jpeg)
     add_subdirectory(yuv)
 endif(ENABLE_AV_CODEC)

@@ -320,11 +320,11 @@ if(MSVC)
 
     set(DirectX_LIBRARY_PATHS)
     if(CMAKE_CL_64)
-        set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64")
+        set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x64")
     else(CMAKE_CL_64)
-        set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86")
+        set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x86")
     endif(CMAKE_CL_64)
-    set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86")
+    set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x86")
 
     message("DirectX_LIBRARY_PATHS=${DirectX_LIBRARY_PATHS}")
 

@@ -17,7 +17,6 @@ if(MSVC)
 endif()
 
 # dependency
-
 set(TEST_BINDER_DEPLIB
 gtest
 binder
@@ -26,22 +25,17 @@ utils
 initrc
 )
 
-set(TEST_BINDER_DEP ${TEST_BINDER_DEPLIB})
-
 # test file
-
 file(GLOB TEST_BINDER_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/test/native/binder/*.cpp
+${M3E_SOURCE_DIR}/src/frameworks/native/binder/test/*.*
 )
 
 # main source
-
-set(TEST_BINDER_SOURCE_FILES ${TEST_BINDER_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/test/main.cpp
+list(APPEND TEST_BINDER_SOURCE_FILES
+${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
 )
 
 # project
 set(EXECUTABLE_OUTPUT_PATH ${BUILD_PATH})
 add_executable(test_binder ${TEST_BINDER_SOURCE_FILES})
 target_link_libraries(test_binder ${TEST_BINDER_DEPLIB})
-

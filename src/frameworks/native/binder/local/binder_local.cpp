@@ -6,6 +6,7 @@
 #include <utils/Errors.h>
 #include <utils/KeyedVector.h>
 #include <utils/Looper.h>
+#include <utils/Vector.h>
 
 #include <binder/Parcel.h>
 #include <private/binder/binder_module.h>
@@ -247,11 +248,19 @@ private:
 						tr->data.ptr.offsets = copyOffsets;
                         result = RegisterBn(*tr);
                         if (result) return result;
-                    }
+
+					// when the offests is empty, it is no need to pass anything to receiver.
+					} else if (tr->offsets_size == 0) {
+						tr->data.ptr.offsets = 0;
+					}
                     
                     if (BC_REPLY == (*cmd)) {
+						LOG_ALWAYS_FATAL_IF((mCallStack.size() <= 0), "Handler[%d] No sender to reply. %s:%d", mHandler, __FILE__, __LINE__);
+						if (mCallStack.size() <= 0) return INVALID_OPERATION;
+						int hCaller = mCallStack.top();
+						mCallStack.pop();
                         (*cmd) = BR_REPLY;
-                        result = Send(mMsgSender, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
+                        result = Send(hCaller, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
                     } else {
                         (*cmd) = BR_TRANSACTION;
                         result = Send(tr->target.handle, (uint8_t *)data, BINDER_CMD_SIZE + BINDER_TR_SIZE);
@@ -480,6 +489,10 @@ private:
                         SearchBp(*tr);
                     }
                     
+					if ((BR_TRANSACTION == (*cmd)) && ((tr->flags & TF_ONE_WAY) == 0)) {
+						mCallStack.push(mMsgSender);
+					}
+
                     // we have to send the complete also for BR_REPLY
                     int32_t complete = BR_TRANSACTION_COMPLETE;
                     Send(mMsgSender, (uint8_t *)(&complete), sizeof(complete));
@@ -686,8 +699,9 @@ private:
     sp<Looper>  mLooper;
     
     // Message
+	Parcel*     mMsgCache;
     int         mMsgSender;
-    Parcel*     mMsgCache;
+	Vector<int> mCallStack;
 }; // CBinderEntry
  
 

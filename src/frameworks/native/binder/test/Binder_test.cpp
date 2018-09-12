@@ -11,6 +11,8 @@
 
 #include <initrc.h>
 
+#include <binder/ThreadService.h>
+
 namespace android {
 
 #define TEST_MEM_SIZE  (32)
@@ -54,10 +56,10 @@ TEST(libbinder, Binder_parcel)
 #define TEST_STRING    "binder.test.memory"
 #define TEST_AMOUNT    (3)
     
+static String16  gRecursiveTestName("binder_nested_test_service");
 static String16  gBinderTestName("binder_test_service");
 static int32_t   gBinderTestCounter = 0;
 
-    
 class  IBinderTest : public IInterface
 {
 public:
@@ -69,15 +71,33 @@ public:
     virtual sp<IBinder> createToken(int32_t id) = 0;
     virtual int32_t getTokenId(const sp<IBinder>& token) = 0;
     virtual sp<IBinder> getToken(int32_t id) = 0;
+
+	virtual int callRecursive(int code) = 0;
+
+	enum {
+		BD_TEST_INCREASE = IBinder::FIRST_CALL_TRANSACTION,
+		BD_TEST_MEMORY,
+		BD_TEST_CREATE_TOKEN,
+		BD_TEST_GET_TOKEN_ID,
+		BD_TEST_GET_TOKEN,
+		BD_TEST_CALL_RECURSIVE,
+	};
 };
-    
-enum {
-    BD_TEST_INCREASE = IBinder::FIRST_CALL_TRANSACTION,
-    BD_TEST_MEMORY,
-    BD_TEST_CREATE_TOKEN,
-    BD_TEST_GET_TOKEN_ID,
-    BD_TEST_GET_TOKEN,
+
+class  IRecursiveTest : public IInterface
+{
+public:
+	DECLARE_META_INTERFACE(RecursiveTest);
+
+	virtual int callRecursive(int code) = 0;
+	virtual int recursive(int code) = 0;
+
+	enum {
+		BD_TEST_CALL_RECURSIVE = IBinder::FIRST_CALL_TRANSACTION,
+		BD_TEST_RECURSIVE,
+	};
 };
+
 
 class BpBinderTest : public BpInterface<IBinderTest>
 {
@@ -144,6 +164,17 @@ public:
         }
         return result;
     };
+
+	virtual int  callRecursive(int code) {
+		int result = 0;
+		Parcel data, reply;
+		data.writeInterfaceToken(IBinderTest::getInterfaceDescriptor());
+		data.writeInt32(code);
+		if (remote()->transact(BD_TEST_CALL_RECURSIVE, data, &reply) == NO_ERROR) {
+			result = reply.readInt32();
+		}
+		return result;
+	};
 };
 
 class BnBinderTest : public BnInterface<IBinderTest>
@@ -190,6 +221,13 @@ public:
                 reply->writeStrongBinder(token);
                 return NO_ERROR;
             } break;
+			case BD_TEST_CALL_RECURSIVE: {
+				CHECK_INTERFACE(IBinderTest, data, reply);
+				int32_t c = data.readInt32();
+				int ret = callRecursive((int)c);
+				reply->writeInt32(ret);
+				return NO_ERROR;
+			} break;
             default:
                 return BBinder::onTransact(code, data, reply, flags);
         }
@@ -262,6 +300,15 @@ public:
         
         return mToken[id];
     };
+
+	virtual int  callRecursive(int code) {
+		sp<IRecursiveTest> nested;
+		status_t chk = getService(gRecursiveTestName, &nested);
+		EXPECT_EQ(NO_ERROR, chk);
+		EXPECT_TRUE(nested != NULL);
+
+		return (nested->recursive(code));
+	};
     
 private:
     sp<MemoryDealer> mDealer;
@@ -271,55 +318,22 @@ private:
     sp<IBinder>      mToken[2];
 };
     
-class BinderTestService : public Thread
+class BinderTestService : public ThreadService
 {
 public:
     BinderTestService()  {};
     ~BinderTestService() {};
-    void waitForStarted(void) {
-        if (!Thread::isRunning()) {
-            mThreadStartedMutex.lock();
-            
-            Thread::run();
-            
-            mThreadStartedCondition.wait(mThreadStartedMutex);
-            mThreadStartedMutex.unlock();
-        }
-    }
-    void waitForStopped(void) {
-        if (Thread::isRunning()) {
-            mThreadStartedMutex.lock();
-            
-            mIPCThread->stopProcess();
-            Thread::requestExitAndWait();
-            //mIPCThread->shutdown();
 
-            mThreadStartedMutex.unlock();
-        }
-    }
 private:
-    virtual bool threadLoop()
-    {
-        mThreadStartedMutex.lock();
+	virtual bool startService()
+	{
+		mTest = new CBinderTest();
+        defaultServiceManager()->addService(gBinderTestName, IInterface::asBinder(mTest));
         
-        sp<ProcessState>  proc = ProcessState::self();
-        sp<IBinderTest> test = new CBinderTest();
-        
-        defaultServiceManager()->addService(gBinderTestName, IInterface::asBinder(test));
-
-        mIPCThread = IPCThreadState::self();
-        
-        mThreadStartedCondition.broadcast();
-        mThreadStartedMutex.unlock();
-        
-        IPCThreadState::self()->joinThreadPool();
-        
-        return false;
+        return true;
     };
-private:
-    Mutex     mThreadStartedMutex;
-    Condition mThreadStartedCondition;
-    IPCThreadState* mIPCThread;;
+
+	sp<IBinderTest> mTest;
 };
     
 static InitRC& inirc = InitRC::getInstance();
@@ -392,6 +406,121 @@ TEST_F(ServiceTest, Binder_token)
     }
 }
 
+class BpRecursiveTest : public BpInterface<IRecursiveTest>
+{
+public:
+	BpRecursiveTest(const sp<IBinder>& impl) : BpInterface<IRecursiveTest>(impl) {};
+
+	virtual int  callRecursive(int code) {
+		int result = 0;
+		Parcel data, reply;
+		data.writeInterfaceToken(IRecursiveTest::getInterfaceDescriptor());
+		data.writeInt32(code);
+		if (remote()->transact(BD_TEST_CALL_RECURSIVE, data, &reply) == NO_ERROR) {
+			result = reply.readInt32();
+		}
+		return result;
+	};
+
+	virtual int  recursive(int code) {
+		int result = 0;
+		Parcel data, reply;
+		data.writeInterfaceToken(IRecursiveTest::getInterfaceDescriptor());
+		data.writeInt32(code);
+		if (remote()->transact(BD_TEST_RECURSIVE, data, &reply) == NO_ERROR) {
+			result = reply.readInt32();
+		}
+		return result;
+	};
+};
+class BnRecursiveTest : public BnInterface<IRecursiveTest>
+{
+public:
+	virtual status_t onTransact(
+		uint32_t code,
+		const Parcel& data,
+		Parcel* reply,
+		uint32_t flags = 0)
+	{
+		switch (code) {
+		case BD_TEST_CALL_RECURSIVE: {
+			CHECK_INTERFACE(IRecursiveTest, data, reply);
+			int32_t c = data.readInt32();
+			int ret = callRecursive((int)c);
+			reply->writeInt32(ret);
+			return NO_ERROR;
+		} break;
+		case BD_TEST_RECURSIVE: {
+			CHECK_INTERFACE(IRecursiveTest, data, reply);
+			int32_t c = data.readInt32();
+			int ret = recursive((int)c);
+			reply->writeInt32(ret);
+			return NO_ERROR;
+		} break;
+		default:
+			return BBinder::onTransact(code, data, reply, flags);
+		}
+	}
+
+	BnRecursiveTest() {};
+protected:
+	virtual ~BnRecursiveTest() {};
+};
+IMPLEMENT_META_INTERFACE(RecursiveTest, "android.test.binder.nested");
+class CRecursiveTest : public BnRecursiveTest
+{
+public:
+	CRecursiveTest() {
+		service->waitForStarted();
+		status_t chk = getService(gBinderTestName, &mTest);
+		EXPECT_EQ(NO_ERROR, chk);
+		EXPECT_TRUE(mTest != NULL);
+	};
+	~CRecursiveTest() {};
+
+	virtual int  callRecursive(int code) {
+		EXPECT_TRUE(mTest != NULL);
+		return (mTest->callRecursive(code));
+	};
+	virtual int  recursive(int code) {
+		return (code);
+	};
+private:
+	sp<IBinderTest> mTest;
+};
+class RecursiveTestService : public ThreadService
+{
+public:
+	RecursiveTestService() {};
+	~RecursiveTestService() {};
+
+private:
+	virtual bool startService()
+	{
+		mRecursive = new CRecursiveTest();
+		defaultServiceManager()->addService(gRecursiveTestName, IInterface::asBinder(mRecursive));
+
+		return true;
+	};
+
+	sp<IRecursiveTest> mRecursive;
+};
+static sp<RecursiveTestService> serviceRecursive = new RecursiveTestService();
+
+TEST_F(ServiceTest, Binder_recursive)
+{
+	service->waitForStarted();
+	serviceRecursive->waitForStarted();
+
+	sp<IRecursiveTest> nested;
+	status_t chk = getService(gRecursiveTestName, &nested);
+	EXPECT_EQ(NO_ERROR, chk);
+	EXPECT_TRUE(nested != NULL);
+
+	int ret = nested->callRecursive(TEST_AMOUNT);
+	EXPECT_EQ(TEST_AMOUNT, ret);
+}
+
 TEST_F(ServiceTest, Binder_death)
 {
     service->waitForStarted();
@@ -400,6 +529,7 @@ TEST_F(ServiceTest, Binder_death)
     sp<IBinderTest> test;
     status_t chk = getService(gBinderTestName, &test);
     EXPECT_NE(NO_ERROR, chk);
-    EXPECT_TRUE(test == NULL);}
+    EXPECT_TRUE(test == NULL);
+}
 
 } // namespace android

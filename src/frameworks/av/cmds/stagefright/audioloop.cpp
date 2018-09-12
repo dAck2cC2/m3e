@@ -41,8 +41,6 @@
 
 #include <initrc.h>
 
-#include <media/stagefright/MediaCodecList.h>
-
 using namespace android;
 
 static void usage(const char* name)
@@ -130,7 +128,7 @@ int main(int argc, char* argv[])
     looper->start();
 
     sp<IMediaSource> encoder = MediaCodecSource::Create(looper, meta, source);
-	//MediaCodecList::getLocalInstance();
+
     if (fileOut != NULL) {
 #if ENABLE_RECODER
         // target file specified, write encoded AMR output
