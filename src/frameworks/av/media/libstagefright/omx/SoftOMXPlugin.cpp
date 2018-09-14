@@ -79,9 +79,15 @@ OMX_ERRORTYPE SoftOMXPlugin::makeComponentInstance(
             continue;
         }
 
+#if defined(_MSC_VER)
+		AString libName = "stagefright_soft_";
+		libName.append(kComponents[i].mLibNameSuffix);
+		libName.append(".dll");
+#else
         AString libName = "libstagefright_soft_";
         libName.append(kComponents[i].mLibNameSuffix);
         libName.append(".so");
+#endif
 
         void *libHandle = dlopen(libName.c_str(), RTLD_NOW);
 
@@ -90,7 +96,16 @@ OMX_ERRORTYPE SoftOMXPlugin::makeComponentInstance(
 
             return OMX_ErrorComponentNotFound;
         }
+#if defined(_MSC_VER)
+		OMXComponent* androidOMXComponent = (OMXComponent *)GetProcAddress((HMODULE)libHandle, ANDROID_OMX_COMPOENET_SYM_AS_STR);
+		if (androidOMXComponent == NULL) {
+			dlclose(libHandle);
+			libHandle = NULL;
 
+			return OMX_ErrorComponentNotFound;
+		}
+		CreateSoftOMXComponentFunc createSoftOMXComponent = androidOMXComponent->create;
+#else
         typedef SoftOMXComponent *(*CreateSoftOMXComponentFunc)(
                 const char *, const OMX_CALLBACKTYPE *,
                 OMX_PTR, OMX_COMPONENTTYPE **);
@@ -100,7 +115,7 @@ OMX_ERRORTYPE SoftOMXPlugin::makeComponentInstance(
                     libHandle,
                     "_Z22createSoftOMXComponentPKcPK16OMX_CALLBACKTYPE"
                     "PvPP17OMX_COMPONENTTYPE");
-
+#endif
         if (createSoftOMXComponent == NULL) {
             dlclose(libHandle);
             libHandle = NULL;

@@ -29,8 +29,11 @@ media
 stagefright_foundation
 )
 
-add_definitions(-Dtypeof=decltype)
-if(MSVC)
+if(APPLE)
+    add_definitions(-Dtypeof=__typeof__)
+elseif(MSVC)
+    add_definitions(-Dtypeof=decltype)
+
     add_definitions(-Dstrcasecmp=_stricmp)
 endif()
 
@@ -46,6 +49,8 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/omx )
 file(GLOB ${PROJECT_NAME}_HEADER_FILES 
 ${SOURCE_PATH}/*.h 
 ${HEADER_PATH}/OMX.h
+${HEADER_PATH}/SimpleSoftOMXComponent.h
+${HEADER_PATH}/SoftOMXComponent.h
 ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/hardware/HardwareAPI.h
 )
 
@@ -62,6 +67,7 @@ ${SOURCE_PATH}/OMXUtils.cpp
 ${SOURCE_PATH}/OMXMaster.cpp
 ${SOURCE_PATH}/SoftOMXPlugin.cpp
 ${SOURCE_PATH}/SoftOMXComponent.cpp
+${SOURCE_PATH}/SimpleSoftOMXComponent.cpp
 )
 
 if(MSVC)

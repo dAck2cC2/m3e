@@ -85,10 +85,11 @@ int main(int argc, char* argv[])
     }
     argc -= optind;
     argv += optind;
-#endif
+
     if (argc == 1) {
         fileOut = argv[0];
     }
+#endif
     const int32_t kSampleRate = outputWBAMR ? 16000 : 8000;
     const int32_t kBitRate = outputWBAMR ? 16000 : 8000;
 

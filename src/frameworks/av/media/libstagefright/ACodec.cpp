@@ -6637,9 +6637,11 @@ bool ACodec::UninitializedState::onAllocateComponent(const sp<AMessage> &msg) {
         pid_t tid = gettid();
         int prevPriority = androidGetThreadPriority(tid);
         androidSetThreadPriority(tid, ANDROID_PRIORITY_FOREGROUND);
+#endif
         err = omx->allocateNode(componentName.c_str(), observer, &mCodec->mNodeBinder, &node);
+#ifdef HAVE_ANDROID_OS
         androidSetThreadPriority(tid, prevPriority);
-
+#endif
         if (err == OK) {
             break;
         } else {
@@ -6647,7 +6649,6 @@ bool ACodec::UninitializedState::onAllocateComponent(const sp<AMessage> &msg) {
         }
 
         node = 0;
-#endif
     }
 
     if (node == 0) {

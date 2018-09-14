@@ -749,16 +749,28 @@ status_t BnOMX::onTransact(
                 ALOGE("b/27207275 (%zu) (%d/%d)", size, int(index), int(code));
                 android_errorWriteLog(0x534e4554, "27207275");
             } else {
-#if !defined(_MSC_VER)
                 err = NO_MEMORY;
+#if defined(_MSC_VER)
+				SYSTEM_INFO sysinfo;
+				GetSystemInfo(&sysinfo);
+				pageSize = sysinfo.dwPageSize;
+#else
                 pageSize = (size_t) sysconf(_SC_PAGE_SIZE);
+#endif
                 if (size > SIZE_MAX - (pageSize * 2)) {
                     ALOGE("requested param size too big");
                 } else {
                     allocSize = (size + pageSize * 2) & ~(pageSize - 1);
+#if defined(_MSC_VER)
+					params = new char[allocSize];
+					#undef  MAP_FAILED
+					#define MAP_FAILED NULL
+#else
                     params = mmap(NULL, allocSize, PROT_READ | PROT_WRITE,
                             MAP_PRIVATE | MAP_ANONYMOUS, -1 /* fd */, 0 /* offset */);
+#endif
                 }
+
                 if (params != MAP_FAILED) {
                     err = data.read(params, size);
                     if (err != OK) {
@@ -773,13 +785,16 @@ status_t BnOMX::onTransact(
                             ALOGE("b/27207275 (%u/%zu)", declaredSize, size);
                             android_errorWriteLog(0x534e4554, "27207275");
                         } else {
+#if !defined(_MSC_VER)
                             // mark the last page as inaccessible, to avoid exploitation
                             // of codecs that access past the end of the allocation because
                             // they didn't check the size
                             if (mprotect((char*)params + allocSize - pageSize, pageSize,
                                     PROT_NONE) != 0) {
                                 ALOGE("mprotect failed: %s", strerror(errno));
-                            } else {
+                            } else
+#endif
+							{
                                 switch (code) {
                                     case GET_PARAMETER:
                                         err = getParameter(node, index, params, size);
@@ -811,7 +826,6 @@ status_t BnOMX::onTransact(
                 } else {
                     ALOGE("couldn't map: %s", strerror(errno));
                 }
-#endif
             }
 
             reply->writeInt32(err);
@@ -821,7 +835,9 @@ status_t BnOMX::onTransact(
             }
 
             if (params) {
-#if !defined(_MSC_VER)
+#if defined(_MSC_VER)
+				delete[] params;
+#else
                 munmap(params, allocSize);
 #endif
             }

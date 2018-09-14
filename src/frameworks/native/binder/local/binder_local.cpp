@@ -83,7 +83,7 @@ public:
     {
         AutoMutex _l(mBpLock);
         if (mBpList.indexOfKey(handle) > -1) {
-            mBpList.removeItemsAt(handle);
+            mBpList.removeItem(handle);
         }
     };
     

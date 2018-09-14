@@ -163,6 +163,7 @@ endif(ENABLE_AV_CODEC)
 
 # sub module
 if(ENABLE_AV_CODEC)
-    add_subdirectory(stagefright_color_conversion)
-    add_subdirectory(stagefright_mediafilter)
+    add_subdirectory(colorconversion)
+    add_subdirectory(filters)
+    add_subdirectory(codecs) 
 endif()

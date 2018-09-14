@@ -29,7 +29,7 @@ namespace android {
 
 struct ALooper;
 
-struct SimpleSoftOMXComponent : public SoftOMXComponent {
+struct ANDROID_API_STAGEFRIGHT_OMX SimpleSoftOMXComponent : public SoftOMXComponent {
     SimpleSoftOMXComponent(
             const char *name,
             const OMX_CALLBACKTYPE *callbacks,
@@ -44,6 +44,9 @@ protected:
     struct BufferInfo {
         OMX_BUFFERHEADERTYPE *mHeader;
         bool mOwnedByUs;
+#if defined(_MSC_VER)
+	bool operator<(const BufferInfo &rhs) const { return (mHeader < rhs.mHeader); };
+#endif
     };
 
     struct PortInfo {

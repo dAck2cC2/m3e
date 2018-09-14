@@ -26,7 +26,7 @@
 
 namespace android {
 
-struct SoftOMXComponent : public RefBase {
+struct ANDROID_API_STAGEFRIGHT_OMX SoftOMXComponent : public RefBase {
     SoftOMXComponent(
             const char *name,
             const OMX_CALLBACKTYPE *callbacks,
@@ -170,9 +170,17 @@ private:
 
 template<typename T>
 bool isValidOMXParam(T *a) {
+#if defined(_MSC_VER)
+  static_assert(offsetof(std::remove_pointer<decltype(a)>::type, nSize) == 0, "nSize not at offset 0");
+#else
   static_assert(offsetof(typeof(*a), nSize) == 0, "nSize not at offset 0");
+#endif
   static_assert(std::is_same< decltype(a->nSize), OMX_U32>::value, "nSize has wrong type");
+#if defined(_MSC_VER)
+  static_assert(offsetof(std::remove_pointer<decltype(a)>::type, nVersion) == 4, "nVersion not at offset 4");
+#else
   static_assert(offsetof(typeof(*a), nVersion) == 4, "nVersion not at offset 4");
+#endif
   static_assert(std::is_same< decltype(a->nVersion), OMX_VERSIONTYPE>::value,
           "nVersion has wrong type");
 
@@ -183,6 +191,18 @@ bool isValidOMXParam(T *a) {
   }
   return true;
 }
+
+#if defined(_MSC_VER)
+typedef SoftOMXComponent *(*CreateSoftOMXComponentFunc)(
+	const char *, const OMX_CALLBACKTYPE *,
+	OMX_PTR, OMX_COMPONENTTYPE **);
+
+typedef struct OMXComponent {
+	CreateSoftOMXComponentFunc create;
+} OMXComponent;
+
+#define ANDROID_OMX_COMPOENET_SYM_AS_STR   "AndroidOMXCompnent"
+#endif
 
 }  // namespace android
 

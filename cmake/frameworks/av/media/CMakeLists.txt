@@ -67,8 +67,6 @@ ${SOURCE_PATH}/MemoryLeakTrackUtil.cpp
 )
 
 if(ENABLE_AV_CODEC)
-    add_definitions(-Dtypeof=decltype)
-
     include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
@@ -118,7 +116,11 @@ if (MSVC OR APPLE)
     )
 endif()
 
-if(MSVC)
+if(APPLE)
+    add_definitions(-Dtypeof=__typeof__)
+elseif(MSVC)
+    add_definitions(-Dtypeof=decltype)
+
     list(APPEND MEDIA_SOURCE_FILES
     ${MSVC_PATH}/sys/time.c
     ) 

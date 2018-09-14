@@ -16,11 +16,13 @@ set(AUDIO_UTILS_DEPLIB
 log
 )
 
-add_definitions(-Dtypeof=decltype)
-if (MSVC)
+if(APPLE)
+    add_definitions(-Dtypeof=__typeof__)
+elseif(MSVC)
+    add_definitions(-Dtypeof=decltype)
     add_definitions(-D__unused= )
     add_definitions(-D_USE_MATH_DEFINES=1)
-endif(MSVC)
+endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/media/audio_utils/include/audio_utils )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/media/audio_utils/ )
