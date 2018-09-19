@@ -151,6 +151,7 @@ int main(int argc, char* argv[])
         if (playToSpeaker) {
             AudioPlayer *player = new AudioPlayer(NULL);
             player->setSource(decoder);
+			//player->setSource(source);
             player->start();
             sleep(duration);
 

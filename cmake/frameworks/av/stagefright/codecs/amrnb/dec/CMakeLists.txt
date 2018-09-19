@@ -3,10 +3,12 @@ project(STAGEFRIGHT_SOFT_AMRNBDEC)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/codecs/amrnb/common/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/codecs/amrwb/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
 
 set(${PROJECT_NAME}_DEPLIB
 stagefright_amrnb_common
+stagefright_amrwbdec
 stagefright_omx
 )
 
@@ -61,7 +63,7 @@ ${SOURCE_PATH}/SoftAMR.cpp
 )
 
 # target files
-set(LIB_NAME stagefright_soft_amrnbdec)
+set(LIB_NAME stagefright_soft_amrdec)
 set(LIB_TYPE SHARED)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(${LIB_NAME} ${LIB_TYPE} ${${PROJECT_NAME}_SOURCE_FILES} ${${PROJECT_NAME}_HEADER_FILES})
