@@ -341,11 +341,13 @@ void* VectorImpl::editItemLocation(size_t index)
 
 const void* VectorImpl::itemLocation(size_t index) const
 {
-#if !defined(_MSC_VER)
-    ALOG_ASSERT(index < capacity(),
+    /*
+    It will cause problem when an empty vector.
+    */
+    ALOG_ASSERT(index <= capacity(),
                 "[%p] itemLocation: index=%d, capacity=%d, count=%d",
                 this, (int)index, (int)capacity(), (int)mCount);
-#endif
+
     if (index < capacity()) {
         const  void* buffer = arrayImpl();
 

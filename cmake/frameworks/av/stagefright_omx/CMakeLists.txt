@@ -29,11 +29,7 @@ media
 stagefright_foundation
 )
 
-if(APPLE)
-    add_definitions(-Dtypeof=__typeof__)
-elseif(MSVC)
-    add_definitions(-Dtypeof=decltype)
-
+if(MSVC)
     add_definitions(-Dstrcasecmp=_stricmp)
 endif()
 

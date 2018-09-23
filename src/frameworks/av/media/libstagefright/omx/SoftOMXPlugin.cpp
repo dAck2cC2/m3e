@@ -79,15 +79,19 @@ OMX_ERRORTYPE SoftOMXPlugin::makeComponentInstance(
             continue;
         }
 
-#if defined(_MSC_VER)
-		AString libName = "stagefright_soft_";
-		libName.append(kComponents[i].mLibNameSuffix);
-		libName.append(".dll");
+#if defined(__APPLE__)
+        const char* prefix  = "libstagefright_soft_";
+        const char* extname = ".dylib";
+#elif defined(_MSC_VER)
+        const char* prefix  = "stagefright_soft_";
+        const char* extname = ".dll";
 #else
-        AString libName = "libstagefright_soft_";
-        libName.append(kComponents[i].mLibNameSuffix);
-        libName.append(".so");
+        const char* prefix  = "libstagefright_soft_";
+        const char* extname = ".so";
 #endif
+        AString libName = prefix;
+		libName.append(kComponents[i].mLibNameSuffix);
+		libName.append(extname);
 
         void *libHandle = dlopen(libName.c_str(), RTLD_NOW);
 
