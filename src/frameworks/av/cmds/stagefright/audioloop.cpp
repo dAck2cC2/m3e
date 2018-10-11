@@ -131,6 +131,9 @@ int main(int argc, char* argv[])
     looper->start();
 
     sp<IMediaSource> encoder = MediaCodecSource::Create(looper, meta, source);
+    if (encoder == NULL) {
+        return 0;
+    }
 
     if (fileOut != NULL) {
         // target file specified, write encoded AMR output

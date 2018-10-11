@@ -622,16 +622,19 @@ private:
                     
                     // create handler for new native binder
                     if (hProxy == -1) {
-                        AutoMutex _l(gServiceLock);
+                        sp<IBinderEntry> eProxy;
+                        {
+                            AutoMutex _l(gServiceLock);
 
-                        hProxy = gHandlerCounter++;
-                        sp<IBinderEntry> eProxy = new CBinderEntry(hProxy);
-                        LOG_ALWAYS_FATAL_IF((eProxy == NULL), "Handler[%d] Failed to create binder entry. %s:%d", hProxy, __FILE__, __LINE__);
-                        
-                        ssize_t N = gServiceList.add(hProxy, eProxy);
-                        LOG_ALWAYS_FATAL_IF((N < 0), "Handler[%d] Failed to add binder entry. %s:%d", hProxy, __FILE__, __LINE__);
-                        if (N < 0) {
-                            return (NO_MEMORY);
+                            hProxy = gHandlerCounter++;
+                            eProxy = new CBinderEntry(hProxy);
+                            LOG_ALWAYS_FATAL_IF((eProxy == NULL), "Handler[%d] Failed to create binder entry. %s:%d", hProxy, __FILE__, __LINE__);
+                            
+                            ssize_t N = gServiceList.add(hProxy, eProxy);
+                            LOG_ALWAYS_FATAL_IF((N < 0), "Handler[%d] Failed to add binder entry. %s:%d", hProxy, __FILE__, __LINE__);
+                            if (N < 0) {
+                                return (NO_MEMORY);
+                            }
                         }
                         
 						// the anonymous binder which has no IPCThread

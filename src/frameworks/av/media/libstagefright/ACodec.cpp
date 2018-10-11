@@ -17,9 +17,14 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "ACodec"
 
+// NOTE:
+// It caused problem when building on Mac OSX.
+// e.g. It has no such define in SimpleSoftOMXComponent.cpp.
+/*
 #ifdef __LP64__
 #define OMX_ANDROID_COMPILE_AS_32BIT_ON_64BIT_PLATFORMS
 #endif
+*/
 
 #include <inttypes.h>
 #include <utils/Trace.h>
