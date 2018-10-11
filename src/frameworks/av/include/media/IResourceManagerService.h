@@ -52,7 +52,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnResourceManagerService: public BnInterface<IResourceManagerService>
+class ANDROID_API_MEDIA BnResourceManagerService: public BnInterface<IResourceManagerService>
 {
 public:
     virtual status_t onTransact(uint32_t code,

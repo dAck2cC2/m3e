@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
-typedef uint32_t android_thread_id_t;
+typedef void* android_thread_id_t;
 #else
 typedef void* android_thread_id_t;
 #endif

@@ -53,6 +53,10 @@ public:
     Type mType;
     SubType mSubType;
     uint64_t mValue;
+
+#if defined(_MSC_VER)
+	bool operator<(const MediaResource &rhs) const { return (mValue < rhs.mValue); };
+#endif
 };
 
 inline static const char *asString(MediaResource::Type i, const char *def = "??") {

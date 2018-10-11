@@ -562,6 +562,10 @@ private:
     // Send EOS on input stream.
     void onSignalEndOfInputStream();
 
+#if !TODO
+	sp<IOMXObserver> observer;
+#endif
+
     DISALLOW_EVIL_CONSTRUCTORS(ACodec);
 };
 

@@ -15,6 +15,7 @@ enum {
     SERVICE_SF,
 	SERVICE_AF,
     SERVICE_MEDIA_PLAYER,
+	SERVICE_MEDIA_RESOURCE,
     SERVICE_MEDIA_CODEC,
 	SERVICE_BOOT_ANIM,
     SERVICE_CNT
@@ -25,12 +26,13 @@ static struct {
     struct hw_device_t*  handler;
 }
 gServiceList[SERVICE_CNT] = {
-    {"servicemanager",     NULL},
-    {"surfaceflinger",     NULL},
-	{"audioflinger",       NULL},
-    {"mediaplayerservice", NULL},
-    {"mediacodecservice",  NULL},
-	{"bootanimation",      NULL}
+    {"servicemanager",        NULL},
+    {"surfaceflinger",        NULL},
+	{"audioflinger",          NULL},
+    {"mediaplayerservice",    NULL},
+	{"mediaresourcemanager",  NULL},
+    {"mediacodecservice",     NULL},
+	{"bootanimation",         NULL}
 };
 
 InitRC::InitRC()
@@ -85,6 +87,7 @@ status_t InitRC::Entry(int argc, char** argv)
     StartService(SERVICE_SF);
 	StartService(SERVICE_AF);
     StartService(SERVICE_MEDIA_PLAYER);
+	StartService(SERVICE_MEDIA_RESOURCE);
     StartService(SERVICE_MEDIA_CODEC);
     
     return OK;

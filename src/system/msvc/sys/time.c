@@ -5,31 +5,39 @@
 
 #include <sys/time.h>
 
-const __int64 DELTA_EPOCH_IN_MICROSECS = 11644473600000000;
+const unsigned __int64 DELTA_EPOCH_IN_MICROSECS = 116444736000000000ui64;
 
 int gettimeofday(struct timeval *tv/*in*/, struct timezone *tz/*in*/)
 {
 	FILETIME ft;
-	__int64 tmpres = 0;
-	TIME_ZONE_INFORMATION tz_winapi;
 	int rez = 0;
 
 	ZeroMemory(&ft, sizeof(ft));
-	ZeroMemory(&tz_winapi, sizeof(tz_winapi));
-
 	GetSystemTimeAsFileTime(&ft);
 
+#if 1
+	unsigned __int64 tmpres = 0;
 	tmpres = ft.dwHighDateTime;
 	tmpres <<= 32;
 	tmpres |= ft.dwLowDateTime;
 
 	/*converting file time to unix epoch*/
-	tmpres /= 10;  /*convert into microseconds*/
 	tmpres -= DELTA_EPOCH_IN_MICROSECS;
-	tv->tv_sec = (__int32)(tmpres*0.000001);
-	tv->tv_usec = (tmpres % 1000000);
+	tv->tv_sec  = (long)(tmpres / 10000000);
+	tv->tv_usec = (long)(tmpres % 10000000) / 10;  /* microseconds */
+	if (tv->tv_usec < 0) {
+		return 0;
+	}
+#else
+	SYSTEMTIME st;
+	FileTimeToSystemTime(&ft, &st);
 
+	tv->tv_sec = st.wHour*60*60 + st.wMinute*60 + st.wSecond;
+	tv->tv_usec = st.wMilliseconds * 1000;
+#endif
 	/*
+	TIME_ZONE_INFORMATION tz_winapi;
+	ZeroMemory(&tz_winapi, sizeof(tz_winapi));
 	//_tzset(),don't work properly, so we use GetTimeZoneInformation
 	rez = GetTimeZoneInformation(&tz_winapi);
 	tz->tz_dsttime = (rez == 2) ? true : false;

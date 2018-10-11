@@ -6,11 +6,14 @@
 #include <binder/ProcessState.h>
 #include <binder/IPCThreadState.h>
 #include <binder/Status.h>
+#include <binder/ThreadService.h>
 
 #include <utils/threads.h>
 #include <utils/KeyedVector.h>
 
 #include <hardware/hardware.h>
+
+#define LOCAL_DEAMON_SERVICES_CNT   (20)
 
 namespace android {
 
@@ -112,6 +115,7 @@ private:
 
 		sp<ProcessState>  proc = ProcessState::self();
         proc->becomeContextManager(NULL, NULL);
+		proc->setThreadPoolMaxThreadCount(LOCAL_DEAMON_SERVICES_CNT);
 
         {
             Parcel parcel;
@@ -136,6 +140,28 @@ private:
     Condition mThreadStartedCondition;
 };
 
+class LocalDeamonService : public BBinder, public ThreadService
+{
+public:
+	LocalDeamonService() : mDescriptor("android.os.LocalDeamonService") {};
+	~LocalDeamonService() {};
+
+	virtual const String16& getInterfaceDescriptor() const { return mDescriptor; };
+
+private:
+	virtual bool startService()
+	{
+		Parcel parcel;
+		parcel.writeInterfaceToken(mDescriptor);
+		parcel.writeStrongBinder(this);
+		IPCThreadState::self()->transact(0, IBinder::PING_TRANSACTION, parcel, NULL, 0);
+
+		return true;
+	};
+private:
+	const String16  mDescriptor;
+};
+
 }; // namespace android
 
 //  interface for initrc
@@ -147,6 +173,7 @@ private:
 #define SERVICE_MANAGER_AUTHOR  "yuki.kokoto"
 
 android::sp<android::LocalServiceManager> gServiceManager;
+android::sp<android::LocalDeamonService>  gDeamonPool[LOCAL_DEAMON_SERVICES_CNT];
 
 int open_servicemanager(const struct hw_module_t* module, const char* id,
                         struct hw_device_t** device)
@@ -157,6 +184,15 @@ int open_servicemanager(const struct hw_module_t* module, const char* id,
             gServiceManager->waitForStarted();
         }
     }
+
+	for (int i = 0; i < LOCAL_DEAMON_SERVICES_CNT; ++i) {
+		if (gDeamonPool[i] == NULL) {
+			gDeamonPool[i] = new android::LocalDeamonService();
+			if (gDeamonPool[i] != NULL) {
+				gDeamonPool[i]->waitForStarted();
+			}
+		}
+	}
     
     return android::OK;
 }

@@ -28,7 +28,7 @@ namespace android {
 
 class MetaData;
 
-struct AMRWriter : public MediaWriter {
+struct ANDROID_API_STAGEFRIGHT AMRWriter : public MediaWriter {
     AMRWriter(int fd);
 
     status_t initCheck() const;
@@ -51,11 +51,18 @@ private:
     volatile bool mResumed;
     volatile bool mDone;
     volatile bool mReachedEOS;
+#if defined(_MSC_VER)
+	thread_id_t mThread;
+#else
     pthread_t mThread;
+#endif
     int64_t mEstimatedSizeBytes;
     int64_t mEstimatedDurationUs;
-
+#if defined(_MSC_VER)
+	static int ThreadWrapper(void *);
+#else
     static void *ThreadWrapper(void *);
+#endif
     status_t threadFunc();
     bool exceedsFileSizeLimit();
     bool exceedsFileDurationLimit();

@@ -24,9 +24,7 @@
 #include <media/mediarecorder.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/AMessage.h>
-#if defined(ENABLE_RECODER)
 #include <media/stagefright/AMRWriter.h>
-#endif
 #include <media/stagefright/AudioPlayer.h>
 #include <media/stagefright/AudioSource.h>
 #include <media/stagefright/MediaCodecSource.h>
@@ -89,6 +87,10 @@ int main(int argc, char* argv[])
     if (argc == 1) {
         fileOut = argv[0];
     }
+#else
+	if (argc == 2) {
+		fileOut = argv[1];
+	}
 #endif
     const int32_t kSampleRate = outputWBAMR ? 16000 : 8000;
     const int32_t kBitRate = outputWBAMR ? 16000 : 8000;
@@ -131,9 +133,12 @@ int main(int argc, char* argv[])
     sp<IMediaSource> encoder = MediaCodecSource::Create(looper, meta, source);
 
     if (fileOut != NULL) {
-#if ENABLE_RECODER
         // target file specified, write encoded AMR output
-        int fd = open(fileOut, O_CREAT | O_LARGEFILE | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
+        int fd = open(fileOut, O_CREAT
+#if defined(O_LARGEFILE)
+			| O_LARGEFILE 
+#endif 
+			| O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
         if (fd < 0) {
             return 1;
         }
@@ -143,7 +148,6 @@ int main(int argc, char* argv[])
         writer->start();
         sleep(duration);
         writer->stop();
-#endif
     } else {
         // otherwise decode to speaker
         sp<IMediaSource> decoder = SimpleDecodingSource::Create(encoder);

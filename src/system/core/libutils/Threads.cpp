@@ -226,6 +226,14 @@ android_thread_id_t androidGetThreadId()
     return (android_thread_id_t)pthread_self();
 }
 
+void androidJoinThread(android_thread_id_t id)
+{
+	void *dummy;
+	pthread_join(id, &dummy);
+
+	return;
+}
+
 // ----------------------------------------------------------------------------
 #elif defined(HAVE_WIN32_THREADS)
 // ----------------------------------------------------------------------------
@@ -287,7 +295,7 @@ static bool doCreateThread(android_thread_func_t fn, void* arg, android_thread_i
 #endif
 
     if (id != NULL) {
-        *id = (android_thread_id_t)thrdaddr;
+        *id = hThread;
     }
 
     return true;
@@ -307,6 +315,14 @@ android_thread_id_t androidGetThreadId()
 {
     return (android_thread_id_t)GetCurrentThreadId();
 }
+
+void androidJoinThread(android_thread_id_t id)
+{
+	WaitForSingleObject(id, INFINITE);
+
+	return;
+}
+
 
 // ----------------------------------------------------------------------------
 #else

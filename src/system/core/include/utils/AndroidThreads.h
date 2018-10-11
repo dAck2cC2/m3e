@@ -37,6 +37,7 @@ extern "C" {
 extern int androidCreateThread(android_thread_func_t, void *);
 
 // Create thread with lots of parameters
+ANDROID_API_UTILS
 extern int androidCreateThreadEtc(android_thread_func_t entryFunction,
                                   void *userData,
                                   const char* threadName,
@@ -71,6 +72,9 @@ typedef int (*android_create_thread_fn)(android_thread_func_t entryFunction,
                                         android_thread_id_t *threadId);
 
 extern void androidSetCreateThreadFunc(android_create_thread_fn func);
+
+ANDROID_API_UTILS
+extern void androidJoinThread(android_thread_id_t id);
 
 // ------------------------------------------------------------------
 // Extra functions working with raw pids.
@@ -117,6 +121,10 @@ inline bool createThreadEtc(thread_func_t entryFunction,
 // Get some sort of unique identifier for the current thread.
 inline thread_id_t getThreadId() {
     return androidGetThreadId();
+}
+
+inline void joinThread(thread_id_t id) {
+	return androidJoinThread(id);
 }
 
 // ----------------------------------------------------------------------------

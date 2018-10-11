@@ -114,6 +114,8 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/OMXClient.cpp
     ${SOURCE_PATH}/SkipCutBuffer.cpp
     ${SOURCE_PATH}/FrameRenderTracker.cpp
+    ${SOURCE_PATH}/ProcessInfo.cpp 
+    ${SOURCE_PATH}/AMRWriter.cpp
     #${SOURCE_PATH}/StagefrightMetadataRetriever.cpp
     )
 

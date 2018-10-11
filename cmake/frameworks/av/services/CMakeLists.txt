@@ -4,5 +4,6 @@ endif(ENABLE_AV_UTILS)
 
 if(ENABLE_AV_CODEC)
     add_subdirectory(mediacodec) 
+    add_subdirectory(mediaresourcemanager)  
     #add_subdirectory(audiopolicy) 
 endif(ENABLE_AV_CODEC)

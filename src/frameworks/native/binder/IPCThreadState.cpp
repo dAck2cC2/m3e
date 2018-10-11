@@ -1122,6 +1122,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
                     reinterpret_cast<BBinder*>(tr.cookie)->decStrong(this);
                 } else {
                     error = UNKNOWN_TRANSACTION;
+					LOG_ALWAYS_FATAL_IF((error == NO_ERROR), "The native binder is released!!! %s:%d", __FILE__, __LINE__);
                 }
 
             } else {

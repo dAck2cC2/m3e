@@ -66,7 +66,7 @@ public:
     DECLARE_META_INTERFACE(BinderTest);
     
     virtual int  increase(int amount) = 0;
-    virtual sp<IMemory> getMemory() = 0;
+    virtual sp<IMemory> getMemory(int32_t isStatic) = 0;
     
     virtual sp<IBinder> createToken(int32_t id) = 0;
     virtual int32_t getTokenId(const sp<IBinder>& token) = 0;
@@ -116,11 +116,12 @@ public:
         return result;
     };
     
-    virtual sp<IMemory> getMemory() {
+    virtual sp<IMemory> getMemory(int32_t isStatic) {
         sp<IMemory> result;
         
         Parcel data, reply;
         data.writeInterfaceToken(IBinderTest::getInterfaceDescriptor());
+		data.writeInt32(isStatic);
         if (remote()->transact(BD_TEST_MEMORY, data, &reply) == NO_ERROR) {
             sp<IBinder> binder = reply.readStrongBinder();
             result = interface_cast<IMemory>(binder);
@@ -196,7 +197,8 @@ public:
             } break;
             case BD_TEST_MEMORY: {
                 CHECK_INTERFACE(IBinderTest, data, reply);
-                sp<IMemory> mem = getMemory();
+				int32_t isStatic = data.readInt32();
+                sp<IMemory> mem = getMemory(isStatic);
                 reply->writeStrongBinder(IInterface::asBinder(mem));
                 return NO_ERROR;
             } break;
@@ -262,8 +264,13 @@ public:
         return (gBinderTestCounter);
     };
     
-    virtual sp<IMemory> getMemory() {
-        return mMem;
+    virtual sp<IMemory> getMemory(int32_t isStatic) {
+		if (isStatic) {
+			return mMem;
+		}
+		else {
+			return mDealer->allocate(TEST_MEM_SIZE);
+		}
     };
     
     virtual sp<IBinder> createToken(int32_t id)
@@ -370,12 +377,31 @@ TEST_F(ServiceTest, Binder_memory)
     EXPECT_EQ(NO_ERROR, chk);
     EXPECT_TRUE(test != NULL);
     
-    sp<IMemory> mem = test->getMemory();
+    sp<IMemory> mem = test->getMemory(1);
     EXPECT_TRUE(mem != NULL);
     
     void* pBuf = mem->pointer();
     EXPECT_TRUE(pBuf != NULL);
     EXPECT_STREQ(TEST_STRING, (char *)pBuf);
+}
+
+TEST_F(ServiceTest, DISABLED_Binder_memory_dynamic)
+{
+	service->waitForStarted();
+
+	sp<IBinderTest> test;
+	status_t chk = getService(gBinderTestName, &test);
+	EXPECT_EQ(NO_ERROR, chk);
+	EXPECT_TRUE(test != NULL);
+
+	sp<IMemory> mem = test->getMemory(0);
+	EXPECT_TRUE(mem != NULL);
+
+	void* pBuf = mem->pointer();
+	EXPECT_TRUE(pBuf != NULL);
+
+	size_t size = mem->size();
+	EXPECT_EQ(TEST_MEM_SIZE, size);
 }
 
 TEST_F(ServiceTest, Binder_token)

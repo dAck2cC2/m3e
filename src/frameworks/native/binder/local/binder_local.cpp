@@ -1,3 +1,27 @@
+/******************************************************************************
+handler 0 : gProcess
+handler 1 : Service Manager thread STL
+-------------------------------------------------------------------------------
+The handler 0 and 1 are created by Service Manager thread. The handler 0 is 
+also the one for Bp of ServiceManager. So, we replace the 1 to 0 in driver 
+level. It means the ServiceManager thread will pass the handler 1 to driver, 
+but it is actually watching the Binder Entry of handler 0 but not 1. The Binder
+Entry of handler 1 is not used at all.
+*/
+
+/******************************************************************************
+handler 2 ~ gDeamonCount : Deamon Service thread STL
+-------------------------------------------------------------------------------
+The native binder may be passed to driver through a non-IPCThread, which means 
+it has no thread to watch the Binder Entry. 
+
+e.g. 
+	ACodec::UninitializedState::onAllocateComponent()
+	err = omx->allocateNode(componentName.c_str(), observer, &mCodec->mNodeBinder, &node);
+It passes native binder of observer from non-IPCThread.
+
+So, we need a common thread to watch Binder Entry for such kind of native binder.
+*/
 
 #define LOG_TAG "BinderLocal"
 
@@ -17,7 +41,7 @@ namespace android {
     
 // ---------------------------------------------------------------------------
 // Private API
-    
+
 class IBinderEntry : public RefBase
 {
 public:
@@ -25,6 +49,9 @@ public:
     ~IBinderEntry() {};
     
     virtual void SetLooper(const sp<Looper>& looper) = 0;
+	virtual sp<Looper> GetLooper() const = 0;
+	virtual int  GetHandler() const = 0;
+	virtual int  AddNativeBinder(const int& hProxy, const flat_binder_object& binder) = 0;
     virtual void CacheMessage(Parcel* msg, int sender) = 0;
     virtual void SetParentHandler(int handler) = 0;
     virtual int  GetParentHandler() const = 0;
@@ -44,6 +71,10 @@ static int                                  gHandlerContextManager = 0;
 static int                                  gHandlerCounter = 0;
 
 static sp<IBinderEntry> binder_lookupEntry_local(int handler);
+
+#define BINDER_DEAMON_START   (2)
+static int gDeamonCount = 1;
+static sp<IBinderEntry> binder_lookupEntry_deamon();
 
 // ---------------------------------------------------------------------------
 // Implementation
@@ -70,7 +101,10 @@ public:
     virtual int  GetParentHandler() const { return mhParent; };
     virtual void SetParentHandler(int handler) { mhParent = handler; };
     virtual void SetLooper(const sp<Looper>& looper) {mLooper = looper;};
-    
+	virtual sp<Looper> GetLooper() const { return mLooper; };
+	virtual int  GetHandler() const { return mHandler; };
+	virtual int  AddNativeBinder(const int& hProxy, const flat_binder_object& binder) { return mBnList.add(hProxy, binder); };
+
     // TODO
     // When the client has 2 or more Binder Proxy, also register death notification for each,
     // unregistering one of them will remove all the notification.
@@ -106,7 +140,8 @@ public:
             
             // release the reference of native binder
             flat_binder_object obj = mBnList.editValueAt(i);
-            if (obj.binder) {
+            if (obj.type == BINDER_TYPE_BINDER  && obj.binder && obj.cookie) {
+				//reinterpret_cast<IBinder*>(obj.cookie)->decStrong((void *)0);
                 reinterpret_cast<RefBase::weakref_type*>(obj.binder)->decWeak((void *)0);
                 obj.binder = 0;
                 obj.cookie = 0;
@@ -246,7 +281,7 @@ private:
 						if (copyOffsets == NULL) return NO_MEMORY;
 						memcpy(copyOffsets, tr->data.ptr.offsets, tr->offsets_size);
 						tr->data.ptr.offsets = copyOffsets;
-                        result = RegisterBn(*tr);
+                        result = RegisterBn(*tr, *cmd);
                         if (result) return result;
 
 					// when the offests is empty, it is no need to pass anything to receiver.
@@ -554,29 +589,26 @@ private:
         return Send(mMsgSender, data, size);
     }
 
-    status_t RegisterBn(binder_transaction_data& tr)
+    status_t RegisterBn(binder_transaction_data& tr, int cmd)
     {
         // decode the binder object from Parcel according to Parcel::writeObject
         for (int i = 0; i < ((tr.offsets_size)/sizeof(binder_size_t)); ++i) {
             binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
             flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
             if (obj->type == BINDER_TYPE_BINDER) {
+				LOG_ALWAYS_FATAL_IF(((cmd != BC_TRANSACTION) && (mBnList.isEmpty())), "Something strange. %s:%d", __FILE__, __LINE__);
+
                 // the first should be the one which is registered to Service Manager
                 int hProxy = -1;
-                if (mBnList.isEmpty()) {
-                    hProxy = mHandler;
-                    
-                    #if  BINDER_DEBUG
-                    int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
-                    char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
-                    mName = new String16(nameBuf);
-                    #endif // BINDER_DEBUG
-                    
-                    // Add reference to avoid it may be released
-                    reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
-                    
-                    // map the handler to native binder
-                    mBnList.add(hProxy, *obj);
+                if (mBnList.isEmpty() && (tr.target.handle == 0)) {
+					hProxy = mHandler;
+
+					// Add reference to avoid it may be released
+					reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
+					//reinterpret_cast<IBinder*>(obj->cookie)->incStrong((void *)0);
+
+					// map the handler to native binder
+					mBnList.add(hProxy, *obj);
                     
                 // the following is anonymous binder
                 } else {
@@ -602,27 +634,43 @@ private:
                             return (NO_MEMORY);
                         }
                         
-                        // it sends the message to current threads
-                        eProxy->SetLooper(mLooper);
-                        eProxy->SetParentHandler(mHandler);
-                        
-                        #if  BINDER_DEBUG
-                        int32_t   nameLen = *reinterpret_cast<const int32_t*>(tr.data.ptr.buffer);
-                        char16_t* nameBuf = (char16_t *)((uint8_t *)(tr.data.ptr.buffer) + sizeof(int32_t));
-                        add->mName = new String16(nameBuf);
-                        #endif  //  BINDER_DEBUG
-                        
-                        // Add reference to avoid it may be released
-                        reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
-                        
-                        // map the handler to native binder
-                        mBnList.add(hProxy, *obj);
+						// the anonymous binder which has no IPCThread
+						if (mBnList.isEmpty()) {
+							// get the common deamon thread
+							sp<IBinderEntry> eDeamon = binder_lookupEntry_deamon();
+							ALOGE_IF((eDeamon == NULL), "Deamon service is dead. %s:%d", __FILE__, __LINE__);
+							if (eDeamon == NULL) return (DEAD_OBJECT);
+
+							// it sends the message to deamon threads
+							eProxy->SetLooper(eDeamon->GetLooper());
+							eProxy->SetParentHandler(eDeamon->GetHandler());
+
+							// Add reference to avoid it may be released
+							reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
+							//reinterpret_cast<IBinder*>(obj->cookie)->incStrong((void *)0);
+
+							// map the handler to native binder
+							eDeamon->AddNativeBinder(hProxy, *obj);
+
+						// the one which is registered to Service Manager
+						} else {
+							// it sends the message to current threads
+							eProxy->SetLooper(mLooper);
+							eProxy->SetParentHandler(mHandler);
+
+							// Add reference to avoid it may be released
+							reinterpret_cast<RefBase::weakref_type*>(obj->binder)->incWeak((void *)0);
+							//reinterpret_cast<IBinder*>(obj->cookie)->incStrong((void *)0);
+
+							// map the handler to native binder
+							mBnList.add(hProxy, *obj);
+						} // if (mBnList.isEmpty())
                     } // if (hProxy == -1)
-                } // if (mBnList.isEmpty())
+                } // if (mBnList.isEmpty() && (tr.target.handle == 0))
                 
                 // return the proxy for this native binder
                 obj->type = BINDER_TYPE_HANDLE;
-                obj->binder = 0;
+                //obj->binder = 0;
                 obj->handle = hProxy;
                 obj->cookie = 0;
             } // if (obj->type == BINDER_TYPE_BINDER)
@@ -718,7 +766,16 @@ static sp<IBinderEntry> binder_lookupEntry_local(int handler)
     return (gServiceList.editValueFor(handler));
 }
     
-
+static sp<IBinderEntry> binder_lookupEntry_deamon()
+{
+	static int s_hCurrentDeamon = BINDER_DEAMON_START;
+	
+	if (s_hCurrentDeamon >= BINDER_DEAMON_START + gDeamonCount) {
+		s_hCurrentDeamon = BINDER_DEAMON_START;
+	}
+	
+	return (binder_lookupEntry_local(s_hCurrentDeamon++));
+}
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -789,9 +846,12 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
 	case BINDER_VERSION:
 		*((int *)data) = BINDER_CURRENT_PROTOCOL_VERSION;
 		break;
-	case BINDER_SET_MAX_THREADS:
-		// EMPTY
-		break;
+	case BINDER_SET_MAX_THREADS: {
+		size_t maxThreads = *((size_t *)data);
+		if (maxThreads > gDeamonCount) {
+			gDeamonCount = maxThreads;
+		}
+	}   break;
 	case BINDER_SET_CONTEXT_MGR: {
         gHandlerContextManager = handler;
     }   break;

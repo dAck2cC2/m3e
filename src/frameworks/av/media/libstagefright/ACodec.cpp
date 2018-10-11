@@ -300,6 +300,10 @@ private:
 
     sp<DeathNotifier> mDeathNotifier;
 
+#if !TODO
+	sp<CodecObserver> observer;
+#endif
+
     DISALLOW_EVIL_CONSTRUCTORS(UninitializedState);
 };
 
@@ -6624,8 +6628,13 @@ bool ACodec::UninitializedState::onAllocateComponent(const sp<AMessage> &msg) {
                 0,       // flags
                 &matchingCodecs);
     }
-
+#if TODO
     sp<CodecObserver> observer = new CodecObserver;
+#else
+	if (observer == NULL) {
+		observer = new CodecObserver;
+	}
+#endif
     IOMX::node_id node = 0;
 
     status_t err = NAME_NOT_FOUND;
@@ -8088,7 +8097,13 @@ status_t ACodec::queryCapabilities(
     }
 
     sp<IOMX> omx = client.interfaced();
+#if TODO
     sp<CodecObserver> observer = new CodecObserver;
+#else
+	if (observer == NULL) {
+		observer = new CodecObserver;
+	}
+#endif
     IOMX::node_id node = 0;
 
     err = omx->allocateNode(name.c_str(), observer, NULL, &node);

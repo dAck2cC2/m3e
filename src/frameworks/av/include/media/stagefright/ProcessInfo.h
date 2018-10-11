@@ -23,7 +23,7 @@
 
 namespace android {
 
-struct ProcessInfo : public ProcessInfoInterface {
+struct ANDROID_API_STAGEFRIGHT ProcessInfo : public ProcessInfoInterface {
     ProcessInfo();
 
     virtual bool getPriority(int pid, int* priority);
