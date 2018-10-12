@@ -26,6 +26,8 @@ SineSource::~SineSource() {
 }
 
 status_t SineSource::start(MetaData * /* params */) {
+	AutoMutex _l(mMutex);
+
     CHECK(!mStarted);
 
     mGroup = new MediaBufferGroup;
@@ -38,7 +40,17 @@ status_t SineSource::start(MetaData * /* params */) {
 }
 
 status_t SineSource::stop() {
+	AutoMutex _l(mMutex);
+
     CHECK(mStarted);
+
+	if (!mGroup->has_buffers()) {
+		MediaBuffer *buffer;
+		status_t err = mGroup->acquire_buffer(&buffer);
+		if (buffer) {
+			buffer->release();
+		}
+	}
 
     delete mGroup;
     mGroup = NULL;
@@ -61,7 +73,13 @@ sp<MetaData> SineSource::getFormat() {
 
 status_t SineSource::read(
         MediaBuffer **out, const ReadOptions * /* options */) {
-    *out = NULL;
+	AutoMutex _l(mMutex);
+
+	*out = NULL;
+
+	if (!mStarted) {
+		return ERROR_END_OF_STREAM;
+	}
 
     MediaBuffer *buffer;
     status_t err = mGroup->acquire_buffer(&buffer);

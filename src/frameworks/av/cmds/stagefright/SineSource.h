@@ -5,6 +5,8 @@
 #include <media/stagefright/MediaSource.h>
 #include <utils/Compat.h>
 
+#include <utils/Threads.h>
+
 namespace android {
 
 class MediaBufferGroup;
@@ -33,6 +35,8 @@ private:
     size_t mPhase;
 
     MediaBufferGroup *mGroup;
+
+	Mutex mMutex;
 };
 
 }  // namespace android

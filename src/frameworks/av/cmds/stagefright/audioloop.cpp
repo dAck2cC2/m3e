@@ -33,11 +33,9 @@
 #include <media/stagefright/SimpleDecodingSource.h>
 #include "SineSource.h"
 
-#if defined(_MSC_VER)
-#define sleep Sleep
-#endif
-
 #include <initrc.h>
+
+#include <cutils/threads.h>
 
 using namespace android;
 

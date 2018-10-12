@@ -27,6 +27,8 @@
 #ifndef __inline__
 #define __inline__  inline
 #endif // __inline__
+
+#define sleep(t) Sleep((t)*1000)
 #endif
 
 #ifdef __cplusplus

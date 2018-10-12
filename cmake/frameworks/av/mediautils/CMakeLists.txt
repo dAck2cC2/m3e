@@ -16,10 +16,6 @@ utils
 binder
 )
 
-if (MSVC)
-    add_definitions(-Dsleep=Sleep)
-endif()
-
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/utils/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/utils )
 

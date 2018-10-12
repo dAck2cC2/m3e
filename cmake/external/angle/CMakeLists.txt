@@ -14,7 +14,7 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
 set( ID_SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src )
 if(NOT EXISTS ${ID_SOURCE_PATH}/id)
-    exec_program("mkdir id" ${ID_SOURCE_PATH}/angle/src)
+    exec_program("cmake -E make_directory id" ${ID_SOURCE_PATH})
     exec_program("python commit_id.py gen ../ ./id/commit.h" ${ID_SOURCE_PATH})
 endif()
 

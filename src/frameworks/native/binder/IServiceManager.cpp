@@ -28,6 +28,8 @@
 
 #include <unistd.h>
 
+#include <cutils/threads.h>
+
 namespace android {
 
 sp<IServiceManager> defaultServiceManager()
