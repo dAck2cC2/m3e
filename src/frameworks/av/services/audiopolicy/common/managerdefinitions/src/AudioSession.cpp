@@ -37,11 +37,20 @@ AudioSession::AudioSession(audio_session_t session,
                            AudioMix* policyMix,
                            AudioPolicyClientInterface *clientInterface) :
     mSession(session), mInputSource(inputSource),
+#if !defined(_MSC_VER)
     mConfig({ .format = format, .sample_rate = sampleRate, .channel_mask = channelMask}),
+#endif
     mFlags(flags), mUid(uid), mIsSoundTrigger(isSoundTrigger),
     mOpenCount(1), mActiveCount(0), mPolicyMix(policyMix), mClientInterface(clientInterface),
     mInfoProvider(NULL)
 {
+#if defined(_MSC_VER)
+	struct audio_config_base* config = (struct audio_config_base*)(&mConfig);
+	memset(config, 0x00, sizeof(mConfig));
+	config->format = format;
+	config->sample_rate = sampleRate;
+	config->channel_mask = channelMask;
+#endif
 }
 
 uint32_t AudioSession::changeOpenCount(int delta)

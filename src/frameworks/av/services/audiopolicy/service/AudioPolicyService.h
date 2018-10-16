@@ -37,6 +37,12 @@
 #include "AudioPolicyEffects.h"
 #include "managerdefault/AudioPolicyManager.h"
 
+#if defined(_MSC_VER)
+	#ifdef ANDROID_API
+		#undef ANDROID_API
+		#define ANDROID_API 
+	#endif // ANDROID_API
+#endif // _MSC_VER
 
 namespace android {
 

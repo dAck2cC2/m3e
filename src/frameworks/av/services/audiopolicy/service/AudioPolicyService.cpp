@@ -32,7 +32,9 @@
 #include <utils/threads.h>
 #include "AudioPolicyService.h"
 #include "ServiceUtilities.h"
+#if defined(ENABLE_HARDWARE_LEGACY)
 #include <hardware_legacy/power.h>
+#endif
 #include <media/AudioEffect.h>
 #include <media/EffectsFactoryApi.h>
 #include <media/AudioParameter.h>
@@ -441,7 +443,9 @@ AudioPolicyService::AudioCommandThread::AudioCommandThread(String8 name,
 AudioPolicyService::AudioCommandThread::~AudioCommandThread()
 {
     if (!mAudioCommands.isEmpty()) {
+#if defined(ENABLE_HARDWARE_LEGACY)
         release_wake_lock(mName.string());
+#endif
     }
     mAudioCommands.clear();
     delete mpToneGenerator;
@@ -635,7 +639,9 @@ bool AudioPolicyService::AudioCommandThread::threadLoop()
 
         // release delayed commands wake lock if the queue is empty
         if (mAudioCommands.isEmpty()) {
+#if defined(ENABLE_HARDWARE_LEGACY)
             release_wake_lock(mName.string());
+#endif
         }
 
         // At this stage we have either an empty command queue or the first command in the queue
@@ -651,7 +657,9 @@ bool AudioPolicyService::AudioCommandThread::threadLoop()
     }
     // release delayed commands wake lock before quitting
     if (!mAudioCommands.isEmpty()) {
+#if defined(ENABLE_HARDWARE_LEGACY)
         release_wake_lock(mName.string());
+#endif
     }
     mLock.unlock();
     return false;
@@ -917,7 +925,9 @@ void AudioPolicyService::AudioCommandThread::insertCommand_l(sp<AudioCommand>& c
 
     // acquire wake lock to make sure delayed commands are processed
     if (mAudioCommands.isEmpty()) {
+#if defined(ENABLE_HARDWARE_LEGACY)
         acquire_wake_lock(PARTIAL_WAKE_LOCK, mName.string());
+#endif
     }
 
     // check same pending commands with later time stamps and eliminate them

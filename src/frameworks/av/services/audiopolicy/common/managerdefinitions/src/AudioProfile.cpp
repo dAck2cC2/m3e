@@ -25,6 +25,7 @@
 #include "TypeConverter.h"
 #include <media/AudioResamplerPublic.h>
 #include <algorithm>
+#include "IOProfile.h"
 
 namespace android {
 

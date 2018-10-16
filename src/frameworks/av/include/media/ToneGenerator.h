@@ -26,7 +26,7 @@
 
 namespace android {
 
-class ToneGenerator {
+class ANDROID_API_MEDIA ToneGenerator {
 public:
 
     // List of all available tones

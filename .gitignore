@@ -1,6 +1,10 @@
 .bak
 .DS_Store
 .vscode
+GPATH
+GRTAGS
+GTAGS
+
 external
 proj
 backup

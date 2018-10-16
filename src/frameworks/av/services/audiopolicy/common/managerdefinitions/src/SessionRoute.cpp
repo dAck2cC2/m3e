@@ -22,6 +22,7 @@
 #include "AudioGain.h"
 #include "DeviceDescriptor.h"
 #include <utils/Log.h>
+#include "IOProfile.h"
 
 namespace android {
 

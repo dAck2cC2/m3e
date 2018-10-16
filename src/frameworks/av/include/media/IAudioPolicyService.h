@@ -34,7 +34,7 @@ namespace android {
 
 // ----------------------------------------------------------------------------
 
-class IAudioPolicyService : public IInterface
+class ANDROID_API_MEDIA IAudioPolicyService : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(AudioPolicyService);
@@ -174,7 +174,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnAudioPolicyService : public BnInterface<IAudioPolicyService>
+class ANDROID_API_MEDIA BnAudioPolicyService : public BnInterface<IAudioPolicyService>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

@@ -21,7 +21,7 @@
 #ifdef VERY_VERBOSE_LOGGING
 #define ALOGVV ALOGV
 #else
-#define ALOGVV(a...) do { } while(0)
+#define ALOGVV(a, ...) do { } while(0)
 #endif
 
 #define AUDIO_POLICY_XML_CONFIG_FILE "/system/etc/audio_policy_configuration.xml"

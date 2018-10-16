@@ -107,6 +107,8 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/Metadata.cpp
     ${SOURCE_PATH}/MediaScanner.cpp
     ${SOURCE_PATH}/MediaScannerClient.cpp
+    ${SOURCE_PATH}/ToneGenerator.cpp
+    ${SOURCE_PATH}/AudioEffect.cpp
     )
 endif(ENABLE_AV_CODEC)
 

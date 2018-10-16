@@ -32,7 +32,9 @@
 #include <utils/threads.h>
 #include "AudioPolicyService.h"
 #include "ServiceUtilities.h"
+#if defined(ENABLE_HARDWARE_LEGACY)
 #include <hardware_legacy/power.h>
+#endif
 #include <media/AudioEffect.h>
 #include <media/EffectsFactoryApi.h>
 //#include <media/IAudioFlinger.h>
@@ -56,7 +58,7 @@ audio_module_handle_t aps_load_hw_module(void *service __unused,
     sp<IAudioFlinger> af = AudioSystem::get_audio_flinger();
     if (af == 0) {
         ALOGW("%s: could not get AudioFlinger", __func__);
-        return 0;
+        return (audio_module_handle_t)0;
     }
 
     return af->loadHwModule(name);

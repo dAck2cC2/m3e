@@ -14,19 +14,31 @@
  * limitations under the License.
  */
 
-#include "managerdefault/AudioPolicyManager.h"
+#ifndef ANDROID_HARDWARE_SOUNDTRIGGER_CALLBACK_H
+#define ANDROID_HARDWARE_SOUNDTRIGGER_CALLBACK_H
+
+#include <utils/RefBase.h>
+#include <system/sound_trigger.h>
 
 namespace android {
 
-extern "C" AudioPolicyInterface* createAudioPolicyManager(
-        AudioPolicyClientInterface *clientInterface)
+class SoundTriggerCallback : public RefBase
 {
-    return new AudioPolicyManager(clientInterface);
-}
+public:
 
-extern "C" void destroyAudioPolicyManager(AudioPolicyInterface *interfaced)
-{
-    delete interfaced;
-}
+            SoundTriggerCallback() {}
+    virtual ~SoundTriggerCallback() {}
+
+    virtual void onRecognitionEvent(struct sound_trigger_recognition_event *event) = 0;
+
+    virtual void onSoundModelEvent(struct sound_trigger_model_event *event) = 0;
+
+    virtual void onServiceStateChange(sound_trigger_service_state_t state) = 0;
+
+    virtual void onServiceDied() = 0;
+
+};
 
 }; // namespace android
+
+#endif //ANDROID_HARDWARE_SOUNDTRIGGER_CALLBACK_H

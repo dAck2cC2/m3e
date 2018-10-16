@@ -26,6 +26,8 @@
 #include <hardware/audio_policy.h>
 #include <media/AudioPolicyHelper.h>
 
+#include <cutils/threads.h>
+
 namespace android {
 
 

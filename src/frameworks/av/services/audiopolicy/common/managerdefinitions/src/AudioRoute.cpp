@@ -20,6 +20,7 @@
 #include "AudioRoute.h"
 #include "HwModule.h"
 #include "AudioGain.h"
+#include "IOProfile.h"
 
 namespace android
 {

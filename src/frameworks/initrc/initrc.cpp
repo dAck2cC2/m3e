@@ -14,6 +14,7 @@ enum {
     SERVICE_SM = 0,
     SERVICE_SF,
 	SERVICE_AF,
+	SERVICE_AP,
     SERVICE_MEDIA_PLAYER,
 	SERVICE_MEDIA_RESOURCE,
     SERVICE_MEDIA_CODEC,
@@ -29,6 +30,7 @@ gServiceList[SERVICE_CNT] = {
     {"servicemanager",        NULL},
     {"surfaceflinger",        NULL},
 	{"audioflinger",          NULL},
+	{"audiopolicy",           NULL},
     {"mediaplayerservice",    NULL},
 	{"mediaresourcemanager",  NULL},
     {"mediacodecservice",     NULL},
@@ -86,6 +88,7 @@ status_t InitRC::Entry(int argc, char** argv)
 {
     StartService(SERVICE_SF);
 	StartService(SERVICE_AF);
+	StartService(SERVICE_AP);
     StartService(SERVICE_MEDIA_PLAYER);
 	StartService(SERVICE_MEDIA_RESOURCE);
     StartService(SERVICE_MEDIA_CODEC);

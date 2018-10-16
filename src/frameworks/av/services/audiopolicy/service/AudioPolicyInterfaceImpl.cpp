@@ -21,6 +21,8 @@
 #include "AudioPolicyService.h"
 #include "ServiceUtilities.h"
 
+#include <cutils/threads.h>
+
 namespace android {
 
 

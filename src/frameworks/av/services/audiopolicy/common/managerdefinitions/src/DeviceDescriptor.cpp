@@ -21,6 +21,7 @@
 #include "TypeConverter.h"
 #include "AudioGain.h"
 #include "HwModule.h"
+#include "IOProfile.h"
 
 namespace android {
 

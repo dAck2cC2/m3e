@@ -26,6 +26,10 @@
 #include <utils/Log.h>
 #include <cutils/misc.h>
 
+#if defined(_MSC_VER)
+#define strndup(a, b) strdup(a)
+#endif
+
 namespace android {
 
 // --- audio_policy.conf file parsing
