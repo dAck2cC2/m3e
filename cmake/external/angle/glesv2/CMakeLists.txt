@@ -318,15 +318,10 @@ if(MSVC)
     source_group(angle\\d3d FILES ${ANGLE_SOURCE_ANGLE_D3D})
     list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_ANGLE_D3D} ) 
 
-    set(DirectX_LIBRARY_PATHS)
-    if(CMAKE_CL_64)
-        set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x64")
-    else(CMAKE_CL_64)
-        set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x86")
-    endif(CMAKE_CL_64)
-    set(DirectX_LIBRARY_PATHS "C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x86")
+    include(${M3E_SOURCE_DIR}/cmake/FindWindowsSDK.cmake)
+    get_windowssdk_library_dirs(${WINDOWSSDK_PREFERRED_DIR} DirectX_LIBRARY_PATHS)
 
-    message("DirectX_LIBRARY_PATHS=${DirectX_LIBRARY_PATHS}")
+    #message("DirectX_LIBRARY_PATHS=${DirectX_LIBRARY_PATHS}")
 
     find_library(D3D9_LIBRARY d3d9 ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
     list(APPEND ANGLE_DEPLIB ${D3D9_LIBRARY})

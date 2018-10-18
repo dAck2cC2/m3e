@@ -4,14 +4,14 @@
 
 project(ASSIMP)
 
+include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/assimp)
   message(STATUS "Download\t assimp")
   exec_program("git clone https://github.com/assimp/assimp.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
   #exec_program("git reset --hard a9d70b2dbc620c52d6cbda53066c330e0c83125a" ${M3E_SOURCE_DIR}/${EXT_PATH}/assimp)
   exec_program("git checkout v4.1.0" ${M3E_SOURCE_DIR}/${EXT_PATH}/assimp)
 endif()
-
-include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
 # All supported options ###############################################
 OPTION( BUILD_SHARED_LIBS

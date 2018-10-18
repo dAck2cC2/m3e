@@ -7,7 +7,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/effects/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/media/audio_effects/include)
 

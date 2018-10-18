@@ -71,3 +71,7 @@ if(ENABLE_AV_CODEC)
     add_subdirectory(expat)
     add_subdirectory(yuv)
 endif(ENABLE_AV_CODEC)
+
+if(MSVC)
+    add_subdirectory(openal-soft)
+endif(MSVC)

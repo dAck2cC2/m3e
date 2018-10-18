@@ -58,7 +58,7 @@ target_link_libraries(audioutils ${AUDIO_UTILS_DEPLIB})
 
 # dependency
 
-include(${M3E_SOURCE_DIR}/cmake/hardware/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 
 set(AUDIO_SPDIF_DEPLIB
 log

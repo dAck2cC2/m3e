@@ -25,7 +25,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #elif defined(__linux__) && !defined(__ANDROID__)
-#include <syscall.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 #elif defined(_WIN32)
 #include <windows.h>

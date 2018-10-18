@@ -18,9 +18,9 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/libjpeg-turbo )
 
 cmake_minimum_required(VERSION 2.8.11)
 # Use LINK_INTERFACE_LIBRARIES instead of INTERFACE_LINK_LIBRARIES
-if(POLICY CMP0022)
-  cmake_policy(SET CMP0022 OLD)
-endif()
+#if(POLICY CMP0022)
+#  cmake_policy(SET CMP0022 OLD)
+#endif()
 
 set(VERSION 1.5.3)
 string(REPLACE "." ";" VERSION_TRIPLET ${VERSION})

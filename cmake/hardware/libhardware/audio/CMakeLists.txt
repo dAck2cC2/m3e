@@ -17,8 +17,8 @@ if (MSVC)
     add_definitions(-D__unused= )
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/modules/audio )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/modules/audio )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/libhardware/modules/audio )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/libhardware/modules/audio )
 
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/audio_hw.c

@@ -1,6 +1,8 @@
 
 project(ANGLE)
 
+include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
     message(STATUS "Download\t angel")
     exec_program("git clone https://github.com/google/angle.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
@@ -9,8 +11,6 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
 		exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/angle/angle.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/angle)
 	endif(MSVC)
 endif()
-
-include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
 set( ID_SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src )
 if(NOT EXISTS ${ID_SOURCE_PATH}/id)

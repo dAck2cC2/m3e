@@ -6,6 +6,7 @@ if(MSVC)
 else()
     add_definitions(-Wno-multichar)
     add_definitions(-Wno-attributes)
+    add_definitions(-fpermissive)    
 endif()
 
 # include
