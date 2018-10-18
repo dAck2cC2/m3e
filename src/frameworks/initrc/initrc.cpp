@@ -62,6 +62,7 @@ void InitRC::ResetProperties()
 #if defined(__APPLE__)
     property_set("ro.board.platform", "osx");
 #elif defined(_MSC_VER)
+	property_set("ro.product.board", "openal");
     property_set("ro.board.platform", "win");
 #else
 #error Unknown Platform

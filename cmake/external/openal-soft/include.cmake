@@ -1,2 +1,2 @@
 
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/open-soft/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/openal-soft/include)

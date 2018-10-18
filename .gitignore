@@ -1,4 +1,4 @@
-.bak
+*.bak
 .DS_Store
 .vscode
 GPATH
@@ -10,5 +10,4 @@ proj
 backup
 
 !/cmake/external
-!/cmake/test/external
 !/src/external
