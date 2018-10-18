@@ -32,9 +32,7 @@
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
 #endif
 
-#if defined(_MSC_VER)
-#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
-#endif // _MSC_VER
+#include <cutils/compiler.h>
 
 namespace android {
 

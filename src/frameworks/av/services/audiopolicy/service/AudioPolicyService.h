@@ -471,7 +471,7 @@ private:
         //
 
         // opens an audio input
-        virtual audio_io_handle_t openInput(audio_module_handle_t module,
+        virtual status_t openInput(audio_module_handle_t module,
                                             audio_io_handle_t *input,
                                             audio_config_t *config,
                                             audio_devices_t *devices,

@@ -27,3 +27,6 @@ file(GLOB HW_SOURCE_FILES ${SOURCE_PATH}/*.c)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(hardware SHARED ${HW_SOURCE_FILES} ${HW_HEADER_FILES})
 target_link_libraries(hardware ${HW_DEPLIB})
+
+
+add_subdirectory(audio)  

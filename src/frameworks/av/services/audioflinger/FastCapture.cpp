@@ -29,9 +29,7 @@
 #include <utils/Trace.h>
 #include "FastCapture.h"
 
-#if defined(_MSC_VER)
-#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
-#endif // _MSC_VER
+#include <cutils/compiler.h>
 
 namespace android {
 

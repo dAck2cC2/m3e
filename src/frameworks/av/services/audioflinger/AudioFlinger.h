@@ -771,6 +771,11 @@ private:
     sp<PatchPanel> mPatchPanel;
 
     bool        mSystemReady;
+
+	// TODO:
+	// Not sure how to keep the Binder Native(server) in binder driver.
+	// So, we have to keep the instance of Binder Native outside of driver.
+	Vector< sp<IAudioTrack> > mTracks;
 };
 
 #undef INCLUDING_FROM_AUDIOFLINGER_H

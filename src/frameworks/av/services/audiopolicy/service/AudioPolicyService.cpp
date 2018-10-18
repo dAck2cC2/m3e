@@ -1127,7 +1127,7 @@ void AudioPolicyService::setParameters(audio_io_handle_t ioHandle,
                                            delayMs);
 }
 
-int AudioPolicyService::setStreamVolume(audio_stream_type_t stream,
+status_t AudioPolicyService::setStreamVolume(audio_stream_type_t stream,
                                         float volume,
                                         audio_io_handle_t output,
                                         int delayMs)
@@ -1136,7 +1136,7 @@ int AudioPolicyService::setStreamVolume(audio_stream_type_t stream,
                                                    output, delayMs);
 }
 
-int AudioPolicyService::startTone(audio_policy_tone_t tone,
+status_t AudioPolicyService::startTone(audio_policy_tone_t tone,
                                   audio_stream_type_t stream)
 {
     if (tone != AUDIO_POLICY_TONE_IN_CALL_NOTIFICATION) {
@@ -1151,13 +1151,13 @@ int AudioPolicyService::startTone(audio_policy_tone_t tone,
     return 0;
 }
 
-int AudioPolicyService::stopTone()
+status_t AudioPolicyService::stopTone()
 {
     mTonePlaybackThread->stopToneCommand();
     return 0;
 }
 
-int AudioPolicyService::setVoiceVolume(float volume, int delayMs)
+status_t AudioPolicyService::setVoiceVolume(float volume, int delayMs)
 {
     return (int)mAudioCommandThread->voiceVolumeCommand(volume, delayMs);
 }

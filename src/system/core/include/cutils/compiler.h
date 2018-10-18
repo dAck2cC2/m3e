@@ -55,7 +55,11 @@
 
 #if defined(_MSC_VER)
 	#if !defined(posix_memalign)
-		#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+		/*
+		*  The _aligned_malloc requests _aligned_free, so use the malloc instead.
+		*/
+		//#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+		#define posix_memalign(p, a, s) (((*(p)) = malloc((a)*((s)/(a) + 1))), *(p) ?0 :errno)
 	#endif
 #endif
 

@@ -79,8 +79,9 @@
 
 #include "cutils/threads.h"
 
+#include <cutils/compiler.h>
+
 #if defined(_MSC_VER)
-#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
 #define dprintf(a, ...)  do { } while(0)
 #endif // _MSC_VER
 

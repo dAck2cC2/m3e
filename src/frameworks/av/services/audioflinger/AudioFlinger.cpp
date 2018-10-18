@@ -738,6 +738,8 @@ sp<IAudioTrack> AudioFlinger::createTrack(
     // return handle to client
     trackHandle = new TrackHandle(track);
 
+	// TODO:
+	mTracks.push_back(trackHandle);
 Exit:
     *status = lStatus;
     return trackHandle;

@@ -108,7 +108,11 @@ if(MSVC)
     ${M3E_SOURCE_DIR}/src/frameworks/av/services/audioflinger/ServiceUtilities.h 
     ${M3E_SOURCE_DIR}/src/frameworks/av/services/audioflinger/ServiceUtilities.cpp
     )
-endif(MSVC)
+else()
+    list(APPEND ${PROJECT_NAME}_DEPLIB 
+    audioflinger_default
+    )
+endif()
 list(APPEND ${PROJECT_NAME}_SERVICE
 ${SOURCE_PATH}/main_audiopolicyservice.cpp
 )
