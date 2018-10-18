@@ -445,3 +445,7 @@ ${VIEWS_SOURCE}
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(skia_chrome SHARED ${SKIA_SOURCE_FILES} ${SKIA_HEADER_FILES})
 target_link_libraries(skia_chrome ${SKIA_DEPLIB})
+
+if(ENABLE_TEST)
+  add_subdirectory(test)
+endif(ENABLE_TEST)

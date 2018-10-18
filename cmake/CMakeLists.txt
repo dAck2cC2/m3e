@@ -89,7 +89,3 @@ if(ENABLE_APP)
   #add_subdirectory(m3ecmd)
   #add_subdirectory(app)
 endif(ENABLE_APP)
-
-if(ENABLE_TEST)
-  add_subdirectory(test)
-endif(ENABLE_TEST)

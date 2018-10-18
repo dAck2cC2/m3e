@@ -76,3 +76,7 @@ ${M3E_SOURCE_DIR}/${EXT_PATH}/glui/viewmodel.cpp
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(glui SHARED ${GLUI_SRCS} ${GLUI_HEADERS})
 target_link_libraries(glui ${GLUI_DEPLIB})
+
+if(ENABLE_TEST)
+  add_subdirectory(test)
+endif(ENABLE_TEST)

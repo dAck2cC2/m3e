@@ -42,7 +42,7 @@ endif()
 include_directories(AFTER ${NATIVE_WINDOW_PATH}/../)
 
 ADD_DEMO(egl   
-${M3E_SOURCE_DIR}/src/test/native/opengl/test_egl.cpp
+${M3E_SOURCE_DIR}/src/frameworks/native/opengl/test/test_egl.cpp
 ${NATIVE_WINDOW_SOURCE}        
 )
 
@@ -50,7 +50,7 @@ if (MSVC)
     #list(APPEND DEMO_DEPLIBS nvoglv32)
 
     ADD_DEMO(wgl   
-    ${M3E_SOURCE_DIR}/src/test/native/opengl/test_wgl.cpp      
+    ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/test/test_wgl.cpp      
     ${NATIVE_WINDOW_SOURCE}    
     )
 endif(MSVC)

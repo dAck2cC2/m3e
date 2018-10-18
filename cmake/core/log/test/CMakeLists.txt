@@ -25,13 +25,13 @@ set(TEST_LOG_DEP ${TEST_LOG_DEPLIB})
 # main source
 
 set(TEST_LOG_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/test/main.cpp
+${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
 )
 
 # test log
 
 set(TEST_LOG_SOURCE_FILES ${TEST_LOG_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/test/core/log/AndroidLog_test.cpp
+${M3E_SOURCE_DIR}/src/system/core/liblog/test/AndroidLog_test.cpp
 )
 
 # project

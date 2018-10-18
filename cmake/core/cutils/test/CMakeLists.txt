@@ -25,13 +25,13 @@ set(TEST_CUTILS_DEP ${TEST_CUTILS_DEPLIB})
 # test file
 
 file(GLOB TEST_CUTILS_SOURCE_FILES
-${M3E_SOURCE_DIR}/src/test/core/cutils/*.cpp
+${M3E_SOURCE_DIR}/src/system/core/libcutils/test/*.cpp
 )
 
 # main source
 
 set(TEST_CUTILS_SOURCE_FILES ${TEST_CUTILS_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/test/main.cpp
+${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
 )
 
 # project

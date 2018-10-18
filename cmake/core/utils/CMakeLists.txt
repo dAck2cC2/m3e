@@ -43,3 +43,6 @@ if(UNIX AND NOT APPLE)
     target_link_libraries(utils ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
+if(ENABLE_TEST)
+    add_subdirectory(test)
+endif(ENABLE_TEST)

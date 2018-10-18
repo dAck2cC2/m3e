@@ -28,13 +28,13 @@ set(TEST_FOUNDATION_DEP ${TEST_FOUNDATION_DEPLIB})
 # test file
 
 file(GLOB TEST_FOUNDATION_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/test/av/foundation/*.cpp
+${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation/test/*.cpp
 )
 
 # main source
 
 set(TEST_FOUNDATION_SOURCE_FILES ${TEST_FOUNDATION_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/test/main.cpp
+${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
 )
 
 # project

@@ -281,3 +281,6 @@ endif( NOT SYSTEM_IRRXML )
 
 ADD_SUBDIRECTORY( code )
 
+if(ENABLE_TEST)
+    add_subdirectory(test)
+endif(ENABLE_TEST)

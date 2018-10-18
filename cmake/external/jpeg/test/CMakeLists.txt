@@ -20,3 +20,6 @@ ${M3E_SOURCE_DIR}/${EXT_PATH}/jpeg/rdcolmap.c
 ${M3E_SOURCE_DIR}/${EXT_PATH}/jpeg/wrtarga.c
 )
 
+if(ENABLE_TEST)
+  add_subdirectory(test)
+endif(ENABLE_TEST)

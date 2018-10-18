@@ -74,3 +74,8 @@ endif(MSVC)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(stagefright_foundation SHARED ${STAGEFRIGHT_FOUNDATION_SOURCE_FILES} ${STAGEFRIGHT_FOUNDATION_HEADER_FILES})
 target_link_libraries(stagefright_foundation ${STAGEFRIGHT_FOUNDATION_DEPLIB})
+
+
+if(ENABLE_TEST)
+  add_subdirectory(test)
+endif(ENABLE_TEST)

@@ -238,4 +238,9 @@ message(STATUS "Configured wxWidgets ${wxVERSION} for ${CMAKE_SYSTEM}
     Should wxWidgets be linked as a shared library?    ${wxBUILD_SHARED}
     Should wxWidgets support Unicode?                  ${wxUSE_UNICODE}
     What wxWidgets compatibility level should be used? ${wxBUILD_COMPATIBILITY}"
-    )
+)
+
+if(ENABLE_TEST)
+    add_subdirectory(test)
+endif(ENABLE_TEST)
+  
