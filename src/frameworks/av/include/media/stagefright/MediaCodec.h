@@ -43,7 +43,7 @@ struct PersistentSurface;
 struct SoftwareRenderer;
 struct Surface;
 
-struct MediaCodec : public AHandler {
+struct ANDROID_API_STAGEFRIGHT MediaCodec : public AHandler {
     enum ConfigureFlags {
         CONFIGURE_FLAG_ENCODE   = 1,
     };

@@ -70,6 +70,8 @@ endif(ENABLE_AV_UTILS)
 if(ENABLE_AV_CODEC)
     add_subdirectory(expat)
     add_subdirectory(yuv)
+    add_subdirectory(tremolo)
+    add_subdirectory(flac)
 endif(ENABLE_AV_CODEC)
 
 if(MSVC)

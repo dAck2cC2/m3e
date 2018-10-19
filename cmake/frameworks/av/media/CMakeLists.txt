@@ -72,6 +72,7 @@ if(ENABLE_AV_CODEC)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/av/camera/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/external/sonivox/include.cmake)
 
     include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
     include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
@@ -81,6 +82,7 @@ if(ENABLE_AV_CODEC)
     ui
     gui
     camera_client
+    sonivox
     )
 
     list(APPEND MEDIA_SOURCE_FILES
@@ -109,6 +111,7 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/MediaScannerClient.cpp
     ${SOURCE_PATH}/ToneGenerator.cpp
     ${SOURCE_PATH}/AudioEffect.cpp
+    ${SOURCE_PATH}/MidiIoWrapper.cpp
     )
 endif(ENABLE_AV_CODEC)
 

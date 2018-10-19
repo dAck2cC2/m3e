@@ -14,8 +14,11 @@ set(SONIC_DEPLIB
 log
 )
 
-#add_definitions(-D_lint)
+if (MSVC)
+    add_definitions(-DEAS_PUBLIC=__declspec\(dllexport\))
+endif()
 
+#add_definitions(-D_lint)
 add_definitions(-DUNIFIED_DEBUG_MESSAGES)
 add_definitions(-DEAS_WT_SYNTH)
 add_definitions(-D_IMELODY_PARSER)

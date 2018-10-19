@@ -70,7 +70,7 @@ public:
                                 uint32_t flags = 0);
 };
 
-void registerMediaExtractor(
+void ANDROID_API_MEDIA registerMediaExtractor(
         const sp<IMediaExtractor> &extractor,
         const sp<DataSource> &source,
         const char *mime);
@@ -79,7 +79,7 @@ void registerMediaSource(
         const sp<IMediaExtractor> &extractor,
         const sp<IMediaSource> &source);
 
-status_t dumpExtractors(int fd, const Vector<String16>& args);
+status_t ANDROID_API_MEDIA dumpExtractors(int fd, const Vector<String16>& args);
 
 
 }  // namespace android

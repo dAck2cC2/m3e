@@ -11,6 +11,9 @@ if (MSVC)
     include(${M3E_SOURCE_DIR}/cmake/external/openal-soft/include.cmake)
     set(LIB_OPENAL  OpenAL)
 else()
+    find_package(OpenAL REQUIRED)
+    include_directories(AFTER ${OPENAL_INCLUDE_DIR})
+    set(LIB_OPENAL ${OPENAL_LIBRARY})
 endif()
 
 

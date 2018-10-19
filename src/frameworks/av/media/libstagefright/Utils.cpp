@@ -45,21 +45,6 @@
 #include <media/stagefright/Utils.h>
 #include <media/AudioParameter.h>
 
-#if defined(_WIN32)
-# undef  nhtol
-# undef  htonl
-# undef  nhtos
-# undef  htons
-
-# define ntohl(x)    ( ((x) << 24) | (((x) >> 24) & 255) | (((x) << 8) & 0xff0000) | (((x) >> 8) & 0xff00) )
-# define htonl(x)    ntohl(x)
-# define ntohs(x)    ( (((x) << 8) & 0xff00) | (((x) >> 8) & 255) )
-# define htons(x)    ntohs(x)
-#else
-# include <netinet/in.h>
-#endif
-
-
 namespace android {
 
 uint16_t U16_AT(const uint8_t *ptr) {

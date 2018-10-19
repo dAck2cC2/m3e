@@ -16,7 +16,7 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "DataSource"
 
-#define ENABLE_SIMPLE
+//#define ENABLE_SIMPLE
 
 #if !defined(ENABLE_SIMPLE)
 #include "include/AMRExtractor.h"
@@ -49,6 +49,7 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/AMessage.h>
+#include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/DataSource.h>
 #include <media/stagefright/DataURISource.h>
@@ -60,20 +61,6 @@
 #include <cutils/properties.h>
 
 #include <private/android_filesystem_config.h>
-
-#if defined(_WIN32)
-# undef  nhtol
-# undef  htonl
-# undef  nhtos
-# undef  htons
-
-# define ntohl(x)    ( ((x) << 24) | (((x) >> 24) & 255) | (((x) << 8) & 0xff0000) | (((x) >> 8) & 0xff00) )
-# define htonl(x)    ntohl(x)
-# define ntohs(x)    ( (((x) << 8) & 0xff00) | (((x) >> 8) & 255) )
-# define htons(x)    ntohs(x)
-#else
-# include <netinet/in.h>
-#endif
 
 namespace android {
 
@@ -125,7 +112,7 @@ bool DataSource::getUInt64(off64_t offset, uint64_t *x) {
     }
 #if !defined(ENABLE_SIMPLE)
     *x = ntoh64(tmp);
-#endif // ENABLE_CUSTOMISE
+#endif // ENABLE_SIMPLE
     return true;
 }
 
@@ -191,7 +178,7 @@ void DataSource::RegisterDefaultSniffers() {
     }
 #if defined(ENABLE_SIMPLE)
     RegisterSniffer_l(SniffWAV);
-#else // ENABLE_CUSTOMISE
+#else // ENABLE_SIMPLE
     RegisterSniffer_l(SniffMPEG4);
     RegisterSniffer_l(SniffMatroska);
     RegisterSniffer_l(SniffOgg);
@@ -207,7 +194,7 @@ void DataSource::RegisterDefaultSniffers() {
         RegisterSniffer_l(SniffWVM);
     }
     RegisterSniffer_l(SniffMidi);
-#endif // ENABLE_CUSTOMISE
+#endif // ENABLE_SIMPLE
     char value[PROPERTY_VALUE_MAX];
     if (property_get("drm.service.enabled", value, NULL)
             && (!strcmp(value, "1") || !strcasecmp(value, "true"))) {

@@ -44,7 +44,7 @@ struct IStreamSource : public IInterface {
     virtual uint32_t flags() const { return 0; }
 };
 
-struct IStreamListener : public IInterface {
+struct ANDROID_API_MEDIA IStreamListener : public IInterface {
     DECLARE_META_INTERFACE(StreamListener);
 
     enum Command {

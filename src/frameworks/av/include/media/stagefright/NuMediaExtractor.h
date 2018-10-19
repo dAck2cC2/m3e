@@ -38,7 +38,7 @@ struct MediaExtractor;
 struct MediaSource;
 class MetaData;
 
-struct NuMediaExtractor : public RefBase {
+struct ANDROID_API_STAGEFRIGHT NuMediaExtractor : public RefBase {
     enum SampleFlags {
         SAMPLE_FLAG_SYNC        = 1,
         SAMPLE_FLAG_ENCRYPTED   = 2,

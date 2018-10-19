@@ -33,9 +33,9 @@
 #include <media/stagefright/SimpleDecodingSource.h>
 #include "SineSource.h"
 
-#include <initrc.h>
-
 #include <cutils/threads.h>
+
+#include <initrc.h>
 
 using namespace android;
 
@@ -46,6 +46,7 @@ static void usage(const char* name)
     fprintf(stderr, "    -d    duration in seconds, default 5 seconds\n");
     fprintf(stderr, "    -m    use microphone for input, default sine source\n");
     fprintf(stderr, "    -w    use AMR wideband (default narrowband)\n");
+	fprintf(stderr, "    -s    play source to speaker directly\n");
     fprintf(stderr, "    <output-file> output file for AMR encoding,"
             " if unspecified, decode to speaker.\n");
 }
@@ -57,13 +58,13 @@ int main(int argc, char* argv[])
     bool useMic = false;
     bool outputWBAMR = false;
     bool playToSpeaker = true;
+	bool playSource = false;
     const char* fileOut = NULL;
 
 	InitRC::getInstance().Entry(argc, argv);
 
-#if !defined(_MSC_VER)
     int ch;
-    while ((ch = getopt(argc, argv, "d:mw")) != -1) {
+    while ((ch = getopt(argc, argv, "d:mws")) != -1) {
         switch (ch) {
         case 'd':
             duration = atoi(optarg);
@@ -74,6 +75,9 @@ int main(int argc, char* argv[])
         case 'w':
             outputWBAMR = true;
             break;
+		case 's':
+			playSource = true;
+			break;
         default:
             usage(argv[0]);
             return -1;
@@ -85,11 +89,7 @@ int main(int argc, char* argv[])
     if (argc == 1) {
         fileOut = argv[0];
     }
-#else
-	if (argc == 2) {
-		fileOut = argv[1];
-	}
-#endif
+
     const int32_t kSampleRate = outputWBAMR ? 16000 : 8000;
     const int32_t kBitRate = outputWBAMR ? 16000 : 8000;
 
@@ -155,8 +155,11 @@ int main(int argc, char* argv[])
 
         if (playToSpeaker) {
             AudioPlayer *player = new AudioPlayer(NULL);
-            player->setSource(decoder);
-			//player->setSource(source);
+			if (playSource) {
+				player->setSource(source);
+			} else {
+				player->setSource(decoder);
+			}
             player->start();
             sleep(duration);
 

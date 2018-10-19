@@ -23,6 +23,13 @@
 #include <utils/threads.h>
 #include <utils/KeyedVector.h>
 
+#if defined(_MSC_VER)
+#include "AnotherPacketSource.h"
+#include "ESQueue.h"
+#include <media/stagefright/MediaSource.h>
+#include <media/stagefright/MetaData.h>
+#endif
+
 namespace android {
 
 struct ABuffer;
@@ -70,6 +77,42 @@ private:
 
     DISALLOW_EVIL_CONSTRUCTORS(MPEG2PSExtractor);
 };
+
+#if  defined(_MSC_VER)
+
+struct MPEG2PSExtractor::Track : public MediaSource {
+	Track(MPEG2PSExtractor *extractor,
+		unsigned stream_id, unsigned stream_type);
+
+	virtual status_t start(MetaData *params);
+	virtual status_t stop();
+	virtual sp<MetaData> getFormat();
+
+	virtual status_t read(
+		MediaBuffer **buffer, const ReadOptions *options);
+
+protected:
+	virtual ~Track();
+
+private:
+	friend struct MPEG2PSExtractor;
+
+	MPEG2PSExtractor *mExtractor;
+
+	unsigned mStreamID;
+	unsigned mStreamType;
+	ElementaryStreamQueue *mQueue;
+	sp<AnotherPacketSource> mSource;
+
+	status_t appendPESData(
+		unsigned PTS_DTS_flags,
+		uint64_t PTS, uint64_t DTS,
+		const uint8_t *data, size_t size);
+
+	DISALLOW_EVIL_CONSTRUCTORS(Track);
+};
+
+#endif // _MSC_VER
 
 bool SniffMPEG2PS(
         const sp<DataSource> &source, String8 *mimeType, float *confidence,

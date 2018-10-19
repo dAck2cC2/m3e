@@ -96,10 +96,20 @@ if(ENABLE_AV_CODEC)
     stagefright_mediafilter
     stagefright_omx
     stagefright_color_conversion
+    stagefright_id3
+    stagefright_mpeg2ts
+    FLAC 
+    vorbisidec
+    stagefright_matroska
+    webm
     )
 
     include(${M3E_SOURCE_DIR}/cmake/external/expat/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/external/flac/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/external/tremolo/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
+
+    include_directories(AFTER ${SOURCE_PATH}/mpeg2ts) 
 
     list(APPEND STAGEFRIGHT_SOURCE_FILES 
     ${SOURCE_PATH}/MediaCodecSource.cpp  
@@ -116,7 +126,25 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/FrameRenderTracker.cpp
     ${SOURCE_PATH}/ProcessInfo.cpp 
     ${SOURCE_PATH}/AMRWriter.cpp
+    ${SOURCE_PATH}/NuMediaExtractor.cpp
+    ${SOURCE_PATH}/WVMExtractor.cpp
+    ${SOURCE_PATH}/AMRExtractor.cpp 
+    ${SOURCE_PATH}/MP3Extractor.cpp
+    ${SOURCE_PATH}/VBRISeeker.cpp
+    ${SOURCE_PATH}/XINGSeeker.cpp
+    ${SOURCE_PATH}/MPEG4Extractor.cpp
+    ${SOURCE_PATH}/SampleTable.cpp
+    ${SOURCE_PATH}/SampleIterator.cpp
+    ${SOURCE_PATH}/FLACExtractor.cpp
+    ${SOURCE_PATH}/OggExtractor.cpp
+    ${SOURCE_PATH}/MidiExtractor.cpp
+    ${SOURCE_PATH}/AACExtractor.cpp
+    ${SOURCE_PATH}/MediaExtractor.cpp
     #${SOURCE_PATH}/StagefrightMetadataRetriever.cpp
+    )
+
+    list(REMOVE_ITEM STAGEFRIGHT_SOURCE_FILES
+    ${SOURCE_PATH}/MediaExtractor_legacy.cpp
     )
 
     if (MSVC)
@@ -168,4 +196,7 @@ if(ENABLE_AV_CODEC)
     add_subdirectory(colorconversion)
     add_subdirectory(filters)
     add_subdirectory(codecs) 
+    add_subdirectory(id3) 
+    add_subdirectory(mpeg2ts) 
+    add_subdirectory(matroska)
 endif()

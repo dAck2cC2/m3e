@@ -18,6 +18,7 @@ enum {
     SERVICE_MEDIA_PLAYER,
 	SERVICE_MEDIA_RESOURCE,
     SERVICE_MEDIA_CODEC,
+	SERVICE_MEDIA_EXTRACTOR,
 	SERVICE_BOOT_ANIM,
     SERVICE_CNT
 };
@@ -34,6 +35,7 @@ gServiceList[SERVICE_CNT] = {
     {"mediaplayerservice",    NULL},
 	{"mediaresourcemanager",  NULL},
     {"mediacodecservice",     NULL},
+	{"mediaextractor",        NULL},
 	{"bootanimation",         NULL}
 };
 
@@ -67,6 +69,9 @@ void InitRC::ResetProperties()
 #else
 #error Unknown Platform
 #endif
+
+	// for debug
+	property_set("media.stagefright.extractremote", "false");
 }
 
 void InitRC::StartService(int index)
@@ -93,6 +98,7 @@ status_t InitRC::Entry(int argc, char** argv)
     StartService(SERVICE_MEDIA_PLAYER);
 	StartService(SERVICE_MEDIA_RESOURCE);
     StartService(SERVICE_MEDIA_CODEC);
+	StartService(SERVICE_MEDIA_EXTRACTOR);
     
     return OK;
 }

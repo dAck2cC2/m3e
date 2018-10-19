@@ -23,7 +23,7 @@
 
 namespace android {
 
-class MidiIoWrapper : public RefBase {
+class ANDROID_API_MEDIA MidiIoWrapper : public RefBase {
 public:
     MidiIoWrapper(const char *path);
     MidiIoWrapper(int fd, off64_t offset, int64_t size);

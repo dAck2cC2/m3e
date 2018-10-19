@@ -27,7 +27,7 @@ class DataSource;
 class MediaSource;
 class MetaData;
 
-class MediaExtractor : public BnMediaExtractor {
+class ANDROID_API_STAGEFRIGHT MediaExtractor : public BnMediaExtractor {
 public:
     static sp<IMediaExtractor> Create(
             const sp<DataSource> &source, const char *mime = NULL);

@@ -28,7 +28,7 @@ class IMemory;
 class DecryptHandle;
 
 // A binder interface for implementing a stagefright DataSource remotely.
-class IDataSource : public IInterface {
+class ANDROID_API_MEDIA IDataSource : public IInterface {
 public:
     DECLARE_META_INTERFACE(DataSource);
 
@@ -57,7 +57,7 @@ private:
 
 // ----------------------------------------------------------------------------
 
-class BnDataSource : public BnInterface<IDataSource> {
+class ANDROID_API_MEDIA BnDataSource : public BnInterface<IDataSource> {
 public:
     virtual status_t onTransact(uint32_t code,
                                 const Parcel& data,

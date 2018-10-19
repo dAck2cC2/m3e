@@ -4,7 +4,11 @@
 //#define LOG_NDEBUG 0
 
 #include <errno.h>
+#if defined(__APPLE__)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 //#include <pthread.h>
 #include <stdint.h>
 #include <sys/time.h>
@@ -20,8 +24,8 @@
 #include <utils/ADebugExt.h>
 #include <utils/Errors.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#include <al.h>
+#include <alc.h>
 
 using namespace android;
 

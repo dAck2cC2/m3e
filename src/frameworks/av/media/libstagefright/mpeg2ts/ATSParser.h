@@ -192,6 +192,168 @@ private:
     DISALLOW_EVIL_CONSTRUCTORS(ATSParser);
 };
 
+#if defined(_MSC_VER)
+struct ATSParser::Program : public RefBase {
+	Program(ATSParser *parser, unsigned programNumber, unsigned programMapPID,
+		int64_t lastRecoveredPTS);
+
+	bool parsePSISection(
+		unsigned pid, ABitReader *br, status_t *err);
+
+	// Pass to appropriate stream according to pid, and set event if it's a PES
+	// with a sync frame.
+	// Note that the method itself does not touch event.
+	bool parsePID(
+		unsigned pid, unsigned continuity_counter,
+		unsigned payload_unit_start_indicator,
+		ABitReader *br, status_t *err, SyncEvent *event);
+
+	void signalDiscontinuity(
+		DiscontinuityType type, const sp<AMessage> &extra);
+
+	void signalEOS(status_t finalResult);
+
+	sp<MediaSource> getSource(SourceType type);
+	bool hasSource(SourceType type) const;
+
+	int64_t convertPTSToTimestamp(uint64_t PTS);
+
+	bool PTSTimeDeltaEstablished() const {
+		return mFirstPTSValid;
+	}
+
+	unsigned number() const { return mProgramNumber; }
+
+	void updateProgramMapPID(unsigned programMapPID) {
+		mProgramMapPID = programMapPID;
+	}
+
+	unsigned programMapPID() const {
+		return mProgramMapPID;
+	}
+
+	uint32_t parserFlags() const {
+		return mParser->mFlags;
+	}
+
+private:
+	struct StreamInfo {
+		unsigned mType;
+		unsigned mPID;
+	};
+
+	ATSParser *mParser;
+	unsigned mProgramNumber;
+	unsigned mProgramMapPID;
+	KeyedVector<unsigned, sp<Stream> > mStreams;
+	bool mFirstPTSValid;
+	uint64_t mFirstPTS;
+	int64_t mLastRecoveredPTS;
+
+	status_t parseProgramMap(ABitReader *br);
+	int64_t recoverPTS(uint64_t PTS_33bit);
+	bool switchPIDs(const Vector<StreamInfo> &infos);
+
+	DISALLOW_EVIL_CONSTRUCTORS(Program);
+};
+
+struct AnotherPacketSource;
+struct ElementaryStreamQueue;
+
+struct ATSParser::Stream : public RefBase {
+	Stream(Program *program,
+		unsigned elementaryPID,
+		unsigned streamType,
+		unsigned PCR_PID);
+
+	unsigned type() const { return mStreamType; }
+	unsigned pid() const { return mElementaryPID; }
+	void setPID(unsigned pid) { mElementaryPID = pid; }
+
+	// Parse the payload and set event when PES with a sync frame is detected.
+	// This method knows when a PES starts; so record mPesStartOffsets in that
+	// case.
+	status_t parse(
+		unsigned continuity_counter,
+		unsigned payload_unit_start_indicator,
+		ABitReader *br,
+		SyncEvent *event);
+
+	void signalDiscontinuity(
+		DiscontinuityType type, const sp<AMessage> &extra);
+
+	void signalEOS(status_t finalResult);
+
+	sp<MediaSource> getSource(SourceType type);
+
+	bool isAudio() const;
+	bool isVideo() const;
+	bool isMeta() const;
+
+protected:
+	virtual ~Stream();
+
+private:
+	Program *mProgram;
+	unsigned mElementaryPID;
+	unsigned mStreamType;
+	unsigned mPCR_PID;
+	int32_t mExpectedContinuityCounter;
+
+	sp<ABuffer> mBuffer;
+	sp<AnotherPacketSource> mSource;
+	bool mPayloadStarted;
+	bool mEOSReached;
+
+	uint64_t mPrevPTS;
+	List<off64_t> mPesStartOffsets;
+
+	ElementaryStreamQueue *mQueue;
+
+	// Flush accumulated payload if necessary --- i.e. at EOS or at the start of
+	// another payload. event is set if the flushed payload is PES with a sync
+	// frame.
+	status_t flush(SyncEvent *event);
+	// Strip and parse PES headers and pass remaining payload into onPayload
+	// with parsed metadata. event is set if the PES contains a sync frame.
+	status_t parsePES(ABitReader *br, SyncEvent *event);
+
+	// Feed the payload into mQueue and if a packet is identified, queue it
+	// into mSource. If the packet is a sync frame. set event with start offset
+	// and timestamp of the packet.
+	void onPayloadData(
+		unsigned PTS_DTS_flags, uint64_t PTS, uint64_t DTS,
+		const uint8_t *data, size_t size, SyncEvent *event);
+
+	DISALLOW_EVIL_CONSTRUCTORS(Stream);
+};
+
+struct ATSParser::PSISection : public RefBase {
+	PSISection();
+
+	status_t append(const void *data, size_t size);
+	void setSkipBytes(uint8_t skip);
+	void clear();
+
+	bool isComplete() const;
+	bool isEmpty() const;
+	bool isCRCOkay() const;
+
+	const uint8_t *data() const;
+	size_t size() const;
+
+protected:
+	virtual ~PSISection();
+
+private:
+	sp<ABuffer> mBuffer;
+	uint8_t mSkipBytes;
+	static uint32_t CRC_TABLE[];
+
+	DISALLOW_EVIL_CONSTRUCTORS(PSISection);
+};
+#endif // _MSC_VER
+
 }  // namespace android
 
 #endif  // A_TS_PARSER_H_

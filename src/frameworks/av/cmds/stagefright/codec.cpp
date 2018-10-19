@@ -41,6 +41,12 @@
 #include <gui/Surface.h>
 #include <ui/DisplayInfo.h>
 
+#include <media/AudioTrack.h>
+#include <utils/NativeHandle.h>
+#include <cutils/threads.h>
+
+#include <initrc.h>
+
 static void usage(const char *me) {
     fprintf(stderr, "usage: %s [-a] use audio\n"
                     "\t\t[-v] use video\n"
@@ -344,6 +350,9 @@ int main(int argc, char **argv) {
     bool useTimestamp = false;
 
     int res;
+
+	InitRC::getInstance().Entry(argc, argv);
+
     while ((res = getopt(argc, argv, "havpSDRT")) >= 0) {
         switch (res) {
             case 'a':
@@ -407,7 +416,7 @@ int main(int argc, char **argv) {
     sp<SurfaceControl> control;
     sp<Surface> surface;
 
-    if (playback || (useSurface && useVideo)) {
+    if ((playback && useVideo) || (useSurface && useVideo)) {
         composerClient = new SurfaceComposerClient;
         CHECK_EQ(composerClient->initCheck(), (status_t)OK);
 
@@ -444,7 +453,9 @@ int main(int argc, char **argv) {
         looper->registerHandler(player);
 
         player->setDataSource(argv[0]);
-        player->setSurface(surface->getIGraphicBufferProducer());
+		if (useVideo) {
+			player->setSurface(surface->getIGraphicBufferProducer());
+		}
         player->start();
         sleep(60);
         player->stop();

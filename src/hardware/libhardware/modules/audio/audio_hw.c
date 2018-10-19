@@ -18,7 +18,11 @@
 //#define LOG_NDEBUG 0
 
 #include <errno.h>
+#if defined(__APPLE__)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 //#include <pthread.h>
 #include <stdint.h>
 #include <sys/time.h>
