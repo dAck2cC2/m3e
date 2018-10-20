@@ -21,6 +21,7 @@
 #include "SoftOMXComponent.h"
 
 #include <media/stagefright/foundation/AHandlerReflector.h>
+#include <media/stagefright/foundation/AMessage.h>
 #include <utils/RefBase.h>
 #include <utils/threads.h>
 #include <utils/Vector.h>

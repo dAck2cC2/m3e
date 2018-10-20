@@ -72,6 +72,7 @@ if(ENABLE_AV_CODEC)
     add_subdirectory(yuv)
     add_subdirectory(tremolo)
     add_subdirectory(flac)
+    add_subdirectory(aac)
 endif(ENABLE_AV_CODEC)
 
 if(MSVC)

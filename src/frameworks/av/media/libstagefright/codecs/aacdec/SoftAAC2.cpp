@@ -1131,3 +1131,13 @@ android::SoftOMXComponent *createSoftOMXComponent(
         OMX_PTR appData, OMX_COMPONENTTYPE **component) {
     return new android::SoftAAC2(name, callbacks, appData, component);
 }
+
+#if defined(_MSC_VER)
+#ifdef __cplusplus
+extern "C"
+#endif
+__declspec(dllexport)
+android::OMXComponent AndroidOMXCompnent = {
+	createSoftOMXComponent
+};
+#endif
