@@ -10,6 +10,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
+include_directories(AFTER ${GENERIC_PATH})
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/id3 )
 

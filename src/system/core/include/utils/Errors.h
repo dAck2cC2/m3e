@@ -26,7 +26,7 @@ namespace android {
 #ifdef _WIN32
 typedef int         status_t;
 #elif defined(_MACOSX)
-typedef int64_t     status_t;
+typedef int32_t     status_t;
 #else
 typedef int32_t     status_t;
 #endif

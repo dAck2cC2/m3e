@@ -12,7 +12,7 @@ add_definitions(-DFLAC__NO_MD5)
 add_definitions(-DFLAC__INTEGER_ONLY_LIBRARY)
 add_definitions(-D_REENTRANT)
 #add_definitions(-DPIC)
-add_definitions(--DU_COMMON_IMPLEMENTATIO)
+add_definitions(-DU_COMMON_IMPLEMENTATIO)
 
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/flac/include )

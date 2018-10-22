@@ -110,6 +110,10 @@ if(ENABLE_AV_CODEC)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
 
     include_directories(AFTER ${SOURCE_PATH}/mpeg2ts) 
+    if(APPLE OR MSVC)
+        include_directories(AFTER ${GENERIC_PATH}) 
+    endif()
+
 
     list(APPEND STAGEFRIGHT_SOURCE_FILES 
     ${SOURCE_PATH}/MediaCodecSource.cpp  
