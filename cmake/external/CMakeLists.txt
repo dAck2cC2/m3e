@@ -73,6 +73,8 @@ if(ENABLE_AV_CODEC)
     add_subdirectory(tremolo)
     add_subdirectory(flac)
     add_subdirectory(aac)
+    add_subdirectory(gsm)
+    #add_subdirectory(hevc)
 endif(ENABLE_AV_CODEC)
 
 if(MSVC)

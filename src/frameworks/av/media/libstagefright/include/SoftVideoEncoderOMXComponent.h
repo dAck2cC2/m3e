@@ -27,7 +27,7 @@ struct hw_module_t;
 
 namespace android {
 
-struct SoftVideoEncoderOMXComponent : public SimpleSoftOMXComponent {
+struct ANDROID_API_STAGEFRIGHT_OMX SoftVideoEncoderOMXComponent : public SimpleSoftOMXComponent {
     SoftVideoEncoderOMXComponent(
             const char *name,
             const char *componentRole,

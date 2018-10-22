@@ -1,3 +1,3 @@
 
 add_subdirectory(libhardware)
-add_subdirectory(generic)
+add_subdirectory(audio)

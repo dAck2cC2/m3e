@@ -13,6 +13,7 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
@@ -47,6 +48,7 @@ ${SOURCE_PATH}/*.h
 ${HEADER_PATH}/OMX.h
 ${HEADER_PATH}/SimpleSoftOMXComponent.h
 ${HEADER_PATH}/SoftOMXComponent.h
+${HEADER_PATH}/SoftVideoEncoderOMXComponent.h
 ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/hardware/HardwareAPI.h
 )
 
@@ -64,6 +66,7 @@ ${SOURCE_PATH}/OMXMaster.cpp
 ${SOURCE_PATH}/SoftOMXPlugin.cpp
 ${SOURCE_PATH}/SoftOMXComponent.cpp
 ${SOURCE_PATH}/SimpleSoftOMXComponent.cpp
+${SOURCE_PATH}/SoftVideoEncoderOMXComponent.cpp
 )
 
 if(MSVC)

@@ -64,7 +64,7 @@ void InitRC::ResetProperties()
 #if defined(__APPLE__)
     property_set("ro.board.platform", "osx");
 #elif defined(_MSC_VER)
-	property_set("ro.product.board", "openal");
+	property_set("ro.product.board", "dump");
     property_set("ro.board.platform", "win");
 #else
 #error Unknown Platform
@@ -72,6 +72,9 @@ void InitRC::ResetProperties()
 
 	// for debug
 	property_set("media.stagefright.extractremote", "false");
+
+	// audio
+	//property_set("audio.device.buffer.ms", "100");
 }
 
 void InitRC::StartService(int index)

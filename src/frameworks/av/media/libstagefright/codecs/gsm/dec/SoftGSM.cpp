@@ -309,3 +309,12 @@ android::SoftOMXComponent *createSoftOMXComponent(
     return new android::SoftGSM(name, callbacks, appData, component);
 }
 
+#if defined(_MSC_VER)
+#ifdef __cplusplus
+extern "C"
+#endif
+__declspec(dllexport)
+android::OMXComponent AndroidOMXCompnent = {
+	createSoftOMXComponent
+};
+#endif
