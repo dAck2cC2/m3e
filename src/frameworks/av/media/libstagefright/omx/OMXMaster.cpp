@@ -27,11 +27,14 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 
+#include <cutils/threads.h>
+
 namespace android {
 
 OMXMaster::OMXMaster()
     : mVendorLibHandle(NULL) {
 
+#if TODO
     mProcessName[0] = 0;
     if (mProcessName[0] == 0) {
         pid_t pid = getpid();
@@ -53,7 +56,12 @@ OMXMaster::OMXMaster()
             close(fd);
         }
     }
-
+#else
+	// Since we are doing mutli-thread program but not mulit-process, 
+	// it may be better to print out the thread id instead of process name.
+	pid_t currentThreadId = gettid();
+	snprintf(mProcessName, 16, "%d", currentThreadId);
+#endif
     addVendorPlugin();
     addPlugin(new SoftOMXPlugin);
 }

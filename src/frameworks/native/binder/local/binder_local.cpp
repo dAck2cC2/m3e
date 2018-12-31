@@ -52,6 +52,7 @@ public:
 	virtual sp<Looper> GetLooper() const = 0;
 	virtual int  GetHandler() const = 0;
 	virtual int  AddNativeBinder(const int& hProxy, const flat_binder_object& binder) = 0;
+	virtual int  FindNativeBinder(const uintptr_t& cookie) = 0;
     virtual void CacheMessage(Parcel* msg, int sender) = 0;
     virtual void SetParentHandler(int handler) = 0;
     virtual int  GetParentHandler() const = 0;
@@ -75,6 +76,7 @@ static sp<IBinderEntry> binder_lookupEntry_local(int handler);
 #define BINDER_DEAMON_START   (2)
 static int gDeamonCount = 1;
 static sp<IBinderEntry> binder_lookupEntry_deamon();
+static int binder_lookupProxy_deamon(uintptr_t cookie);
 
 // ---------------------------------------------------------------------------
 // Implementation
@@ -104,6 +106,20 @@ public:
 	virtual sp<Looper> GetLooper() const { return mLooper; };
 	virtual int  GetHandler() const { return mHandler; };
 	virtual int  AddNativeBinder(const int& hProxy, const flat_binder_object& binder) { return mBnList.add(hProxy, binder); };
+
+	virtual int  FindNativeBinder(const uintptr_t& cookie) 
+	{
+		int hProxy = -1;
+
+		for (int i = 0; i < mBnList.size(); ++i) {
+			if (mBnList[i].cookie == cookie) {
+				hProxy = mBnList.keyAt(i);
+				break;
+			}
+		}
+
+		return (hProxy);
+	};
 
     // TODO
     // When the client has 2 or more Binder Proxy, also register death notification for each,
@@ -598,7 +614,7 @@ private:
             if (obj->type == BINDER_TYPE_BINDER) {
 				LOG_ALWAYS_FATAL_IF(((cmd != BC_TRANSACTION) && (mBnList.isEmpty())), "Something strange. %s:%d", __FILE__, __LINE__);
 
-                // the first should be the one which is registered to Service Manager
+                // the first should be the one which is registered to Service Manager (handler of 0)
                 int hProxy = -1;
                 if (mBnList.isEmpty() && (tr.target.handle == 0)) {
 					hProxy = mHandler;
@@ -613,13 +629,12 @@ private:
                 // the following is anonymous binder
                 } else {
                     // do not map the same native binder twice
-                    for (int i = 0; i < mBnList.size(); ++i) {
-                        if (mBnList[i].cookie == obj->cookie) {
-                            hProxy = mBnList.keyAt(i);
-                            break;
-                        }
-                    }
-                    
+					hProxy = FindNativeBinder(obj->cookie);
+					if (hProxy == -1) {
+						// the native binder may have registered to deamon
+						hProxy = binder_lookupProxy_deamon(obj->cookie);
+					}
+
                     // create handler for new native binder
                     if (hProxy == -1) {
                         sp<IBinderEntry> eProxy;
@@ -772,12 +787,27 @@ static sp<IBinderEntry> binder_lookupEntry_local(int handler)
 static sp<IBinderEntry> binder_lookupEntry_deamon()
 {
 	static int s_hCurrentDeamon = BINDER_DEAMON_START;
-	
+
 	if (s_hCurrentDeamon >= BINDER_DEAMON_START + gDeamonCount) {
 		s_hCurrentDeamon = BINDER_DEAMON_START;
 	}
 	
 	return (binder_lookupEntry_local(s_hCurrentDeamon++));
+}
+
+static int binder_lookupProxy_deamon(uintptr_t cookie)
+{
+	// if the native binder has already registered to deamon thread before,
+	// do not register it again to another deamon thread.
+	for (int handler = BINDER_DEAMON_START; handler < BINDER_DEAMON_START + gDeamonCount; ++handler) {
+		sp<IBinderEntry> e = binder_lookupEntry_local(handler);
+		int hProxy = e->FindNativeBinder(cookie);
+		if (hProxy > 0) {
+			return (hProxy);
+		}
+	}
+
+	return (-1);
 }
 
 // ---------------------------------------------------------------------------

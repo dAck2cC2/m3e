@@ -465,7 +465,7 @@ int main(int argc, char **argv) {
                 useTimestamp);
     }
 
-    if (playback || (useSurface && useVideo)) {
+    if ((playback && useVideo) || (useSurface && useVideo)) {
         composerClient->dispose();
     }
 

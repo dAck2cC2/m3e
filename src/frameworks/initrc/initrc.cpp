@@ -72,8 +72,12 @@ void InitRC::ResetProperties()
 #error Unknown Platform
 #endif
 
+	// use the omx codec of media.player service
+	property_set("media.stagefright.codecremote", "false");
+
 	// for debug
 	property_set("media.stagefright.extractremote", "false");
+	property_set("debug.stagefright.omx-debug", "OMX.google.raw.decoder:4");
 
 	// audio
 	//property_set("audio.device.buffer.ms", "100");
