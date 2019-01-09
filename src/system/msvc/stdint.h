@@ -258,7 +258,7 @@ typedef int pid_t;
 typedef unsigned int uid_t;
 
 // define off64_t
-typedef uint64_t off64_t;
+typedef int64_t off64_t;
 
 // define ssize_t
 #if defined(_MSC_VER)
