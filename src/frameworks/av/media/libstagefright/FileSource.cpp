@@ -48,7 +48,9 @@ FileSource::FileSource(const char *filename)
 #ifdef O_LARGEFILE
 		O_LARGEFILE |
 #endif
+#ifdef O_BINARY
 		O_BINARY |
+#endif
 		O_RDONLY);
 
     if (mFd >= 0) {

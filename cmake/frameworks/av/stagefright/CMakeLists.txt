@@ -30,8 +30,8 @@ drmframework
 
 # define
 if(APPLE OR CYGWIN)
-    add_definitions(-DO_LARGEFILE=0)
-    add_definitions(-Dlseek64=lseek)
+    #add_definitions(-DO_LARGEFILE=0)
+    #add_definitions(-Dlseek64=lseek)
     add_definitions(-Wno-enum-compare)
 endif()
 
