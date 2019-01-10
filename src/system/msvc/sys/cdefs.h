@@ -40,6 +40,7 @@
 #ifndef	_CDEFS_H_
 #define	_CDEFS_H_
 
+#ifndef __BEGIN_DECLS
 #if defined(__cplusplus)
 #define	__BEGIN_DECLS	extern "C" {
 #define	__END_DECLS	};
@@ -47,6 +48,7 @@
 #define	__BEGIN_DECLS
 #define	__END_DECLS
 #endif
+#endif 
 
 /*
 * The __CONCAT macro is used to concatenate parts of symbol names, e.g.
@@ -70,6 +72,9 @@
 #define	inline		__inline
 #define	signed		__signed
 #define	volatile	__volatile
+
+#elif defined(_MSC_VER)
+/* keep ANSI C keywords */
 
 #else	/* !__GNUC__ */
 #define	const				/* delete ANSI C keywords */

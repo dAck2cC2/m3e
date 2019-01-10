@@ -10,5 +10,10 @@
 #pragma once
 #endif
 
+//#define RC_INVOKED
+//#include <atomic>
+
+typedef int atomic_int;
+typedef unsigned int atomic_uintptr_t;
 
 #endif // _MSC_STDATOMIC_H_ ]

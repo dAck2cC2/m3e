@@ -14,26 +14,38 @@
 #include <winsock.h>
 #include <time.h>
 
+#include "msvc_export.h"
+
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
+
+MSVC_EXPORT
 int gettimeofday(struct timeval *tv/*in*/, struct timezone *tz/*in*/);
 
-#ifdef __cplusplus
-extern "C"
-#endif
+MSVC_EXPORT
 void usleep(DWORD waitTime);
 
-#ifdef __cplusplus
-extern "C"
-#endif
+MSVC_EXPORT
 int clock_nanosleep(int clock_id, int flags,
 	const struct timespec *request,
 	struct timespec *remain);
 
-#ifdef __cplusplus
-extern "C"
-#endif
+MSVC_EXPORT
 int nanosleep(const struct timespec *req, struct timespec *rem);
+
+#if 0
+typedef enum {
+	CLOCK_MONOTONIC = 0,
+	CLOCK_REALTIME,
+} clockid_t;
+
+MSVC_EXPORT
+int clock_gettime(clockid_t clk_id, struct timespec *tp);
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _MSC_TIME_H_ ]

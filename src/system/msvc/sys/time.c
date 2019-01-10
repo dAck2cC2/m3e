@@ -82,3 +82,19 @@ int nanosleep(const struct timespec *req, struct timespec *rem)
 
 	return 0;
 }
+
+#if 0
+int clock_gettime(clockid_t clk_id, struct timespec *ts)
+{
+	if (!ts) {
+		return -1;
+	}
+
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	ts->tv_sec = tv.tv_sec;
+	ts->tv_nsec = tv.tv_usec * 1000;
+
+	return 0;
+}
+#endif
