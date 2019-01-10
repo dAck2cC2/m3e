@@ -44,6 +44,10 @@
 
 #include "log_portability.h"
 
+#if __APPLE__
+#include <limits.h>
+#endif
+
 #define MS_PER_NSEC 1000000
 #define US_PER_NSEC 1000
 
