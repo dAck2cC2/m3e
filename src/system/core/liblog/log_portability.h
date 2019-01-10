@@ -17,7 +17,7 @@
 #ifndef _LIBLOG_PORTABILITY_H__
 #define _LIBLOG_PORTABILITY_H__
 
-//#include <sys/cdefs.h>
+#include <sys/cdefs.h>
 #include <unistd.h>
 
 /* Helpful private sys/cdefs.h like definitions */
@@ -46,7 +46,7 @@
 #if defined(_WIN32)
 #define LIBLOG_WEAK static /* Accept that it is totally private */
 #else
-#define LIBLOG_WEAK __attribute__((weak,visibility("default")))
+#define LIBLOG_WEAK __attribute__((weak, visibility("default")))
 #endif
 
 /* possible missing definitions in sys/cdefs.h */
@@ -54,8 +54,8 @@
 /* DECLS */
 #ifndef __BEGIN_DECLS
 #if defined(__cplusplus)
-#define __BEGIN_DECLS           extern "C" {
-#define __END_DECLS             }
+#define __BEGIN_DECLS extern "C" {
+#define __END_DECLS }
 #else
 #define __BEGIN_DECLS
 #define __END_DECLS
@@ -64,23 +64,21 @@
 
 /* Unused argument. For C code only, remove symbol name for C++ */
 #ifndef __unused
-#define __unused        __attribute__((__unused__))
+#define __unused __attribute__((__unused__))
 #endif
 
 /* possible missing definitions in unistd.h */
 
 #ifndef TEMP_FAILURE_RETRY
-#ifdef _MSC_VER
-#define TEMP_FAILURE_RETRY(exp)  exp
-#else // _MSC_VER
 /* Used to retry syscalls that can return EINTR. */
-#define TEMP_FAILURE_RETRY(exp) ({         \
+#define TEMP_FAILURE_RETRY(exp)            \
+  ({                                       \
     __typeof__(exp) _rc;                   \
     do {                                   \
-        _rc = (exp);                       \
+      _rc = (exp);                         \
     } while (_rc == -1 && errno == EINTR); \
-    _rc; })
-#endif // _MSC_VER
-#endif // TEMP_FAILURE_RETRY
+    _rc;                                   \
+  })
+#endif
 
 #endif /* _LIBLOG_PORTABILITY_H__ */

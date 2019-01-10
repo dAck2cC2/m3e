@@ -3,46 +3,35 @@ project(LOG)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 
 set(LOG_DEPLIB )
 
+if (MSVC)
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND LOG_DEPLIB ${LIB_MSVC_WRAP})
+endif(MSVC)
+
 add_definitions(-DFAKE_LOG_DEVICE=1)
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/log )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/liblog/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/liblog )
-
-OPTION( LOG_ENABLE_LOGGABLE
-  "Set to ON to enable loggable implementation"
-  OFF
-)
 
 # header files
 file(GLOB LOG_HEADER_FILES
-${HEADER_PATH}/*.h
+${HEADER_PATH}/android/*.h
+${HEADER_PATH}/log/*.h
+${HEADER_PATH}/private/*.h
 ${SOURCE_PATH}/*.h 
-${M3E_SOURCE_DIR}/src/system/core/include/android/*.h
 )
 
 # source files
 file(GLOB LOG_SOURCE_FILES 
 ${SOURCE_PATH}/*.c
+${SOURCE_PATH}/*.cpp
 )
 
-if (LOG_ENABLE_LOGGABLE)
-    include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/core/libcutils)
-    list(APPEND LOG_HEADER_FILES ${M3E_SOURCE_DIR}/src/system/core/libcutils/sys/_system_properties.h )
-    list(APPEND LOG_SOURCE_FILES ${M3E_SOURCE_DIR}/src/system/core/libcutils/sys/_system_properties.cpp )
-    list(REMOVE_ITEM LOG_SOURCE_FILES ${SOURCE_PATH}/fake_log_device.c)
-else (LOG_ENABLE_LOGGABLE)
-    list(REMOVE_ITEM LOG_SOURCE_FILES ${SOURCE_PATH}/log_is_loggable.c)
-endif (LOG_ENABLE_LOGGABLE)
-
-if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
-    set(LOG_SOURCE_FILES ${LOG_SOURCE_FILES} ${MSVC_PATH}/unistd.h)
-    set(LOG_SOURCE_FILES ${LOG_SOURCE_FILES} ${MSVC_PATH}/sys/time.h)
-    set(LOG_SOURCE_FILES ${LOG_SOURCE_FILES} ${MSVC_PATH}/sys/time.c)
-endif(MSVC)
+#set_source_files_properties( ${LOG_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
@@ -55,6 +44,6 @@ if(UNIX AND NOT APPLE)
 endif()
 
 
-if(ENABLE_TEST)
+#if(ENABLE_TEST)
     add_subdirectory(test)
-endif(ENABLE_TEST)
+#endif(ENABLE_TEST)

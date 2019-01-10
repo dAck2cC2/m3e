@@ -23,7 +23,7 @@ static FILE* logFd = NULL;
 
 LIBLOG_HIDDEN struct android_log_transport_write fileLoggerWrite = {
 	.node = { &fileLoggerWrite.node, &fileLoggerWrite.node },
-	.context.private = &logFd,
+	.context.priv = &logFd,
 	.name = "file",
 	.available = NULL,
 	.open = fileOpen,
@@ -325,4 +325,3 @@ error:
 	unlock();
 	return -1;
 }
-

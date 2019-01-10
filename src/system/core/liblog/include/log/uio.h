@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2007-2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,39 @@
  * limitations under the License.
  */
 
-#ifndef _LIBLOG_FAKE_LOG_DEVICE_H
-#define _LIBLOG_FAKE_LOG_DEVICE_H
+#ifndef _LIBS_CUTILS_UIO_H
+#define _LIBS_CUTILS_UIO_H
 
-#include <sys/types.h>
+#if !defined(_WIN32)
 
-#include "log_portability.h"
+#include <sys/uio.h>
 
-struct iovec;
+#else
 
-LIBLOG_HIDDEN int fakeLogOpen(const char* pathName);
-LIBLOG_HIDDEN int fakeLogClose(int fd);
-LIBLOG_HIDDEN ssize_t fakeLogWritev(int fd, const struct iovec* vector,
-                                    int count);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif  // _LIBLOG_FAKE_LOG_DEVICE_H
+//
+// Implementation of sys/uio.h for Win32.
+//
+
+#include <stddef.h>
+
+struct iovec {
+  void* iov_base;
+  size_t iov_len;
+};
+
+extern int readv(int fd, struct iovec* vecs, int count);
+
+ANDROID_API_LOG
+extern int writev(int fd, const struct iovec* vecs, int count);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+#endif /* _LIBS_UTILS_UIO_H */

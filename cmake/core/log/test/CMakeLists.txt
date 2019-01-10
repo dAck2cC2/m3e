@@ -8,11 +8,6 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 
-if(MSVC)
-    add_definitions(-D__STDC_LIMIT_MACROS)
-    include_directories(AFTER ${MSVC_PATH})
-endif(MSVC)
-
 # dependency
 
 set(TEST_LOG_DEPLIB
@@ -20,7 +15,16 @@ gtest
 log
 )
 
-set(TEST_LOG_DEP ${TEST_LOG_DEPLIB})
+if(MSVC)
+    add_definitions(-D__STDC_LIMIT_MACROS)
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND TEST_LOG_DEPLIB ${LIB_MSVC_WRAP})
+endif(MSVC)
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/liblog/tests )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/liblog/tests )
+
+include_directories(AFTER ${HEADER_PATH})
 
 # main source
 
@@ -30,8 +34,20 @@ ${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
 
 # test log
 
-set(TEST_LOG_SOURCE_FILES ${TEST_LOG_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/system/core/liblog/test/AndroidLog_test.cpp
+list(APPEND TEST_LOG_SOURCE_FILES
+${SOURCE_PATH}/AndroidLog_test.cpp
+${SOURCE_PATH}/libc_test.cpp
+${SOURCE_PATH}/liblog_test_default.cpp
+${SOURCE_PATH}/log_id_test.cpp
+${SOURCE_PATH}/log_radio_test.cpp
+${SOURCE_PATH}/log_read_test.cpp
+${SOURCE_PATH}/log_system_test.cpp
+${SOURCE_PATH}/log_wrap_test.cpp
+#${SOURCE_PATH}/log_time_test.cpp
+#${SOURCE_PATH}/liblog_test_local.cpp
+#${SOURCE_PATH}/benchmark.h
+#${SOURCE_PATH}/benchmark_main.cpp
+#${SOURCE_PATH}/liblog_benchmark.cpp
 )
 
 # project

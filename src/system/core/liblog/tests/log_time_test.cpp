@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef _LIBS_CUTILS_UIO_H
-#define _LIBS_CUTILS_UIO_H
+#include <time.h>
 
-#if !defined(_WIN32)
+#include <gtest/gtest.h>
+// Test the APIs in this standalone include file
+#include <log/log_time.h>
 
-#include <sys/uio.h>
+TEST(liblog, log_time) {
+#ifdef _SYSTEM_CORE_INCLUDE_PRIVATE_ANDROID_LOGGER_H_
+  log_time(CLOCK_MONOTONIC);
 
-#else
-
-#ifdef __cplusplus
-extern "C" {
+  EXPECT_EQ(log_time, log_time::EPOCH);
 #endif
 
-//
-// Implementation of sys/uio.h for Win32.
-//
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  log_time tl(ts);
 
-#include <stddef.h>
-
-struct iovec {
-    void*  iov_base;
-    size_t iov_len;
-};
-
-extern int  readv( int  fd, struct iovec*  vecs, int  count );
-
-ANDROID_API_LOG
-extern int  writev( int  fd, const struct iovec*  vecs, int  count );
-
-#ifdef __cplusplus
+  EXPECT_EQ(tl, ts);
+  EXPECT_GE(tl, ts);
+  EXPECT_LE(tl, ts);
 }
-#endif
-
-#endif
-
-#endif /* _LIBS_UTILS_UIO_H */
-
