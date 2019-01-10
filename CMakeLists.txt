@@ -6,11 +6,11 @@ cmake_minimum_required(VERSION 2.8.5)
 project(M3E)
 
 # Version
-# It is based on the stagefright from Android 7.1.0_r7
-set(M3E_MAJOR_VERSION 7)
+# It is based on the stagefright from Android 8.1.0_r52
+set(M3E_MAJOR_VERSION 8)
 set(M3E_MINOR_VERSION 1)
 set(M3E_MICRO_VERSION 0)
-set(M3E_INTERFACE_AGE r7)
+set(M3E_INTERFACE_AGE r52)
 set(M3E_VERSION "${M3E_MAJOR_VERSION}.${M3E_MINOR_VERSION}.${M3E_MICRO_VERSION}_${M3E_INTERFACE_AGE}")
 
 message(STATUS "${M3E_VERSION}")

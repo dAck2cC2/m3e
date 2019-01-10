@@ -15,10 +15,31 @@ endif(MSVC)
 # external module from android
 set(EXT_LINK https://android.googlesource.com/platform)
 set(EXT_TAG android-7.1.0_r7)
+set(EXT_TAG_UPDATE android-8.1.0_r52)
+set(EXT_TAG_LEGACY android-7.1.2_r36)
+
+set(EXT_UPDATE 
+)
+
+# modules which has been removed from latest android release
+set(EXT_LEGACY
+gtest
+)
+
 
 ###############################################################################
 # download module
 macro(GET_ANDROID_MODULE name)
+    foreach(update_name ${EXT_UPDATE})
+        if (${name} MATCHES ${update_name})
+            set(EXT_TAG ${EXT_TAG_UPDATE})
+        endif()
+    endforeach()
+    foreach(legacy_name ${EXT_LEGACY})
+        if (${name} MATCHES ${legacy_name})
+            set(EXT_TAG ${EXT_TAG_LEGACY})
+        endif()
+    endforeach()    
     if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/${name})
         message(STATUS "Download\t ${name}")
         exec_program("git clone ${EXT_LINK}/${EXT_PATH}/${name}" ${M3E_SOURCE_DIR}/${EXT_PATH})
