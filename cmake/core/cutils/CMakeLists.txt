@@ -12,14 +12,16 @@ set(CUTILS_DEPLIB
 log
 )
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/cutils )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils/include/ )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils )
 
 include_directories(AFTER ${SOURCE_PATH})
 
 # header files
 file(GLOB CUTILS_HEADER_FILES
-${HEADER_PATH}/*.h
+${M3E_SOURCE_DIR}/src/system/core/include/cutils/*.h
+${HEADER_PATH}/cutils/*.h
+${HEADER_PATH}/private/*.h
 ${SOURCE_PATH}/*.h
 ${SOURCE_PATH}/sys/*.h
 )
