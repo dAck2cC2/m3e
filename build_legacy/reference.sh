@@ -1,12 +1,10 @@
 #!/bin/bash
 
-
-TARGET_TAG="android-7.1.0_r7"
+TARGET_TAG="android-8.1.0_r52"
 
 TARGET_DIR="\
-build \
-external/expat \
 frameworks/av \
+frameworks/base \
 frameworks/native \
 frameworks/rs \
 frameworks/compile/slang \
