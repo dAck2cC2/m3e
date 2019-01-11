@@ -26,14 +26,16 @@ extern "C" {
 #endif
 
 /*
- * Set tags (and owning UIDs) for network sockets.
-*/
+ * Set tags (and owning UIDs) for network sockets. The socket must be untagged
+ * by calling qtaguid_untagSocket() before closing it, otherwise the qtaguid
+ * module will keep a reference to it even after close.
+ */
 ANDROID_API_CUTILS
 extern int qtaguid_tagSocket(int sockfd, int tag, uid_t uid);
 
 /*
  * Untag a network socket before closing.
-*/
+ */
 ANDROID_API_CUTILS
 extern int qtaguid_untagSocket(int sockfd);
 

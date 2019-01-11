@@ -28,6 +28,7 @@ file(GLOB UTILS_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
 # header and source code for MSVC
 if(MSVC)
     add_definitions(-D__MINGW32__=1)
+    add_definitions(-DNOMINMAX=1)
     set(UTILS_HEADER_FILES ${UTILS_HEADER_FILES} ${MSVC_PATH}/stdint.h)
     set(UTILS_HEADER_FILES ${UTILS_HEADER_FILES} ${MSVC_PATH}/sys/time.h)
     set(UTILS_SOURCE_FILES ${UTILS_SOURCE_FILES} ${MSVC_PATH}/sys/time.c)

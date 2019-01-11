@@ -19,9 +19,12 @@
 #if !defined(__APPLE__)
 #include <malloc.h>
 #endif
+#if defined(_MSC_VER)
+#include <stdint.h> // posix_memalign
+#endif
 #include <string.h>
 #include <stdlib.h>
-//#include <dlfcn.h>
+#include <dlfcn.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 

@@ -18,6 +18,7 @@
 #define _LIBS_CUTILS_TRACE_H
 
 #include <inttypes.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -26,7 +27,6 @@
 #include <unistd.h>
 
 #include <cutils/compiler.h>
-#include <cutils/stdatomic.h>
 
 __BEGIN_DECLS
 
@@ -70,7 +70,9 @@ __BEGIN_DECLS
 #define ATRACE_TAG_PACKAGE_MANAGER  (1<<18)
 #define ATRACE_TAG_SYSTEM_SERVER    (1<<19)
 #define ATRACE_TAG_DATABASE         (1<<20)
-#define ATRACE_TAG_LAST             ATRACE_TAG_DATABASE
+#define ATRACE_TAG_NETWORK          (1<<21)
+#define ATRACE_TAG_ADB              (1<<22)
+#define ATRACE_TAG_LAST             ATRACE_TAG_ADB
 
 // Reserved for initialization.
 #define ATRACE_TAG_NOT_READY        (1ULL<<63)
@@ -175,14 +177,14 @@ static inline uint64_t atrace_is_tag_enabled(uint64_t tag)
  * Trace the beginning of a context.  name is used to identify the context.
  * This is often used to time function execution.
  */
-ANDROID_API_CUTILS 
-void atrace_begin_body(const char*);
-
 #define ATRACE_BEGIN(name) atrace_begin(ATRACE_TAG, name)
 static inline void atrace_begin(uint64_t tag, const char* name)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
+#if !defined(_MSC_VER)
+        void atrace_begin_body(const char*);
         atrace_begin_body(name);
+#endif
     }
 }
 
@@ -194,8 +196,10 @@ static inline void atrace_begin(uint64_t tag, const char* name)
 static inline void atrace_end(uint64_t tag)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-        char c = 'E';
-        write(atrace_marker_fd, &c, 1);
+#if !defined(_MSC_VER)
+        void atrace_end_body();
+        atrace_end_body();
+#endif
     }
 }
 
@@ -234,14 +238,14 @@ static inline void atrace_async_end(uint64_t tag, const char* name, int32_t cook
  * Traces an integer counter value.  name is used to identify the counter.
  * This can be used to track how a value changes over time.
  */
-ANDROID_API_CUTILS
-void atrace_int_body(const char*, int32_t);
-
 #define ATRACE_INT(name, value) atrace_int(ATRACE_TAG, name, value)
 static inline void atrace_int(uint64_t tag, const char* name, int32_t value)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
+#if !defined(_MSC_VER)
+        void atrace_int_body(const char*, int32_t);
         atrace_int_body(name, value);
+#endif
     }
 }
 

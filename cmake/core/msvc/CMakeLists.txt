@@ -12,7 +12,7 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/msvc/ )
 # header files
 file(GLOB MSVC_HEADER_FILES  
 ${HEADER_PATH}/*.h
-${HEADER_PATH}/arap/*.h
+${HEADER_PATH}/arpa/*.h
 ${HEADER_PATH}/netinet/*.h
 ${HEADER_PATH}/sys/*.h
 )

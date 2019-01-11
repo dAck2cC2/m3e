@@ -20,6 +20,10 @@
 extern "C" {
 #endif
 
+#ifndef sleep
+#define sleep(t) Sleep((t)*1000)
+#endif
+
 MSVC_EXPORT
 int gettimeofday(struct timeval *tv/*in*/, struct timezone *tz/*in*/);
 
@@ -34,15 +38,13 @@ int clock_nanosleep(int clock_id, int flags,
 MSVC_EXPORT
 int nanosleep(const struct timespec *req, struct timespec *rem);
 
-#if 0
 typedef enum {
 	CLOCK_MONOTONIC = 0,
-	CLOCK_REALTIME,
+	//CLOCK_REALTIME,
 } clockid_t;
 
 MSVC_EXPORT
 int clock_gettime(clockid_t clk_id, struct timespec *tp);
-#endif
 
 #ifdef __cplusplus
 }

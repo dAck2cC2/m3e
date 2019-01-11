@@ -43,7 +43,7 @@
 
 #include <media/AudioTrack.h>
 #include <utils/NativeHandle.h>
-#include <cutils/threads.h>
+#include <sys/time.h>
 
 #include <initrc.h>
 

@@ -3,15 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cutils/stdatomic.h>
-#include <cutils/properties.h>
-#include <sys/_system_properties.h>
+#include <stdatomic.h>
 
-#include "bionic_macros.h"
-#include "bionic_lock.h"
+#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
+#include "sys/_system_properties.h"
+#include "sys/bionic_macros.h"
+#include "sys/bionic_lock.h"
 
 #define PROPERTY_SIZE  (64)
 #define PROPERTY_FILE  "property_contexts"
+
+#define SERIAL_DIRTY(serial) ((serial)&1)
+#define SERIAL_VALUE_LEN(serial) ((serial) >> 24)
 
 /*
 * Properties are stored in a hybrid trie/binary tree structure.
@@ -442,6 +445,13 @@ int __system_property_get(const char *key, char *value)
     return len;
 }
 
+// The C11 standard doesn't allow atomic loads from const fields,
+// though C++11 does.  Fudge it until standards get straightened out.
+static inline uint_least32_t load_const_atomic(const atomic_uint_least32_t* s, memory_order mo) {
+	atomic_uint_least32_t* non_const_s = const_cast<atomic_uint_least32_t*>(s);
+	return atomic_load_explicit(non_const_s, mo);
+}
+
 int __system_property_read(const prop_info* info, char* name, char* value)
 {
     if (!info || !name || !value) {
@@ -494,7 +504,7 @@ unsigned int __system_property_serial(const struct prop_info* info)
 	return (serial);
 }
 
-struct prop_info* __system_property_find(const char *key)
+const struct prop_info* __system_property_find(const char *key)
 {
 	if (!key) {
 		return NULL;
@@ -507,4 +517,28 @@ struct prop_info* __system_property_find(const char *key)
 	_lock.unlock();
 
 	return (prop_info*)(info);
+}
+
+void __system_property_read_callback(const prop_info* pi,
+	void(*callback)(void* cookie,
+		const char* name,
+		const char* value,
+		uint32_t serial),
+	void* cookie) {
+	while (true) {
+		uint32_t serial = __system_property_serial(pi);  // acquire semantics
+		size_t len = SERIAL_VALUE_LEN(serial);
+		char* value_buf = new char[len + 1];
+
+		memcpy(value_buf, pi->value, len);
+		value_buf[len] = '\0';
+
+		// TODO: see todo in __system_property_read function
+		atomic_thread_fence(memory_order_acquire);
+		if (serial == load_const_atomic(&(pi->serial), memory_order_relaxed)) {
+			callback(cookie, pi->name, value_buf, serial);
+			delete[] value_buf;
+			return;
+		}
+	}
 }

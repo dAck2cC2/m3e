@@ -26,6 +26,10 @@
 
 #include <inttypes.h>
 
+#if defined(_MSC_VER)
+#include <algorithm>
+#endif
+
 template <typename PFN, typename T>
 static gralloc1_function_pointer_t asFP(T function)
 {
@@ -183,7 +187,7 @@ void Gralloc1On0Adapter::dump(uint32_t* outSize, char* outBuffer)
         std::copy_n(buffer, actualLength, mCachedDump.begin());
         *outSize = static_cast<uint32_t>(actualLength);
     } else {
-#if defined(_MSC_VER)
+#if 0 //defined(_MSC_VER)
 		*outSize = min(*outSize,
                 static_cast<uint32_t>(mCachedDump.size()));
 #else

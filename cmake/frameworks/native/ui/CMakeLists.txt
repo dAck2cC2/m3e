@@ -26,7 +26,7 @@ hardware
 if(MSVC)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     #add_definitions(-D__STDC_LIMIT_MACROS=1)
-    #add_definitions(-DNOMINMAX)
+    add_definitions(-DNOMINMAX)
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")    
 endif()

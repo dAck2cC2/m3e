@@ -83,7 +83,6 @@ int nanosleep(const struct timespec *req, struct timespec *rem)
 	return 0;
 }
 
-#if 0
 int clock_gettime(clockid_t clk_id, struct timespec *ts)
 {
 	if (!ts) {
@@ -97,4 +96,3 @@ int clock_gettime(clockid_t clk_id, struct timespec *ts)
 
 	return 0;
 }
-#endif

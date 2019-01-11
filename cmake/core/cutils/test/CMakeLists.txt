@@ -22,16 +22,21 @@ cutils
 
 set(TEST_CUTILS_DEP ${TEST_CUTILS_DEPLIB})
 
-# test file
-
-file(GLOB TEST_CUTILS_SOURCE_FILES
-${M3E_SOURCE_DIR}/src/system/core/libcutils/test/*.cpp
-)
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils/tests )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils/tests )
 
 # main source
 
-set(TEST_CUTILS_SOURCE_FILES ${TEST_CUTILS_SOURCE_FILES}
+set(TEST_CUTILS_SOURCE_FILES
 ${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
+)
+
+# test file
+
+list(APPEND TEST_CUTILS_SOURCE_FILES
+${SOURCE_PATH}/config_utils_test.cpp
+${SOURCE_PATH}/native_handle_test.cpp
+${SOURCE_PATH}/PropertiesTest.cpp
 )
 
 # project

@@ -40,6 +40,12 @@
 #ifndef	_CDEFS_H_
 #define	_CDEFS_H_
 
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+It must NOT include windows.h in this header file, 
+because it may be included before winsock2.h.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+/* #include <windows.h> */
+
 #ifndef __BEGIN_DECLS
 #if defined(__cplusplus)
 #define	__BEGIN_DECLS	extern "C" {
@@ -83,5 +89,32 @@
 #define	volatile
 #endif	/* !__GNUC__ */
 #endif	/* !(__STDC__ || __cplusplus) */
+
+#include <intrin.h>
+#include <stdint.h>
+
+#include "msvc_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define __builtin_popcount   __popcnt
+#define __builtin_popcountl  __popcnt
+#define __builtin_popcountll __popcnt
+
+#define __builtin_ctzl  __builtin_ctz
+#define __builtin_ctzll __builtin_ctz
+MSVC_EXPORT uint32_t __builtin_ctz(uint32_t value);
+
+#  define __builtin_clzl  __builtin_clz
+#  define __builtin_clzll __builtin_clz
+MSVC_EXPORT uint32_t __builtin_clz(uint32_t value);
+
+MSVC_EXPORT extern int ffs(int valu);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* !_CDEFS_H_ */

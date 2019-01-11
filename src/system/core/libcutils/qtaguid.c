@@ -21,15 +21,13 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
-#ifndef _MSC_VER
 #include <pthread.h>
-#endif // _MSC_VER
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
-#include <cutils/qtaguid.h>
 #include <log/log.h>
+#include <cutils/qtaguid.h>
 #if 0
 static const char* CTRL_PROCPATH = "/proc/net/xt_qtaguid/ctrl";
 static const int CTRL_MAX_INPUT_LEN = 128;
@@ -49,10 +47,7 @@ pthread_once_t resTrackInitDone = PTHREAD_ONCE_INIT;
 
 /* Only call once per process. */
 void qtaguid_resTrack(void) {
-    resTrackFd = TEMP_FAILURE_RETRY(open("/dev/xt_qtaguid", O_RDONLY));
-    if (resTrackFd >=0) {
-        TEMP_FAILURE_RETRY(fcntl(resTrackFd, F_SETFD, FD_CLOEXEC));
-    }
+    resTrackFd = TEMP_FAILURE_RETRY(open("/dev/xt_qtaguid", O_RDONLY | O_CLOEXEC));
 }
 
 /*
@@ -65,7 +60,7 @@ static int write_ctrl(const char *cmd) {
 
     ALOGV("write_ctrl(%s)", cmd);
 
-    fd = TEMP_FAILURE_RETRY(open(CTRL_PROCPATH, O_WRONLY));
+    fd = TEMP_FAILURE_RETRY(open(CTRL_PROCPATH, O_WRONLY | O_CLOEXEC));
     if (fd < 0) {
         return -errno;
     }
@@ -88,7 +83,7 @@ static int write_param(const char *param_path, const char *value) {
     int param_fd;
     int res;
 
-    param_fd = TEMP_FAILURE_RETRY(open(param_path, O_WRONLY));
+    param_fd = TEMP_FAILURE_RETRY(open(param_path, O_WRONLY | O_CLOEXEC));
     if (param_fd < 0) {
         return -errno;
     }
@@ -101,7 +96,7 @@ static int write_param(const char *param_path, const char *value) {
 }
 #endif
 int qtaguid_tagSocket(int sockfd, int tag, uid_t uid) {
-    /*
+#if 0
     char lineBuf[CTRL_MAX_INPUT_LEN];
     int res;
     uint64_t kTag = ((uint64_t)tag << 32);
@@ -119,24 +114,28 @@ int qtaguid_tagSocket(int sockfd, int tag, uid_t uid) {
     }
 
     return res;
-    */
-    return 0;
+#else
+	return 0;
+#endif
 }
 
 int qtaguid_untagSocket(int sockfd) {
-    //char lineBuf[CTRL_MAX_INPUT_LEN];
-    //int res;
+#if 0
+    char lineBuf[CTRL_MAX_INPUT_LEN];
+    int res;
 
-    //ALOGV("Untagging socket %d", sockfd);
+    ALOGV("Untagging socket %d", sockfd);
 
-    //snprintf(lineBuf, sizeof(lineBuf), "u %d", sockfd);
-    //res = write_ctrl(lineBuf);
-    //if (res < 0) {
-    //    ALOGI("Untagging socket %d failed errno=%d", sockfd, res);
-    //}
+    snprintf(lineBuf, sizeof(lineBuf), "u %d", sockfd);
+    res = write_ctrl(lineBuf);
+    if (res < 0) {
+        ALOGI("Untagging socket %d failed errno=%d", sockfd, res);
+    }
 
-    //return res;
-    return 0;
+    return res;
+#else
+	return 0;
+#endif
 }
 #if 0
 int qtaguid_setCounterSet(int counterSetNum, uid_t uid) {

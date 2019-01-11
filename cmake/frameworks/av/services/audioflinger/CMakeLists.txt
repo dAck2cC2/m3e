@@ -16,7 +16,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/effects/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/sonic/include.cmake)
 
-set( AUDIOFLINGER_DEPLIB
+set( ${PROJECT_NAME}_DEPLIB
 log
 cutils
 utils
@@ -35,6 +35,9 @@ if (MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-D__unused= )
     add_definitions(-Dmemalign=_aligned_malloc)
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 else(APPLE)
     #add_definitions(-D_LIBCPP_HAS_NO_ATOMIC_HEADER)
     #add_definitions(-D_LIBCPP_HAS_NO_THREADS)
@@ -83,19 +86,8 @@ ${SOURCE_PATH}/AudioResamplerSinc.cpp
 ${SOURCE_PATH}/main_audioflinger.cpp
 )
 
-if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
-
-    list(APPEND AUDIOFLINGER_HEADER_FILES
-    ${MSVC_PATH}/sys/time.h
-    )
-    list(APPEND AUDIOFLINGER_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.c
-    )    
-endif(MSVC)
-
 # target files
 set(LIB_NAME audioflinger_default)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(${LIB_NAME} SHARED ${AUDIOFLINGER_SOURCE_FILES} ${AUDIOFLINGER_HEADER_FILES})
-target_link_libraries(${LIB_NAME} ${AUDIOFLINGER_DEPLIB})
+target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_DEPLIB})

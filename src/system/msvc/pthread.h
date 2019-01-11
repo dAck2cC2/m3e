@@ -13,10 +13,6 @@
 #include <windows.h>
 #include <sys/time.h>
 
-#ifndef sleep
-#define sleep(t) Sleep((t)*1000)
-#endif // sleep
-
 typedef struct {
 	int                init;
 	CRITICAL_SECTION   lock[1];
@@ -57,6 +53,36 @@ static inline void pthread_mutex_lock(pthread_mutex_t*  lock)
 static inline void  pthread_mutex_unlock(pthread_mutex_t*  lock)
 {
 	LeaveCriticalSection(lock->lock);
+}
+
+struct _pthread_once_t {
+	int inited;
+	long semaphore;
+};
+
+typedef struct _pthread_once_t pthread_once_t;
+#define PTHREAD_ONCE_INIT { 0, -1 }
+
+static inline int pthread_once(pthread_once_t *once, void(*init_func)())
+{
+	if (once == NULL || init_func == NULL)
+		return EINVAL;
+
+	if (once->inited)
+		return 0;
+
+	if (InterlockedIncrement(&once->semaphore) == 0)
+	{
+		init_func();
+		once->inited = 1;
+	}
+	else
+	{
+		while (!once->inited)
+			Sleep(0);
+	}
+
+	return 0;
 }
 
 #endif // _MSC_PTHREAD_H_ ]

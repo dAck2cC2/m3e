@@ -22,13 +22,13 @@
 #if !defined(_WIN32)
 #include <pthread.h>
 #else
-#include <stdint.h>
 #include <windows.h>
 #ifndef __inline__
 #define __inline__  inline
 #endif // __inline__
 
-#define sleep(t) Sleep((t)*1000)
+#include <stdint.h> // For pid_t
+#include <pthread.h>
 #endif
 
 #ifdef __cplusplus
@@ -42,7 +42,6 @@ extern "C" {
 /*****                                                             *****/
 /***********************************************************************/
 /***********************************************************************/
-
 ANDROID_API_CUTILS
 extern pid_t gettid();
 
@@ -70,10 +69,8 @@ typedef struct {
 #endif // !defined(_WIN32)
 
 typedef void  (*thread_store_destruct_t)(void*  value);
-
-ANDROID_API_CUTILS 
+ANDROID_API_CUTILS
 extern void*  thread_store_get(thread_store_t*  store);
-
 ANDROID_API_CUTILS
 extern void   thread_store_set(thread_store_t*          store,
                                void*                    value,
@@ -148,49 +145,7 @@ static __inline__ void  mutex_destroy(mutex_t*  lock)
         DeleteCriticalSection(lock->lock);
     }
 }
-
 #endif // !defined(_WIN32)
-
-/***********************************************************************/
-/***********************************************************************/
-/*****                                                             *****/
-/*****         pthread_once                                        *****/
-/*****                                                             *****/
-/***********************************************************************/
-/***********************************************************************/
-
-#if defined(_WIN32)
-
-struct _pthread_once_t {
-	int inited;
-	long semaphore;
-};
-
-typedef struct _pthread_once_t pthread_once_t;
-#define PTHREAD_ONCE_INIT { 0, -1 }
-
-ANDROID_API_CUTILS
-int pthread_once(pthread_once_t *once, void(*init_func)());
-
-#endif // _WIN32
-
-/***********************************************************************/
-/***********************************************************************/
-/*****                                                             *****/
-/*****         clock_gettime                                       *****/
-/*****                                                             *****/
-/***********************************************************************/
-/***********************************************************************/
-
-#if defined(_MSC_VER)
-
-typedef enum {
-	CLOCK_MONOTONIC = 0,
-} clockid_t;
-
-ANDROID_API_CUTILS
-int clock_gettime(clockid_t clk_id, struct timespec *tp);
-#endif // _linux
 
 #ifdef __cplusplus
 }

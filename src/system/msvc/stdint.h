@@ -268,4 +268,12 @@ typedef SSIZE_T    ssize_t;
 #define SSIZE_MAX  MAXSSIZE_T
 #endif
 
+#if !defined(posix_memalign)
+/*
+*  The _aligned_malloc requests _aligned_free, so use the malloc instead.
+*/
+//#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+#define posix_memalign(p, a, s) (((*(p)) = malloc((a)*((s)/(a) + 1))), *(p) ?0 :errno)
+#endif
+
 #endif // _MSC_STDINT_H_ ]

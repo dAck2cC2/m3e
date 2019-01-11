@@ -17,23 +17,33 @@
 #ifndef NATIVE_HANDLE_H_
 #define NATIVE_HANDLE_H_
 
-#if defined(_MSC_VER)
-#define alignof __alignof
-#else  // _MSC_VER
 #include <stdalign.h>
-#endif // _MSC_VER
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Declare a char array for use with native_handle_init */
+#define NATIVE_HANDLE_DECLARE_STORAGE(name, maxFds, maxInts) \
+    alignas(native_handle_t) char name[                            \
+      sizeof(native_handle_t) + sizeof(int) * (maxFds + maxInts)]
 
 typedef struct native_handle
 {
     int version;        /* sizeof(native_handle_t) */
     int numFds;         /* number of file-descriptors at &data[0] */
     int numInts;        /* number of ints at &data[numFds] */
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wzero-length-array"
+#endif
     int data[0];        /* numFds + numInts ints */
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 } native_handle_t;
+
+typedef const native_handle_t* buffer_handle_t;
 
 /*
  * native_handle_close
@@ -46,6 +56,14 @@ typedef struct native_handle
 ANDROID_API_CUTILS
 int native_handle_close(const native_handle_t* h);
 
+/*
+ * native_handle_init
+ *
+ * Initializes a native_handle_t from storage.  storage must be declared with
+ * NATIVE_HANDLE_DECLARE_STORAGE.  numFds and numInts must not respectively
+ * exceed maxFds and maxInts used to declare the storage.
+ */
+native_handle_t* native_handle_init(char* storage, int numFds, int numInts);
 
 /*
  * native_handle_create
@@ -56,6 +74,15 @@ int native_handle_close(const native_handle_t* h);
  */
 ANDROID_API_CUTILS
 native_handle_t* native_handle_create(int numFds, int numInts);
+
+/*
+ * native_handle_clone
+ *
+ * creates a native_handle_t and initializes it from another native_handle_t.
+ * Must be destroyed with native_handle_delete().
+ *
+ */
+native_handle_t* native_handle_clone(const native_handle_t* handle);
 
 /*
  * native_handle_delete
