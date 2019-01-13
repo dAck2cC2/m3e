@@ -17,6 +17,16 @@
 #ifndef ANDROID_CUTILS_ATOMIC_H
 #define ANDROID_CUTILS_ATOMIC_H
 
+#ifdef __APPLE__
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ https://reviews.llvm.org/D45470
+ C11 defines kill_dependency as a macro in <stdatomic.h>. When you include
+ <atomic> after <stdatomic.h>, the macro clashes with std::kill_dependency and
+ causes multiple errors. Explicit error should help in diagnosing those errors.
+ */
+#include <atomic>
+#endif
+
 #include <stdint.h>
 #include <sys/types.h>
 #include <stdatomic.h>

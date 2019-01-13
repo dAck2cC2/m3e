@@ -21,8 +21,6 @@ gui
 ${OPENGL_DEPLIB}
 )
 
-add_definitions(-D_LIBCPP_HAS_NO_ATOMIC_HEADER=1)
-
 if(MSVC)
     #add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     #add_definitions(-D__STDC_LIMIT_MACROS=1)

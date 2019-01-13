@@ -13,8 +13,8 @@ ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include
 )
 
 file(GLOB LIBGTEST_HEADER_FILES
-${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include/*.h
-${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include/internal/*.h
+${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include/gtest/*.h
+${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include/gtest/internal/*.h
 )
 
 set(LIBGTEST_SOURCE_FILES 

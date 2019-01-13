@@ -16,6 +16,10 @@
 #ifndef MEMORY_LEAK_TRACK_UTIL_H
 #define MEMORY_LEAK_TRACK_UTIL_H
 
+#ifdef __APPLE__
+#include <atomic>
+#endif
+
 #include <iostream>
 
 namespace android {

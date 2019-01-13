@@ -4,14 +4,9 @@
 project(TEST_CUTILS)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/${EXT_PATH}/gtest/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
-
-if(MSVC)
-add_definitions(-D__STDC_LIMIT_MACROS)
-endif()
 
 # dependency
 
@@ -20,7 +15,9 @@ gtest
 cutils
 )
 
-set(TEST_CUTILS_DEP ${TEST_CUTILS_DEPLIB})
+if(MSVC)
+    add_definitions(-D__STDC_LIMIT_MACROS)
+endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils/tests )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils/tests )

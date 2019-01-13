@@ -26,6 +26,10 @@
 #endif
 #endif
 
+#ifdef __APPLE__
+#include <atomic>
+#endif
+
 #include <functional>
 #include <memory>
 #include <ostream>

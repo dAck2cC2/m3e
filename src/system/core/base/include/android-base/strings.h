@@ -17,6 +17,10 @@
 #ifndef ANDROID_BASE_STRINGS_H
 #define ANDROID_BASE_STRINGS_H
 
+#ifdef __APPLE__
+#include <atomic>
+#endif
+
 #include <sstream>
 #include <string>
 #include <vector>

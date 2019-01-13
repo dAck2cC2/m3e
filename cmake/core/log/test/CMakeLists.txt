@@ -4,9 +4,8 @@
 project(TEST_LOG)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/${EXT_PATH}/gtest/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
-
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
 
 # dependency
 

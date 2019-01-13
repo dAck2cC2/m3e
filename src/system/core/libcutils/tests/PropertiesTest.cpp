@@ -15,7 +15,9 @@
  */
 
 #define LOG_TAG "Properties_test"
-
+#ifdef __APPLE__
+#include <atomic>
+#endif
 #define __STDC_CONSTANT_MACROS
 #include <limits.h>
 
