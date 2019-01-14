@@ -51,6 +51,8 @@
 # endif
 #elif defined (_MSC_VER) && defined(__cplusplus)
 # define _STDATOMIC_HAVE_ATOMIC
+#elif defined (__APPLE__)
+# define _STDATOMIC_HAVE_ATOMIC
 #else
 #endif
 
@@ -333,7 +335,6 @@ atomic_signal_fence(memory_order __order __attribute__((unused)))
 /*
  * 7.17.5 Lock-free property.
  */
-
 #if defined(_KERNEL)
 /* Atomics in kernelspace are always lock-free. */
 #define	atomic_is_lock_free(obj) \
@@ -517,7 +518,6 @@ __extension__ ({							\
  * Don't provide these in kernel space. In kernel space, we should be
  * disciplined enough to always provide explicit barriers.
  */
-
 #ifndef _KERNEL
 #define	atomic_compare_exchange_strong(object, expected, desired)	\
 	atomic_compare_exchange_strong_explicit(object, expected,	\

@@ -38,10 +38,6 @@ if (MSVC)
 
     include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
-else(APPLE)
-    #add_definitions(-D_LIBCPP_HAS_NO_ATOMIC_HEADER)
-    #add_definitions(-D_LIBCPP_HAS_NO_THREADS)
-    add_definitions(-D_STDATOMIC_HAVE_ATOMIC)
 endif()
 
 add_definitions(-DSTATE_QUEUE_INSTANTIATIONS=\"StateQueueInstantiations.cpp\")
