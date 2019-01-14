@@ -17,7 +17,11 @@
 #ifndef _LIBLOG_LOGGER_H__
 #define _LIBLOG_LOGGER_H__
 
+#if defined(_MSC_VER)
+#include <cutils/stdatomic.h>
+#else
 #include <stdatomic.h>
+#endif
 #include <stdbool.h>
 
 #include <cutils/list.h>

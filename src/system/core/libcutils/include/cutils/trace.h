@@ -18,7 +18,11 @@
 #define _LIBS_CUTILS_TRACE_H
 
 #include <inttypes.h>
+#ifdef _MSC_VER
+#include <cutils/stdatomic.h>
+#else
 #include <stdatomic.h>
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>

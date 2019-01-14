@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_CUTILS_MEMORY_H
-#define ANDROID_CUTILS_MEMORY_H
+/*
+ * A simple utility for reading fixed records out of a stream fd
+ */
 
-#include <stdint.h>
-#include <sys/types.h>
+#ifndef _CUTILS_RECORD_STREAM_H
+#define _CUTILS_RECORD_STREAM_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* size is given in bytes and must be multiple of 2 */
-void android_memset16(uint16_t* dst, uint16_t value, size_t size);
 
-/* size is given in bytes and must be multiple of 4 */
-void android_memset32(uint32_t* dst, uint32_t value, size_t size);
+typedef struct RecordStream RecordStream;
 
-#if defined(__GLIBC__) || defined(_WIN32)
-/* Declaration of strlcpy() for platforms that don't already have it. */
-ANDROID_API_CUTILS
-size_t strlcpy(char *dst, const char *src, size_t size);
-#endif
+extern RecordStream *record_stream_new(int fd, size_t maxRecordLen);
+extern void record_stream_free(RecordStream *p_rs);
+
+extern int record_stream_get_next (RecordStream *p_rs, void ** p_outRecord, 
+                                    size_t *p_outRecordLen);
 
 #ifdef __cplusplus
-} // extern "C"
+}
 #endif
 
-#endif // ANDROID_CUTILS_MEMORY_H
+
+#endif /*_CUTILS_RECORD_STREAM_H*/
+

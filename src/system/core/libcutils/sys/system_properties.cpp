@@ -3,7 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _MSC_VER
+#include <cutils/stdatomic.h>
+#else
 #include <stdatomic.h>
+#endif
 
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #include "sys/_system_properties.h"

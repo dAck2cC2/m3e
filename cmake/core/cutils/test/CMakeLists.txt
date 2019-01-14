@@ -34,6 +34,7 @@ list(APPEND TEST_CUTILS_SOURCE_FILES
 ${SOURCE_PATH}/config_utils_test.cpp
 ${SOURCE_PATH}/native_handle_test.cpp
 ${SOURCE_PATH}/PropertiesTest.cpp
+${SOURCE_PATH}/sockets_test.cpp
 )
 
 # project
