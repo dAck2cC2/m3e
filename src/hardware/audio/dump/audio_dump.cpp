@@ -21,7 +21,6 @@
 #include <system/audio.h>
 #include <hardware/audio.h>
 
-#include <utils/ADebugExt.h>
 #include <utils/Errors.h>
 
 using namespace android;

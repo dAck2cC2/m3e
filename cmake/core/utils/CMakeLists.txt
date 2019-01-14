@@ -16,23 +16,28 @@ cutils
 #safeiop
 )
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/utils )
+if (MSVC)
+    add_definitions(-D__MINGW32__=1)
+    add_definitions(-DNOMINMAX=1)
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND UTILS_DEPLIB ${LIB_MSVC_WRAP})
+endif(MSVC)
+
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/include/utils )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/ )
 
 # header files
-file(GLOB UTILS_HEADER_FILES ${HEADER_PATH}/*.h)
+file(GLOB UTILS_HEADER_FILES 
+${M3E_SOURCE_DIR}/src/system/core/include/utils/*.h
+${HEADER_PATH}/*.h
+${SOURCE_PATH}/*.h
+)
 
 # source files
 file(GLOB UTILS_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
 
-# header and source code for MSVC
-if(MSVC)
-    add_definitions(-D__MINGW32__=1)
-    add_definitions(-DNOMINMAX=1)
-    set(UTILS_HEADER_FILES ${UTILS_HEADER_FILES} ${MSVC_PATH}/stdint.h)
-    set(UTILS_HEADER_FILES ${UTILS_HEADER_FILES} ${MSVC_PATH}/sys/time.h)
-    set(UTILS_SOURCE_FILES ${UTILS_SOURCE_FILES} ${MSVC_PATH}/sys/time.c)
-endif(MSVC)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
@@ -44,6 +49,6 @@ if(UNIX AND NOT APPLE)
     target_link_libraries(utils ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-if(ENABLE_TEST)
+#if(ENABLE_TEST)
     add_subdirectory(test)
-endif(ENABLE_TEST)
+#endif(ENABLE_TEST)

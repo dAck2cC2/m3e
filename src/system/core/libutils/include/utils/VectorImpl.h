@@ -132,7 +132,7 @@ class ANDROID_API_UTILS SortedVectorImpl : public VectorImpl
 {
 public:
                             SortedVectorImpl(size_t itemSize, uint32_t flags);
-                            SortedVectorImpl(const VectorImpl& rhs);
+    explicit                SortedVectorImpl(const VectorImpl& rhs);
     virtual                 ~SortedVectorImpl();
     
     SortedVectorImpl&     operator = (const SortedVectorImpl& rhs);    

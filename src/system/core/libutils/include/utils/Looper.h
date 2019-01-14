@@ -51,7 +51,7 @@ typedef int (*Looper_callbackFunc)(int fd, int events, void* data);
  */
 struct Message {
     Message() : what(0) { }
-    Message(int what) : what(what) { }
+    Message(int w) : what(w) { }
 
     /* The message type. (interpretation is left up to the handler) */
     int what;
@@ -439,8 +439,8 @@ private:
     struct MessageEnvelope {
         MessageEnvelope() : uptime(0) { }
 
-        MessageEnvelope(nsecs_t uptime, const sp<MessageHandler> handler,
-                const Message& message) : uptime(uptime), handler(handler), message(message) {
+        MessageEnvelope(nsecs_t u, const sp<MessageHandler> h,
+                const Message& m) : uptime(u), handler(h), message(m) {
         }
 
         nsecs_t uptime;
