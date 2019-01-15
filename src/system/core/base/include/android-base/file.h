@@ -27,21 +27,45 @@
 namespace android {
 namespace base {
 
-ANDROID_API_BASE bool ReadFdToString(int fd, std::string* content);
-ANDROID_API_BASE bool ReadFileToString(const std::string& path, std::string* content);
+ANDROID_API_BASE 
+bool ReadFdToString(int fd, std::string* content);
+ANDROID_API_BASE 
+bool ReadFileToString(const std::string& path, std::string* content,
+                      bool follow_symlinks = false);
 
-ANDROID_API_BASE bool WriteStringToFile(const std::string& content, const std::string& path);
-ANDROID_API_BASE bool WriteStringToFd(const std::string& content, int fd);
+ANDROID_API_BASE 
+bool WriteStringToFile(const std::string& content, const std::string& path,
+                       bool follow_symlinks = false);
+ANDROID_API_BASE 
+bool WriteStringToFd(const std::string& content, int fd);
 
 #if !defined(_WIN32)
-ANDROID_API_BASE bool WriteStringToFile(const std::string& content, const std::string& path,
-                       mode_t mode, uid_t owner, gid_t group);
+ANDROID_API_BASE 
+bool WriteStringToFile(const std::string& content, const std::string& path,
+                       mode_t mode, uid_t owner, gid_t group,
+                       bool follow_symlinks = false);
 #endif
 
-ANDROID_API_BASE bool ReadFully(int fd, void* data, size_t byte_count);
-ANDROID_API_BASE bool WriteFully(int fd, const void* data, size_t byte_count);
+ANDROID_API_BASE 
+bool ReadFully(int fd, void* data, size_t byte_count);
+ANDROID_API_BASE 
+bool WriteFully(int fd, const void* data, size_t byte_count);
 
-ANDROID_API_BASE bool RemoveFileIfExists(const std::string& path, std::string* err = nullptr);
+ANDROID_API_BASE 
+bool RemoveFileIfExists(const std::string& path, std::string* err = nullptr);
+
+#if !defined(_WIN32)
+bool Realpath(const std::string& path, std::string* result);
+bool Readlink(const std::string& path, std::string* result);
+#endif
+
+std::string GetExecutablePath();
+std::string GetExecutableDirectory();
+
+// Like the regular basename and dirname, but thread-safe on all
+// platforms and capable of correctly handling exotic Windows paths.
+std::string Basename(const std::string& path);
+std::string Dirname(const std::string& path);
 
 }  // namespace base
 }  // namespace android

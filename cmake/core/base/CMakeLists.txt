@@ -12,6 +12,15 @@ set(BASE_DEPLIB
 log
 )
 
+if (MSVC)
+    add_definitions(-Dstrncasecmp=_strnicmp)
+    add_definitions(-Dstrcasecmp=_stricmp)
+    
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND BASE_DEPLIB ${LIB_MSVC_WRAP})
+endif(MSVC)
+
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/base/include/android-base )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/base )
 
@@ -33,16 +42,9 @@ ${SOURCE_PATH}/test_utils.cpp
 )
 
 if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
-    list(APPEND BASE_HEADER_FILES 
-    ${MSVC_PATH}/unistd.h
-    ${MSVC_PATH}/libgen.h
-    ) 
-
     list(APPEND BASE_SOURCE_FILES
     ${SOURCE_PATH}/errors_windows.cpp
-    ${SOURCE_PATH}/utf8.cpp   
-    ${MSVC_PATH}/libgen.c  
+    ${SOURCE_PATH}/utf8.cpp
     )
 else()
     list(APPEND BASE_SOURCE_FILES

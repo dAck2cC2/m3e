@@ -5,13 +5,14 @@
 #ifndef _MSC_LIBGEN_H
 #define _MSC_LIBGEN_H    1
 
+#include "msvc_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-char *
-basename(char const *name);
+MSVC_EXPORT
+char * basename(char const *name);
 
 #ifdef __cplusplus
 }
