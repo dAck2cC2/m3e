@@ -78,6 +78,8 @@ extern "C" {
 
 #ifdef _WIN32
 typedef uint32_t android_thread_id_t;
+#elif defined(HAVE_PTHREADS)
+typedef pthread_t android_thread_id_t;
 #else
 typedef void* android_thread_id_t;
 #endif

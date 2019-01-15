@@ -186,7 +186,7 @@ android_thread_id_t androidGetThreadId()
 void androidJoinThread(android_thread_id_t id)
 {
 	void *dummy;
-	pthread_join(id, &dummy);
+	pthread_join((pthread_t)id, &dummy);
 
 	return;
 }

@@ -31,7 +31,7 @@
 #include <utils/Condition.h>
 #include <utils/Errors.h>
 #include <utils/Mutex.h>
-//#include <utils/RWLock.h>
+#include <utils/RWLock.h>
 #include <utils/Thread.h>
 #endif
 

@@ -25,11 +25,11 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <cutils/android_get_control_file.h>
+//#include <cutils/android_get_control_file.h>
 #include <cutils/sockets.h>
 #include <log/log.h>
 
-#include "android_get_control_env.h"
+//#include "android_get_control_env.h"
 
 #ifndef TEMP_FAILURE_RETRY
 #define TEMP_FAILURE_RETRY(exp) (exp) // KISS implementation
@@ -94,6 +94,7 @@ ssize_t socket_send_buffers(cutils_socket_t sock,
 }
 
 int android_get_control_socket(const char* name) {
+#if TODO
     int fd = __android_get_control_from_env(ANDROID_SOCKET_ENV_PREFIX, name);
 
     if (fd < 0) return fd;
@@ -112,4 +113,7 @@ int android_get_control_socket(const char* name) {
 
     // It is what we think it is
     return fd;
+#else
+    return -1;
+#endif
 }
