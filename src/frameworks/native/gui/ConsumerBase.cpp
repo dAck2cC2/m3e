@@ -39,6 +39,8 @@
 #include <utils/String8.h>
 #include <utils/Trace.h>
 
+#include <cutils/atomic.h>
+
 #if defined(_MSC_VER)
 #define CB_LOGV(x, ...) 
 #define CB_LOGE(x, ...) 

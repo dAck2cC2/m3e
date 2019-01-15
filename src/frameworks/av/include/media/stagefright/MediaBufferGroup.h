@@ -29,7 +29,7 @@ namespace android {
 class MediaBuffer;
 class MetaData;
 
-class ANDROID_API MediaBufferGroup : public MediaBufferObserver {
+class ANDROID_API_STAGEFRIGHT_FOUNDATION MediaBufferGroup : public MediaBufferObserver {
 public:
     MediaBufferGroup(size_t growthLimit = 0);
 

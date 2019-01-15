@@ -224,7 +224,7 @@ enum {
     kTypeD263        = 'd263',
 };
 
-class ANDROID_API MetaData : public RefBase {
+class ANDROID_API_STAGEFRIGHT_FOUNDATION MetaData : public RefBase {
 public:
     MetaData();
     MetaData(const MetaData &from);

@@ -23,6 +23,8 @@
 #include <cutils/log.h>
 #include <utils/String8.h>
 
+#include <cutils/atomic.h>
+
 namespace android {
 
 int32_t volatile AudioPatch::mNextUniqueId = 1;

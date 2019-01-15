@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-#include <utils/NativeHandle.h>
-#include <cutils/native_handle.h>
+#ifndef ANDROID_UTILS_SINGLETON_TEST_H
+#define ANDROID_UTILS_SINGLETON_TEST_H
+
+#include <sys/cdefs.h>
+
+#include "Singleton_test.h"
 
 namespace android {
 
-sp<NativeHandle> NativeHandle::create(native_handle_t* handle, bool ownsHandle) {
-    return handle ? new NativeHandle(handle, ownsHandle) : NULL;
+struct SingletonTestData : Singleton<SingletonTestData> {
+    unsigned int contents;
+};
+
+__BEGIN_DECLS
+
+unsigned int singletonGetInstanceContents();
+void singletonSetInstanceContents(unsigned int);
+bool singletonHasInstance();
+
+__END_DECLS
+
 }
 
-NativeHandle::NativeHandle(native_handle_t* handle, bool ownsHandle)
-        : mHandle(handle), mOwnsHandle(ownsHandle) {
+#endif // ANDROID_UTILS_SINGLETON_TEST_H
 
-}
-
-NativeHandle::~NativeHandle() {
-    if (mOwnsHandle) {
-        native_handle_close(mHandle);
-        native_handle_delete(mHandle);
-    }
-}
-
-} // namespace android

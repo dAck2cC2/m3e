@@ -26,7 +26,7 @@
 
 namespace android {
 
-class StopWatch
+class ANDROID_API_UTILS StopWatch
 {
 public:
         StopWatch(  const char *name,

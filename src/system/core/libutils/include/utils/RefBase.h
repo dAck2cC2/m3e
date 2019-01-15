@@ -177,6 +177,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// LightRefBase used to be declared in this header, so we have to include it
+#include <utils/LightRefBase.h>
+
 #include <utils/StrongPointer.h>
 #include <utils/TypeHelpers.h>
 
@@ -216,7 +219,7 @@ inline bool operator _op_ (const U* o) const {                  \
 
 class ReferenceRenamer {
 protected:
-    // destructor is purposedly not virtual so we avoid code overhead from
+    // destructor is purposely not virtual so we avoid code overhead from
     // subclasses; we have to make it protected to guarantee that it
     // cannot be called from this base class (and to make strict compilers
     // happy).
@@ -246,13 +249,13 @@ public:
     {
     public:
         RefBase*            refBase() const;
-        
+
         void                incWeak(const void* id);
         void                decWeak(const void* id);
-        
+
         // acquires a strong reference if there is already one.
         bool                attemptIncStrong(const void* id);
-        
+
         // acquires a weak reference if there is already one.
         // This is not always safe. see ProcessState.cpp and BpBinder.cpp
         // for proper use.
@@ -268,12 +271,12 @@ public:
         // enable -- enable/disable tracking
         // retain -- when tracking is enable, if true, then we save a stack trace
         //           for each reference and dereference; when retain == false, we
-        //           match up references and dereferences and keep only the 
+        //           match up references and dereferences and keep only the
         //           outstanding ones.
-        
+
         void                trackMe(bool enable, bool retain);
     };
-    
+
             weakref_type*   createWeak(const void* id) const;
             
             weakref_type*   getWeakRefs() const;
@@ -345,90 +348,47 @@ private:
 
 // ---------------------------------------------------------------------------
 
-template <class T>
-class LightRefBase
-{
-public:
-    inline LightRefBase() : mCount(0) { }
-    inline void incStrong(__attribute__((unused)) const void* id) const {
-        mCount.fetch_add(1, std::memory_order_relaxed);
-    }
-    inline void decStrong(__attribute__((unused)) const void* id) const {
-        if (mCount.fetch_sub(1, std::memory_order_release) == 1) {
-            std::atomic_thread_fence(std::memory_order_acquire);
-            delete static_cast<const T*>(this);
-        }
-    }
-    //! DEBUGGING ONLY: Get current strong ref count.
-    inline int32_t getStrongCount() const {
-        return mCount.load(std::memory_order_relaxed);
-    }
-
-    typedef LightRefBase<T> basetype;
-
-protected:
-    inline ~LightRefBase() { }
-
-private:
-    friend class ReferenceMover;
-    inline static void renameRefs(size_t n, const ReferenceRenamer& renamer) { }
-    inline static void renameRefId(T* ref,
-            const void* old_id, const void* new_id) { }
-
-private:
-    mutable std::atomic<int32_t> mCount;
-};
-
-// This is a wrapper around LightRefBase that simply enforces a virtual
-// destructor to eliminate the template requirement of LightRefBase
-class VirtualLightRefBase : public LightRefBase<VirtualLightRefBase> {
-public:
-    virtual ~VirtualLightRefBase() {}
-};
-
-// ---------------------------------------------------------------------------
-
 template <typename T>
 class wp
 {
 public:
     typedef typename RefBase::weakref_type weakref_type;
-    
+
     inline wp() : m_ptr(0) { }
 
-    wp(T* other);
+    wp(T* other);  // NOLINT(implicit)
     wp(const wp<T>& other);
-    wp(const sp<T>& other);
-    template<typename U> wp(U* other);
-    template<typename U> wp(const sp<U>& other);
-    template<typename U> wp(const wp<U>& other);
+    explicit wp(const sp<T>& other);
+    template<typename U> wp(U* other);  // NOLINT(implicit)
+    template<typename U> wp(const sp<U>& other);  // NOLINT(implicit)
+    template<typename U> wp(const wp<U>& other);  // NOLINT(implicit)
 
     ~wp();
-    
+
     // Assignment
 
     wp& operator = (T* other);
     wp& operator = (const wp<T>& other);
     wp& operator = (const sp<T>& other);
-    
+
     template<typename U> wp& operator = (U* other);
     template<typename U> wp& operator = (const wp<U>& other);
     template<typename U> wp& operator = (const sp<U>& other);
-    
+
     void set_object_and_refs(T* other, weakref_type* refs);
 
     // promotion to sp
-    
+
     sp<T> promote() const;
 
     // Reset
-    
+
     void clear();
 
     // Accessors
-    
+
     inline  weakref_type* get_refs() const { return m_refs; }
-    
+
     inline  T* unsafe_get() const { return m_ptr; }
 
     // Operators
@@ -657,42 +617,42 @@ public:
     // a template<typename TYPE inherits RefBase> template...
 
     template<typename TYPE> static inline
-    void move_references(sp<TYPE>* d, sp<TYPE> const* s, size_t n) {
+    void move_references(sp<TYPE>* dest, sp<TYPE> const* src, size_t n) {
 
         class Renamer : public ReferenceRenamer {
-            sp<TYPE>* d;
-            sp<TYPE> const* s;
+            sp<TYPE>* d_;
+            sp<TYPE> const* s_;
             virtual void operator()(size_t i) const {
                 // The id are known to be the sp<>'s this pointer
-                TYPE::renameRefId(d[i].get(), &s[i], &d[i]);
+                TYPE::renameRefId(d_[i].get(), &s_[i], &d_[i]);
             }
         public:
-            Renamer(sp<TYPE>* d, sp<TYPE> const* s) : d(d), s(s) { }
+            Renamer(sp<TYPE>* d, sp<TYPE> const* s) : d_(d), s_(s) { }
             virtual ~Renamer() { }
         };
 
-        memmove(d, s, n*sizeof(sp<TYPE>));
-        TYPE::renameRefs(n, Renamer(d, s));
+        memmove(dest, src, n*sizeof(sp<TYPE>));
+        TYPE::renameRefs(n, Renamer(dest, src));
     }
 
 
     template<typename TYPE> static inline
-    void move_references(wp<TYPE>* d, wp<TYPE> const* s, size_t n) {
+    void move_references(wp<TYPE>* dest, wp<TYPE> const* src, size_t n) {
 
         class Renamer : public ReferenceRenamer {
-            wp<TYPE>* d;
-            wp<TYPE> const* s;
+            wp<TYPE>* d_;
+            wp<TYPE> const* s_;
             virtual void operator()(size_t i) const {
                 // The id are known to be the wp<>'s this pointer
-                TYPE::renameRefId(d[i].get_refs(), &s[i], &d[i]);
+                TYPE::renameRefId(d_[i].get_refs(), &s_[i], &d_[i]);
             }
         public:
-            Renamer(wp<TYPE>* d, wp<TYPE> const* s) : d(d), s(s) { }
+            Renamer(wp<TYPE>* rd, wp<TYPE> const* rs) : d_(rd), s_(rs) { }
             virtual ~Renamer() { }
         };
 
-        memmove(d, s, n*sizeof(wp<TYPE>));
-        TYPE::renameRefs(n, Renamer(d, s));
+        memmove(dest, src, n*sizeof(wp<TYPE>));
+        TYPE::renameRefs(n, Renamer(dest, src));
     }
 };
 
@@ -722,7 +682,6 @@ template<typename TYPE> inline
 void move_backward_type(wp<TYPE>* d, wp<TYPE> const* s, size_t n) {
     ReferenceMover::move_references(d, s, n);
 }
-
 
 }; // namespace android
 

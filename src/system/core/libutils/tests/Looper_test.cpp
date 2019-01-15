@@ -36,7 +36,7 @@ protected:
         mLooper->wake();
     }
 };
-
+#if defined(_LINUX)
 class DelayedWriteSignal : public DelayedTask {
     Pipe* mPipe;
 
@@ -50,7 +50,7 @@ protected:
         mPipe->writeSignal();
     }
 };
-
+#endif
 class CallbackHandler {
 public:
     void setCallback(const sp<Looper>& looper, int fd, int events) {
@@ -76,7 +76,7 @@ public:
     int fd;
     int events;
 
-    StubCallbackHandler(int nextResult) : nextResult(nextResult),
+    explicit StubCallbackHandler(int nextResult) : nextResult(nextResult),
             callbackCount(0), fd(-1), events(-1) {
     }
 

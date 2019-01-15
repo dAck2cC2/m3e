@@ -72,7 +72,7 @@ public:
             status_t    join();
 
     // Indicates whether this thread is running or not.
-    bool        isRunning() const { return mRunning; };
+            bool        isRunning() const;
 
     // Return the thread's kernel ID, same as the thread itself calling gettid(),
     // or -1 if the thread is not running.

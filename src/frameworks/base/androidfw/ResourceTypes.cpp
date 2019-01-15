@@ -776,7 +776,7 @@ const char16_t* ResStringPool::stringAt(size_t idx, size_t* u16len) const
                     if (kDebugStringPoolNoisy) {
                         ALOGI("Caching UTF8 string: %s", u8str);
                     }
-                    utf8_to_utf16(u8str, u8len, u16str);
+                    utf8_to_utf16(u8str, u8len, u16str, *u16len + 1);
                     mCache[idx] = u16str;
                     return u16str;
                 } else {
@@ -877,7 +877,8 @@ ssize_t ResStringPool::indexOfString(const char16_t* str, size_t strLen) const
             // the ordering, we need to convert strings in the pool to UTF-16.
             // But we don't want to hit the cache, so instead we will have a
             // local temporary allocation for the conversions.
-            char16_t* convBuffer = (char16_t*)malloc(strLen+4);
+            size_t convBufferLen = strLen + 4;
+            char16_t* convBuffer = (char16_t*)calloc(convBufferLen, sizeof(char16_t));
             ssize_t l = 0;
             ssize_t h = mHeader->stringCount-1;
 
@@ -887,8 +888,7 @@ ssize_t ResStringPool::indexOfString(const char16_t* str, size_t strLen) const
                 const uint8_t* s = (const uint8_t*)string8At(mid, &len);
                 int c;
                 if (s != NULL) {
-                    char16_t* end = utf8_to_utf16_n(s, len, convBuffer, strLen+3);
-                    *end = 0;
+                    char16_t* end = utf8_to_utf16(s, len, convBuffer, convBufferLen);
                     c = strzcmp16(convBuffer, end-convBuffer, str, strLen);
                 } else {
                     c = -1;
@@ -2024,7 +2024,6 @@ int ResTable_config::isLocaleMoreSpecificThan(const ResTable_config& o) const {
         ((o.localeVariant[0] != '\0') ? 2 : 0);
 
     return score - oScore;
-
 }
 
 bool ResTable_config::isMoreSpecificThan(const ResTable_config& o) const {
@@ -2179,7 +2178,7 @@ bool ResTable_config::isLocaleBetterThan(const ResTable_config& o,
     }
 
     if (locale == 0 && o.locale == 0) {
-        // The locales parts of both resources are empty, so no one is better
+        // The locale part of both resources is empty, so none is better
         // than the other.
         return false;
     }
@@ -4402,7 +4401,7 @@ ssize_t ResTable::getBagLocked(uint32_t resID, const bag_entry** outBag,
         pos++;
         const size_t size = dtohs(map->value.size);
         curOff += size + sizeof(*map)-sizeof(map->value);
-    };
+    }
 
     if (curEntry > set->numAttrs) {
         set->numAttrs = curEntry;

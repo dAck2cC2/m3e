@@ -13,21 +13,12 @@
 // Debugs callback registration and invocation.
 #define DEBUG_CALLBACKS 0
 
-#include <cutils/log.h>
-#include <cutils/threads.h>
 #include <utils/Looper.h>
-#include <utils/Timers.h>
-
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <string.h>
 #if defined(_LINUX)
 #include <sys/eventfd.h>
+#else
+#include <cutils/threads.h>
 #endif // _LINUX
-#include <unistd.h>
-
 
 namespace android {
 
@@ -69,12 +60,12 @@ static const int EPOLL_SIZE_HINT = 8;
 
 // Maximum number of file descriptors for which to retrieve poll events each iteration.
 static const int EPOLL_MAX_EVENTS = 16;
-
-//static pthread_once_t gTLSOnce = PTHREAD_ONCE_INIT;
-//static pthread_key_t gTLSKey = 0;
-
+#if defined(_LINUX)
+static pthread_once_t gTLSOnce = PTHREAD_ONCE_INIT;
+static pthread_key_t gTLSKey = 0;
+#else  // _LINUX
 thread_store_t gTLS = THREAD_STORE_INITIALIZER;
-    
+#endif // _LINUX
 Looper::Looper(bool allowNonCallbacks) :
         mAllowNonCallbacks(allowNonCallbacks), mSendingMessage(false),
         mPolling(false), mEpollFd(-1), mEpollRebuildRequired(false),
@@ -91,6 +82,7 @@ Looper::Looper(bool allowNonCallbacks) :
 Looper::~Looper() {
 #if defined(_LINUX)
     close(mWakeEventFd);
+    mWakeEventFd = -1;
     if (mEpollFd >= 0) {
         close(mEpollFd);
     }
@@ -98,8 +90,10 @@ Looper::~Looper() {
 }
 
 void Looper::initTLSKey() {
-    //int result = pthread_key_create(& gTLSKey, threadDestructor);
-    //LOG_ALWAYS_FATAL_IF(result != 0, "Could not allocate TLS key.");
+#if defined(_LINUX)
+    int result = pthread_key_create(& gTLSKey, threadDestructor);
+    LOG_ALWAYS_FATAL_IF(result != 0, "Could not allocate TLS key.");
+#endif // _LINUX
 }
 
 void Looper::threadDestructor(void *st) {
@@ -115,21 +109,25 @@ void Looper::setForThread(const sp<Looper>& looper) {
     if (looper != NULL) {
         looper->incStrong((void*)threadDestructor);
     }
-
-    //pthread_setspecific(gTLSKey, looper.get());
+#if defined(_LINUX)
+    pthread_setspecific(gTLSKey, looper.get());
+#else
     thread_store_set(&gTLS, looper.get(), threadDestructor);
-
+#endif
     if (old != NULL) {
         old->decStrong((void*)threadDestructor);
     }
 }
 
 sp<Looper> Looper::getForThread() {
-    //int result = pthread_once(& gTLSOnce, initTLSKey);
-    //LOG_ALWAYS_FATAL_IF(result != 0, "pthread_once failed");
+#if defined(_LINUX)
+    int result = pthread_once(& gTLSOnce, initTLSKey);
+    LOG_ALWAYS_FATAL_IF(result != 0, "pthread_once failed");
 
-    //return (Looper*)pthread_getspecific(gTLSKey);
+    return (Looper*)pthread_getspecific(gTLSKey);
+#else
     return (Looper*)thread_store_get(&gTLS);
+#endif
 }
 
 sp<Looper> Looper::prepare(int opts) {
@@ -250,12 +248,11 @@ int Looper::pollInner(int timeoutMillis) {
                 this, mNextMessageUptime - now, timeoutMillis);
 #endif
     }
-    
+
     // Poll.
     int result = POLL_WAKE;
     mResponses.clear();
     mResponseIndex = 0;
-    
 #if defined(_LINUX)
     // We are about to idle.
     mPolling = true;
@@ -268,7 +265,7 @@ int Looper::pollInner(int timeoutMillis) {
 
     // Acquire lock.
     mLock.lock();
-    
+
     // Rebuild epoll set if needed.
     if (mEpollRebuildRequired) {
         mEpollRebuildRequired = false;
@@ -450,7 +447,8 @@ void Looper::wake() {
     ssize_t nWrite = TEMP_FAILURE_RETRY(write(mWakeEventFd, &inc, sizeof(uint64_t)));
     if (nWrite != sizeof(uint64_t)) {
         if (errno != EAGAIN) {
-            ALOGW("Could not write wake signal: %s", strerror(errno));
+            LOG_ALWAYS_FATAL("Could not write wake signal to fd %d: %s",
+                    mWakeEventFd, strerror(errno));
         }
     }
 #else  // _LINUX
@@ -720,4 +718,9 @@ void Looper::Request::initEventItem(struct epoll_event* eventItem) const {
     eventItem->data.fd = fd;
 }
 #endif // _LINUX
+
+MessageHandler::~MessageHandler() { }
+
+LooperCallback::~LooperCallback() { }
+
 } // namespace android

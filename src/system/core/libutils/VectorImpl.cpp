@@ -16,15 +16,17 @@
 
 #define LOG_TAG "Vector"
 
-#include <string.h>
-#include <stdlib.h>
+#include <utils/VectorImpl.h>
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "utils/Log.h"
-
-#include "utils/Errors.h"
+#include <log/log.h>
+#if ENABLE_SAFE_IOP
+#include <safe_iop.h>
+#endif
 #include "SharedBuffer.h"
-#include "utils/VectorImpl.h"
 
 /*****************************************************************************/
 
@@ -35,9 +37,8 @@ namespace android {
 
 const size_t kMinVectorCapacity = 4;
 
-static inline size_t max(size_t a, size_t b)
-{
-    return a > b ? a : b;
+static inline size_t max(size_t a, size_t b) {
+    return a>b ? a : b;
 }
 
 // ----------------------------------------------------------------------------
@@ -59,20 +60,18 @@ VectorImpl::VectorImpl(const VectorImpl& rhs)
 VectorImpl::~VectorImpl()
 {
     ALOGW_IF(mCount,
-             "[%p] subclasses of VectorImpl must call finish_vector()"
-             " in their destructor. Leaking %d bytes.",
-             this, (int)(mCount * mItemSize));
-    // We can't call _do_destroy() here because the vtable is already gone.
+        "[%p] subclasses of VectorImpl must call finish_vector()"
+        " in their destructor. Leaking %d bytes.",
+        this, (int)(mCount*mItemSize));
+    // We can't call _do_destroy() here because the vtable is already gone. 
 }
 
 VectorImpl& VectorImpl::operator = (const VectorImpl& rhs)
 {
     LOG_ALWAYS_FATAL_IF(mItemSize != rhs.mItemSize,
-                        "Vector<> have different types (this=%p, rhs=%p)", this, &rhs);
-
+        "Vector<> have different types (this=%p, rhs=%p)", this, &rhs);
     if (this != &rhs) {
         release_storage();
-
         if (rhs.mCount) {
             mStorage = rhs.mStorage;
             mCount = rhs.mCount;
@@ -82,26 +81,27 @@ VectorImpl& VectorImpl::operator = (const VectorImpl& rhs)
             mCount = 0;
         }
     }
-
     return *this;
 }
 
 void* VectorImpl::editArrayImpl()
 {
     if (mStorage) {
-        SharedBuffer* sb = SharedBuffer::bufferFromData(mStorage)->attemptEdit();
-
-        if (sb == 0) {
-            sb = SharedBuffer::alloc(capacity() * mItemSize);
-
-            if (sb) {
-                _do_copy(sb->data(), mStorage, mCount);
-                release_storage();
-                mStorage = sb->data();
-            }
+        const SharedBuffer* sb = SharedBuffer::bufferFromData(mStorage);
+        SharedBuffer* editable = sb->attemptEdit();
+        if (editable == 0) {
+            // If we're here, we're not the only owner of the buffer.
+            // We must make a copy of it.
+            editable = SharedBuffer::alloc(sb->size());
+            // Fail instead of returning a pointer to storage that's not
+            // editable. Otherwise we'd be editing the contents of a buffer
+            // for which we're not the only owner, which is undefined behaviour.
+            LOG_ALWAYS_FATAL_IF(editable == NULL, "");
+            _do_copy(editable->data(), mStorage, mCount);
+            release_storage();
+            mStorage = editable->data();
         }
     }
-
     return mStorage;
 }
 
@@ -110,7 +110,6 @@ size_t VectorImpl::capacity() const
     if (mStorage) {
         return SharedBuffer::bufferFromData(mStorage)->size() / mItemSize;
     }
-
     return 0;
 }
 
@@ -128,13 +127,10 @@ ssize_t VectorImpl::insertArrayAt(const void* array, size_t index, size_t length
 {
     if (index > size())
         return BAD_INDEX;
-
     void* where = _grow(index, length);
-
     if (where) {
         _do_copy(where, array, length);
     }
-
     return where ? index : (ssize_t)NO_MEMORY;
 }
 
@@ -152,9 +148,7 @@ ssize_t VectorImpl::insertAt(const void* item, size_t index, size_t numItems)
 {
     if (index > size())
         return BAD_INDEX;
-
     void* where = _grow(index, numItems);
-
     if (where) {
         if (item) {
             _do_splat(where, item, numItems);
@@ -162,7 +156,6 @@ ssize_t VectorImpl::insertAt(const void* item, size_t index, size_t numItems)
             _do_construct(where, numItems);
         }
     }
-
     return where ? index : (ssize_t)NO_MEMORY;
 }
 
@@ -182,67 +175,60 @@ status_t VectorImpl::sort(VectorImpl::compar_r_t cmp, void* state)
     // is well suited for small and already sorted arrays
     // for big arrays, it could be better to use mergesort
     const ssize_t count = size();
-
     if (count > 1) {
         void* array = const_cast<void*>(arrayImpl());
         void* temp = 0;
         ssize_t i = 1;
-
         while (i < count) {
-            void* item = reinterpret_cast<char*>(array) + mItemSize * (i);
-            void* curr = reinterpret_cast<char*>(array) + mItemSize * (i - 1);
-
+            void* item = reinterpret_cast<char*>(array) + mItemSize*(i);
+            void* curr = reinterpret_cast<char*>(array) + mItemSize*(i-1);
             if (cmp(curr, item, state) > 0) {
 
                 if (!temp) {
                     // we're going to have to modify the array...
                     array = editArrayImpl();
-
                     if (!array) return NO_MEMORY;
-
                     temp = malloc(mItemSize);
-
                     if (!temp) return NO_MEMORY;
-
-                    item = reinterpret_cast<char*>(array) + mItemSize * (i);
-                    curr = reinterpret_cast<char*>(array) + mItemSize * (i - 1);
+                    item = reinterpret_cast<char*>(array) + mItemSize*(i);
+                    curr = reinterpret_cast<char*>(array) + mItemSize*(i-1);
                 } else {
                     _do_destroy(temp, 1);
                 }
 
                 _do_copy(temp, item, 1);
 
-                ssize_t j = i - 1;
-                void* next = reinterpret_cast<char*>(array) + mItemSize * (i);
-
+                ssize_t j = i-1;
+                void* next = reinterpret_cast<char*>(array) + mItemSize*(i);                    
                 do {
                     _do_destroy(next, 1);
                     _do_copy(next, curr, 1);
                     next = curr;
                     --j;
-                    curr = reinterpret_cast<char*>(array) + mItemSize * (j);
-                } while (j >= 0 && (cmp(curr, temp, state) > 0));
+                    curr = NULL;
+                    if (j >= 0) {
+                        curr = reinterpret_cast<char*>(array) + mItemSize*(j);
+                    }
+                } while (j>=0 && (cmp(curr, temp, state) > 0));
 
                 _do_destroy(next, 1);
                 _do_copy(next, temp, 1);
             }
-
             i++;
         }
-
+        
         if (temp) {
             _do_destroy(temp, 1);
             free(temp);
         }
     }
-
     return NO_ERROR;
 }
 
 void VectorImpl::pop()
 {
     if (size())
-        removeItemsAt(size() - 1, 1);
+        removeItemsAt(size()-1, 1);
 }
 
 void VectorImpl::push()
@@ -272,42 +258,37 @@ ssize_t VectorImpl::replaceAt(size_t index)
 
 ssize_t VectorImpl::replaceAt(const void* prototype, size_t index)
 {
-    ALOG_ASSERT(index < size(),
-                "[%p] replace: index=%d, size=%d", this, (int)index, (int)size());
+    ALOG_ASSERT(index<size(),
+        "[%p] replace: index=%d, size=%d", this, (int)index, (int)size());
 
     if (index >= size()) {
         return BAD_INDEX;
     }
 
     void* item = editItemLocation(index);
-
     if (item != prototype) {
         if (item == 0)
             return NO_MEMORY;
-
         _do_destroy(item, 1);
-
         if (prototype == 0) {
             _do_construct(item, 1);
         } else {
             _do_copy(item, prototype, 1);
         }
     }
-
     return ssize_t(index);
 }
 
 ssize_t VectorImpl::removeItemsAt(size_t index, size_t count)
 {
-    ALOG_ASSERT((index + count) <= size(),
-                "[%p] remove: index=%d, count=%d, size=%d",
-                this, (int)index, (int)count, (int)size());
+    ALOG_ASSERT((index+count)<=size(),
+        "[%p] remove: index=%d, count=%d, size=%d",
+               this, (int)index, (int)count, (int)size());
 
-    if ((index + count) > size())
+    if ((index+count) > size())
         return BAD_VALUE;
-
-    _shrink(index, count);
-    return index;
+   _shrink(index, count);
+   return index;
 }
 
 void VectorImpl::finish_vector()
@@ -324,53 +305,53 @@ void VectorImpl::clear()
 
 void* VectorImpl::editItemLocation(size_t index)
 {
-    ALOG_ASSERT(index < capacity(),
-                "[%p] editItemLocation: index=%d, capacity=%d, count=%d",
-                this, (int)index, (int)capacity(), (int)mCount);
+    ALOG_ASSERT(index<capacity(),
+        "[%p] editItemLocation: index=%d, capacity=%d, count=%d",
+        this, (int)index, (int)capacity(), (int)mCount);
 
     if (index < capacity()) {
         void* buffer = editArrayImpl();
-
         if (buffer) {
-            return reinterpret_cast<char*>(buffer) + index * mItemSize;
+            return reinterpret_cast<char*>(buffer) + index*mItemSize;
         }
     }
-
     return 0;
 }
 
 const void* VectorImpl::itemLocation(size_t index) const
 {
-    /*
-    It will cause problem when an empty vector.
-    */
-    ALOG_ASSERT(index <= capacity(),
-                "[%p] itemLocation: index=%d, capacity=%d, count=%d",
-                this, (int)index, (int)capacity(), (int)mCount);
+	/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	It will cause problem when an empty vector.
+	*/
+    /* ALOG_ASSERT(index<capacity(), */
+	ALOG_ASSERT(index <= capacity(),
+        "[%p] itemLocation: index=%d, capacity=%d, count=%d",
+        this, (int)index, (int)capacity(), (int)mCount);
 
     if (index < capacity()) {
         const  void* buffer = arrayImpl();
-
         if (buffer) {
-            return reinterpret_cast<const char*>(buffer) + index * mItemSize;
+            return reinterpret_cast<const char*>(buffer) + index*mItemSize;
         }
     }
-
     return 0;
 }
 
 ssize_t VectorImpl::setCapacity(size_t new_capacity)
 {
-    size_t current_capacity = capacity();
-    ssize_t amount = new_capacity - size();
-
-    if (amount <= 0) {
-        // we can't reduce the capacity
-        return current_capacity;
+    // The capacity must always be greater than or equal to the size
+    // of this vector.
+    if (new_capacity <= size()) {
+        return capacity();
     }
 
+#if ENABLE_SAFE_IOP
+    size_t new_allocation_size = 0;
+    LOG_ALWAYS_FATAL_IF(!safe_mul(&new_allocation_size, new_capacity, mItemSize));
+    SharedBuffer* sb = SharedBuffer::alloc(new_allocation_size);
+#else
     SharedBuffer* sb = SharedBuffer::alloc(new_capacity * mItemSize);
-
+#endif
     if (sb) {
         void* array = sb->data();
         _do_copy(array, mStorage, size());
@@ -379,7 +360,6 @@ ssize_t VectorImpl::setCapacity(size_t new_capacity)
     } else {
         return NO_MEMORY;
     }
-
     return new_capacity;
 }
 
@@ -397,11 +377,10 @@ void VectorImpl::release_storage()
 {
     if (mStorage) {
         const SharedBuffer* sb = SharedBuffer::bufferFromData(mStorage);
-
         if (sb->release(SharedBuffer::eKeepStorage) == 1) {
             _do_destroy(mStorage, mCount);
             SharedBuffer::dealloc(sb);
-        }
+        } 
     }
 }
 
@@ -411,52 +390,86 @@ void* VectorImpl::_grow(size_t where, size_t amount)
 //        this, (int)where, (int)amount, (int)mCount, (int)capacity());
 
     ALOG_ASSERT(where <= mCount,
-                "[%p] _grow: where=%d, amount=%d, count=%d",
-                this, (int)where, (int)amount, (int)mCount); // caller already checked
+            "[%p] _grow: where=%d, amount=%d, count=%d",
+            this, (int)where, (int)amount, (int)mCount); // caller already checked
 
+#if ENABLE_SAFE_IOP
+    size_t new_size;
+    LOG_ALWAYS_FATAL_IF(!safe_add(&new_size, mCount, amount), "new_size overflow");
+#else
     const size_t new_size = mCount + amount;
+#endif
 
     if (capacity() < new_size) {
+#if ENABLE_SAFE_IOP
+        // NOTE: This implementation used to resize vectors as per ((3*x + 1) / 2)
+        // (sigh..). Also note, the " + 1" was necessary to handle the special case
+        // where x == 1, where the resized_capacity will be equal to the old
+        // capacity without the +1. The old calculation wouldn't work properly
+        // if x was zero.
+        //
+        // This approximates the old calculation, using (x + (x/2) + 1) instead.
+        size_t new_capacity = 0;
+        LOG_ALWAYS_FATAL_IF(!safe_add(&new_capacity, new_size, (new_size / 2)),
+                            "new_capacity overflow");
+        LOG_ALWAYS_FATAL_IF(!safe_add(&new_capacity, new_capacity, static_cast<size_t>(1u)),
+                            "new_capacity overflow");
+        new_capacity = max(kMinVectorCapacity, new_capacity);
+
+        size_t new_alloc_size = 0;
+        LOG_ALWAYS_FATAL_IF(!safe_mul(&new_alloc_size, new_capacity, mItemSize),
+                            "new_alloc_size overflow");
+#else
         const size_t new_capacity = max(kMinVectorCapacity, ((new_size * 3) + 1) / 2);
+#endif
 
 //        ALOGV("grow vector %p, new_capacity=%d", this, (int)new_capacity);
         if ((mStorage) &&
-                (mCount == where) &&
-                (mFlags & HAS_TRIVIAL_COPY) &&
-                (mFlags & HAS_TRIVIAL_DTOR)) {
+            (mCount==where) &&
+            (mFlags & HAS_TRIVIAL_COPY) &&
+            (mFlags & HAS_TRIVIAL_DTOR))
+        {
             const SharedBuffer* cur_sb = SharedBuffer::bufferFromData(mStorage);
+#if ENABLE_SAFE_IOP
+            SharedBuffer* sb = cur_sb->editResize(new_alloc_size);
+#else
             SharedBuffer* sb = cur_sb->editResize(new_capacity * mItemSize);
-            mStorage = sb->data();
+#endif
+            if (sb) {
+                mStorage = sb->data();
+            } else {
+                return NULL;
+            }
         } else {
+#if ENABLE_SAFE_IOP
+            SharedBuffer* sb = SharedBuffer::alloc(new_alloc_size);
+#else
             SharedBuffer* sb = SharedBuffer::alloc(new_capacity * mItemSize);
-
+#endif
             if (sb) {
                 void* array = sb->data();
-
                 if (where != 0) {
                     _do_copy(array, mStorage, where);
                 }
-
                 if (where != mCount) {
-                    const void* from = reinterpret_cast<const uint8_t *>(mStorage) + where * mItemSize;
-                    void* dest = reinterpret_cast<uint8_t *>(array) + (where + amount) * mItemSize;
-                    _do_copy(dest, from, mCount - where);
+                    const void* from = reinterpret_cast<const uint8_t *>(mStorage) + where*mItemSize;
+                    void* dest = reinterpret_cast<uint8_t *>(array) + (where+amount)*mItemSize;
+                    _do_copy(dest, from, mCount-where);
                 }
-
                 release_storage();
                 mStorage = const_cast<void*>(array);
+            } else {
+                return NULL;
             }
         }
     } else {
         void* array = editArrayImpl();
-
         if (where != mCount) {
-            const void* from = reinterpret_cast<const uint8_t *>(array) + where * mItemSize;
-            void* to = reinterpret_cast<uint8_t *>(array) + (where + amount) * mItemSize;
+            const void* from = reinterpret_cast<const uint8_t *>(array) + where*mItemSize;
+            void* to = reinterpret_cast<uint8_t *>(array) + (where+amount)*mItemSize;
             _do_move_forward(to, from, mCount - where);
         }
     }
-
     mCount = new_size;
     void* free_space = const_cast<void*>(itemLocation(where));
     return free_space;
@@ -471,57 +484,68 @@ void VectorImpl::_shrink(size_t where, size_t amount)
 //        this, (int)where, (int)amount, (int)mCount, (int)capacity());
 
     ALOG_ASSERT(where + amount <= mCount,
-                "[%p] _shrink: where=%d, amount=%d, count=%d",
-                this, (int)where, (int)amount, (int)mCount); // caller already checked
+            "[%p] _shrink: where=%d, amount=%d, count=%d",
+            this, (int)where, (int)amount, (int)mCount); // caller already checked
 
+#if ENABLE_SAFE_IOP
+    size_t new_size;
+    LOG_ALWAYS_FATAL_IF(!safe_sub(&new_size, mCount, amount));
+#else
     const size_t new_size = mCount - amount;
+#endif
 
-    if (new_size * 3 < capacity()) {
+    if (new_size < (capacity() / 2)) {
+        // NOTE: (new_size * 2) is safe because capacity didn't overflow and
+        // new_size < (capacity / 2)).
         const size_t new_capacity = max(kMinVectorCapacity, new_size * 2);
 
-//        ALOGV("shrink vector %p, new_capacity=%d", this, (int)new_capacity);
+        // NOTE: (new_capacity * mItemSize), (where * mItemSize) and
+        // ((where + amount) * mItemSize) beyond this point are safe because
+        // we are always reducing the capacity of the underlying SharedBuffer.
+        // In other words, (old_capacity * mItemSize) did not overflow, and
+        // where < (where + amount) < new_capacity < old_capacity.
         if ((where == new_size) &&
-                (mFlags & HAS_TRIVIAL_COPY) &&
-                (mFlags & HAS_TRIVIAL_DTOR)) {
+            (mFlags & HAS_TRIVIAL_COPY) &&
+            (mFlags & HAS_TRIVIAL_DTOR))
+        {
             const SharedBuffer* cur_sb = SharedBuffer::bufferFromData(mStorage);
             SharedBuffer* sb = cur_sb->editResize(new_capacity * mItemSize);
-            mStorage = sb->data();
+            if (sb) {
+                mStorage = sb->data();
+            } else {
+                return;
+            }
         } else {
             SharedBuffer* sb = SharedBuffer::alloc(new_capacity * mItemSize);
-
             if (sb) {
                 void* array = sb->data();
-
                 if (where != 0) {
                     _do_copy(array, mStorage, where);
                 }
-
                 if (where != new_size) {
-                    const void* from = reinterpret_cast<const uint8_t *>(mStorage) + (where + amount) * mItemSize;
-                    void* dest = reinterpret_cast<uint8_t *>(array) + where * mItemSize;
+                    const void* from = reinterpret_cast<const uint8_t *>(mStorage) + (where+amount)*mItemSize;
+                    void* dest = reinterpret_cast<uint8_t *>(array) + where*mItemSize;
                     _do_copy(dest, from, new_size - where);
                 }
-
                 release_storage();
                 mStorage = const_cast<void*>(array);
+            } else{
+                return;
             }
         }
     } else {
         void* array = editArrayImpl();
-        void* to = reinterpret_cast<uint8_t *>(array) + where * mItemSize;
+        void* to = reinterpret_cast<uint8_t *>(array) + where*mItemSize;
         _do_destroy(to, amount);
-
         if (where != new_size) {
-            const void* from = reinterpret_cast<uint8_t *>(array) + (where + amount) * mItemSize;
+            const void* from = reinterpret_cast<uint8_t *>(array) + (where+amount)*mItemSize;
             _do_move_backward(to, from, new_size - where);
         }
     }
-
     mCount = new_size;
 }
 
-size_t VectorImpl::itemSize() const
-{
+size_t VectorImpl::itemSize() const {
     return mItemSize;
 }
 
@@ -544,22 +568,19 @@ void VectorImpl::_do_copy(void* dest, const void* from, size_t num) const
     if (!(mFlags & HAS_TRIVIAL_COPY)) {
         do_copy(dest, from, num);
     } else {
-        memcpy(dest, from, num * itemSize());
+        memcpy(dest, from, num*itemSize());
     }
 }
 
-void VectorImpl::_do_splat(void* dest, const void* item, size_t num) const
-{
+void VectorImpl::_do_splat(void* dest, const void* item, size_t num) const {
     do_splat(dest, item, num);
 }
 
-void VectorImpl::_do_move_forward(void* dest, const void* from, size_t num) const
-{
+void VectorImpl::_do_move_forward(void* dest, const void* from, size_t num) const {
     do_move_forward(dest, from, num);
 }
 
-void VectorImpl::_do_move_backward(void* dest, const void* from, size_t num) const
-{
+void VectorImpl::_do_move_backward(void* dest, const void* from, size_t num) const {
     do_move_backward(dest, from, num);
 }
 
@@ -571,7 +592,7 @@ SortedVectorImpl::SortedVectorImpl(size_t itemSize, uint32_t flags)
 }
 
 SortedVectorImpl::SortedVectorImpl(const VectorImpl& rhs)
-    : VectorImpl(rhs)
+: VectorImpl(rhs)
 {
 }
 
@@ -598,19 +619,21 @@ size_t SortedVectorImpl::orderOf(const void* item) const
 
 ssize_t SortedVectorImpl::_indexOrderOf(const void* item, size_t* order) const
 {
+    if (order) *order = 0;
+    if (isEmpty()) {
+        return NAME_NOT_FOUND;
+    }
     // binary search
     ssize_t err = NAME_NOT_FOUND;
     ssize_t l = 0;
-    ssize_t h = size() - 1;
+    ssize_t h = size()-1;
     ssize_t mid;
     const void* a = arrayImpl();
     const size_t s = itemSize();
-
     while (l <= h) {
-        mid = l + (h - l) / 2;
-        const void* const curr = reinterpret_cast<const char *>(a) + (mid * s);
+        mid = l + (h - l)/2;
+        const void* const curr = reinterpret_cast<const char *>(a) + (mid*s);
         const int c = do_compare(curr, item);
-
         if (c == 0) {
             err = l = mid;
             break;
@@ -620,9 +643,7 @@ ssize_t SortedVectorImpl::_indexOrderOf(const void* item, size_t* order) const
             h = mid - 1;
         }
     }
-
     if (order) *order = l;
-
     return err;
 }
 
@@ -630,13 +651,11 @@ ssize_t SortedVectorImpl::add(const void* item)
 {
     size_t order;
     ssize_t index = _indexOrderOf(item, &order);
-
     if (index < 0) {
         index = VectorImpl::insertAt(item, order, 1);
     } else {
         index = VectorImpl::replaceAt(item, index);
     }
-
     return index;
 }
 
@@ -647,16 +666,13 @@ ssize_t SortedVectorImpl::merge(const VectorImpl& vector)
         const void* buffer = vector.arrayImpl();
         const size_t is = itemSize();
         size_t s = vector.size();
-
-        for (size_t i = 0 ; i < s ; i++) {
-            ssize_t err = add( reinterpret_cast<const char*>(buffer) + i * is );
-
-            if (err < 0) {
+        for (size_t i=0 ; i<s ; i++) {
+            ssize_t err = add( reinterpret_cast<const char*>(buffer) + i*is );
+            if (err<0) {
                 return err;
             }
         }
     }
-
     return NO_ERROR;
 }
 
@@ -664,30 +680,26 @@ ssize_t SortedVectorImpl::merge(const SortedVectorImpl& vector)
 {
     // we've merging a sorted vector... nice!
     ssize_t err = NO_ERROR;
-
     if (!vector.isEmpty()) {
         // first take care of the case where the vectors are sorted together
-        if (do_compare(vector.itemLocation(vector.size() - 1), arrayImpl()) <= 0) {
+        if (do_compare(vector.itemLocation(vector.size()-1), arrayImpl()) <= 0) {
             err = VectorImpl::insertVectorAt(static_cast<const VectorImpl&>(vector), 0);
-        } else if (do_compare(vector.arrayImpl(), itemLocation(size() - 1)) >= 0) {
+        } else if (do_compare(vector.arrayImpl(), itemLocation(size()-1)) >= 0) {
             err = VectorImpl::appendVector(static_cast<const VectorImpl&>(vector));
         } else {
             // this could be made a little better
             err = merge(static_cast<const VectorImpl&>(vector));
         }
     }
-
     return err;
 }
 
 ssize_t SortedVectorImpl::remove(const void* item)
 {
     ssize_t i = indexOf(item);
-
-    if (i >= 0) {
+    if (i>=0) {
         VectorImpl::removeItemsAt(i, 1);
     }
-
     return i;
 }
 

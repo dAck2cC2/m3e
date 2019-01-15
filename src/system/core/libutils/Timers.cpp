@@ -20,16 +20,9 @@
 #include <utils/Timers.h>
 
 #include <limits.h>
-#include <sys/time.h>
 #include <time.h>
 
-#include <log/log.h>
-
-#ifdef HAVE_WIN32_THREADS
-#include <windows.h>
-#endif
-
-#if defined(HAVE_POSIX_CLOCKS)
+#if defined(__ANDROID__)
 nsecs_t systemTime(int clock)
 {
     static const clockid_t clocks[] = {
@@ -59,7 +52,7 @@ nsecs_t systemTime(int /*clock*/)
 
 int toMillisecondTimeoutDelay(nsecs_t referenceTime, nsecs_t timeoutTime)
 {
-    int timeoutDelayMillis;
+    nsecs_t timeoutDelayMillis;
     if (timeoutTime > referenceTime) {
         uint64_t timeoutDelay = uint64_t(timeoutTime - referenceTime);
         if (timeoutDelay > uint64_t((INT_MAX - 1) * 1000000LL)) {
@@ -70,71 +63,5 @@ int toMillisecondTimeoutDelay(nsecs_t referenceTime, nsecs_t timeoutTime)
     } else {
         timeoutDelayMillis = 0;
     }
-    return timeoutDelayMillis;
+    return (int)timeoutDelayMillis;
 }
-
-
-/*
- * ===========================================================================
- *      DurationTimer
- * ===========================================================================
- */
-
-namespace android {
-
-// Start the timer.
-void DurationTimer::start(void)
-{
-    gettimeofday(&mStartWhen, NULL);
-}
-
-// Stop the timer.
-void DurationTimer::stop(void)
-{
-    gettimeofday(&mStopWhen, NULL);
-}
-
-// Get the duration in microseconds.
-long long DurationTimer::durationUsecs(void) const
-{
-    return (long) subtractTimevals(&mStopWhen, &mStartWhen);
-}
-
-// Subtract two timevals.  Returns the difference (ptv1-ptv2) in
-// microseconds.
-/*static*/ long long DurationTimer::subtractTimevals(const struct timeval* ptv1,
-        const struct timeval* ptv2)
-{
-    long long stop  = ((long long) ptv1->tv_sec) * 1000000LL +
-                      ((long long) ptv1->tv_usec);
-    long long start = ((long long) ptv2->tv_sec) * 1000000LL +
-                      ((long long) ptv2->tv_usec);
-    return stop - start;
-}
-
-// Add the specified amount of time to the timeval.
-/*static*/ void DurationTimer::addToTimeval(struct timeval* ptv, long usec)
-{
-    if (usec < 0) {
-        ALOG(LOG_WARN, "", "Negative values not supported in addToTimeval\n");
-        return;
-    }
-
-    // normalize tv_usec if necessary
-    if (ptv->tv_usec >= 1000000) {
-        ptv->tv_sec += ptv->tv_usec / 1000000;
-        ptv->tv_usec %= 1000000;
-    }
-
-    ptv->tv_usec += usec % 1000000;
-
-    if (ptv->tv_usec >= 1000000) {
-        ptv->tv_usec -= 1000000;
-        ptv->tv_sec++;
-    }
-
-    ptv->tv_sec += usec / 1000000;
-}
-
-}; // namespace android
-

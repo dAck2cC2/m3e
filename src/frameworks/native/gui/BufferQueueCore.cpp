@@ -40,6 +40,8 @@
 #include <gui/ISurfaceComposer.h>
 #include <private/gui/ComposerService.h>
 
+#include <cutils/atomic.h>
+
 namespace android {
 
 static String8 getUniqueName() {

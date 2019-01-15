@@ -16,7 +16,8 @@ gtest
 utils
 )
 
-set(TEST_UTILS_DEP ${TEST_UTILS_DEPLIB})
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/tests )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/tests )
 
 # main source
 
@@ -26,20 +27,19 @@ ${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
 
 # test utils
 
-set(TEST_UTILS_SOURCE_FILES ${TEST_UTILS_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/BitSet_test.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/BlobCache_test.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/Looper_test.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/LruCache_test.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/RefBase_test.cpp
-#${M3E_SOURCE_DIR}/src/system/core/libutils/test/Singleton_test.cpp
-#${M3E_SOURCE_DIR}/src/system/core/libutils/test/Singleton_test1.cpp
-#${M3E_SOURCE_DIR}/src/system/core/libutils/test/Singleton_test2.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/String8_test.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/StrongPointer_test.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/SystemClock_test.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/Unicode_test.cpp
-${M3E_SOURCE_DIR}/src/system/core/libutils/test/Vector_test.cpp
+list(APPEND TEST_UTILS_SOURCE_FILES 
+${SOURCE_PATH}/BitSet_test.cpp
+${SOURCE_PATH}/Looper_test.cpp
+${SOURCE_PATH}/LruCache_test.cpp
+${SOURCE_PATH}/RefBase_test.cpp
+#${SOURCE_PATH}/Singleton_test.cpp
+#${SOURCE_PATH}/Singleton_test1.cpp
+#${SOURCE_PATH}/Singleton_test2.cpp
+${SOURCE_PATH}/String8_test.cpp
+${SOURCE_PATH}/StrongPointer_test.cpp
+${SOURCE_PATH}/SystemClock_test.cpp
+${SOURCE_PATH}/Unicode_test.cpp
+${SOURCE_PATH}/Vector_test.cpp
 )
 
 if(MSVC)

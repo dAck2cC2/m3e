@@ -47,6 +47,8 @@
 #include "TypeConverter.h"
 #include <policy.h>
 
+#include <cutils/atomic.h>
+
 namespace android {
 
 //FIXME: workaround for truncated touch sounds

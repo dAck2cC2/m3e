@@ -26,15 +26,24 @@
 #define strlcpy strncpy
 #else
 #include <dlfcn.h>
-#include <pthread.h>
 #endif // _MSC_VER
 #include <string.h>
+#include <pthread.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #define LOG_TAG "HAL"
-#include <utils/Log.h>
-#include <utils/os_sep.h>
+#include <log/log.h>
+
+#if !defined(OS_PATH_SEPARATOR_STR)
+	#if defined(USE_MINGW) || defined(_MSC_VER)
+		#define OS_PATH_SEPARATOR_STR "\\"
+	#else  /* not USE_MINGW */
+		#define OS_PATH_SEPARATOR_STR "/"
+	#endif /* not USE_MINGW */
+#endif // OS_PATH_SEPARATOR_STR
 
 /** Base path of the hal modules */
 #define HAL_LIBRARY_PATH1 "."

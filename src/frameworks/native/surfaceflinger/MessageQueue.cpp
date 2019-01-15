@@ -6,6 +6,8 @@
 #include "MessageQueue.h"
 #include "SurfaceFlinger.h"
 
+#include <cutils/atomic.h>
+
 namespace android {
 
 // ---------------------------------------------------------------------------

@@ -18,16 +18,10 @@
 #define LOG_TAG "libutils.threads"
 
 #include <assert.h>
-#include <errno.h>
-#include <memory.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <utils/Thread.h>
+#include <utils/AndroidThreads.h>
 
 #if defined(HAVE_PTHREADS)
-# include <pthread.h>
-# include <sched.h>
 # include <sys/resource.h>
 #elif defined(HAVE_WIN32_THREADS)
 # include <windows.h>
@@ -40,12 +34,11 @@
 #include <sys/prctl.h>
 #endif
 
-#include <utils/threads.h>
 #include <utils/Log.h>
 
 #include <cutils/sched_policy.h>
 
-#include <cutils/threads.h>
+#include <cutils/threads.h> // gettid()
 
 #if defined(__ANDROID__)
 # define __android_unused
@@ -900,6 +893,11 @@ status_t Thread::join()
     }
 
     return mStatus;
+}
+
+bool Thread::isRunning() const {
+    Mutex::Autolock _l(mLock);
+    return mRunning;
 }
 
 #if defined(__ANDROID__)

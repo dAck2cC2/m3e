@@ -30,7 +30,6 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/ )
 
 # header files
 file(GLOB UTILS_HEADER_FILES 
-${M3E_SOURCE_DIR}/src/system/core/include/utils/*.h
 ${HEADER_PATH}/*.h
 ${SOURCE_PATH}/*.h
 )
