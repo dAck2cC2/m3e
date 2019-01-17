@@ -88,7 +88,10 @@ TemporaryFile::TemporaryFile() {
 }
 
 TemporaryFile::~TemporaryFile() {
+  /* fix the error of test case in file_test.cpp - RemoveFileIfExist() */
+  if (fd>0) {
   close(fd);
+  }
   unlink(path);
 }
 

@@ -12,7 +12,10 @@ extern "C" {
 #endif
 
 MSVC_EXPORT
-char * basename(char const *name);
+char * basename(char *name);
+
+MSVC_EXPORT
+char * dirname(char *path);
 
 #ifdef __cplusplus
 }

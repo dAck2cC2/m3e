@@ -40,7 +40,7 @@
 #include <windows.h>
 #define O_CLOEXEC O_NOINHERIT
 #define O_NOFOLLOW 0
-#include <dirent.h>
+#include <dirent.h> // PATH_MAX
 #endif
 
 namespace android {
@@ -298,7 +298,7 @@ std::string Dirname(const std::string& path) {
   static std::mutex& dirname_lock = *new std::mutex();
   std::lock_guard<std::mutex> lock(dirname_lock);
 #endif
-#if !defined(_MSC_VER)
+
   // Note that if std::string uses copy-on-write strings, &str[0] will cause
   // the copy to be made, so there is no chance of us accidentally writing to
   // the storage for 'path'.
@@ -307,7 +307,7 @@ std::string Dirname(const std::string& path) {
   // In case dirname returned a pointer to a process global, copy that string
   // before leaving the lock.
   result.assign(parent);
-#endif
+
   return result;
 }
 

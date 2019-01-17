@@ -85,6 +85,7 @@ TEST(logging, CHECK) {
 }
 
 TEST(logging, DCHECK) {
+#ifndef _MSC_VER
   if (android::base::kEnableDChecks) {
     ASSERT_DEATH({SuppressAbortUI(); DCHECK(false);}, "DCheck failed: false ");
   }
@@ -104,6 +105,7 @@ TEST(logging, DCHECK) {
   // No testing whether we have a dangling else, possibly. That's inherent to the if (constexpr)
   // setup we intentionally chose to force type-checks of debug code even in release builds (so
   // we don't get more bit-rot).
+#endif
 }
 
 

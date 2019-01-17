@@ -8,6 +8,7 @@
 && (P)[1] == ':')
 # define FILESYSTEM_PREFIX_LEN(P) (HAS_DEVICE (P) ? 2 : 0)
 # define ISSLASH(C) ((C) == '/' || (C) == '\\')
+# define SLASH '\\'
 #endif
 
 #ifndef FILESYSTEM_PREFIX_LEN
@@ -18,16 +19,24 @@
 # define ISSLASH(C) ((C) == '/')
 #endif
 
+#ifndef NULL
+# define NULL ((void*)0)
+#endif
+
 char *
-basename(char const *name)
+basename(char *name)
 {
 	char const *base = name += FILESYSTEM_PREFIX_LEN(name);
 	int all_slashes = 1;
 	char const *p;
 
+	if (ISSLASH(name[strlen(name) - 1])) {
+		name[strlen(name) - 1] = '\0';
+	}
+
 	for (p = name; *p; p++)
 	{
-		if (ISSLASH(*p))
+		if (ISSLASH(*p) /* && (*(p+1)) */ )
 			base = p + 1;
 		else
 			all_slashes = 0;
@@ -41,4 +50,37 @@ basename(char const *name)
 	//assert(all_slashes || !ISSLASH(*(p - 1)));
 
 	return (char *)base;
+}
+
+char *
+dirname(char *path)
+{
+	static const char dot[] = ".";
+	char *last_slash;
+_FIND:
+	/* Find last '/'.  */
+	last_slash = path != NULL ? strrchr(path, SLASH) : NULL;
+
+	if (last_slash == path) {
+		/* The last slash is the first character in the string.  We have to
+		   return "/".  */
+		++last_slash;
+	}
+	else if (last_slash != NULL && last_slash[1] == '\0') {
+		/* The '/' is the last character, we have to look further.  */
+		/* last_slash = memchr(path, SLASH, last_slash - path); */
+		last_slash[0] = '\0';
+		goto _FIND;
+	}
+
+	if (last_slash != NULL)
+		/* Terminate the path.  */
+		last_slash[0] = '\0';
+	else
+		/* This assignment is ill-designed but the XPG specs require to
+		   return a string containing "." in any case no directory part is
+		   found and so a static and constant string is required.  */
+		path = (char *)dot;
+
+	return path;
 }

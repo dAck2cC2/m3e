@@ -195,8 +195,10 @@ TEST(file, GetExecutableDirectory) {
   std::string path = android::base::GetExecutableDirectory();
   ASSERT_NE("", path);
   ASSERT_NE(android::base::GetExecutablePath(), path);
+#ifndef _MSC_VER
   ASSERT_EQ('/', path[0]);
   ASSERT_NE('/', path[path.size() - 1]);
+#endif
 }
 
 TEST(file, GetExecutablePath) {
@@ -210,9 +212,15 @@ TEST(file, Basename) {
 }
 
 TEST(file, Dirname) {
+#ifdef _MSC_VER
+  EXPECT_EQ("\\system\\bin", android::base::Dirname("\\system\\bin\\sh"));
+  EXPECT_EQ(".", android::base::Dirname("sh"));
+  EXPECT_EQ("\\system\\bin", android::base::Dirname("\\system\\bin\\sh\\"));
+#else
   EXPECT_EQ("/system/bin", android::base::Dirname("/system/bin/sh"));
   EXPECT_EQ(".", android::base::Dirname("sh"));
   EXPECT_EQ("/system/bin", android::base::Dirname("/system/bin/sh/"));
+#endif
 }
 
 TEST(file, ReadFileToString_capacity) {
@@ -232,14 +240,17 @@ TEST(file, ReadFileToString_capacity) {
   ASSERT_TRUE(android::base::WriteStringToFile(std::string(size, 'x'), tf.path));
   ASSERT_TRUE(android::base::ReadFileToString(tf.path, &s));
   EXPECT_EQ(size, s.size());
+#ifndef _MSC_VER
   EXPECT_LT(s.capacity(), size + 16);
-
+#endif
   // We'll shrink an enormous string if you read a small file into it.
   size = 64;
   ASSERT_TRUE(android::base::WriteStringToFile(std::string(size, 'x'), tf.path));
   ASSERT_TRUE(android::base::ReadFileToString(tf.path, &s));
   EXPECT_EQ(size, s.size());
+#ifndef _MSC_VER
   EXPECT_LT(s.capacity(), size + 16);
+#endif
 }
 
 TEST(file, ReadFileToString_capacity_0) {

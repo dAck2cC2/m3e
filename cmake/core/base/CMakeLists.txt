@@ -36,6 +36,7 @@ file(GLOB BASE_SOURCE_FILES
 ${SOURCE_PATH}/file.cpp
 ${SOURCE_PATH}/logging.cpp
 ${SOURCE_PATH}/parsenetaddress.cpp
+${SOURCE_PATH}/quick_exit.cpp
 ${SOURCE_PATH}/stringprintf.cpp
 ${SOURCE_PATH}/strings.cpp
 ${SOURCE_PATH}/test_utils.cpp
@@ -57,3 +58,6 @@ set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(base SHARED ${BASE_SOURCE_FILES} ${BASE_HEADER_FILES})
 target_link_libraries(base ${BASE_DEPLIB})
 
+#if(ENABLE_TEST)
+    add_subdirectory(test)
+#endif(ENABLE_TEST)
