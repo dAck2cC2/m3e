@@ -16,8 +16,6 @@
 
 #define LOG_TAG "ProcessState"
 
-//#include <cutils/process_name.h>
-
 #include <binder/ProcessState.h>
 
 #include <utils/Atomic.h>
@@ -28,7 +26,7 @@
 #include <binder/IServiceManager.h>
 #include <utils/String8.h>
 #include <utils/threads.h>
-#include <utils/Errors.h>
+//#include <utils/Errors.h>
 
 #include <private/binder/binder_module.h>
 #include <private/binder/Static.h>
@@ -62,6 +60,24 @@ static  void  threadDestructor(void *st) {
     if (self != NULL) {
         self->decStrong((void*)threadDestructor);
     }
+};
+
+class PoolThread : public Thread
+{
+public:
+    explicit PoolThread(bool isMain)
+        : mIsMain(isMain)
+    {
+    }
+    
+protected:
+    virtual bool threadLoop()
+    {
+        IPCThreadState::self()->joinThreadPool(mIsMain);
+        return false;
+    }
+    
+    const bool mIsMain;
 };
 
 sp<ProcessState> ProcessState::self()

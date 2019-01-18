@@ -34,7 +34,7 @@ namespace android {
 
 struct BufferedTextOutput::BufferState : public RefBase
 {
-    BufferState(int32_t _seq)
+    explicit BufferState(int32_t _seq)
         : seq(_seq)
         , buffer(NULL)
         , bufferPos(0)
@@ -270,7 +270,7 @@ BufferedTextOutput::BufferState* BufferedTextOutput::getBuffer() const
             BufferState* bs = ts->states[mIndex].get();
             if (bs != NULL && bs->seq == mSeq) return bs;
             
-            ts->states.editItemAt(mIndex) = new BufferState(mSeq /*mIndex*/);
+            ts->states.editItemAt(mIndex) = new BufferState(mIndex);
             bs = ts->states[mIndex].get();
             if (bs != NULL) return bs;
         }

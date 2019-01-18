@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,30 @@
  */
 
 //
-#ifndef ANDROID_IPERMISSION_CONTROLLER_H
-#define ANDROID_IPERMISSION_CONTROLLER_H
+#ifndef ANDROID_IAPP_OPS_CALLBACK_H
+#define ANDROID_IAPP_OPS_CALLBACK_H
 
 #include <binder/IInterface.h>
-#include <stdlib.h>
 
 namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IPermissionController : public IInterface
+class IAppOpsCallback : public IInterface
 {
 public:
-    DECLARE_META_INTERFACE(PermissionController);
+    DECLARE_META_INTERFACE(AppOpsCallback)
 
-    virtual bool checkPermission(const String16& permission, int32_t pid, int32_t uid) = 0;
-
-    virtual void getPackagesForUid(const uid_t uid, Vector<String16> &packages) = 0;
-
-    virtual bool isRuntimePermission(const String16& permission) = 0;
+    virtual void opChanged(int32_t op, const String16& packageName) = 0;
 
     enum {
-        CHECK_PERMISSION_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION,
-        GET_PACKAGES_FOR_UID_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION + 1,
-        IS_RUNTIME_PERMISSION_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION + 2
+        OP_CHANGED_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION
     };
 };
 
 // ----------------------------------------------------------------------
 
-class BnPermissionController : public BnInterface<IPermissionController>
+class BnAppOpsCallback : public BnInterface<IAppOpsCallback>
 {
 public:
     virtual status_t    onTransact( uint32_t code,
@@ -58,5 +51,5 @@ public:
 
 }; // namespace android
 
-#endif // ANDROID_IPERMISSION_CONTROLLER_H
+#endif // ANDROID_IAPP_OPS_CALLBACK_H
 

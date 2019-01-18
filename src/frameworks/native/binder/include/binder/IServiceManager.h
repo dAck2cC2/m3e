@@ -30,7 +30,7 @@ namespace android {
 class ANDROID_API_BINDER IServiceManager : public IInterface
 {
 public:
-    DECLARE_META_INTERFACE(ServiceManager);
+    DECLARE_META_INTERFACE(ServiceManager)
 
     /**
      * Retrieve an existing service, blocking for a few seconds

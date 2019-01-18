@@ -15,6 +15,7 @@
  */
 
 #include <binder/Debug.h>
+#include <binder/ProcessState.h>
 
 #include <utils/misc.h>
 

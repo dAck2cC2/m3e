@@ -6,29 +6,33 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 
 # dependency
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-
-#include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
+include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
 
 set(BINDER_DEPLIB
 utils
 log
 )
 
+if (MSVC)
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND BINDER_DEPLIB ${LIB_MSVC_WRAP})
+endif(MSVC)
+
 OPTION( BINDER_ENABLE_LOCAL
   "Set to ON to enable local binder implementation"
   ON
 )
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/binder/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/binder )
 
 # header files
-file(GLOB BINDER_HEADER_FILES  ${HEADER_PATH}/binder/*.h)
-
-file(GLOB BINDER_PRIVATE_HEADER ${HEADER_PATH}/private/binder/*.h)
-list(APPEND BINDER_HEADER_FILES ${BINDER_PRIVATE_HEADER})
+file(GLOB BINDER_HEADER_FILES  
+${HEADER_PATH}/binder/*.h
+${HEADER_PATH}/private/binder/*.h
+)
 
 # source files
 file(GLOB BINDER_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
@@ -39,18 +43,12 @@ if (BINDER_ENABLE_LOCAL)
     list(APPEND BINDER_SOURCE_FILES ${BINDER_LOCAL_SRC})
 endif ()
 
-if (MSVC)
-    list(APPEND BINDER_SOURCE_FILES
-    ${MSVC_PATH}/getpagesize.c
-    )
-endif (MSVC)
-
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(binder SHARED ${BINDER_SOURCE_FILES} ${BINDER_HEADER_FILES})
 target_link_libraries(binder ${BINDER_DEPLIB})
 
-
+set(ENABLE_TEST true)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif()

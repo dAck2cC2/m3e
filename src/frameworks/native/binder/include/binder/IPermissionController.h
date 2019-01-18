@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2005 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,37 @@
  */
 
 //
-#ifndef ANDROID_IRESULT_RECEIVER_H
-#define ANDROID_IRESULT_RECEIVER_H
+#ifndef ANDROID_IPERMISSION_CONTROLLER_H
+#define ANDROID_IPERMISSION_CONTROLLER_H
 
 #include <binder/IInterface.h>
+#include <stdlib.h>
 
 namespace android {
 
 // ----------------------------------------------------------------------
 
-class IResultReceiver : public IInterface
+class ANDROID_API_BINDER IPermissionController : public IInterface
 {
 public:
-    DECLARE_META_INTERFACE(ResultReceiver);
+    DECLARE_META_INTERFACE(PermissionController)
 
-    virtual void send(int32_t resultCode) = 0;
+    virtual bool checkPermission(const String16& permission, int32_t pid, int32_t uid) = 0;
+
+    virtual void getPackagesForUid(const uid_t uid, Vector<String16> &packages) = 0;
+
+    virtual bool isRuntimePermission(const String16& permission) = 0;
 
     enum {
-        OP_SEND = IBinder::FIRST_CALL_TRANSACTION
+        CHECK_PERMISSION_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION,
+        GET_PACKAGES_FOR_UID_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION + 1,
+        IS_RUNTIME_PERMISSION_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION + 2
     };
 };
 
 // ----------------------------------------------------------------------
 
-class BnResultReceiver : public BnInterface<IResultReceiver>
+class BnPermissionController : public BnInterface<IPermissionController>
 {
 public:
     virtual status_t    onTransact( uint32_t code,
@@ -51,5 +58,5 @@ public:
 
 }; // namespace android
 
-#endif // ANDROID_IRESULT_RECEIVER_H
+#endif // ANDROID_IPERMISSION_CONTROLLER_H
 

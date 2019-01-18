@@ -17,6 +17,24 @@
 #ifndef _BINDER_MODULE_H_
 #define _BINDER_MODULE_H_
 
+#if 0
+#ifdef __cplusplus
+namespace android {
+#endif
+
+/* obtain structures and constants from the kernel header */
+
+#include <sys/ioctl.h>
+#include <linux/android/binder.h>
+
+#ifdef __cplusplus
+}   // namespace android
+#endif
+#endif
+
+/* place the kernel define here */
+
+
 //#include <stdint.h>
 
 typedef uintptr_t  binder_uintptr_t;

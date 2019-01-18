@@ -27,7 +27,7 @@ initrc
 
 # test file
 file(GLOB TEST_BINDER_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/frameworks/native/binder/test/*.*
+${M3E_SOURCE_DIR}/src/frameworks/native/binder/tests/*.*
 )
 
 # main source

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#if defined(HAVE_PTHREADS)
+#if defined(HAVE_PTHREADS) || defined(_MSC_VER)
 # include <pthread.h>
 #endif
 

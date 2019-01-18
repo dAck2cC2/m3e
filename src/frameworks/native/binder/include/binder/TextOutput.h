@@ -18,6 +18,7 @@
 #define ANDROID_TEXTOUTPUT_H
 
 #include <utils/Errors.h>
+#include <utils/String8.h>
 
 #include <stdint.h>
 #include <string.h>

@@ -24,7 +24,7 @@
 
 #include <utils/threads.h>
 
-//#include <pthread.h>
+#include <pthread.h>
 
 // ---------------------------------------------------------------------------
 namespace android {

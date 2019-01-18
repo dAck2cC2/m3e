@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 
 //
-#ifndef ANDROID_IAPP_OPS_CALLBACK_H
-#define ANDROID_IAPP_OPS_CALLBACK_H
+#ifndef ANDROID_IRESULT_RECEIVER_H
+#define ANDROID_IRESULT_RECEIVER_H
 
 #include <binder/IInterface.h>
 
@@ -24,21 +24,21 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class IAppOpsCallback : public IInterface
+class IResultReceiver : public IInterface
 {
 public:
-    DECLARE_META_INTERFACE(AppOpsCallback);
+    DECLARE_META_INTERFACE(ResultReceiver)
 
-    virtual void opChanged(int32_t op, const String16& packageName) = 0;
+    virtual void send(int32_t resultCode) = 0;
 
     enum {
-        OP_CHANGED_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION
+        OP_SEND = IBinder::FIRST_CALL_TRANSACTION
     };
 };
 
 // ----------------------------------------------------------------------
 
-class BnAppOpsCallback : public BnInterface<IAppOpsCallback>
+class BnResultReceiver : public BnInterface<IResultReceiver>
 {
 public:
     virtual status_t    onTransact( uint32_t code,
@@ -51,5 +51,5 @@ public:
 
 }; // namespace android
 
-#endif // ANDROID_IAPP_OPS_CALLBACK_H
+#endif // ANDROID_IRESULT_RECEIVER_H
 

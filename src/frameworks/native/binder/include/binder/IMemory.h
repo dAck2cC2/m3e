@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-//#include <sys/mman.h>
+#include <sys/mman.h>
 
 #include <utils/RefBase.h>
 #include <utils/Errors.h>
@@ -32,7 +32,7 @@ namespace android {
 class ANDROID_API_BINDER IMemoryHeap : public IInterface
 {
 public:
-    DECLARE_META_INTERFACE(MemoryHeap);
+    DECLARE_META_INTERFACE(MemoryHeap)
 
     // flags returned by getFlags()
     enum {
@@ -70,7 +70,7 @@ protected:
 class ANDROID_API_BINDER IMemory : public IInterface
 {
 public:
-    DECLARE_META_INTERFACE(Memory);
+    DECLARE_META_INTERFACE(Memory)
 
     virtual sp<IMemoryHeap> getMemory(ssize_t* offset=0, size_t* size=0) const = 0;
 
