@@ -14,6 +14,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/system/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/)
+
 set(UI_DEPLIB
 binder
 utils
@@ -21,8 +23,6 @@ log
 sync
 hardware
 )
-
-#include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
 if(MSVC)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
@@ -33,14 +33,14 @@ elseif(APPLE)
 endif()
 
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/ui )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/ui/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/ui )
 
 # header files
-file(GLOB UI_HEADER_FILES  ${HEADER_PATH}/ui/*.h)
-
-#file(GLOB UI_PRIVATE_HEADER ${HEADER_PATH}/private/ui/*.h)
-#list(APPEND UI_HEADER_FILES ${UI_PRIVATE_HEADER})
+file(GLOB UI_HEADER_FILES  
+${HEADER_PATH}/ui/*.h
+${M3E_SOURCE_DIR}/src/frameworks/native/include/private/ui/*.h
+)
 
 # source files
 file(GLOB UI_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
