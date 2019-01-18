@@ -25,8 +25,8 @@ OPTION( BINDER_ENABLE_LOCAL
   ON
 )
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/binder/include )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/binder )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/binder/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/binder )
 
 # header files
 file(GLOB BINDER_HEADER_FILES  
