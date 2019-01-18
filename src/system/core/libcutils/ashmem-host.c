@@ -32,11 +32,9 @@
 #include <unistd.h>
 
 #include <cutils/ashmem.h>
-//#include <utils/Compat.h>
 
 #ifdef _WIN32
 #include <dirent.h>
-
 int mkstemp(char* template_name) {
 	if (_mktemp(template_name) == NULL) {
 		return -1;
@@ -56,6 +54,25 @@ char* mkdtemp(char* template_name) {
 	}
 	return template_name;
 }
+
+#elif defined(__APPLE__)
+/*
+ * TEMP_FAILURE_RETRY is defined by some, but not all, versions of
+ * <unistd.h>. (Alas, it is not as standard as we'd hoped!) So, if it's
+ * not already defined, then define it here.
+ */
+#ifndef TEMP_FAILURE_RETRY
+/* Used to retry syscalls that can return EINTR. */
+#define TEMP_FAILURE_RETRY(exp) ({         \
+__typeof__ (exp) _rc;                      \
+do {                                   \
+_rc = (exp);                       \
+} while (_rc == -1 && errno == EINTR); \
+_rc; })
+#endif
+
+#else
+//#include <utils/Compat.h>
 #endif
 
 #ifndef __unused

@@ -127,9 +127,7 @@ static LogFunction& Logger() {
 #ifdef __ANDROID__
   static auto& logger = *new LogFunction(LogdLogger());
 #else
-#if !defined(__APPLE__)
   static auto& logger = *new LogFunction(StderrLogger);
-#endif // __APPLE__
 #endif
   return logger;
 }
