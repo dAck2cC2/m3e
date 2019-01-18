@@ -36,6 +36,7 @@ ${SOURCE_PATH}/sys/*.cpp
 )
 
 list(APPEND CUTILS_SOURCE_FILES
+${SOURCE_PATH}/ashmem-host.c
 ${SOURCE_PATH}/config_utils.c
 ${SOURCE_PATH}/hashmap.c
 ${SOURCE_PATH}/iosched_policy.c
