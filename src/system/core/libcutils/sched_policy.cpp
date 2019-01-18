@@ -461,6 +461,15 @@ const char *get_sched_policy_name(SchedPolicy policy)
 {
     policy = _policy(policy);
     static const char * const strings[SP_CNT] = {
+#if _MSC_VER
+	   "bg",
+	   "fg",
+	   "  ",
+	   "aa",
+	    "as",
+	   "ta",
+	   "rt",
+#else
        [SP_BACKGROUND] = "bg",
        [SP_FOREGROUND] = "fg",
        [SP_SYSTEM]     = "  ",
@@ -468,6 +477,7 @@ const char *get_sched_policy_name(SchedPolicy policy)
        [SP_AUDIO_SYS]  = "as",
        [SP_TOP_APP]    = "ta",
        [SP_RT_APP]    = "rt",
+#endif
     };
     if ((policy < SP_CNT) && (strings[policy] != NULL))
         return strings[policy];

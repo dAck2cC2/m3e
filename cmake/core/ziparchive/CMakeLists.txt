@@ -16,7 +16,15 @@ base
 zlib
 )
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/include/ziparchive )
+if (MSVC)
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    #list(APPEND ZIPARCHIVE_DEPLIB ${LIB_MSVC_WRAP})
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+endif(MSVC)
+
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libziparchive/include/ziparchive )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libziparchive )
 
 # header files
@@ -32,14 +40,11 @@ ${SOURCE_PATH}/zip_archive_stream_entry.cc
 ${SOURCE_PATH}/zip_writer.cc
 )
 
-if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
-    list(APPEND ZIPARCHIVE_HEADER_FILES ${MSVC_PATH}/unistd.h)
-elseif(APPLE)
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
-endif()
-
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(ziparchive SHARED ${ZIPARCHIVE_SOURCE_FILES} ${ZIPARCHIVE_HEADER_FILES})
 target_link_libraries(ziparchive ${ZIPARCHIVE_DEPLIB})
+
+if(ENABLE_TEST)
+    add_subdirectory(test)
+endif(ENABLE_TEST)

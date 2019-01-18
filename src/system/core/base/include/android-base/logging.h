@@ -406,7 +406,7 @@ class LogMessageData;
 
 // A LogMessage is a temporarily scoped object used by LOG and the unlikely part
 // of a CHECK. The destructor will abort if the severity is FATAL.
-class LogMessage {
+class ANDROID_API_BASE LogMessage {
  public:
   LogMessage(const char* file, unsigned int line, LogId id,
              LogSeverity severity, int error);

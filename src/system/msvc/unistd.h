@@ -18,8 +18,9 @@
 #include <io.h>
 #include <XGetopt.h> /* getopt at: http://www.codeproject.com/Articles/1940/XGetopt-A-Unix-compatible-getopt-for-MFC-and-Win32 */
 #include <process.h> /* for getpid() and the exec..() family */
-#include <direct.h> /* for _getcwd() and _chdir() */
+#include <direct.h>  /* for _getcwd() and _chdir() */
 #include <stdint.h>
+/* #include <dirent.h> */ /* Since it will include windows.h, don't include it here */
 
 /* Read user permission */
 #if !defined(S_IRUSR)
@@ -31,6 +32,14 @@
 #   define S_IWUSR S_IWRITE
 #endif
 
+/* Block device */
+#if !defined(S_IFBLK)
+#   define S_IFBLK 0
+#endif
+
+#if !defined(S_ISBLK)
+#   define S_ISBLK(mode) (((mode) & S_IFMT) == S_IFBLK)
+#endif
 
 #define srandom srand
 #define random rand

@@ -17,15 +17,18 @@
 #ifndef LIBZIPARCHIVE_ZIPWRITER_H_
 #define LIBZIPARCHIVE_ZIPWRITER_H_
 
-#include "android-base/macros.h"
-#include <utils/Compat.h>
-
 #include <cstdio>
 #include <ctime>
+
 #include <memory>
 #include <string>
 #include <vector>
-#include <zlib.h>
+
+#include "android-base/macros.h"
+#include "utils/Compat.h"
+
+struct z_stream_s;
+typedef struct z_stream_s z_stream;
 
 /**
  * Writes a Zip file via a stateful interface.
@@ -49,7 +52,7 @@
  *   fclose(file);
  */
 class ZipWriter {
-public:
+ public:
   enum {
     /**
      * Flag to compress the zip entry using deflate.
@@ -61,6 +64,21 @@ public:
      * mmapping the data at runtime.
      */
     kAlign32 = 0x02,
+  };
+
+  /**
+   * A struct representing a zip file entry.
+   */
+  struct FileEntry {
+    std::string path;
+    uint16_t compression_method;
+    uint32_t crc32;
+    uint32_t compressed_size;
+    uint32_t uncompressed_size;
+    uint16_t last_mod_time;
+    uint16_t last_mod_date;
+    uint32_t padding_length;
+    off64_t local_file_header_offset;
   };
 
   static const char* ErrorCodeString(int32_t error_code);
@@ -104,8 +122,7 @@ public:
   /**
    * Same as StartAlignedEntry(const char*, size_t), but sets a last modified time for the entry.
    */
-  int32_t StartAlignedEntryWithTime(const char* path, size_t flags, time_t time,
-                                    uint32_t alignment);
+  int32_t StartAlignedEntryWithTime(const char* path, size_t flags, time_t time, uint32_t alignment);
 
   /**
    * Writes bytes to the zip file for the previously started zip entry.
@@ -122,30 +139,32 @@ public:
   int32_t FinishEntry();
 
   /**
+   * Discards the last-written entry. Can only be called after an entry has been written using
+   * FinishEntry().
+   * Returns 0 on success, and an error value < 0 on failure.
+   */
+  int32_t DiscardLastEntry();
+
+  /**
+   * Sets `out_entry` to the last entry written after a call to FinishEntry().
+   * Returns 0 on success, and an error value < 0 if no entries have been written.
+   */
+  int32_t GetLastEntry(FileEntry* out_entry);
+
+  /**
    * Writes the Central Directory Headers and flushes the zip file stream.
    * Returns 0 on success, and an error value < 0 on failure.
    */
   int32_t Finish();
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(ZipWriter);
-
-  struct FileInfo {
-    std::string path;
-    uint16_t compression_method;
-    uint32_t crc32;
-    uint32_t compressed_size;
-    uint32_t uncompressed_size;
-    uint16_t last_mod_time;
-    uint16_t last_mod_date;
-    uint32_t local_file_header_offset;
-  };
 
   int32_t HandleError(int32_t error_code);
   int32_t PrepareDeflate();
-  int32_t StoreBytes(FileInfo* file, const void* data, size_t len);
-  int32_t CompressBytes(FileInfo* file, const void* data, size_t len);
-  int32_t FlushCompressedBytes(FileInfo* file);
+  int32_t StoreBytes(FileEntry* file, const void* data, size_t len);
+  int32_t CompressBytes(FileEntry* file, const void* data, size_t len);
+  int32_t FlushCompressedBytes(FileEntry* file);
 
   enum class State {
     kWritingZip,
@@ -155,11 +174,13 @@ private:
   };
 
   FILE* file_;
+  bool seekable_;
   off64_t current_offset_;
   State state_;
-  std::vector<FileInfo> files_;
+  std::vector<FileEntry> files_;
+  FileEntry current_file_entry_;
 
-  std::unique_ptr<z_stream, void(*)(z_stream*)> z_stream_;
+  std::unique_ptr<z_stream, void (*)(z_stream*)> z_stream_;
   std::vector<uint8_t> buffer_;
 };
 

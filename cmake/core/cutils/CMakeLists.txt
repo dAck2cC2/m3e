@@ -90,6 +90,6 @@ if(UNIX AND NOT APPLE)
     #target_link_libraries(cutils ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-#if(ENABLE_TEST)
+if(ENABLE_TEST)
   add_subdirectory(test)
-#endif(ENABLE_TEST)
+endif(ENABLE_TEST)

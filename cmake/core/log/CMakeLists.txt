@@ -44,6 +44,6 @@ if(UNIX AND NOT APPLE)
 endif()
 
 
-#if(ENABLE_TEST)
+if(ENABLE_TEST)
     add_subdirectory(test)
-#endif(ENABLE_TEST)
+endif(ENABLE_TEST)

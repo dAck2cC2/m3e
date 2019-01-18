@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "ZIPARCHIVE"
+
 // Read-only stream access to Zip Archive entries.
 #include <errno.h>
 #include <inttypes.h>
@@ -24,9 +26,9 @@
 #include <memory>
 #include <vector>
 
-#define LOG_TAG "ZIPARCHIVE"
 #include <android-base/file.h>
 #include <log/log.h>
+
 #include <ziparchive/zip_archive.h>
 #include <ziparchive/zip_archive_stream_entry.h>
 #include <zlib.h>
@@ -42,7 +44,7 @@ static constexpr size_t kBufSize = 65535;
 bool ZipArchiveStreamEntry::Init(const ZipEntry& entry) {
   ZipArchive* archive = reinterpret_cast<ZipArchive*>(handle_);
   off64_t data_offset = entry.offset;
-  if (lseek64(archive->fd, data_offset, SEEK_SET) != data_offset) {
+  if (!archive->mapped_zip.SeekToOffset(data_offset)) {
     ALOGW("lseek to data at %" PRId64 " failed: %s", data_offset, strerror(errno));
     return false;
   }
@@ -52,7 +54,8 @@ bool ZipArchiveStreamEntry::Init(const ZipEntry& entry) {
 
 class ZipArchiveStreamEntryUncompressed : public ZipArchiveStreamEntry {
  public:
-  ZipArchiveStreamEntryUncompressed(ZipArchiveHandle handle) : ZipArchiveStreamEntry(handle) {}
+  explicit ZipArchiveStreamEntryUncompressed(ZipArchiveHandle handle)
+      : ZipArchiveStreamEntry(handle) {}
   virtual ~ZipArchiveStreamEntryUncompressed() {}
 
   const std::vector<uint8_t>* Read() override;
@@ -90,7 +93,7 @@ const std::vector<uint8_t>* ZipArchiveStreamEntryUncompressed::Read() {
   size_t bytes = (length_ > data_.size()) ? data_.size() : length_;
   ZipArchive* archive = reinterpret_cast<ZipArchive*>(handle_);
   errno = 0;
-  if (!android::base::ReadFully(archive->fd, data_.data(), bytes)) {
+  if (!archive->mapped_zip.ReadData(data_.data(), bytes)) {
     if (errno != 0) {
       ALOGE("Error reading from archive fd: %s", strerror(errno));
     } else {
@@ -114,7 +117,8 @@ bool ZipArchiveStreamEntryUncompressed::Verify() {
 
 class ZipArchiveStreamEntryCompressed : public ZipArchiveStreamEntry {
  public:
-  ZipArchiveStreamEntryCompressed(ZipArchiveHandle handle) : ZipArchiveStreamEntry(handle) {}
+  explicit ZipArchiveStreamEntryCompressed(ZipArchiveHandle handle)
+      : ZipArchiveStreamEntry(handle) {}
   virtual ~ZipArchiveStreamEntryCompressed();
 
   const std::vector<uint8_t>* Read() override;
@@ -162,8 +166,7 @@ bool ZipArchiveStreamEntryCompressed::Init(const ZipEntry& entry) {
   int zerr = zlib_inflateInit2(&z_stream_, -MAX_WBITS);
   if (zerr != Z_OK) {
     if (zerr == Z_VERSION_ERROR) {
-      ALOGE("Installed zlib is not compatible with linked version (%s)",
-        ZLIB_VERSION);
+      ALOGE("Installed zlib is not compatible with linked version (%s)", ZLIB_VERSION);
     } else {
       ALOGE("Call to inflateInit2 failed (zerr=%d)", zerr);
     }
@@ -193,13 +196,14 @@ ZipArchiveStreamEntryCompressed::~ZipArchiveStreamEntryCompressed() {
 
 bool ZipArchiveStreamEntryCompressed::Verify() {
   return z_stream_init_ && uncompressed_length_ == 0 && compressed_length_ == 0 &&
-      crc32_ == computed_crc32_;
+         crc32_ == computed_crc32_;
 }
 
 const std::vector<uint8_t>* ZipArchiveStreamEntryCompressed::Read() {
   if (z_stream_.avail_out == 0) {
     z_stream_.next_out = out_.data();
-    z_stream_.avail_out = out_.size();;
+    z_stream_.avail_out = out_.size();
+    ;
   }
 
   while (true) {
@@ -210,7 +214,7 @@ const std::vector<uint8_t>* ZipArchiveStreamEntryCompressed::Read() {
       size_t bytes = (compressed_length_ > in_.size()) ? in_.size() : compressed_length_;
       ZipArchive* archive = reinterpret_cast<ZipArchive*>(handle_);
       errno = 0;
-      if (!android::base::ReadFully(archive->fd, in_.data(), bytes)) {
+      if (!archive->mapped_zip.ReadData(in_.data(), bytes)) {
         if (errno != 0) {
           ALOGE("Error reading from archive fd: %s", strerror(errno));
         } else {
@@ -226,9 +230,8 @@ const std::vector<uint8_t>* ZipArchiveStreamEntryCompressed::Read() {
 
     int zerr = inflate(&z_stream_, Z_NO_FLUSH);
     if (zerr != Z_OK && zerr != Z_STREAM_END) {
-      ALOGE("inflate zerr=%d (nIn=%p aIn=%u nOut=%p aOut=%u)",
-          zerr, z_stream_.next_in, z_stream_.avail_in,
-          z_stream_.next_out, z_stream_.avail_out);
+      ALOGE("inflate zerr=%d (nIn=%p aIn=%u nOut=%p aOut=%u)", zerr, z_stream_.next_in,
+            z_stream_.avail_in, z_stream_.next_out, z_stream_.avail_out);
       return nullptr;
     }
 
@@ -253,7 +256,7 @@ const std::vector<uint8_t>* ZipArchiveStreamEntryCompressed::Read() {
 
 class ZipArchiveStreamEntryRawCompressed : public ZipArchiveStreamEntryUncompressed {
  public:
-  ZipArchiveStreamEntryRawCompressed(ZipArchiveHandle handle)
+  explicit ZipArchiveStreamEntryRawCompressed(ZipArchiveHandle handle)
       : ZipArchiveStreamEntryUncompressed(handle) {}
   virtual ~ZipArchiveStreamEntryRawCompressed() {}
 
@@ -276,8 +279,8 @@ bool ZipArchiveStreamEntryRawCompressed::Verify() {
   return length_ == 0;
 }
 
-ZipArchiveStreamEntry* ZipArchiveStreamEntry::Create(
-    ZipArchiveHandle handle, const ZipEntry& entry) {
+ZipArchiveStreamEntry* ZipArchiveStreamEntry::Create(ZipArchiveHandle handle,
+                                                     const ZipEntry& entry) {
   ZipArchiveStreamEntry* stream = nullptr;
   if (entry.method != kCompressStored) {
     stream = new ZipArchiveStreamEntryCompressed(handle);
@@ -292,8 +295,8 @@ ZipArchiveStreamEntry* ZipArchiveStreamEntry::Create(
   return stream;
 }
 
-ZipArchiveStreamEntry* ZipArchiveStreamEntry::CreateRaw(
-    ZipArchiveHandle handle, const ZipEntry& entry) {
+ZipArchiveStreamEntry* ZipArchiveStreamEntry::CreateRaw(ZipArchiveHandle handle,
+                                                        const ZipEntry& entry) {
   ZipArchiveStreamEntry* stream = nullptr;
   if (entry.method == kCompressStored) {
     // Not compressed, don't need to do anything special.
