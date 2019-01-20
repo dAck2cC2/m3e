@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include <nativebase/nativebase.h>
+
 #ifndef __UNUSED
 #define __UNUSED __attribute__((__unused__))
 #endif
@@ -58,70 +60,6 @@ __BEGIN_DECLS
 // ---------------------------------------------------------------------------
 
 typedef const native_handle_t* buffer_handle_t;
-
-// ---------------------------------------------------------------------------
-
-typedef struct android_native_rect_t
-{
-    int32_t left;
-    int32_t top;
-    int32_t right;
-    int32_t bottom;
-} android_native_rect_t;
-
-// ---------------------------------------------------------------------------
-
-typedef struct android_native_base_t
-{
-    /* a magic value defined by the actual EGL native type */
-    int magic;
-
-    /* the sizeof() of the actual EGL native type */
-    int version;
-
-    void* reserved[4];
-
-    /* reference-counting interface */
-    void (*incRef)(struct android_native_base_t* base);
-    void (*decRef)(struct android_native_base_t* base);
-} android_native_base_t;
-
-typedef struct ANativeWindowBuffer
-{
-#ifdef __cplusplus
-    ANativeWindowBuffer() {
-        common.magic = ANDROID_NATIVE_BUFFER_MAGIC;
-        common.version = sizeof(ANativeWindowBuffer);
-        memset(common.reserved, 0, sizeof(common.reserved));
-    }
-
-    // Implement the methods that sp<ANativeWindowBuffer> expects so that it
-    // can be used to automatically refcount ANativeWindowBuffer's.
-    void incStrong(const void* /*id*/) const {
-        common.incRef(const_cast<android_native_base_t*>(&common));
-    }
-    void decStrong(const void* /*id*/) const {
-        common.decRef(const_cast<android_native_base_t*>(&common));
-    }
-#endif
-
-    struct android_native_base_t common;
-
-    int width;
-    int height;
-    int stride;
-    int format;
-    int usage;
-
-    void* reserved[2];
-
-    buffer_handle_t handle;
-
-    void* reserved_proc[8];
-} ANativeWindowBuffer_t;
-
-// Old typedef for backwards compatibility.
-typedef ANativeWindowBuffer_t android_native_buffer_t;
 
 // ---------------------------------------------------------------------------
 
@@ -243,7 +181,7 @@ enum {
      * The consumer gralloc usage bits currently set by the consumer.
      * The values are defined in hardware/libhardware/include/gralloc.h.
      */
-    NATIVE_WINDOW_CONSUMER_USAGE_BITS = 10,
+    NATIVE_WINDOW_CONSUMER_USAGE_BITS = 10, /* deprecated */
 
     /**
      * Transformation that will by applied to buffers by the hwcomposer.
@@ -288,6 +226,31 @@ enum {
      * Returns the duration of the last queueBuffer call in microseconds
      */
     NATIVE_WINDOW_LAST_QUEUE_DURATION = 15,
+
+    /*
+     * Returns the number of image layers that the ANativeWindow buffer
+     * contains. By default this is 1, unless a buffer is explicitly allocated
+     * to contain multiple layers.
+     */
+    NATIVE_WINDOW_LAYER_COUNT = 16,
+
+    /*
+     * Returns 1 if the native window is valid, 0 otherwise. native window is valid
+     * if it is safe (i.e. no crash will occur) to call any method on it.
+     */
+    NATIVE_WINDOW_IS_VALID = 17,
+
+    /*
+     * Returns 1 if NATIVE_WINDOW_GET_FRAME_TIMESTAMPS will return display
+     * present info, 0 if it won't.
+     */
+    NATIVE_WINDOW_FRAME_TIMESTAMPS_SUPPORTS_PRESENT = 18,
+
+    /*
+     * The consumer end is capable of handling protected buffers, i.e. buffer
+     * with GRALLOC_USAGE_PROTECTED usage bits on.
+     */
+    NATIVE_WINDOW_CONSUMER_IS_PROTECTED = 19,
 };
 
 /* Valid operations for the (*perform)() hook.
@@ -301,30 +264,40 @@ enum {
  * ANativeWindow.
  */
 enum {
-    NATIVE_WINDOW_SET_USAGE                 =  0,
-    NATIVE_WINDOW_CONNECT                   =  1,   /* deprecated */
-    NATIVE_WINDOW_DISCONNECT                =  2,   /* deprecated */
-    NATIVE_WINDOW_SET_CROP                  =  3,   /* private */
-    NATIVE_WINDOW_SET_BUFFER_COUNT          =  4,
-    NATIVE_WINDOW_SET_BUFFERS_GEOMETRY      =  5,   /* deprecated */
-    NATIVE_WINDOW_SET_BUFFERS_TRANSFORM     =  6,
-    NATIVE_WINDOW_SET_BUFFERS_TIMESTAMP     =  7,
-    NATIVE_WINDOW_SET_BUFFERS_DIMENSIONS    =  8,
-    NATIVE_WINDOW_SET_BUFFERS_FORMAT        =  9,
-    NATIVE_WINDOW_SET_SCALING_MODE          = 10,   /* private */
-    NATIVE_WINDOW_LOCK                      = 11,   /* private */
-    NATIVE_WINDOW_UNLOCK_AND_POST           = 12,   /* private */
-    NATIVE_WINDOW_API_CONNECT               = 13,   /* private */
-    NATIVE_WINDOW_API_DISCONNECT            = 14,   /* private */
-    NATIVE_WINDOW_SET_BUFFERS_USER_DIMENSIONS = 15, /* private */
-    NATIVE_WINDOW_SET_POST_TRANSFORM_CROP   = 16,   /* private */
-    NATIVE_WINDOW_SET_BUFFERS_STICKY_TRANSFORM = 17,/* private */
-    NATIVE_WINDOW_SET_SIDEBAND_STREAM       = 18,
-    NATIVE_WINDOW_SET_BUFFERS_DATASPACE     = 19,
-    NATIVE_WINDOW_SET_SURFACE_DAMAGE        = 20,   /* private */
-    NATIVE_WINDOW_SET_SHARED_BUFFER_MODE    = 21,
-    NATIVE_WINDOW_SET_AUTO_REFRESH          = 22,
-    NATIVE_WINDOW_GET_FRAME_TIMESTAMPS      = 23,
+// clang-format off
+    NATIVE_WINDOW_SET_USAGE                     =  0,   /* deprecated */
+    NATIVE_WINDOW_CONNECT                       =  1,   /* deprecated */
+    NATIVE_WINDOW_DISCONNECT                    =  2,   /* deprecated */
+    NATIVE_WINDOW_SET_CROP                      =  3,   /* private */
+    NATIVE_WINDOW_SET_BUFFER_COUNT              =  4,
+    NATIVE_WINDOW_SET_BUFFERS_GEOMETRY          =  5,   /* deprecated */
+    NATIVE_WINDOW_SET_BUFFERS_TRANSFORM         =  6,
+    NATIVE_WINDOW_SET_BUFFERS_TIMESTAMP         =  7,
+    NATIVE_WINDOW_SET_BUFFERS_DIMENSIONS        =  8,
+    NATIVE_WINDOW_SET_BUFFERS_FORMAT            =  9,
+    NATIVE_WINDOW_SET_SCALING_MODE              = 10,   /* private */
+    NATIVE_WINDOW_LOCK                          = 11,   /* private */
+    NATIVE_WINDOW_UNLOCK_AND_POST               = 12,   /* private */
+    NATIVE_WINDOW_API_CONNECT                   = 13,   /* private */
+    NATIVE_WINDOW_API_DISCONNECT                = 14,   /* private */
+    NATIVE_WINDOW_SET_BUFFERS_USER_DIMENSIONS   = 15,   /* private */
+    NATIVE_WINDOW_SET_POST_TRANSFORM_CROP       = 16,   /* deprecated, unimplemented */
+    NATIVE_WINDOW_SET_BUFFERS_STICKY_TRANSFORM  = 17,   /* private */
+    NATIVE_WINDOW_SET_SIDEBAND_STREAM           = 18,
+    NATIVE_WINDOW_SET_BUFFERS_DATASPACE         = 19,
+    NATIVE_WINDOW_SET_SURFACE_DAMAGE            = 20,   /* private */
+    NATIVE_WINDOW_SET_SHARED_BUFFER_MODE        = 21,
+    NATIVE_WINDOW_SET_AUTO_REFRESH              = 22,
+    NATIVE_WINDOW_GET_REFRESH_CYCLE_DURATION    = 23,
+    NATIVE_WINDOW_GET_NEXT_FRAME_ID             = 24,
+    NATIVE_WINDOW_ENABLE_FRAME_TIMESTAMPS       = 25,
+    NATIVE_WINDOW_GET_COMPOSITOR_TIMING         = 26,
+    NATIVE_WINDOW_GET_FRAME_TIMESTAMPS          = 27,
+    NATIVE_WINDOW_GET_WIDE_COLOR_SUPPORT        = 28,
+    NATIVE_WINDOW_GET_HDR_SUPPORT               = 29,
+    NATIVE_WINDOW_SET_USAGE64                   = 30,
+    NATIVE_WINDOW_GET_CONSUMER_USAGE64          = 31,
+// clang-format on
 };
 
 /* parameter for NATIVE_WINDOW_[API_][DIS]CONNECT */
@@ -398,6 +371,14 @@ enum {
  * defined directly to avoid problems with C99/C++ inclusion of stdint.h.
  */
 static const int64_t NATIVE_WINDOW_TIMESTAMP_AUTO = (-9223372036854775807LL-1);
+
+/* parameter for NATIVE_WINDOW_GET_FRAME_TIMESTAMPS
+ *
+ * Special timestamp value to indicate the timestamps aren't yet known or
+ * that they are invalid.
+ */
+static const int64_t NATIVE_WINDOW_TIMESTAMP_PENDING = -2;
+static const int64_t NATIVE_WINDOW_TIMESTAMP_INVALID = -1;
 
 struct ANativeWindow
 {
@@ -627,12 +608,13 @@ typedef struct ANativeWindow ANativeWindow;
 typedef struct ANativeWindow android_native_window_t __deprecated;
 
 /*
- *  native_window_set_usage(..., usage)
+ *  native_window_set_usage64(..., usage)
  *  Sets the intended usage flags for the next buffers
  *  acquired with (*lockBuffer)() and on.
- *  By default (if this function is never called), a usage of
- *      GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_HW_TEXTURE
- *  is assumed.
+ *
+ *  Valid usage flags are defined in android/hardware_buffer.h
+ *  All AHARDWAREBUFFER_USAGE_* flags can be specified as needed.
+ *
  *  Calling this function will usually cause following buffers to be
  *  reallocated.
  */

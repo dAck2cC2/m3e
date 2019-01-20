@@ -6,6 +6,8 @@ if(MSVC)
 endif(MSVC)
 
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/arect/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativebase/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 
 # include
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/libs/ui/include)

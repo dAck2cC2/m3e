@@ -31,8 +31,8 @@ class ANDROID_API_UI Rect : public ARect, public LightFlattenablePod<Rect>
 public:
     typedef ARect::value_type value_type;
 
-	static const Rect INVALID_RECT;
-	static const Rect EMPTY_RECT;
+    static const Rect INVALID_RECT;
+    static const Rect EMPTY_RECT;
 
     // we don't provide copy-ctor and operator= on purpose
     // because we want the compiler generated versions
@@ -42,13 +42,9 @@ public:
     template <typename T>
     inline Rect(T w, T h) {
         if (w > INT32_MAX) {
-            ALOG(LOG_WARN, "Rect",
-                    "Width %u too large for Rect class, clamping", w);
             w = INT32_MAX;
         }
         if (h > INT32_MAX) {
-            ALOG(LOG_WARN, "Rect",
-                    "Height %u too large for Rect class, clamping", h);
             h = INT32_MAX;
         }
         left = top = 0;
@@ -176,7 +172,6 @@ public:
 
     // this calculates (Region(*this) - exclude).bounds() efficiently
     Rect reduce(const Rect& exclude) const;
-
 
     // for backward compatibility
     inline int32_t width() const { return getWidth(); }

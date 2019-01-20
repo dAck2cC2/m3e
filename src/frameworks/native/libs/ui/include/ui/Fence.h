@@ -89,8 +89,8 @@ public:
 
     // getSignalTime returns the system monotonic clock time at which the
     // fence transitioned to the signaled state.  If the fence is not signaled
-    // then INT64_MAX is returned.  If the fence is invalid or if an error
-    // occurs then -1 is returned.
+    // then SIGNAL_TIME_PENDING is returned.  If the fence is invalid or if an
+    // error occurs then SIGNAL_TIME_INVALID is returned.
     nsecs_t getSignalTime() const;
 
     // Flattenable interface
