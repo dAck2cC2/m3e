@@ -34,8 +34,8 @@ if(MSVC)
 endif()
 
 # include files
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/hardware)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/headers/media_plugin/media/openmax)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/headers/media_plugin/media/hardware)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include )

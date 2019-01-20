@@ -12,6 +12,7 @@ include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
@@ -46,7 +47,7 @@ elseif(MSVC)
 endif()
 
 # include files
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
+#include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/headers/media_plugin/media/openmax)
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/netd/include)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/stagefright/include )

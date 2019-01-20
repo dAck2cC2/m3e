@@ -20,7 +20,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/codecs/common/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/codecs/avc/common/include.cmake)
 
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/hardware)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/headers/media_plugin/media/hardware)
 
 set(${PROJECT_NAME}_DEPLIB
 log

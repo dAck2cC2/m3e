@@ -14,6 +14,7 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
@@ -26,15 +27,23 @@ log
 ${OPENGL_DEPLIB}
 )
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/gui )
+if (MSVC)
+    add_definitions(-DNOMINMAX=1)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND GUI_DEPLIB ${LIB_MSVC_WRAP})
+endif(MSVC)
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/gui/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/gui )
 
 # header files
-file(GLOB GUI_HEADER_FILES  ${HEADER_PATH}/gui/*.h)
-
-file(GLOB GUI_PRIVATE_HEADER ${HEADER_PATH}/private/gui/*.h)
-list(APPEND GUI_HEADER_FILES ${GUI_PRIVATE_HEADER})
+file(GLOB 
+GUI_HEADER_FILES  
+${HEADER_PATH}/gui/*.h
+${HEADER_PATH}/private/gui/*.h
+)
 
 # source files
 set(GUI_SOURCE_FILES 
@@ -72,9 +81,6 @@ if(APPLE)
 #        ${SOURCE_PATH}/eglext.c
 #    )
 elseif(MSVC)
-    add_definitions(-DNOMINMAX=1)
-    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
-
     list(REMOVE_ITEM GUI_SOURCE_FILES
     ${SOURCE_PATH}/BitTube.cpp
     )
@@ -82,10 +88,6 @@ elseif(MSVC)
     list(APPEND GUI_SOURCE_FILES
     ${SOURCE_PATH}/BitTube_msvc.cpp
     )
-
-    list(APPEND GUI_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.c
-    ) 
 endif()
 
 # target files

@@ -10,5 +10,7 @@ else()
     add_definitions(-Wno-attributes)
 endif()
 
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/media_plugin/include.cmake)
+
 # include
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/include)
