@@ -53,19 +53,23 @@ enum {
 
     // real pixel formats supported for rendering -----------------------------
 
-    PIXEL_FORMAT_RGBA_8888   = HAL_PIXEL_FORMAT_RGBA_8888,   // 4x8-bit RGBA
-    PIXEL_FORMAT_RGBX_8888   = HAL_PIXEL_FORMAT_RGBX_8888,   // 4x8-bit RGB0
-    PIXEL_FORMAT_RGB_888     = HAL_PIXEL_FORMAT_RGB_888,     // 3x8-bit RGB
-    PIXEL_FORMAT_RGB_565     = HAL_PIXEL_FORMAT_RGB_565,     // 16-bit RGB
-    PIXEL_FORMAT_BGRA_8888   = HAL_PIXEL_FORMAT_BGRA_8888,   // 4x8-bit BGRA
-    PIXEL_FORMAT_RGBA_5551   = 6,                            // 16-bit ARGB
-    PIXEL_FORMAT_RGBA_4444   = 7,                            // 16-bit ARGB
+    PIXEL_FORMAT_RGBA_8888    = HAL_PIXEL_FORMAT_RGBA_8888,    // 4x8-bit RGBA
+    PIXEL_FORMAT_RGBX_8888    = HAL_PIXEL_FORMAT_RGBX_8888,    // 4x8-bit RGB0
+    PIXEL_FORMAT_RGB_888      = HAL_PIXEL_FORMAT_RGB_888,      // 3x8-bit RGB
+    PIXEL_FORMAT_RGB_565      = HAL_PIXEL_FORMAT_RGB_565,      // 16-bit RGB
+    PIXEL_FORMAT_BGRA_8888    = HAL_PIXEL_FORMAT_BGRA_8888,    // 4x8-bit BGRA
+    PIXEL_FORMAT_RGBA_5551    = 6,                             // 16-bit ARGB
+    PIXEL_FORMAT_RGBA_4444    = 7,                             // 16-bit ARGB
+    PIXEL_FORMAT_RGBA_FP16    = HAL_PIXEL_FORMAT_RGBA_FP16,    // 64-bit RGBA
+    PIXEL_FORMAT_RGBA_1010102 = HAL_PIXEL_FORMAT_RGBA_1010102, // 32-bit RGBA
 };
 
 typedef int32_t PixelFormat;
 
-uint32_t ANDROID_API_UI bytesPerPixel(PixelFormat format);
-uint32_t ANDROID_API_UI bitsPerPixel(PixelFormat format);
+ANDROID_API_UI
+uint32_t bytesPerPixel(PixelFormat format);
+ANDROID_API_UI
+uint32_t bitsPerPixel(PixelFormat format);
 
 }; // namespace android
 

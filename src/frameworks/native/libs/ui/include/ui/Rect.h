@@ -20,6 +20,9 @@
 #include <utils/Flattenable.h>
 #include <utils/Log.h>
 #include <utils/TypeHelpers.h>
+#include <log/log.h>
+
+#include <ui/FloatRect.h>
 #include <ui/Point.h>
 
 #include <android/rect.h>
@@ -177,6 +180,11 @@ public:
     inline int32_t width() const { return getWidth(); }
     inline int32_t height() const { return getHeight(); }
     inline void set(const Rect& rhs) { operator = (rhs); }
+
+    FloatRect toFloatRect() const {
+        return {static_cast<float>(left), static_cast<float>(top),
+                static_cast<float>(right), static_cast<float>(bottom)};
+    }
 };
 
 ANDROID_BASIC_TYPES_TRAITS(Rect)

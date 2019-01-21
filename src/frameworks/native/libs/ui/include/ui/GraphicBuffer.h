@@ -41,7 +41,7 @@ class GraphicBufferMapper;
 // ===========================================================================
 
 class ANDROID_API_UI GraphicBuffer
-    : public ANativeObjectBase< ANativeWindowBuffer, GraphicBuffer, RefBase >,
+    : public ANativeObjectBase<ANativeWindowBuffer, GraphicBuffer, RefBase>,
       public Flattenable<GraphicBuffer>
 {
     friend class Flattenable<GraphicBuffer>;
@@ -102,6 +102,9 @@ public:
         mGenerationNumber = generation;
     }
 
+    // This function is privileged.  It requires access to the allocator
+    // device or service, which usually involves adding suitable selinux
+    // rules.
     status_t reallocate(uint32_t inWidth, uint32_t inHeight,
             PixelFormat inFormat, uint32_t inUsage);
 
