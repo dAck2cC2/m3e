@@ -295,5 +295,14 @@ void printHexData(int32_t indent, const void *buf, size_t length,
     }
 }
 
+ssize_t getBinderKernelReferences(size_t count, uintptr_t* buf) {
+    sp<ProcessState> proc = ProcessState::selfOrNull();
+    if (proc.get() == NULL) {
+        return 0;
+    }
+
+    return proc->getKernelReferences(count, buf);
+}
+
 }; // namespace android
 

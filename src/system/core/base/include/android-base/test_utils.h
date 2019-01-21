@@ -48,7 +48,7 @@ class TemporaryDir {
   DISALLOW_COPY_AND_ASSIGN(TemporaryDir);
 };
 
-class CapturedStderr {
+class ANDROID_API_BASE CapturedStderr {
  public:
   CapturedStderr();
   ~CapturedStderr();

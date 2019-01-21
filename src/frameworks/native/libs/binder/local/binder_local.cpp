@@ -31,6 +31,7 @@ So, we need a common thread to watch Binder Entry for such kind of native binder
 #include <utils/KeyedVector.h>
 #include <utils/Looper.h>
 #include <utils/Vector.h>
+#include <utils/String8.h>
 
 #include <binder/Parcel.h>
 #include <private/binder/binder_module.h>
@@ -48,6 +49,7 @@ public:
     IBinderEntry()  {};
     ~IBinderEntry() {};
     
+	virtual void SetName(const char* name) = 0;
     virtual void SetLooper(const sp<Looper>& looper) = 0;
 	virtual sp<Looper> GetLooper() const = 0;
 	virtual int  GetHandler() const = 0;
@@ -100,6 +102,7 @@ public:
         mLooper = NULL;
     };
 
+	virtual void SetName(const char* name) { mName = name; };
     virtual int  GetParentHandler() const { return mhParent; };
     virtual void SetParentHandler(int handler) { mhParent = handler; };
     virtual void SetLooper(const sp<Looper>& looper) {mLooper = looper;};
@@ -760,6 +763,8 @@ private:
     KeyedVector<int, uintptr_t>           mBpList;   // proxy for death notification
     Mutex                                 mBpLock;
 
+	String8     mName;
+
     int         mHandler;
     int         mhParent;
     sp<Looper>  mLooper;
@@ -813,7 +818,7 @@ static int binder_lookupProxy_deamon(uintptr_t cookie)
 // ---------------------------------------------------------------------------
 // Public API
 
-int binder_open_local()
+int binder_open_local(const char* name)
 {
     AutoMutex _l(gServiceLock);
     
@@ -829,6 +834,10 @@ int binder_open_local()
     }
     
     e->SetLooper(new Looper(true));
+
+	if (name) {
+		e->SetName(name);
+	}
 
     return handler;
 }

@@ -26,7 +26,6 @@
 #include <binder/IServiceManager.h>
 #include <utils/String8.h>
 #include <utils/threads.h>
-//#include <utils/Errors.h>
 
 #include <private/binder/binder_module.h>
 #include <private/binder/Static.h>
@@ -50,7 +49,7 @@
 
 namespace android {
 
-extern int      binder_open_local();
+extern int      binder_open_local(const char* name);
 extern status_t binder_close_local(int handler);
 extern status_t binder_ioctl_local(int handler, int cmd, void* data);
 
@@ -82,18 +81,28 @@ protected:
 
 sp<ProcessState> ProcessState::self()
 {
+	return initWithDriver("default");
+}
+
+sp<ProcessState> ProcessState::initWithDriver(const char* driver)
+{
 	// create a global ProcessState to store callback of context manager
 	// It is created firslty, which should hold the handler of 0 for context manager.
 	{
 		Mutex::Autolock _l(gProcessMutex);
 		if (gProcess == NULL) {
-			gProcess = new ProcessState;
+			gProcess = new ProcessState("Context Manager");
 		}
 	}
 
 	if (gTLS.has_tls) {
 		ProcessState* pt = (ProcessState*)thread_store_get(&gTLS);
 		if (pt) {
+			// Allow for initWithDriver to be called repeatedly with the same
+			// driver.
+			if (strcmp(pt->getDriverName().c_str(), driver)) {
+				LOG_ALWAYS_FATAL("ProcessState was already initialized.");
+			}
 			return pt;
 		}
 		else {
@@ -102,12 +111,18 @@ sp<ProcessState> ProcessState::self()
 	}
 
 create_process:
-	sp<ProcessState> new_st = new ProcessState;
+	sp<ProcessState> new_st = new ProcessState(driver);
 	if (new_st != NULL) {
 		new_st->incStrong((void*)threadDestructor);
 		thread_store_set(&gTLS, new_st.get(), threadDestructor);
 	}
 	return new_st;
+}
+
+sp<ProcessState> ProcessState::selfOrNull()
+{
+	ProcessState* pt = (ProcessState*)thread_store_get(&gTLS);
+	return pt;
 }
 
 void ProcessState::setContextObject(const sp<IBinder>& object)
@@ -185,7 +200,8 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
 			gProcess->mBinderContextUserData = userData;
 		}
 
-        status_t result = binder_ioctl_local(mDriverFD, BINDER_SET_CONTEXT_MGR, NULL);
+        int dummy = 0;
+        status_t result = binder_ioctl_local(mDriverFD, BINDER_SET_CONTEXT_MGR, &dummy);
         if (result == 0) {
             mManagesContexts = true;
         } else if (result == -1) {
@@ -196,8 +212,51 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
             ALOGE("Binder ioctl to become context manager failed: %s\n", strerror(errno));
         }
     }
-
     return mManagesContexts;
+}
+
+// Get references to userspace objects held by the kernel binder driver
+// Writes up to count elements into buf, and returns the total number
+// of references the kernel has, which may be larger than count.
+// buf may be NULL if count is 0.  The pointers returned by this method
+// should only be used for debugging and not dereferenced, they may
+// already be invalid.
+ssize_t ProcessState::getKernelReferences(size_t buf_count, uintptr_t* buf)
+{
+#if TODO
+    // TODO: remove these when they are defined by bionic's binder.h
+    struct binder_node_debug_info {
+        binder_uintptr_t ptr;
+        binder_uintptr_t cookie;
+        __u32 has_strong_ref;
+        __u32 has_weak_ref;
+    };
+#define BINDER_GET_NODE_DEBUG_INFO _IOWR('b', 11, struct binder_node_debug_info)
+
+    binder_node_debug_info info = {};
+
+    uintptr_t* end = buf ? buf + buf_count : NULL;
+    size_t count = 0;
+
+    do {
+        status_t result = binder_ioctl_local(mDriverFD, BINDER_GET_NODE_DEBUG_INFO, &info);
+        if (result < 0) {
+            return -1;
+        }
+        if (info.ptr != 0) {
+            if (buf && buf < end)
+                *buf++ = info.ptr;
+            count++;
+            if (buf && buf < end)
+                *buf++ = info.cookie;
+            count++;
+        }
+    } while (info.ptr != 0);
+
+    return count;
+#else
+	return 0;
+#endif
 }
 
 ProcessState::handle_entry* ProcessState::lookupHandleLocked(int32_t handle)
@@ -341,10 +400,13 @@ void ProcessState::giveThreadPoolName() {
     androidSetThreadName( makeBinderThreadName().string() );
 }
 
+String8 ProcessState::getDriverName() {
+    return mDriverName;
+}
 
-static int open_driver()
+static int open_driver(const char *driver)
 {
-    int fd = binder_open_local();
+    int fd = binder_open_local(driver);
     if (fd >= 0) {
         int vers = 0;
         status_t result = binder_ioctl_local(fd, BINDER_VERSION, &vers);
@@ -352,8 +414,9 @@ static int open_driver()
 			binder_close_local(fd);
             fd = -1;
         }
-        if ((result != 0 ) || (vers != BINDER_CURRENT_PROTOCOL_VERSION)) {
-            ALOGE("Binder driver protocol does not match user space protocol!");
+        if (result != 0 || vers != BINDER_CURRENT_PROTOCOL_VERSION) {
+          ALOGE("Binder driver protocol(%d) does not match user space protocol(%d)! ioctl() return value: %d",
+                vers, BINDER_CURRENT_PROTOCOL_VERSION, result);
 			binder_close_local(fd);
             fd = -1;
         }
@@ -367,9 +430,10 @@ static int open_driver()
     }
     return fd;
 }
-    
-ProcessState::ProcessState()
-    : mDriverFD(open_driver())
+
+ProcessState::ProcessState(const char *driver)
+    : mDriverName(String8(driver))
+    , mDriverFD(open_driver(driver))
     , mVMStart(MAP_FAILED)
     //, mThreadCountLock(PTHREAD_MUTEX_INITIALIZER)
     //, mThreadCountDecrement(PTHREAD_COND_INITIALIZER)
@@ -387,6 +451,10 @@ ProcessState::ProcessState()
 
 ProcessState::~ProcessState()
 {
+    if (mDriverFD >= 0) {
+        binder_close_local(mDriverFD);
+    }
+    mDriverFD = -1;
 }
         
 }; // namespace android

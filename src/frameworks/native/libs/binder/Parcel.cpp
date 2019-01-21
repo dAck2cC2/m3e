@@ -1198,13 +1198,13 @@ status_t Parcel::writeDupFileDescriptor(int fd)
     }
     return err;
 }
-#if TODO
+
 status_t Parcel::writeParcelFileDescriptor(int fd, bool takeOwnership)
 {
     writeInt32(0);
     return writeFileDescriptor(fd, takeOwnership);
 }
-
+#if TODO
 status_t Parcel::writeUniqueFileDescriptor(const base::unique_fd& fd) {
     return writeDupFileDescriptor(fd.get());
 }
@@ -2249,7 +2249,6 @@ int Parcel::readFileDescriptor() const
 
     return BAD_TYPE;
 }
-#if TODO
 
 int Parcel::readParcelFileDescriptor() const
 {
@@ -2261,7 +2260,7 @@ int Parcel::readParcelFileDescriptor() const
     }
     return fd;
 }
-
+#if TODO
 status_t Parcel::readUniqueFileDescriptor(base::unique_fd* val) const
 {
     int got = readFileDescriptor();

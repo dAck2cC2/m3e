@@ -7,6 +7,7 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
 
@@ -23,16 +24,24 @@ binder
 log
 utils
 initrc
+#base
 )
 
-# test file
-file(GLOB TEST_BINDER_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/frameworks/native/libs/binder/tests/*.*
-)
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/binder/tests )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/binder/tests )
+
 
 # main source
-list(APPEND TEST_BINDER_SOURCE_FILES
+set(TEST_BINDER_SOURCE_FILES
 ${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
+)
+
+list(APPEND TEST_BINDER_SOURCE_FILES
+${SOURCE_PATH}/Binder_test.cpp
+${SOURCE_PATH}/MemoryDealer_test.cpp
+${SOURCE_PATH}/Parcel_test.cpp
+${SOURCE_PATH}/binderValueTypeTest.cpp
+#${SOURCE_PATH}/binderTextOutputTest.cpp
 )
 
 # project
