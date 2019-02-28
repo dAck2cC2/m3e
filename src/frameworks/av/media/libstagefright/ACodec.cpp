@@ -1125,7 +1125,7 @@ status_t ACodec::allocateOutputBuffersFromNativeWindow() {
             break;
         }
 
-        sp<GraphicBuffer> graphicBuffer(new GraphicBuffer(buf, false));
+        sp<GraphicBuffer> graphicBuffer(GraphicBuffer::from(buf));
         BufferInfo info;
         info.mStatus = BufferInfo::OWNED_BY_US;
         info.mFenceFd = fenceFd;
@@ -1252,7 +1252,7 @@ status_t ACodec::allocateOutputMetadataBuffers() {
                 break;
             }
 
-            sp<GraphicBuffer> graphicBuffer(new GraphicBuffer(buf, false));
+            sp<GraphicBuffer> graphicBuffer(GraphicBuffer::from(buf));
             mOMX->updateGraphicBufferInMeta(
                     mNode, kPortIndexOutput, graphicBuffer, info->mBufferID);
             info->mStatus = BufferInfo::OWNED_BY_US;
@@ -1485,7 +1485,7 @@ ACodec::BufferInfo *ACodec::dequeueBufferFromNativeWindow() {
     CHECK(storingMetadataInDecodedBuffers());
 
     // discard buffer in LRU info and replace with new buffer
-    oldest->mGraphicBuffer = new GraphicBuffer(buf, false);
+    oldest->mGraphicBuffer = GraphicBuffer::from(buf);
     oldest->mStatus = BufferInfo::OWNED_BY_US;
     oldest->setWriteFence(fenceFd, "dequeueBufferFromNativeWindow for oldest");
     mRenderTracker.untrackFrame(oldest->mRenderInfo);
@@ -6065,7 +6065,7 @@ void ACodec::BaseState::onInputBufferFilled(const sp<AMessage> &msg) {
                         VideoNativeMetadata *vnmd = (VideoNativeMetadata*)info->mCodecData->base();
                         err2 = mCodec->mOMX->updateGraphicBufferInMeta(
                                 mCodec->mNode, kPortIndexInput,
-                                new GraphicBuffer(vnmd->pBuffer, false /* keepOwnership */),
+                                GraphicBuffer::from(vnmd->pBuffer),
                                 bufferID);
                     }
                     break;

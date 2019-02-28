@@ -11,8 +11,12 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/sync/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/system/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/grallocusage/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/math/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/)
 
@@ -22,6 +26,9 @@ utils
 log
 sync
 hardware
+base
+grallocusage
+hidl
 )
 
 if(MSVC)
@@ -43,7 +50,22 @@ ${M3E_SOURCE_DIR}/src/frameworks/native/include/private/ui/*.h
 )
 
 # source files
-file(GLOB UI_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
+set(UI_SOURCE_FILES 
+#${SOURCE_PATH}/ColorSpace.cpp
+${SOURCE_PATH}/DebugUtils.cpp
+${SOURCE_PATH}/Fence.cpp
+#${SOURCE_PATH}/FenceTime.cpp
+${SOURCE_PATH}/FrameStats.cpp
+${SOURCE_PATH}/Gralloc2.cpp
+${SOURCE_PATH}/GraphicBuffer.cpp
+${SOURCE_PATH}/GraphicBufferAllocator.cpp
+${SOURCE_PATH}/GraphicBufferMapper.cpp
+${SOURCE_PATH}/HdrCapabilities.cpp
+${SOURCE_PATH}/PixelFormat.cpp
+${SOURCE_PATH}/Rect.cpp
+${SOURCE_PATH}/Region.cpp
+${SOURCE_PATH}/UiConfig.cpp
+)
 
 
 # target files

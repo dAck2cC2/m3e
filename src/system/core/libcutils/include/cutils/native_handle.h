@@ -63,6 +63,7 @@ int native_handle_close(const native_handle_t* h);
  * NATIVE_HANDLE_DECLARE_STORAGE.  numFds and numInts must not respectively
  * exceed maxFds and maxInts used to declare the storage.
  */
+ANDROID_API_CUTILS
 native_handle_t* native_handle_init(char* storage, int numFds, int numInts);
 
 /*
@@ -82,6 +83,7 @@ native_handle_t* native_handle_create(int numFds, int numInts);
  * Must be destroyed with native_handle_delete().
  *
  */
+ANDROID_API_CUTILS
 native_handle_t* native_handle_clone(const native_handle_t* handle);
 
 /*

@@ -32,6 +32,9 @@
 
 #include <inttypes.h>
 
+#include <cutils/properties.h>
+#include <cutils/atomic.h>
+
 #include <gui/BufferItem.h>
 #include <gui/BufferQueueCore.h>
 #include <gui/IConsumerListener.h>
@@ -40,7 +43,7 @@
 #include <gui/ISurfaceComposer.h>
 #include <private/gui/ComposerService.h>
 
-#include <cutils/atomic.h>
+#include <system/window.h>
 
 namespace android {
 

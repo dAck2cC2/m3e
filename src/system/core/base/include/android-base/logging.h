@@ -428,6 +428,7 @@ class ANDROID_API_BASE LogMessage {
 };
 
 // Get the minimum severity level for logging.
+ANDROID_API_BASE
 LogSeverity GetMinimumLogSeverity();
 
 // Set the minimum severity level for logging, returning the old severity.

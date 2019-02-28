@@ -11,17 +11,10 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 
-# Surface Flinger
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger)
-
 set(INITRC_DEPLIB
 cutils
 utils
 hardware
-surfaceflinger_default
 )
 
 if(MSVC)

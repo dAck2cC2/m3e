@@ -39,7 +39,11 @@
 #include <utils/Log.h>
 #include <utils/Trace.h>
 
+#include <system/window.h>
+
 namespace android {
+
+static constexpr uint32_t BQ_LAYER_COUNT = 1;
 
 BufferQueueProducer::BufferQueueProducer(const sp<BufferQueueCore>& core) :
     mCore(core),
@@ -410,10 +414,9 @@ status_t BufferQueueProducer::dequeueBuffer(int *outSlot,
             // buffer. If this buffer would require reallocation to meet the
             // requested attributes, we free it and attempt to get another one.
             if (!mCore->mAllowAllocation) {
-                if (buffer->needsReallocation(width, height, format, usage)) {
+                if (buffer->needsReallocation(width, height, format, BQ_LAYER_COUNT, usage)) {
                     if (mCore->mSharedBufferSlot == found) {
-                        BQ_LOGE("dequeueBuffer: cannot re-allocate a shared"
-                                "buffer");
+                        BQ_LOGE("dequeueBuffer: cannot re-allocate a sharedbuffer");
                         return BAD_VALUE;
                     }
                     mCore->mFreeSlots.insert(found);
@@ -426,7 +429,7 @@ status_t BufferQueueProducer::dequeueBuffer(int *outSlot,
 
         const sp<GraphicBuffer>& buffer(mSlots[found].mGraphicBuffer);
         if (mCore->mSharedBufferSlot == found &&
-                buffer->needsReallocation(width,  height, format, usage)) {
+                buffer->needsReallocation(width, height, format, BQ_LAYER_COUNT, usage)) {
             BQ_LOGE("dequeueBuffer: cannot re-allocate a shared"
                     "buffer");
 
@@ -445,7 +448,7 @@ status_t BufferQueueProducer::dequeueBuffer(int *outSlot,
         mSlots[found].mBufferState.dequeue();
 
         if ((buffer == NULL) ||
-                buffer->needsReallocation(width, height, format, usage))
+                buffer->needsReallocation(width, height, format, BQ_LAYER_COUNT, usage))
         {
             mSlots[found].mAcquireCalled = false;
             mSlots[found].mGraphicBuffer = NULL;

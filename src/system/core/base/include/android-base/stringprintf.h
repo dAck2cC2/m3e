@@ -37,6 +37,7 @@ namespace base {
 #endif
 
 // Returns a string corresponding to printf-like formatting of the arguments.
+ANDROID_API_BASE
 std::string StringPrintf(const char* fmt, ...)
     __attribute__((__format__(FORMAT_ARCHETYPE, 1, 2)));
 

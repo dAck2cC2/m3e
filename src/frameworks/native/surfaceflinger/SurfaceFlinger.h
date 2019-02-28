@@ -42,6 +42,7 @@ public:
     // must be called before clients can connect
     void init();
     
+	// InitRCMainWindow
     // starts SurfaceFlinger main loop in the current thread
     void run();
     

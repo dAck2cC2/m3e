@@ -8,6 +8,8 @@
 
 #include "SurfaceFlinger.h"
 
+#include "initrc_if.h"
+
 namespace android {
 
 	class SurfaceFlingerService : public RefBase
@@ -94,6 +96,23 @@ namespace android {
 		MessageThread mMessage;
 	};
 
+	class SurfaceFlingerMainWindow : public InitRCMainWindow {
+	public:
+		SurfaceFlingerMainWindow(sp<SurfaceFlinger> sf) : mSF(sf) {};
+
+		virtual void run() {
+			if (mSF != NULL) {
+				mSF->run();
+			}
+		};
+		
+	private:
+		sp<SurfaceFlinger> mSF;
+
+	protected:
+		virtual ~SurfaceFlingerMainWindow() {};
+	};
+
 }; // namespace android
 
 //  interface for initrc
@@ -106,6 +125,7 @@ namespace android {
 
 static android::sp<android::SurfaceFlinger> gSurfaceFlinger;
 static android::sp<android::SurfaceFlingerService> gService;
+static android::sp<android::SurfaceFlingerMainWindow> gMainWindow;
 
 static int open_surfaceflinger(const struct hw_module_t* module, const char* id,
                         struct hw_device_t** device);
@@ -156,7 +176,9 @@ int open_surfaceflinger(const struct hw_module_t* module, const char* id,
 		gService->Start();
 #endif
 
-        HMI.dso = (void *)(gSurfaceFlinger.get());
+		gMainWindow = new android::SurfaceFlingerMainWindow(gSurfaceFlinger);
+
+        HMI.dso = (void *)(gMainWindow.get());
     }
     
     if (device != NULL) {

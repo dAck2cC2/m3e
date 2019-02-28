@@ -18,6 +18,7 @@
 #define ANDROID_GUI_SURFACE_H
 
 #include <gui/IGraphicBufferProducer.h>
+#include <gui/BufferQueueDefs.h>
 #include <gui/BufferQueue.h>
 
 #include <ui/ANativeObjectBase.h>
@@ -28,6 +29,8 @@
 #include <utils/RefBase.h>
 #include <utils/threads.h>
 #include <utils/KeyedVector.h>
+
+#include <system/window.h>
 
 struct ANativeWindow_Buffer;
 

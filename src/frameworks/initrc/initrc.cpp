@@ -2,9 +2,8 @@
 #include <cutils/properties.h>
 #include <hardware/hardware.h>
 
-#include <SurfaceFlinger.h>
-
 #include "initrc.h"
+#include "initrc_if.h"
 
 namespace android {
 
@@ -127,8 +126,10 @@ void InitRC::Run()
 		StartService(SERVICE_BOOT_ANIM);
 	}
 
-    sp<SurfaceFlinger> flinger = (SurfaceFlinger *)(gServiceList[SERVICE_SF].handler->module->dso);
-    flinger->run();
+	sp<InitRCMainWindow> mainWindow = (InitRCMainWindow *)(gServiceList[SERVICE_SF].handler->module->dso);
+	if (mainWindow != NULL) {
+		mainWindow->run();
+	}
 }
     
 }; // namespace android
