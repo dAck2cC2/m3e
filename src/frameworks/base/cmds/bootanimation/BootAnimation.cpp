@@ -54,7 +54,7 @@
 #include <gui/ISurfaceComposer.h>
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
-#include <gui/ISurfaceHandle.h>
+#include <gui/customized/ISurfaceHandle.h>
 
 // TODO: Fix Skia.
 #pragma GCC diagnostic push

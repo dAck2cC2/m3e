@@ -39,40 +39,27 @@ SurfaceFlinger::~SurfaceFlinger()
 
 sp<ISurfaceComposerClient> SurfaceFlinger::createConnection()
 {
-    /*
-     * Not sure how to support such usage currently.
-     * Where to keep the Binder Native(server) instance ?
-     */
-#if TODO
     sp<ISurfaceComposerClient> bclient;
     sp<Client> client(new Client(this));
     status_t err = client->initCheck();
     if (err == NO_ERROR) {
         bclient = client;
-    }
-#else
-	 /*
-	 * Anyway, we have to keep the client for mutli-window update.
-	 */
-    sp<ISurfaceComposerClient> bclient;
-    if (bclient == NULL) {
-        sp<Client> client(new Client(this));
-        status_t err = client->initCheck();
-        if (err == NO_ERROR) {
-            bclient = client;
-			mClients.push_back(client);
-        }
-    }
+#if 1
+		/*
+		* Not sure how to support such usage currently.
+		* Where to keep the Binder Native(server) instance ?
+		*/
+		/*
+		* Anyway, we have to keep the client for multi-window update.
+		*/
+		mClients.push_back(client);
 #endif
+    }
+
     return bclient;
 }
     
-sp<IGraphicBufferAlloc> SurfaceFlinger::createGraphicBufferAlloc()
-{
-    return NULL;
-}
-
-sp<IDisplayEventConnection> SurfaceFlinger::createDisplayEventConnection()
+sp<ISurfaceComposerClient> SurfaceFlinger::createScopedConnection(const sp<IGraphicBufferProducer>& gbp)
 {
     return NULL;
 }
@@ -97,7 +84,7 @@ sp<IBinder> SurfaceFlinger::getBuiltInDisplay(int32_t id)
 }
 
 void SurfaceFlinger::setTransactionState(const Vector<ComposerState>& state,
-                                     const Vector<DisplayState>& displays, uint32_t flags)
+	const Vector<DisplayState>& displays, uint32_t flags)
 {
     return;
 }
@@ -107,18 +94,41 @@ void SurfaceFlinger::bootFinished()
     return;
 }
 
-bool SurfaceFlinger::authenticateSurfaceTexture(const sp<IGraphicBufferProducer>& surface) const
+bool SurfaceFlinger::authenticateSurfaceTexture(
+	const sp<IGraphicBufferProducer>& bufferProducer) const
 {
     return false;
 }
 
-void SurfaceFlinger::setPowerMode(const sp<IBinder>& display, int mode)
+status_t SurfaceFlinger::getSupportedFrameTimestamps(
+	std::vector<FrameEvent>* outSupported) const
 {
-    return;
+	return NO_INIT;
+}
+
+sp<IDisplayEventConnection> SurfaceFlinger::createDisplayEventConnection(
+	ISurfaceComposer::VsyncSource vsyncSource)
+{
+	return NULL;
+}
+
+status_t SurfaceFlinger::captureScreen(const sp<IBinder>& display,
+	const sp<IGraphicBufferProducer>& producer,
+	Rect sourceCrop, uint32_t reqWidth, uint32_t reqHeight,
+	int32_t minLayerZ, int32_t maxLayerZ,
+	bool useIdentityTransform, ISurfaceComposer::Rotation rotation)
+{
+	return NO_INIT;
+}
+
+status_t SurfaceFlinger::getDisplayStats(const sp<IBinder>& display,
+	DisplayStatInfo* stats)
+{
+	return NO_INIT;
 }
 
 status_t SurfaceFlinger::getDisplayConfigs(const sp<IBinder>& display,
-                                       Vector<DisplayInfo>* configs)
+	Vector<DisplayInfo>* configs)
 {
     if ((configs == NULL) || (display.get() == NULL)) {
         return BAD_VALUE;
@@ -217,12 +227,6 @@ status_t SurfaceFlinger::getDisplayConfigs(const sp<IBinder>& display,
     return NO_ERROR;
 }
 
-status_t SurfaceFlinger::getDisplayStats(const sp<IBinder>& display,
-                             DisplayStatInfo* stats)
-{
-    return NO_INIT;
-}
-
 int SurfaceFlinger::getActiveConfig(const sp<IBinder>& display)
 {
     sp<DisplayDevice> device(getDisplayDevice(display));
@@ -232,34 +236,28 @@ int SurfaceFlinger::getActiveConfig(const sp<IBinder>& display)
     return BAD_VALUE;
 }
 
-status_t SurfaceFlinger::setActiveConfig(const sp<IBinder>& display, int id)
-{
-    return NO_INIT;
-}
-
 status_t SurfaceFlinger::getDisplayColorModes(const sp<IBinder>& display,
-                                              Vector<android_color_mode_t>* outColorModes)
+	Vector<android_color_mode_t>* configs)
 {
-    return NO_INIT;
+	return NO_INIT;
 }
 
 android_color_mode_t SurfaceFlinger::getActiveColorMode(const sp<IBinder>& display)
 {
-    return HAL_COLOR_MODE_NATIVE;
+	return HAL_COLOR_MODE_NATIVE;
 }
 
-status_t SurfaceFlinger::setActiveColorMode(const sp<IBinder>& display,
-                                android_color_mode_t colorMode)
+status_t SurfaceFlinger::setActiveColorMode(const sp<IBinder>& display, android_color_mode_t colorMode)
 {
-    return NO_INIT;
+	return NO_INIT;
 }
 
-status_t SurfaceFlinger::captureScreen(const sp<IBinder>& display,
-                                   const sp<IGraphicBufferProducer>& producer,
-                                   Rect sourceCrop, uint32_t reqWidth, uint32_t reqHeight,
-                                   uint32_t minLayerZ, uint32_t maxLayerZ,
-                                   bool useIdentityTransform,
-                                   Rotation rotation)
+void SurfaceFlinger::setPowerMode(const sp<IBinder>& display, int mode)
+{
+	return;
+}
+
+status_t SurfaceFlinger::setActiveConfig(const sp<IBinder>& display, int id)
 {
     return NO_INIT;
 }
@@ -275,9 +273,19 @@ status_t SurfaceFlinger::getAnimationFrameStats(FrameStats* outStats) const
 }
 
 status_t SurfaceFlinger::getHdrCapabilities(const sp<IBinder>& display,
-                                    HdrCapabilities* outCapabilities) const
+	HdrCapabilities* outCapabilities) const
 {
     return NO_INIT;
+}
+
+status_t SurfaceFlinger::enableVSyncInjections(bool enable)
+{
+	return NO_INIT;
+}
+
+status_t SurfaceFlinger::injectVSync(nsecs_t when)
+{
+	return NO_INIT;
 }
 
 sp<NativeWindow> SurfaceFlinger::CreateOSWindow(const char* name, bool visible)

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef ANDROID_SF_CLIENT_H
 #define ANDROID_SF_CLIENT_H
@@ -23,25 +38,27 @@ class SurfaceFlinger;
 class Client : public BnSurfaceComposerClient
 {
 public:
-        Client(const sp<SurfaceFlinger>& flinger);
-        ~Client();
-    
+    explicit Client(const sp<SurfaceFlinger>& flinger);
+    Client(const sp<SurfaceFlinger>& flinger, const sp<Layer>& parentLayer);
+    ~Client();
+
     status_t initCheck() const;
-    
+
     // protected by SurfaceFlinger::mStateLock
     void attachLayer(const sp<IBinder>& handle, const sp<Layer>& layer);
-    
+
     void detachLayer(const Layer* layer);
-    
+
     sp<Layer> getLayerUser(const sp<IBinder>& handle) const;
 
-	void updateLayer();
+    void setParentLayer(const sp<Layer>& parentLayer);
 
 private:
     // ISurfaceComposerClient interface
     virtual status_t createSurface(
             const String8& name,
             uint32_t w, uint32_t h,PixelFormat format, uint32_t flags,
+            const sp<IBinder>& parent, uint32_t windowType, uint32_t ownerUid,
             sp<IBinder>* handle,
             sp<IGraphicBufferProducer>* gbp);
 
@@ -50,18 +67,28 @@ private:
     virtual status_t clearLayerFrameStats(const sp<IBinder>& handle) const;
 
     virtual status_t getLayerFrameStats(const sp<IBinder>& handle, FrameStats* outStats) const;
-    virtual status_t getTransformToDisplayInverse(
-            const sp<IBinder>& handle, bool* outTransformToDisplayInverse) const;
-    
-private:
+
+    virtual status_t onTransact(
+        uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags) override;
+
+    sp<Layer> getParentLayer(bool* outParentDied = nullptr) const;
+
     // constant
     sp<SurfaceFlinger> mFlinger;
-    
+
     // protected by mLock
-    DefaultKeyedVector< wp<IBinder>, sp<Layer> > mLayers;
-    
+#if TODO
+    DefaultKeyedVector< wp<IBinder>, wp<Layer> > mLayers;
+#else
+	DefaultKeyedVector< wp<IBinder>, sp<Layer> > mLayers;
+#endif
+    wp<Layer> mParentLayer;
+
     // thread-safe
     mutable Mutex mLock;
+
+public:
+	void updateLayer();
 };
 
 // ---------------------------------------------------------------------------

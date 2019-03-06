@@ -6,8 +6,8 @@
 
 #include <utils/RefBase.h>
 #include <binder/Binder.h>
-#include <gui/ISurfaceHandle.h>
 #include <gui/IGraphicBufferProducer.h>
+#include <gui/customized/ISurfaceHandle.h>
 #include <private/gui/LayerState.h>
 
 #include "Layer.h"

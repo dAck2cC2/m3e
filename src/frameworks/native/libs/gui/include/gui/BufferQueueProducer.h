@@ -22,15 +22,15 @@
 
 namespace android {
 
-class BufferSlot;
+struct BufferSlot;
 
 class BufferQueueProducer : public BnGraphicBufferProducer,
                             private IBinder::DeathRecipient {
 public:
     friend class BufferQueue; // Needed to access binderDied
 
-    BufferQueueProducer(const sp<BufferQueueCore>& core);
-    virtual ~BufferQueueProducer();
+    BufferQueueProducer(const sp<BufferQueueCore>& core, bool consumerIsSurfaceFlinger = false);
+    ~BufferQueueProducer() override;
 
     // requestBuffer returns the GraphicBuffer for slot N.
     //
@@ -80,9 +80,10 @@ public:
     //
     // In both cases, the producer will need to call requestBuffer to get a
     // GraphicBuffer handle for the returned slot.
-    virtual status_t dequeueBuffer(int *outSlot, sp<Fence>* outFence,
-            uint32_t width, uint32_t height, PixelFormat format,
-            uint32_t usage);
+    virtual status_t dequeueBuffer(int* outSlot, sp<Fence>* outFence, uint32_t width,
+                                   uint32_t height, PixelFormat format, uint64_t usage,
+                                   uint64_t* outBufferAge,
+                                   FrameEventHistoryDelta* outTimestamps) override;
 
     // See IGraphicBufferProducer::detachBuffer
     virtual status_t detachBuffer(int slot);
@@ -135,15 +136,8 @@ public:
     virtual status_t connect(const sp<IProducerListener>& listener,
             int api, bool producerControlledByApp, QueueBufferOutput* output);
 
-    // disconnect attempts to disconnect a producer API from the BufferQueue.
-    // Calling this method will cause any subsequent calls to other
-    // IGraphicBufferProducer methods to fail except for getAllocator and connect.
-    // Successfully calling connect after this will allow the other methods to
-    // succeed again.
-    //
-    // This method will fail if the the BufferQueue is not currently
-    // connected to the specified producer API.
-    virtual status_t disconnect(int api);
+    // See IGraphicBufferProducer::disconnect
+    virtual status_t disconnect(int api, DisconnectMode mode = DisconnectMode::Api);
 
     // Attaches a sideband buffer stream to the IGraphicBufferProducer.
     //
@@ -159,7 +153,7 @@ public:
 
     // See IGraphicBufferProducer::allocateBuffers
     virtual void allocateBuffers(uint32_t width, uint32_t height,
-            PixelFormat format, uint32_t usage);
+            PixelFormat format, uint64_t usage) override;
 
     // See IGraphicBufferProducer::allowAllocation
     virtual status_t allowAllocation(bool allow);
@@ -184,11 +178,13 @@ public:
             sp<Fence>* outFence, float outTransformMatrix[16]) override;
 
     // See IGraphicBufferProducer::getFrameTimestamps
-    virtual bool getFrameTimestamps(uint64_t frameNumber,
-            FrameTimestamps* outTimestamps) const override;
+    virtual void getFrameTimestamps(FrameEventHistoryDelta* outDelta) override;
 
     // See IGraphicBufferProducer::getUniqueId
     virtual status_t getUniqueId(uint64_t* outId) const override;
+
+    // See IGraphicBufferProducer::getConsumerUsage
+    virtual status_t getConsumerUsage(uint64_t* outUsage) const override;
 
 private:
     // This is required by the IBinder::DeathRecipient interface
@@ -201,6 +197,9 @@ private:
     // Returns the next free slot if one is available or
     // BufferQueueCore::INVALID_BUFFER_SLOT otherwise
     int getFreeSlotLocked() const;
+
+    void addAndGetFrameTimestamps(const NewFrameEventsEntry* newTimestamps,
+            FrameEventHistoryDelta* outDelta);
 
     // waitForFreeSlotThenRelock finds the oldest slot in the FREE state. It may
     // block if there are no available slots and we are not in non-blocking
@@ -224,6 +223,10 @@ private:
     String8 mConsumerName;
 
     uint32_t mStickyTransform;
+
+    // This controls whether the GraphicBuffer pointer in the BufferItem is
+    // cleared after being queued
+    bool mConsumerIsSurfaceFlinger;
 
     // This saves the fence from the last queueBuffer, such that the
     // next queueBuffer call can throttle buffer production. The prior

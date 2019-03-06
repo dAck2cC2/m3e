@@ -32,6 +32,7 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/binder )
 file(GLOB BINDER_HEADER_FILES  
 ${HEADER_PATH}/binder/*.h
 ${HEADER_PATH}/private/binder/*.h
+${HEADER_PATH}/binder/local/*.h
 )
 
 # source files

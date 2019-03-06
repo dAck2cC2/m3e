@@ -11,7 +11,7 @@
 
 #include <initrc.h>
 
-#include <binder/ThreadService.h>
+#include <binder/local/ThreadService.h>
 
 namespace android {
 

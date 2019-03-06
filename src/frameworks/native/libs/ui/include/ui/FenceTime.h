@@ -33,7 +33,7 @@ class FenceToFenceTimeMap;
 // A wrapper around fence that only implements isValid and getSignalTime.
 // It automatically closes the fence in a thread-safe manner once the signal
 // time is known.
-class FenceTime {
+class ANDROID_API_UI FenceTime {
 friend class FenceToFenceTimeMap;
 public:
     // An atomic snapshot of the FenceTime that is flattenable.
@@ -42,7 +42,7 @@ public:
     // consistent for all steps of the flattening process.
     //
     // Not thread safe.
-    struct Snapshot : public Flattenable<Snapshot> {
+    struct ANDROID_API_UI Snapshot : public Flattenable<Snapshot> {
         enum class State {
             EMPTY,
             FENCE,
@@ -56,10 +56,11 @@ public:
         // Movable.
         Snapshot(Snapshot&& src) = default;
         Snapshot& operator=(Snapshot&& src) = default;
+#if !defined(_MSC_VER)
         // Not copyable.
         Snapshot(const Snapshot& src) = delete;
         Snapshot& operator=(const Snapshot&& src) = delete;
-
+#endif
         // Flattenable implementation.
         size_t getFlattenedSize() const;
         size_t getFdCount() const;
@@ -155,7 +156,7 @@ private:
 //
 // push() and updateSignalTimes() are safe to call simultaneously from
 // different threads.
-class FenceTimeline {
+class ANDROID_API_UI FenceTimeline {
 public:
     static constexpr size_t MAX_ENTRIES = 64;
 

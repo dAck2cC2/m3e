@@ -19,22 +19,20 @@
 
 #include <gui/IGraphicBufferProducer.h>
 #include <gui/BufferQueueDefs.h>
-#include <gui/BufferQueue.h>
 
 #include <ui/ANativeObjectBase.h>
 #include <ui/Region.h>
 
-#include <binder/Parcelable.h>
-
+#include <utils/Condition.h>
+#include <utils/Mutex.h>
 #include <utils/RefBase.h>
-#include <utils/threads.h>
-#include <utils/KeyedVector.h>
 
 #include <system/window.h>
-
-struct ANativeWindow_Buffer;
+#include <android/native_window.h>
 
 namespace android {
+
+class ISurfaceComposer;
 
 /*
  * An implementation of ANativeWindow that feeds graphics buffers into a
@@ -69,7 +67,8 @@ public:
      * the controlledByApp flag indicates that this Surface (producer) is
      * controlled by the application. This flag is used at connect time.
      */
-    Surface(const sp<IGraphicBufferProducer>& bufferProducer, bool controlledByApp = false);
+    explicit Surface(const sp<IGraphicBufferProducer>& bufferProducer,
+            bool controlledByApp = false);
 
     /* getIGraphicBufferProducer() returns the IGraphicBufferProducer this
      * Surface was created with. Usually it's an error to use the
@@ -137,16 +136,41 @@ public:
     status_t getLastQueuedBuffer(sp<GraphicBuffer>* outBuffer,
             sp<Fence>* outFence, float outTransformMatrix[16]);
 
+    status_t getDisplayRefreshCycleDuration(nsecs_t* outRefreshDuration);
+
+    /* Enables or disables frame timestamp tracking. It is disabled by default
+     * to avoid overhead during queue and dequeue for applications that don't
+     * need the feature. If disabled, calls to getFrameTimestamps will fail.
+     */
+    void enableFrameTimestamps(bool enable);
+
+    status_t getCompositorTiming(
+            nsecs_t* compositeDeadline, nsecs_t* compositeInterval,
+            nsecs_t* compositeToPresentLatency);
+
     // See IGraphicBufferProducer::getFrameTimestamps
-    bool getFrameTimestamps(uint64_t frameNumber, nsecs_t* outPostedTime,
-            nsecs_t* outAcquireTime, nsecs_t* outRefreshStartTime,
-            nsecs_t* outGlCompositionDoneTime, nsecs_t* outDisplayRetireTime,
+    status_t getFrameTimestamps(uint64_t frameNumber,
+            nsecs_t* outRequestedPresentTime, nsecs_t* outAcquireTime,
+            nsecs_t* outLatchTime, nsecs_t* outFirstRefreshStartTime,
+            nsecs_t* outLastRefreshStartTime, nsecs_t* outGlCompositionDoneTime,
+            nsecs_t* outDisplayPresentTime, nsecs_t* outDequeueReadyTime,
             nsecs_t* outReleaseTime);
 
+    status_t getWideColorSupport(bool* supported);
+    status_t getHdrSupport(bool* supported);
+
     status_t getUniqueId(uint64_t* outId) const;
+    status_t getConsumerUsage(uint64_t* outUsage) const;
+
+    // Returns the CLOCK_MONOTONIC start time of the last dequeueBuffer call
+    nsecs_t getLastDequeueStartTime() const;
 
 protected:
     virtual ~Surface();
+
+    // Virtual for testing.
+    virtual sp<ISurfaceComposer> composerService() const;
+    virtual nsecs_t now() const;
 
 private:
     // can't be copied
@@ -185,8 +209,8 @@ private:
     int dispatchSetBuffersStickyTransform(va_list args);
     int dispatchSetBuffersTimestamp(va_list args);
     int dispatchSetCrop(va_list args);
-    int dispatchSetPostTransformCrop(va_list args);
     int dispatchSetUsage(va_list args);
+    int dispatchSetUsage64(va_list args);
     int dispatchLock(va_list args);
     int dispatchUnlockAndPost(va_list args);
     int dispatchSetSidebandStream(va_list args);
@@ -194,7 +218,14 @@ private:
     int dispatchSetSurfaceDamage(va_list args);
     int dispatchSetSharedBufferMode(va_list args);
     int dispatchSetAutoRefresh(va_list args);
+    int dispatchGetDisplayRefreshCycleDuration(va_list args);
+    int dispatchGetNextFrameId(va_list args);
+    int dispatchEnableFrameTimestamps(va_list args);
+    int dispatchGetCompositorTiming(va_list args);
     int dispatchGetFrameTimestamps(va_list args);
+    int dispatchGetWideColorSupport(va_list args);
+    int dispatchGetHdrSupport(va_list args);
+    int dispatchGetConsumerUsage64(va_list args);
 
 protected:
     virtual int dequeueBuffer(ANativeWindowBuffer** buffer, int* fenceFd);
@@ -206,9 +237,7 @@ protected:
     virtual int lockBuffer_DEPRECATED(ANativeWindowBuffer* buffer);
 
     virtual int connect(int api);
-    virtual int disconnect(int api);
     virtual int setBufferCount(int bufferCount);
-    virtual int setBuffersDimensions(uint32_t width, uint32_t height);
     virtual int setBuffersUserDimensions(uint32_t width, uint32_t height);
     virtual int setBuffersFormat(PixelFormat format);
     virtual int setBuffersTransform(uint32_t transform);
@@ -216,28 +245,49 @@ protected:
     virtual int setBuffersTimestamp(int64_t timestamp);
     virtual int setBuffersDataSpace(android_dataspace dataSpace);
     virtual int setCrop(Rect const* rect);
-    virtual int setUsage(uint32_t reqUsage);
+    virtual int setUsage(uint64_t reqUsage);
     virtual void setSurfaceDamage(android_native_rect_t* rects, size_t numRects);
 
 public:
+    virtual int disconnect(int api,
+            IGraphicBufferProducer::DisconnectMode mode =
+                    IGraphicBufferProducer::DisconnectMode::Api);
+
     virtual int setMaxDequeuedBufferCount(int maxDequeuedBuffers);
     virtual int setAsyncMode(bool async);
     virtual int setSharedBufferMode(bool sharedBufferMode);
     virtual int setAutoRefresh(bool autoRefresh);
+    virtual int setBuffersDimensions(uint32_t width, uint32_t height);
     virtual int lock(ANativeWindow_Buffer* outBuffer, ARect* inOutDirtyBounds);
     virtual int unlockAndPost();
     virtual int query(int what, int* value) const;
 
     virtual int connect(int api, const sp<IProducerListener>& listener);
+
+    // When reportBufferRemoval is true, clients must call getAndFlushRemovedBuffers to fetch
+    // GraphicBuffers removed from this surface after a dequeueBuffer, detachNextBuffer or
+    // attachBuffer call. This allows clients with their own buffer caches to free up buffers no
+    // longer in use by this surface.
+    virtual int connect(
+            int api, const sp<IProducerListener>& listener,
+            bool reportBufferRemoval);
     virtual int detachNextBuffer(sp<GraphicBuffer>* outBuffer,
             sp<Fence>* outFence);
     virtual int attachBuffer(ANativeWindowBuffer*);
 
+    // When client connects to Surface with reportBufferRemoval set to true, any buffers removed
+    // from this Surface will be collected and returned here. Once this method returns, these
+    // buffers will no longer be referenced by this Surface unless they are attached to this
+    // Surface later. The list of removed buffers will only be stored until the next dequeueBuffer,
+    // detachNextBuffer, or attachBuffer call.
+    status_t getAndFlushRemovedBuffers(std::vector<sp<GraphicBuffer>>* out);
+
 protected:
-    enum { NUM_BUFFER_SLOTS = BufferQueue::NUM_BUFFER_SLOTS };
+    enum { NUM_BUFFER_SLOTS = BufferQueueDefs::NUM_BUFFER_SLOTS };
     enum { DEFAULT_FORMAT = PIXEL_FORMAT_RGBA_8888 };
 
-private:
+    void querySupportedTimestampsLocked() const;
+
     void freeAllBuffers();
     int getSlotFromBufferLocked(android_native_buffer_t* buffer) const;
 
@@ -274,7 +324,7 @@ private:
 
     // mReqUsage is the set of buffer usage flags that will be requested
     // at the next deuque operation. It is initialized to 0.
-    uint32_t mReqUsage;
+    uint64_t mReqUsage;
 
     // mTimestamp is the timestamp that will be used for the next buffer queue
     // operation. It defaults to NATIVE_WINDOW_TIMESTAMP_AUTO, which means that
@@ -356,6 +406,10 @@ private:
     // (the change since the previous frame) passed in by the producer.
     Region mDirtyRegion;
 
+    // mBufferAge tracks the age of the contents of the most recently dequeued
+    // buffer as the number of frames that have elapsed since it was last queued
+    uint64_t mBufferAge;
+
     // Stores the current generation number. See setGenerationNumber and
     // IGraphicBufferProducer::setGenerationNumber for more information.
     uint32_t mGenerationNumber;
@@ -377,48 +431,26 @@ private:
     nsecs_t mLastDequeueDuration = 0;
     nsecs_t mLastQueueDuration = 0;
 
+    // Stores the time right before we call IGBP::dequeueBuffer
+    nsecs_t mLastDequeueStartTime = 0;
+
     Condition mQueueBufferCondition;
 
-    uint64_t mNextFrameNumber;
+    uint64_t mNextFrameNumber = 1;
+    uint64_t mLastFrameNumber = 0;
+
+    // Mutable because ANativeWindow::query needs this class const.
+    mutable bool mQueriedSupportedTimestamps;
+    mutable bool mFrameTimestampsSupportsPresent;
+
+    // A cached copy of the FrameEventHistory maintained by the consumer.
+    bool mEnableFrameTimestamps = false;
+    std::unique_ptr<ProducerFrameEventHistory> mFrameEventHistory;
+
+    bool mReportRemovedBuffers = false;
+    std::vector<sp<GraphicBuffer>> mRemovedBuffers;
 };
 
-namespace view {
-
-/**
- * A simple holder for an IGraphicBufferProducer, to match the managed-side
- * android.view.Surface parcelable behavior.
- *
- * This implements android/view/Surface.aidl
- *
- * TODO: Convert IGraphicBufferProducer into AIDL so that it can be directly
- * used in managed Binder calls.
- */
-class Surface : public Parcelable {
-  public:
-
-    String16 name;
-    sp<IGraphicBufferProducer> graphicBufferProducer;
-
-    virtual status_t writeToParcel(Parcel* parcel) const override;
-    virtual status_t readFromParcel(const Parcel* parcel) override;
-
-    // nameAlreadyWritten set to true by Surface.java, because it splits
-    // Parceling itself between managed and native code, so it only wants a part
-    // of the full parceling to happen on its native side.
-    status_t writeToParcel(Parcel* parcel, bool nameAlreadyWritten) const;
-
-    // nameAlreadyRead set to true by Surface.java, because it splits
-    // Parceling itself between managed and native code, so it only wants a part
-    // of the full parceling to happen on its native side.
-    status_t readFromParcel(const Parcel* parcel, bool nameAlreadyRead);
-
-  private:
-
-    static String16 readMaybeEmptyString16(const Parcel* parcel);
-};
-
-} // namespace view
-
-}; // namespace android
+} // namespace android
 
 #endif  // ANDROID_GUI_SURFACE_H

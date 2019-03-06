@@ -10,6 +10,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/system/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
@@ -20,6 +22,8 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 
 set(GUI_DEPLIB
 ui
+hidl
+interfaces
 binder
 utils
 cutils
@@ -42,7 +46,10 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/gui )
 file(GLOB 
 GUI_HEADER_FILES  
 ${HEADER_PATH}/gui/*.h
+${HEADER_PATH}/gui/bufferqueue/*.h
+${HEADER_PATH}/gui/view/*.h
 ${HEADER_PATH}/private/gui/*.h
+${HEADER_PATH}/gui/customized/*.h
 )
 
 # source files
@@ -51,43 +58,43 @@ ${SOURCE_PATH}/BitTube.cpp
 ${SOURCE_PATH}/BufferItem.cpp
 ${SOURCE_PATH}/BufferItemConsumer.cpp
 ${SOURCE_PATH}/BufferQueue.cpp
+${SOURCE_PATH}/BufferQueueConsumer.cpp
+${SOURCE_PATH}/BufferQueueCore.cpp
 ${SOURCE_PATH}/BufferQueueProducer.cpp
 ${SOURCE_PATH}/BufferSlot.cpp
-${SOURCE_PATH}/Surface.cpp
 ${SOURCE_PATH}/ConsumerBase.cpp
-${SOURCE_PATH}/BufferQueueCore.cpp
-${SOURCE_PATH}/SurfaceComposerClient.cpp
 ${SOURCE_PATH}/CpuConsumer.cpp
-${SOURCE_PATH}/LayerState.cpp
-${SOURCE_PATH}/SurfaceControl.cpp
-${SOURCE_PATH}/ISurfaceComposer.cpp
-${SOURCE_PATH}/ISurfaceComposerClient.cpp
+${SOURCE_PATH}/DisplayEventReceiver.cpp
+${SOURCE_PATH}/FrameTimestamps.cpp
+${SOURCE_PATH}/GLConsumer.cpp
+${SOURCE_PATH}/GuiConfig.cpp
+${SOURCE_PATH}/IDisplayEventConnection.cpp
 ${SOURCE_PATH}/IConsumerListener.cpp
-${SOURCE_PATH}/IProducerListener.cpp
-${SOURCE_PATH}/BufferQueueConsumer.cpp
-${SOURCE_PATH}/IGraphicBufferAlloc.cpp
 ${SOURCE_PATH}/IGraphicBufferConsumer.cpp
 ${SOURCE_PATH}/IGraphicBufferProducer.cpp
-${SOURCE_PATH}/IDisplayEventConnection.cpp
 ${SOURCE_PATH}/IProducerListener.cpp
+${SOURCE_PATH}/ISurfaceComposer.cpp
+${SOURCE_PATH}/ISurfaceComposerClient.cpp
+${SOURCE_PATH}/LayerState.cpp
 ${SOURCE_PATH}/OccupancyTracker.cpp
-${SOURCE_PATH}/GLConsumer.cpp
+${SOURCE_PATH}/StreamSplitter.cpp
+${SOURCE_PATH}/Surface.cpp
+${SOURCE_PATH}/SurfaceControl.cpp
+${SOURCE_PATH}/SurfaceComposerClient.cpp
 ${SOURCE_PATH}/SyncFeatures.cpp
-${SOURCE_PATH}/ISurfaceHandle.cpp
+${SOURCE_PATH}/view/Surface.cpp
+${SOURCE_PATH}/bufferqueue/1.0/B2HProducerListener.cpp
+${SOURCE_PATH}/bufferqueue/1.0/H2BGraphicBufferProducer.cpp
+
+# !!!!!!!!!!
+# we need it for PC version to pass EGL window from SurfaceFlinger to Client.
+${SOURCE_PATH}/customized/ISurfaceHandle.cpp
 )
 
 if(APPLE)
 #    list(APPEND GUI_SOURCE_FILES
 #        ${SOURCE_PATH}/eglext.c
 #    )
-elseif(MSVC)
-    list(REMOVE_ITEM GUI_SOURCE_FILES
-    ${SOURCE_PATH}/BitTube.cpp
-    )
-
-    list(APPEND GUI_SOURCE_FILES
-    ${SOURCE_PATH}/BitTube_msvc.cpp
-    )
 endif()
 
 # target files

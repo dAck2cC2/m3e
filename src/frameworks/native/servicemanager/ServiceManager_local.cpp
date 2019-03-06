@@ -6,7 +6,7 @@
 #include <binder/ProcessState.h>
 #include <binder/IPCThreadState.h>
 #include <binder/Status.h>
-#include <binder/ThreadService.h>
+#include <binder/local/ThreadService.h>
 
 #include <utils/threads.h>
 #include <utils/KeyedVector.h>

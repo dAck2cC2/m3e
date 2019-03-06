@@ -30,8 +30,11 @@ namespace android {
 // ============================================================================
 // FenceTime
 // ============================================================================
-
+#if defined(_MSC_VER)
+const std::shared_ptr<FenceTime> FenceTime::NO_FENCE = std::make_shared<FenceTime>(Fence::NO_FENCE);
+#else
 const auto FenceTime::NO_FENCE = std::make_shared<FenceTime>(Fence::NO_FENCE);
+#endif
 
 void* FenceTime::operator new(size_t byteCount) noexcept {
     void *p = nullptr;

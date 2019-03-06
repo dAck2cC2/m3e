@@ -54,7 +54,7 @@ set(UI_SOURCE_FILES
 #${SOURCE_PATH}/ColorSpace.cpp
 ${SOURCE_PATH}/DebugUtils.cpp
 ${SOURCE_PATH}/Fence.cpp
-#${SOURCE_PATH}/FenceTime.cpp
+${SOURCE_PATH}/FenceTime.cpp
 ${SOURCE_PATH}/FrameStats.cpp
 ${SOURCE_PATH}/Gralloc2.cpp
 ${SOURCE_PATH}/GraphicBuffer.cpp

@@ -22,6 +22,7 @@
 
 #include <gui/BufferQueueDefs.h>
 #include <gui/IGraphicBufferConsumer.h>
+#include <utils/String8.h>
 
 namespace android {
 
@@ -31,7 +32,7 @@ class BufferQueueConsumer : public BnGraphicBufferConsumer {
 
 public:
     BufferQueueConsumer(const sp<BufferQueueCore>& core);
-    virtual ~BufferQueueConsumer();
+    ~BufferQueueConsumer() override;
 
     // acquireBuffer attempts to acquire ownership of the next pending buffer in
     // the BufferQueue. If no buffer is pending then it returns
@@ -109,7 +110,7 @@ public:
     virtual status_t setMaxAcquiredBufferCount(int maxAcquiredBuffers);
 
     // setConsumerName sets the name used in logging
-    virtual void setConsumerName(const String8& name);
+    status_t setConsumerName(const String8& name) override;
 
     // setDefaultBufferFormat allows the BufferQueue to create
     // GraphicBuffers of a defaultFormat if no format is specified
@@ -120,13 +121,18 @@ public:
     // GraphicBuffers of a defaultDataSpace if no data space is specified
     // in queueBuffer.
     // The initial default is HAL_DATASPACE_UNKNOWN
-    virtual status_t setDefaultBufferDataSpace(
-            android_dataspace defaultDataSpace);
+    virtual status_t setDefaultBufferDataSpace(android_dataspace defaultDataSpace);
 
     // setConsumerUsageBits will turn on additional usage bits for dequeueBuffer.
     // These are merged with the bits passed to dequeueBuffer.  The values are
     // enumerated in gralloc.h, e.g. GRALLOC_USAGE_HW_RENDER; the default is 0.
-    virtual status_t setConsumerUsageBits(uint32_t usage);
+    virtual status_t setConsumerUsageBits(uint64_t usage) override;
+
+    // setConsumerIsProtected will turn on an internal bit that indicates whether
+    // the consumer can handle protected gralloc buffers (i.e. with
+    // GRALLOC_USAGE_PROTECTED set). IGraphicBufferProducer can query this
+    // capability using NATIVE_WINDOW_CONSUMER_IS_PROTECTED.
+    virtual status_t setConsumerIsProtected(bool isProtected);
 
     // setTransformHint bakes in rotation to buffers so overlays can be used.
     // The values are enumerated in window.h, e.g.
@@ -134,7 +140,7 @@ public:
     virtual status_t setTransformHint(uint32_t hint);
 
     // Retrieve the sideband buffer stream, if any.
-    virtual sp<NativeHandle> getSidebandStream() const;
+    status_t getSidebandStream(sp<NativeHandle>* outStream) const override;
 
     // See IGraphicBufferConsumer::getOccupancyHistory
     virtual status_t getOccupancyHistory(bool forceFlush,
@@ -144,7 +150,7 @@ public:
     virtual status_t discardFreeBuffers() override;
 
     // dump our state in a String
-    virtual void dump(String8& result, const char* prefix) const;
+    status_t dumpState(const String8& prefix, String8* outResult) const override;
 
     // Functions required for backwards compatibility.
     // These will be modified/renamed in IGraphicBufferConsumer and will be

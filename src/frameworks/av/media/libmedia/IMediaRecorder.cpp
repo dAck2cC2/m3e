@@ -29,6 +29,7 @@
 #include <media/IMediaRecorder.h>
 #include <gui/Surface.h>
 #include <gui/IGraphicBufferProducer.h>
+#include <gui/IGraphicBufferConsumer.h>
 
 namespace android {
 

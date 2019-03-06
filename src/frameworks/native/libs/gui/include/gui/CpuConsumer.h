@@ -20,17 +20,16 @@
 #include <system/window.h>
 
 #include <gui/ConsumerBase.h>
+#include <gui/BufferQueue.h>
 
-#include <ui/GraphicBuffer.h>
-
-#include <utils/String8.h>
 #include <utils/Vector.h>
-#include <utils/threads.h>
 
 
 namespace android {
 
 class BufferQueue;
+class GraphicBuffer;
+class String8;
 
 /**
  * CpuConsumer is a BufferQueue consumer endpoint that allows direct CPU

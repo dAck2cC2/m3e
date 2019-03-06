@@ -1,6 +1,26 @@
+/*
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <stdint.h>
 #include <sys/types.h>
+
+#include <binder/PermissionCache.h>
+#include <binder/IPCThreadState.h>
+
+#include <private/android_filesystem_config.h>
 
 #include "Client.h"
 #include "Layer.h"
@@ -10,8 +30,18 @@ namespace android {
 
 // ---------------------------------------------------------------------------
 
+const String16 sAccessSurfaceFlinger("android.permission.ACCESS_SURFACE_FLINGER");
+
+// ---------------------------------------------------------------------------
+
 Client::Client(const sp<SurfaceFlinger>& flinger)
-    : mFlinger(flinger)
+    : Client(flinger, nullptr)
+{
+}
+
+Client::Client(const sp<SurfaceFlinger>& flinger, const sp<Layer>& parentLayer)
+    : mFlinger(flinger),
+      mParentLayer(parentLayer)
 {
 }
 
@@ -19,8 +49,27 @@ Client::~Client()
 {
     const size_t count = mLayers.size();
     for (size_t i=0 ; i<count ; i++) {
-        //mFlinger->removeLayer(mLayers.valueAt(i));
+#if TODO
+        sp<Layer> l = mLayers.valueAt(i).promote();
+        if (l != nullptr) {
+            mFlinger->removeLayer(l);
+        }
+#endif
     }
+}
+
+void Client::setParentLayer(const sp<Layer>& parentLayer) {
+    Mutex::Autolock _l(mLock);
+    mParentLayer = parentLayer;
+}
+
+sp<Layer> Client::getParentLayer(bool* outParentDied) const {
+    Mutex::Autolock _l(mLock);
+    sp<Layer> parent = mParentLayer.promote();
+    if (outParentDied != nullptr) {
+        *outParentDied = (mParentLayer != nullptr && parent == nullptr);
+    }
+    return parent;
 }
 
 status_t Client::initCheck() const {
@@ -45,17 +94,6 @@ void Client::detachLayer(const Layer* layer)
         }
     }
 }
-
-void Client::updateLayer()
-{
-	Mutex::Autolock _l(mLock);
-
-	const size_t count = mLayers.size();
-	for (size_t i = 0; i<count; i++) {
-		mLayers.valueAt(i)->update();
-	}
-}
-
 sp<Layer> Client::getLayerUser(const sp<IBinder>& handle) const
 {
     Mutex::Autolock _l(mLock);
@@ -68,17 +106,62 @@ sp<Layer> Client::getLayerUser(const sp<IBinder>& handle) const
     return lbc;
 }
 
+
+status_t Client::onTransact(
+    uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
+{
+    // these must be checked
+     IPCThreadState* ipc = IPCThreadState::self();
+     const int pid = ipc->getCallingPid();
+     const int uid = ipc->getCallingUid();
+     const int self_pid = getpid();
+     // If we are called from another non root process without the GRAPHICS, SYSTEM, or ROOT
+     // uid we require the sAccessSurfaceFlinger permission.
+     // We grant an exception in the case that the Client has a "parent layer", as its
+     // effects will be scoped to that layer.
+     if (CC_UNLIKELY(pid != self_pid && uid != AID_GRAPHICS && uid != AID_SYSTEM && uid != 0)
+             && (getParentLayer() == nullptr)) {
+         // we're called from a different process, do the real check
+         if (!PermissionCache::checkCallingPermission(sAccessSurfaceFlinger))
+         {
+             ALOGE("Permission Denial: "
+                     "can't openGlobalTransaction pid=%d, uid<=%d", pid, uid);
+             return PERMISSION_DENIED;
+         }
+     }
+     return BnSurfaceComposerClient::onTransact(code, data, reply, flags);
+}
+
+
 status_t Client::createSurface(
         const String8& name,
         uint32_t w, uint32_t h, PixelFormat format, uint32_t flags,
+        const sp<IBinder>& parentHandle, uint32_t windowType, uint32_t ownerUid,
         sp<IBinder>* handle,
         sp<IGraphicBufferProducer>* gbp)
 {
+#if TODO
+    sp<Layer> parent = nullptr;
+    if (parentHandle != nullptr) {
+        parent = getLayerUser(parentHandle);
+        if (parent == nullptr) {
+            return NAME_NOT_FOUND;
+        }
+    }
+    if (parent == nullptr) {
+        bool parentDied;
+        parent = getParentLayer(&parentDied);
+        // If we had a parent, but it died, we've lost all
+        // our capabilities.
+        if (parentDied) {
+            return NAME_NOT_FOUND;
+        }
+    }
+#endif
     /*
      * createSurface must be called from the GL thread so that it can
      * have access to the GL context.
      */
-    
     class MessageCreateLayer : public MessageBase {
         SurfaceFlinger* flinger;
         Client* client;
@@ -125,9 +208,18 @@ status_t Client::getLayerFrameStats(const sp<IBinder>& handle, FrameStats* outSt
     return NO_INIT;
 }
 
-status_t Client::getTransformToDisplayInverse(const sp<IBinder>& handle,
-        bool* outTransformToDisplayInverse) const {
-    return NO_INIT;
+
+void Client::updateLayer()
+{
+	Mutex::Autolock _l(mLock);
+
+	const size_t count = mLayers.size();
+	for (size_t i = 0; i<count; i++) {
+		sp<Layer> l = mLayers.valueAt(i);
+		if (l != nullptr) {
+			l->update();
+		}
+	}
 }
 
 // ---------------------------------------------------------------------------
