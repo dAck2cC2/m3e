@@ -63,7 +63,8 @@ public:
     };
 };
 
-ANDROID_API_BINDER sp<IServiceManager> defaultServiceManager();
+ANDROID_API_BINDER 
+sp<IServiceManager> defaultServiceManager();
 
 template<typename INTERFACE>
 status_t getService(const String16& name, sp<INTERFACE>* outService)
@@ -78,7 +79,6 @@ status_t getService(const String16& name, sp<INTERFACE>* outService)
 
 ANDROID_API_BINDER
 bool checkCallingPermission(const String16& permission);
-
 ANDROID_API_BINDER
 bool checkCallingPermission(const String16& permission,
                             int32_t* outPid, int32_t* outUid);

@@ -20,12 +20,14 @@
 
 #include <media/hardware/OMXPluginBase.h>
 #include <media/hardware/MetadataBufferType.h>
-#include <system/window.h>
+#include <cutils/native_handle.h>
 #include <utils/RefBase.h>
 
 #include "VideoAPI.h"
 
 #include <OMX_Component.h>
+
+struct ANativeWindowBuffer;
 
 namespace android {
 
@@ -270,7 +272,7 @@ struct ANDROID_API_STAGEFRIGHT_OMX DescribeColorFormatParams {
     // output: fill out the MediaImage fields
     MediaImage sMediaImage;
 
-    DescribeColorFormatParams(const DescribeColorFormat2Params&); // for internal use only
+    explicit DescribeColorFormatParams(const DescribeColorFormat2Params&); // for internal use only
 };
 
 // A pointer to this struct is passed to OMX_GetParameter when the extension

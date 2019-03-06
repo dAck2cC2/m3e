@@ -58,6 +58,12 @@ typedef struct OMX_NALSTREAMFORMATTYPE{
     OMX_NALUFORMATSTYPE eNaluFormat;
 } OMX_NALSTREAMFORMATTYPE;
 
+/** AVC additional profiles */
+typedef enum OMX_VIDEO_AVCPROFILEEXTTYPE {
+    OMX_VIDEO_AVCProfileConstrainedBaseline = 0x10000,   /**< Constrained baseline profile */
+    OMX_VIDEO_AVCProfileConstrainedHigh     = 0x80000,   /**< Constrained high profile */
+} OMX_VIDEO_AVCPROFILEEXTTYPE;
+
 /** VP8 profiles */
 typedef enum OMX_VIDEO_VP8PROFILETYPE {
     OMX_VIDEO_VP8ProfileMain = 0x01,
@@ -74,39 +80,6 @@ typedef enum OMX_VIDEO_VP8LEVELTYPE {
     OMX_VIDEO_VP8LevelUnknown = 0x6EFFFFFF,
     OMX_VIDEO_VP8LevelMax = 0x7FFFFFFF
 } OMX_VIDEO_VP8LEVELTYPE;
-
-/** VP9 profiles */
-typedef enum OMX_VIDEO_VP9PROFILETYPE {
-    OMX_VIDEO_VP9Profile0       = 0x1,
-    OMX_VIDEO_VP9Profile1       = 0x2,
-    OMX_VIDEO_VP9Profile2       = 0x4,
-    OMX_VIDEO_VP9Profile3       = 0x8,
-    // HDR profiles also support passing HDR metadata
-    OMX_VIDEO_VP9Profile2HDR    = 0x1000,
-    OMX_VIDEO_VP9Profile3HDR    = 0x2000,
-    OMX_VIDEO_VP9ProfileUnknown = 0x6EFFFFFF,
-    OMX_VIDEO_VP9ProfileMax     = 0x7FFFFFFF
-} OMX_VIDEO_VP9PROFILETYPE;
-
-/** VP9 levels */
-typedef enum OMX_VIDEO_VP9LEVELTYPE {
-    OMX_VIDEO_VP9Level1       = 0x1,
-    OMX_VIDEO_VP9Level11      = 0x2,
-    OMX_VIDEO_VP9Level2       = 0x4,
-    OMX_VIDEO_VP9Level21      = 0x8,
-    OMX_VIDEO_VP9Level3       = 0x10,
-    OMX_VIDEO_VP9Level31      = 0x20,
-    OMX_VIDEO_VP9Level4       = 0x40,
-    OMX_VIDEO_VP9Level41      = 0x80,
-    OMX_VIDEO_VP9Level5       = 0x100,
-    OMX_VIDEO_VP9Level51      = 0x200,
-    OMX_VIDEO_VP9Level52      = 0x400,
-    OMX_VIDEO_VP9Level6       = 0x800,
-    OMX_VIDEO_VP9Level61      = 0x1000,
-    OMX_VIDEO_VP9Level62      = 0x2000,
-    OMX_VIDEO_VP9LevelUnknown = 0x6EFFFFFF,
-    OMX_VIDEO_VP9LevelMax     = 0x7FFFFFFF
-} OMX_VIDEO_VP9LEVELTYPE;
 
 /** VP8 Param */
 typedef struct OMX_VIDEO_PARAM_VP8TYPE {
@@ -152,7 +125,7 @@ typedef enum OMX_VIDEO_ANDROID_VPXTEMPORALLAYERPATTERNTYPE {
 } OMX_VIDEO_ANDROID_VPXTEMPORALLAYERPATTERNTYPE;
 
 /**
- * Android specific VP8 encoder params
+ * Android specific VP8/VP9 encoder params
  *
  * STRUCT MEMBERS:
  *  nSize                      : Size of the structure in bytes
@@ -181,6 +154,59 @@ typedef struct OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE {
     OMX_U32 nMinQuantizer;
     OMX_U32 nMaxQuantizer;
 } OMX_VIDEO_PARAM_ANDROID_VP8ENCODERTYPE;
+
+/** VP9 profiles */
+typedef enum OMX_VIDEO_VP9PROFILETYPE {
+    OMX_VIDEO_VP9Profile0 = 0x1,
+    OMX_VIDEO_VP9Profile1 = 0x2,
+    OMX_VIDEO_VP9Profile2 = 0x4,
+    OMX_VIDEO_VP9Profile3 = 0x8,
+    // HDR profiles also support passing HDR metadata
+    OMX_VIDEO_VP9Profile2HDR = 0x1000,
+    OMX_VIDEO_VP9Profile3HDR = 0x2000,
+    OMX_VIDEO_VP9ProfileUnknown = 0x6EFFFFFF,
+    OMX_VIDEO_VP9ProfileMax = 0x7FFFFFFF
+} OMX_VIDEO_VP9PROFILETYPE;
+
+/** VP9 levels */
+typedef enum OMX_VIDEO_VP9LEVELTYPE {
+    OMX_VIDEO_VP9Level1  = 0x1,
+    OMX_VIDEO_VP9Level11 = 0x2,
+    OMX_VIDEO_VP9Level2  = 0x4,
+    OMX_VIDEO_VP9Level21 = 0x8,
+    OMX_VIDEO_VP9Level3  = 0x10,
+    OMX_VIDEO_VP9Level31 = 0x20,
+    OMX_VIDEO_VP9Level4  = 0x40,
+    OMX_VIDEO_VP9Level41 = 0x80,
+    OMX_VIDEO_VP9Level5  = 0x100,
+    OMX_VIDEO_VP9Level51 = 0x200,
+    OMX_VIDEO_VP9Level52 = 0x400,
+    OMX_VIDEO_VP9Level6  = 0x800,
+    OMX_VIDEO_VP9Level61 = 0x1000,
+    OMX_VIDEO_VP9Level62 = 0x2000,
+    OMX_VIDEO_VP9LevelUnknown = 0x6EFFFFFF,
+    OMX_VIDEO_VP9LevelMax = 0x7FFFFFFF
+} OMX_VIDEO_VP9LEVELTYPE;
+
+/**
+* VP9 Parameters.
+*   Encoder specific parameters (decoders should ignore these fields):
+*     - bErrorResilientMode
+*     - nTileRows
+*     - nTileColumns
+*     - bEnableFrameParallelDecoding
+*/
+typedef struct OMX_VIDEO_PARAM_VP9TYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_VIDEO_VP9PROFILETYPE eProfile;
+    OMX_VIDEO_VP9LEVELTYPE eLevel;
+    OMX_BOOL bErrorResilientMode;
+    OMX_U32 nTileRows;
+    OMX_U32 nTileColumns;
+    OMX_BOOL bEnableFrameParallelDecoding;
+} OMX_VIDEO_PARAM_VP9TYPE;
 
 /** HEVC Profile enum type */
 typedef enum OMX_VIDEO_HEVCPROFILETYPE {
@@ -270,6 +296,8 @@ typedef enum OMX_VIDEO_DOLBYVISIONPROFILETYPE {
     OMX_VIDEO_DolbyVisionProfileDvheStn = 0x20,
     OMX_VIDEO_DolbyVisionProfileDvheDth = 0x40,
     OMX_VIDEO_DolbyVisionProfileDvheDtb = 0x80,
+    OMX_VIDEO_DolbyVisionProfileDvheSt  = 0x100,
+    OMX_VIDEO_DolbyVisionProfileDvavSe  = 0x200,
     OMX_VIDEO_DolbyVisionProfileMax     = 0x7FFFFFFF
 } OMX_VIDEO_DOLBYVISIONPROFILETYPE;
 

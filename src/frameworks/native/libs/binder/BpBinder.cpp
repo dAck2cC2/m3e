@@ -17,7 +17,7 @@
 #define LOG_TAG "BpBinder"
 #if defined(_MSC_VER)
 #define LOG_NDEBUG 1
-#endif // _MSC_VER
+#endif
 
 #include <binder/BpBinder.h>
 

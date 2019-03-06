@@ -26,8 +26,8 @@ zlib
 ziparchive
 )
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/include/androidfw )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/androidfw )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/libs/androidfw/include/androidfw )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/libs/androidfw )
 
 file(GLOB ANDROIDFW_HEADER_FILES
 ${HEADER_PATH}/*.h
