@@ -29,11 +29,11 @@ elseif(MSVC)
     add_definitions(-Dstrcasecmp=_stricmp)
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media/stagefright/foundation )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation/include/media/stagefright/foundation )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation )
 
 # include files
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/av/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include)
 include_directories(AFTER ${HEADER_PATH})
 
 # header files

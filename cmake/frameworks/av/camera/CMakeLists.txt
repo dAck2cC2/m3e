@@ -29,7 +29,7 @@ gui
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/media/camera/include)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/camera )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/camera/include/camera )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/camera )
 
 include_directories(AFTER ${HEADER_PATH})

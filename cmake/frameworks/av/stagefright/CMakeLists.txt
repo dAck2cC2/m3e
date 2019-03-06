@@ -52,7 +52,7 @@ endif()
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/headers/media_plugin/media/openmax)
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/netd/include)
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/stagefright/include )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/ )
 
 # include files
@@ -61,7 +61,7 @@ include_directories(AFTER ${SOURCE_PATH})
 
 # header files
 file(GLOB STAGEFRIGHT_HEADER_FILES 
-${M3E_SOURCE_DIR}/src/frameworks/av/include/media/stagefright/*.h 
+${HEADER_PATH}/media/stagefright/*.h 
 ${HEADER_PATH}/*.h 
 ${SOURCE_PATH}/*.h 
 )

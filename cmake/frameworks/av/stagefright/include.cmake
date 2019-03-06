@@ -10,4 +10,4 @@ else()
 endif()
 
 # include
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include)
