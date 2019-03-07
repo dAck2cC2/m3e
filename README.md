@@ -1,5 +1,5 @@
 # m3e
-Multimedia Engine with the Stageflight of Android.
+Multimedia Engine with the Stagefright of Android.
 
 https://source.android.com/devices/media/index.html
 

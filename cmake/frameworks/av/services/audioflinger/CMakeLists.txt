@@ -10,7 +10,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/nbaio/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/mediautils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/effects/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
@@ -24,6 +25,7 @@ hardware
 binder
 audioutils
 audiospdif
+audioclient
 nbaio
 media
 mediautils

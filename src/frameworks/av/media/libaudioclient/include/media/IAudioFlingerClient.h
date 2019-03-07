@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 The Android Open Source Project
+ * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,43 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef IAUDIORECORD_H_
-#define IAUDIORECORD_H_
+#ifndef ANDROID_IAUDIOFLINGERCLIENT_H
+#define ANDROID_IAUDIOFLINGERCLIENT_H
 
-#include <stdint.h>
-#include <sys/types.h>
 
 #include <utils/RefBase.h>
-#include <utils/Errors.h>
 #include <binder/IInterface.h>
-#include <binder/IMemory.h>
+#include <utils/KeyedVector.h>
 #include <system/audio.h>
+#include <media/AudioIoDescriptor.h>
 
 namespace android {
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOCLIENT IAudioRecord : public IInterface
+class IAudioFlingerClient : public IInterface
 {
 public:
-    DECLARE_META_INTERFACE(AudioRecord);
+    DECLARE_META_INTERFACE(AudioFlingerClient);
 
-    /* After it's created the track is not active. Call start() to
-     * make it active.
-     */
-    virtual status_t    start(int /*AudioSystem::sync_event_t*/ event,
-                              audio_session_t triggerSession) = 0;
+    // Notifies a change of audio input/output configuration.
+    virtual void ioConfigChanged(audio_io_config_event event,
+                                 const sp<AudioIoDescriptor>& ioDesc) = 0;
 
-    /* Stop a track. If set, the callback will cease being called and
-     * obtainBuffer will return an error. Buffers that are already released
-     * will be processed, unless flush() is called.
-     */
-    virtual void        stop() = 0;
 };
+
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOCLIENT BnAudioRecord : public BnInterface<IAudioRecord>
+class BnAudioFlingerClient : public BnInterface<IAudioFlingerClient>
 {
 public:
     virtual status_t    onTransact( uint32_t code,
@@ -63,4 +55,4 @@ public:
 
 }; // namespace android
 
-#endif /*IAUDIORECORD_H_*/
+#endif // ANDROID_IAUDIOFLINGERCLIENT_H

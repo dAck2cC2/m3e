@@ -13,7 +13,7 @@ include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 

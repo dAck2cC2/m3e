@@ -8,7 +8,7 @@ GET_ANDROID_MODULE(sonivox)
 
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 
 set(SONIC_DEPLIB
 log

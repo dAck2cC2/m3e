@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_IEFFECT_H
-#define ANDROID_IEFFECT_H
+#ifndef ANDROID_IEFFECTCLIENT_H
+#define ANDROID_IEFFECTCLIENT_H
 
 #include <utils/RefBase.h>
 #include <binder/IInterface.h>
@@ -24,29 +24,23 @@
 
 namespace android {
 
-class ANDROID_API_AUDIOCLIENT IEffect: public IInterface
+class IEffectClient: public IInterface
 {
 public:
-    DECLARE_META_INTERFACE(Effect);
+    DECLARE_META_INTERFACE(EffectClient);
 
-    virtual status_t enable() = 0;
-
-    virtual status_t disable() = 0;
-
-    virtual status_t command(uint32_t cmdCode,
-                             uint32_t cmdSize,
-                             void *pCmdData,
-                             uint32_t *pReplySize,
-                             void *pReplyData) = 0;
-
-    virtual void disconnect() = 0;
-
-    virtual sp<IMemory> getCblk() const = 0;
+    virtual void controlStatusChanged(bool controlGranted) = 0;
+    virtual void enableStatusChanged(bool enabled) = 0;
+    virtual void commandExecuted(uint32_t cmdCode,
+                                 uint32_t cmdSize,
+                                 void *pCmdData,
+                                 uint32_t replySize,
+                                 void *pReplyData) = 0;
 };
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOCLIENT BnEffect: public BnInterface<IEffect>
+class BnEffectClient: public BnInterface<IEffectClient>
 {
 public:
     virtual status_t    onTransact( uint32_t code,
@@ -57,4 +51,4 @@ public:
 
 }; // namespace android
 
-#endif // ANDROID_IEFFECT_H
+#endif // ANDROID_IEFFECTCLIENT_H
