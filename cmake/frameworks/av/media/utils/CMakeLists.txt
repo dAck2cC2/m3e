@@ -1,7 +1,7 @@
 project(MEDIAUTILS)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/av/mediautils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/utils/include.cmake)
 
 # dependency
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
