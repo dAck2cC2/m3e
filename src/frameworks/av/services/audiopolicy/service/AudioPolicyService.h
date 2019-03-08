@@ -26,14 +26,10 @@
 #include <binder/BinderService.h>
 #include <system/audio.h>
 #include <system/audio_policy.h>
-#include <hardware/audio_policy.h>
 #include <media/IAudioPolicyService.h>
 #include <media/ToneGenerator.h>
 #include <media/AudioEffect.h>
 #include <media/AudioPolicy.h>
-#ifdef USE_LEGACY_AUDIO_POLICY
-#include <hardware_legacy/AudioPolicyInterface.h>
-#endif
 #include "AudioPolicyEffects.h"
 #include "managerdefault/AudioPolicyManager.h"
 
@@ -72,6 +68,9 @@ public:
     virtual audio_policy_dev_state_t getDeviceConnectionState(
                                                                 audio_devices_t device,
                                                                 const char *device_address);
+    virtual status_t handleDeviceConfigChange(audio_devices_t device,
+                                              const char *device_address,
+                                              const char *device_name);
     virtual status_t setPhoneState(audio_mode_t state);
     virtual status_t setForceUse(audio_policy_force_use_t usage, audio_policy_forced_cfg_t config);
     virtual audio_policy_forced_cfg_t getForceUse(audio_policy_force_use_t usage);
@@ -87,12 +86,10 @@ public:
                                       audio_session_t session,
                                       audio_stream_type_t *stream,
                                       uid_t uid,
-                                      uint32_t samplingRate = 0,
-                                      audio_format_t format = AUDIO_FORMAT_DEFAULT,
-                                      audio_channel_mask_t channelMask = 0,
-                                      audio_output_flags_t flags = AUDIO_OUTPUT_FLAG_NONE,
-                                      audio_port_handle_t selectedDeviceId = AUDIO_PORT_HANDLE_NONE,
-                                      const audio_offload_info_t *offloadInfo = NULL);
+                                      const audio_config_t *config,
+                                      audio_output_flags_t flags,
+                                      audio_port_handle_t *selectedDeviceId,
+                                      audio_port_handle_t *portId);
     virtual status_t startOutput(audio_io_handle_t output,
                                  audio_stream_type_t stream,
                                  audio_session_t session);
@@ -107,11 +104,10 @@ public:
                                      audio_session_t session,
                                      pid_t pid,
                                      uid_t uid,
-                                     uint32_t samplingRate,
-                                     audio_format_t format,
-                                     audio_channel_mask_t channelMask,
+                                     const audio_config_base_t *config,
                                      audio_input_flags_t flags,
-                                     audio_port_handle_t selectedDeviceId = AUDIO_PORT_HANDLE_NONE);
+                                     audio_port_handle_t *selectedDeviceId = NULL,
+                                     audio_port_handle_t *portId = NULL);
     virtual status_t startInput(audio_io_handle_t input,
                                 audio_session_t session);
     virtual status_t stopInput(audio_io_handle_t input,
@@ -202,15 +198,18 @@ public:
 
     virtual audio_mode_t getPhoneState();
 
-    virtual status_t registerPolicyMixes(Vector<AudioMix> mixes, bool registration);
+    virtual status_t registerPolicyMixes(const Vector<AudioMix>& mixes, bool registration);
 
     virtual status_t startAudioSource(const struct audio_port_config *source,
                                       const audio_attributes_t *attributes,
-                                      audio_io_handle_t *handle);
-    virtual status_t stopAudioSource(audio_io_handle_t handle);
+                                      audio_patch_handle_t *handle);
+    virtual status_t stopAudioSource(audio_patch_handle_t handle);
 
     virtual status_t setMasterMono(bool mono);
     virtual status_t getMasterMono(bool *mono);
+
+    virtual float    getStreamVolumeDB(
+                audio_stream_type_t stream, int index, audio_devices_t device);
 
             status_t doStopOutput(audio_io_handle_t output,
                                   audio_stream_type_t stream,
@@ -233,13 +232,13 @@ public:
             void onAudioPatchListUpdate();
             void doOnAudioPatchListUpdate();
 
-            void onDynamicPolicyMixStateUpdate(String8 regId, int32_t state);
-            void doOnDynamicPolicyMixStateUpdate(String8 regId, int32_t state);
-            void onRecordingConfigurationUpdate(int event, audio_session_t session,
-                    audio_source_t source, const audio_config_base_t *clientConfig,
+            void onDynamicPolicyMixStateUpdate(const String8& regId, int32_t state);
+            void doOnDynamicPolicyMixStateUpdate(const String8& regId, int32_t state);
+            void onRecordingConfigurationUpdate(int event, const record_client_info_t *clientInfo,
+                    const audio_config_base_t *clientConfig,
                     const audio_config_base_t *deviceConfig, audio_patch_handle_t patchHandle);
-            void doOnRecordingConfigurationUpdate(int event, audio_session_t session,
-                    audio_source_t source, const audio_config_base_t *clientConfig,
+            void doOnRecordingConfigurationUpdate(int event, const record_client_info_t *clientInfo,
+                    const audio_config_base_t *clientConfig,
                     const audio_config_base_t *deviceConfig, audio_patch_handle_t patchHandle);
 
 private:
@@ -311,10 +310,10 @@ private:
                     void        updateAudioPatchListCommand();
                     status_t    setAudioPortConfigCommand(const struct audio_port_config *config,
                                                           int delayMs);
-                    void        dynamicPolicyMixStateUpdateCommand(String8 regId, int32_t state);
+                    void        dynamicPolicyMixStateUpdateCommand(const String8& regId, int32_t state);
                     void        recordingConfigurationUpdateCommand(
-                                                        int event, audio_session_t session,
-                                                        audio_source_t source,
+                                                        int event,
+                                                        const record_client_info_t *clientInfo,
                                                         const audio_config_base_t *clientConfig,
                                                         const audio_config_base_t *deviceConfig,
                                                         audio_patch_handle_t patchHandle);
@@ -411,8 +410,7 @@ private:
         class RecordingConfigurationUpdateData : public AudioCommandData {
         public:
             int mEvent;
-            audio_session_t mSession;
-            audio_source_t mSource;
+            record_client_info_t mClientInfo;
             struct audio_config_base mClientConfig;
             struct audio_config_base mDeviceConfig;
             audio_patch_handle_t mPatchHandle;
@@ -430,7 +428,7 @@ private:
     class AudioPolicyClient : public AudioPolicyClientInterface
     {
      public:
-        AudioPolicyClient(AudioPolicyService *service) : mAudioPolicyService(service) {}
+        explicit AudioPolicyClient(AudioPolicyService *service) : mAudioPolicyService(service) {}
         virtual ~AudioPolicyClient() {}
 
         //
@@ -471,7 +469,7 @@ private:
         //
 
         // opens an audio input
-        virtual status_t openInput(audio_module_handle_t module,
+        virtual audio_io_handle_t openInput(audio_module_handle_t module,
                                             audio_io_handle_t *input,
                                             audio_config_t *config,
                                             audio_devices_t *devices,
@@ -525,7 +523,7 @@ private:
         virtual void onAudioPatchListUpdate();
         virtual void onDynamicPolicyMixStateUpdate(String8 regId, int32_t state);
         virtual void onRecordingConfigurationUpdate(int event,
-                        audio_session_t session, audio_source_t source,
+                        const record_client_info_t *clientInfo,
                         const audio_config_base_t *clientConfig,
                         const audio_config_base_t *deviceConfig, audio_patch_handle_t patchHandle);
 
@@ -545,10 +543,9 @@ private:
 
                             void      onAudioPortListUpdate();
                             void      onAudioPatchListUpdate();
-                            void      onDynamicPolicyMixStateUpdate(String8 regId, int32_t state);
+                            void      onDynamicPolicyMixStateUpdate(const String8& regId, int32_t state);
                             void      onRecordingConfigurationUpdate(
-                                        int event, audio_session_t session,
-                                        audio_source_t source,
+                                        int event, const record_client_info_t *clientInfo,
                                         const audio_config_base_t *clientConfig,
                                         const audio_config_base_t *deviceConfig,
                                         audio_patch_handle_t patchHandle);

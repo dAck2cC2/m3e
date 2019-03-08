@@ -23,7 +23,6 @@
 #include <cutils/properties.h>
 #include "media/ToneGenerator.h"
 
-#include <cutils/threads.h>
 
 namespace android {
 
@@ -749,7 +748,7 @@ const ToneGenerator::ToneDescriptor ToneGenerator::sToneDescriptors[] = {
                         { /* .duration = */ 2000, /* .waveFreq = */ { 0 }, 0, 0},
                         { /* .duration = */ 0, /* .waveFreq = */ { 0 }, 0, 0}},
           /* .repeatCnt =*/ ToneGenerator::TONEGEN_INF,
-          /* .repeatSegment =*/ 0 },                              // TONE_UK_RINGTONE
+          /* .repeatSegment =*/ 0 },                              // TONE_GB_RINGTONE
         { /* .segments = */{ { /* .duration = */ 400, /* .waveFreq = */ { 400, 450, 0 }, 0, 0 },
                         { /* .duration = */ 200, /* .waveFreq = */ { 0 }, 0, 0 },
                         { /* .duration = */ 400, /* .waveFreq = */ { 400, 450, 0 }, 0, 0 },
@@ -1494,7 +1493,7 @@ const ToneGenerator::ToneDescriptor ToneGenerator::sToneDescriptors[] = {
                         { .duration = 2000, .waveFreq = { 0 }, 0, 0},
                         { .duration = 0, .waveFreq = { 0 }, 0, 0}},
           .repeatCnt = ToneGenerator::TONEGEN_INF,
-          .repeatSegment = 0 },                              // TONE_UK_RINGTONE
+          .repeatSegment = 0 },                              // TONE_GB_RINGTONE
         { .segments = { { .duration = 400, .waveFreq = { 400, 450, 0 }, 0, 0 },
                         { .duration = 200, .waveFreq = { 0 }, 0, 0 },
                         { .duration = 400, .waveFreq = { 400, 450, 0 }, 0, 0 },
@@ -1544,7 +1543,7 @@ const unsigned char /*tone_type*/ ToneGenerator::sToneMappingTable[NUM_REGIONS-1
             TONE_SUP_CALL_WAITING,       // TONE_SUP_CALL_WAITING
             TONE_SUP_RINGTONE            // TONE_SUP_RINGTONE
         },
-        {   // UK
+        {   // GB
             TONE_SUP_DIAL,               // TONE_SUP_DIAL
             TONE_SUP_BUSY,               // TONE_SUP_BUSY
             TONE_SUP_CONGESTION,         // TONE_SUP_CONGESTION
@@ -1552,7 +1551,7 @@ const unsigned char /*tone_type*/ ToneGenerator::sToneMappingTable[NUM_REGIONS-1
             TONE_SUP_RADIO_NOTAVAIL,     // TONE_SUP_RADIO_NOTAVAIL
             TONE_SUP_ERROR,              // TONE_SUP_ERROR
             TONE_SUP_CALL_WAITING,       // TONE_SUP_CALL_WAITING
-            TONE_UK_RINGTONE             // TONE_SUP_RINGTONE
+            TONE_GB_RINGTONE             // TONE_SUP_RINGTONE
         },
         {   // AUSTRALIA
             TONE_ANSI_DIAL,             // TONE_SUP_DIAL
@@ -1617,8 +1616,8 @@ ToneGenerator::ToneGenerator(audio_stream_type_t streamType, float volume, bool 
         mRegion = ANSI;
     } else if (strstr(value, "jp") != NULL) {
         mRegion = JAPAN;
-    } else if (strstr(value, "uk") != NULL) {
-        mRegion = UK;
+    } else if (strstr(value, "gb") != NULL) {
+        mRegion = GB;
     } else if (strstr(value, "au") != NULL) {
         mRegion = AUSTRALIA;
     } else {
@@ -2168,7 +2167,7 @@ bool ToneGenerator::prepareWave() {
             // Instantiate a wave generator if  ot already done for this frequency
             if (mWaveGens.indexOfKey(frequency) == NAME_NOT_FOUND) {
                 ToneGenerator::WaveGenerator *lpWaveGen =
-                        new ToneGenerator::WaveGenerator((unsigned short)mSamplingRate,
+                        new ToneGenerator::WaveGenerator(mSamplingRate,
                                 frequency,
                                 TONEGEN_GAIN/lNumWaves);
                 mWaveGens.add(frequency, lpWaveGen);
@@ -2292,7 +2291,7 @@ ToneGenerator::tone_type ToneGenerator::getToneForRegion(tone_type toneType) {
 //        none
 //
 ////////////////////////////////////////////////////////////////////////////////
-ToneGenerator::WaveGenerator::WaveGenerator(unsigned short samplingRate,
+ToneGenerator::WaveGenerator::WaveGenerator(uint32_t samplingRate,
         unsigned short frequency, float volume) {
     double d0;
     double F_div_Fs;  // frequency / samplingRate
@@ -2360,8 +2359,8 @@ void ToneGenerator::WaveGenerator::getSamples(short *outBuffer,
         lS1 = (long)0;
         lS2 = (long)mS2_0;
     } else {
-        lS1 = (long)mS1;
-        lS2 = (long)mS2;
+        lS1 = mS1;
+        lS2 = mS2;
     }
     lA1 = (long)mA1_Q14;
     lAmplitude = (long)mAmplitude_Q15;
@@ -2397,8 +2396,8 @@ void ToneGenerator::WaveGenerator::getSamples(short *outBuffer,
     }
 
     // save status
-    mS1 = (short)lS1;
-    mS2 = (short)lS2;
+    mS1 = lS1;
+    mS2 = lS2;
 }
 
 }  // end namespace android

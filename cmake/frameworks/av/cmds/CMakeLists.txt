@@ -70,6 +70,7 @@ cutils
 utils
 binder
 initrc
+audioclient
 media
 stagefright_foundation
 stagefright

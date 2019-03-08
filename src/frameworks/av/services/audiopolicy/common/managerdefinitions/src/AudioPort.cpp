@@ -21,9 +21,9 @@
 #include "HwModule.h"
 #include "AudioGain.h"
 #include <policy.h>
-#include "IOProfile.h"
-
 #include <cutils/atomic.h>
+
+#include "IOProfile.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -53,12 +53,12 @@ audio_module_handle_t AudioPort::getModuleHandle() const
     return mModule->mHandle;
 }
 
-uint32_t AudioPort::getModuleVersion() const
+uint32_t AudioPort::getModuleVersionMajor() const
 {
     if (mModule == 0) {
         return 0;
     }
-    return mModule->getHalVersion();
+    return mModule->getHalVersionMajor();
 }
 
 const char *AudioPort::getModuleName() const
@@ -130,7 +130,7 @@ void AudioPort::toAudioPort(struct audio_port *port) const
     port->num_gains = i;
 }
 
-void AudioPort::importAudioPort(const sp<AudioPort> port)
+void AudioPort::importAudioPort(const sp<AudioPort>& port, bool force __unused)
 {
     size_t indexToImport;
     for (indexToImport = 0; indexToImport < port->mProfiles.size(); indexToImport++) {
@@ -387,6 +387,7 @@ AudioPortConfig::AudioPortConfig()
     mSamplingRate = 0;
     mChannelMask = AUDIO_CHANNEL_NONE;
     mFormat = AUDIO_FORMAT_INVALID;
+    memset(&mGain, 0, sizeof(struct audio_gain_config));
     mGain.index = -1;
 }
 

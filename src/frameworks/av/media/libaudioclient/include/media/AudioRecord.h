@@ -33,7 +33,7 @@ class AudioRecordClientProxy;
 
 // ----------------------------------------------------------------------------
 
-class AudioRecord : public RefBase
+class AudioRecord : public AudioSystem::AudioDeviceCallback
 {
 public:
 
@@ -180,7 +180,7 @@ public:
                                     audio_session_t sessionId = AUDIO_SESSION_ALLOCATE,
                                     transfer_type transferType = TRANSFER_DEFAULT,
                                     audio_input_flags_t flags = AUDIO_INPUT_FLAG_NONE,
-                                    int uid = -1,
+                                    uid_t uid = AUDIO_UID_INVALID,
                                     pid_t pid = -1,
                                     const audio_attributes_t* pAttributes = NULL);
 
@@ -218,7 +218,7 @@ public:
                             audio_session_t sessionId = AUDIO_SESSION_ALLOCATE,
                             transfer_type transferType = TRANSFER_DEFAULT,
                             audio_input_flags_t flags = AUDIO_INPUT_FLAG_NONE,
-                            int uid = -1,
+                            uid_t uid = AUDIO_UID_INVALID,
                             pid_t pid = -1,
                             const audio_attributes_t* pAttributes = NULL);
 
@@ -242,6 +242,13 @@ public:
             size_t      frameCount() const  { return mFrameCount; }
             size_t      frameSize() const   { return mFrameSize; }
             audio_source_t inputSource() const  { return mAttributes.source; }
+
+    /*
+     * Return the period of the notification callback in frames.
+     * This value is set when the AudioRecord is constructed.
+     * It can be modified if the AudioRecord is rerouted.
+     */
+            uint32_t    getNotificationPeriodInFrames() const { return mNotificationFramesAct; }
 
     /* After it's created the track is not active. Call start() to
      * make it active. If set, the callback will start being called.
@@ -327,6 +334,12 @@ public:
      */
             status_t getTimestamp(ExtendedTimestamp *timestamp);
 
+    /**
+     * @param transferType
+     * @return text string that matches the enum name
+     */
+    static const char * convertTransferToText(transfer_type transferType);
+
     /* Returns a handle on the audio input used by this AudioRecord.
      *
      * Parameters:
@@ -411,7 +424,12 @@ public:
 
      /* Returns the ID of the audio device actually used by the input to which this AudioRecord
       * is attached.
-      * A value of AUDIO_PORT_HANDLE_NONE indicates the AudioRecord is not attached to any input.
+      * The device ID is relevant only if the AudioRecord is active.
+      * When the AudioRecord is inactive, the device ID returned can be either:
+      * - AUDIO_PORT_HANDLE_NONE if the AudioRecord is not attached to any output.
+      * - The device ID used before paused or stopped.
+      * - The device ID selected by audio policy manager of setOutputDevice() if the AudioRecord
+      * has not been started yet.
       *
       * Parameters:
       *  none.
@@ -440,6 +458,10 @@ public:
      */
             status_t removeAudioDeviceCallback(
                     const sp<AudioSystem::AudioDeviceCallback>& callback);
+
+            // AudioSystem::AudioDeviceCallback> virtuals
+            virtual void onAudioDeviceUpdate(audio_io_handle_t audioIo,
+                                             audio_port_handle_t deviceId);
 
 private:
     /* If nonContig is non-NULL, it is an output parameter that will be set to the number of
@@ -548,6 +570,8 @@ private:
             // FIXME enum is faster than strcmp() for parameter 'from'
             status_t restoreRecord_l(const char *from);
 
+            void     updateRoutedDeviceId_l();
+
     sp<AudioRecordThread>   mAudioRecordThread;
     mutable Mutex           mLock;
 
@@ -642,14 +666,19 @@ private:
 
     sp<DeathNotifier>       mDeathNotifier;
     uint32_t                mSequence;              // incremented for each new IAudioRecord attempt
-    int                     mClientUid;
+    uid_t                   mClientUid;
     pid_t                   mClientPid;
     audio_attributes_t      mAttributes;
 
     // For Device Selection API
     //  a value of AUDIO_PORT_HANDLE_NONE indicated default (AudioPolicyManager) routing.
-    audio_port_handle_t    mSelectedDeviceId;
-    sp<AudioSystem::AudioDeviceCallback> mDeviceCallback;
+    audio_port_handle_t     mSelectedDeviceId; // Device requested by the application.
+    audio_port_handle_t     mRoutedDeviceId;   // Device actually selected by audio policy manager:
+                                              // May not match the app selection depending on other
+                                              // activity and connected devices
+    wp<AudioSystem::AudioDeviceCallback> mDeviceCallback;
+    audio_port_handle_t    mPortId;  // unique ID allocated by audio policy
+
 };
 
 }; // namespace android

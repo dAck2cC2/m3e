@@ -25,6 +25,7 @@
 #include "TypeConverter.h"
 #include <media/AudioResamplerPublic.h>
 #include <algorithm>
+
 #include "IOProfile.h"
 
 namespace android {
@@ -185,6 +186,7 @@ status_t AudioProfile::checkCompatibleChannelMask(audio_channel_mask_t channelMa
 
 void AudioProfile::dump(int fd, int spaces) const
 {
+#if TODO
     const size_t SIZE = 256;
     char buffer[SIZE];
     String8 result;
@@ -224,6 +226,7 @@ void AudioProfile::dump(int fd, int spaces) const
         result.append("\n");
     }
     write(fd, result.string(), result.size());
+#endif
 }
 
 status_t AudioProfileVector::checkExactProfile(uint32_t samplingRate,

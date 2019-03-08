@@ -48,6 +48,7 @@ include_directories(AFTER ${SOURCE_PATH}/utilities)
 ###############################################################################
 set(${PROJECT_NAME}_COMMON_PATH ${SOURCE_PATH}/common/managerdefinitions/src)
 
+include_directories(AFTER ${SOURCE_PATH}/common)
 include_directories(AFTER ${SOURCE_PATH}/common/include)
 include_directories(AFTER ${SOURCE_PATH}/common/managerdefinitions/include)
 file(GLOB ${PROJECT_NAME}_COMMON   

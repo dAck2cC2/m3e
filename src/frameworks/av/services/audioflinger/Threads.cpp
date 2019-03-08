@@ -58,8 +58,8 @@
 #include <powermanager/PowerManager.h>
 #endif
 #include "AudioFlinger.h"
-#include "AudioMixer.h"
-#include "BufferProviders.h"
+#include <media/AudioMixer.h>
+#include <media/BufferProviders.h>
 #include "FastMixer.h"
 #include "FastCapture.h"
 #include "ServiceUtilities.h"

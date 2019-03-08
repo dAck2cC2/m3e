@@ -75,6 +75,7 @@ if(ENABLE_AV_CODEC)
     add_subdirectory(aac)
     add_subdirectory(gsm)
     #add_subdirectory(hevc)
+    #add_subdirectory(tinyxml2)
 endif(ENABLE_AV_CODEC)
 
 if(MSVC)

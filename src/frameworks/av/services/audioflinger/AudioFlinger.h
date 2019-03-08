@@ -53,11 +53,11 @@
 #include "FastMixer.h"
 #include <media/nbaio/NBAIO.h>
 #include "AudioWatchdog.h"
-#include "AudioMixer.h"
+#include <media/AudioMixer.h>
 #include "AudioStreamOut.h"
 #include "SpdifStreamOut.h"
 #include "AudioHwDevice.h"
-#include "LinearMap.h"
+#include <media/LinearMap.h>
 
 #if ENABLE_POWERMANAGER
 #include <powermanager/IPowerManager.h>
@@ -101,6 +101,7 @@ class AudioFlinger :
     public BnAudioFlinger
 {
     friend class BinderService<AudioFlinger>;   // for AudioFlinger()
+
 public:
     static const char* getServiceName() ANDROID_API { return "media.audio_flinger"; }
 
@@ -120,7 +121,8 @@ public:
                                 pid_t tid,
                                 audio_session_t *sessionId,
                                 int clientUid,
-                                status_t *status /*non-NULL*/);
+                                status_t *status /*non-NULL*/,
+                                audio_port_handle_t portId);
 
     virtual sp<IAudioRecord> openRecord(
                                 audio_io_handle_t input,
@@ -137,7 +139,8 @@ public:
                                 size_t *notificationFrames,
                                 sp<IMemory>& cblk,
                                 sp<IMemory>& buffers,
-                                status_t *status /*non-NULL*/);
+                                status_t *status /*non-NULL*/,
+                                audio_port_handle_t portId);
 
     virtual     uint32_t    sampleRate(audio_io_handle_t ioHandle) const;
     virtual     audio_format_t format(audio_io_handle_t output) const;
@@ -229,6 +232,7 @@ public:
                         audio_io_handle_t io,
                         audio_session_t sessionId,
                         const String16& opPackageName,
+                        pid_t pid,
                         status_t *status /*non-NULL*/,
                         int *id,
                         int *enabled);
@@ -281,12 +285,14 @@ public:
     sp<NBLog::Writer>   newWriter_l(size_t size, const char *name);
     void                unregisterWriter(const sp<NBLog::Writer>& writer);
 private:
-    static const size_t kLogMemorySize = 40 * 1024;
+    // FIXME The 400 is temporarily too high until a leak of writers in media.log is fixed.
+    static const size_t kLogMemorySize = 400 * 1024;
     sp<MemoryDealer>    mLogMemoryDealer;   // == 0 when NBLog is disabled
     // When a log writer is unregistered, it is done lazily so that media.log can continue to see it
     // for as long as possible.  The memory is only freed when it is needed for another log writer.
     Vector< sp<NBLog::Writer> > mUnregisteredWriters;
     Mutex               mUnregisteredWritersLock;
+
 public:
 
     class SyncEvent;
@@ -456,6 +462,9 @@ private:
         const sp<IAudioFlingerClient> mAudioFlingerClient;
     };
 
+    // This is a helper that is called during incoming binder calls.
+    void requestLogMerge();
+
     class TrackHandle;
     class RecordHandle;
     class RecordThread;
@@ -494,7 +503,7 @@ private:
     // server side of the client's IAudioTrack
     class TrackHandle : public android::BnAudioTrack {
     public:
-                            TrackHandle(const sp<PlaybackThread::Track>& track);
+        explicit            TrackHandle(const sp<PlaybackThread::Track>& track);
         virtual             ~TrackHandle();
         virtual sp<IMemory> getCblk() const;
         virtual status_t    start();
@@ -503,6 +512,10 @@ private:
         virtual void        pause();
         virtual status_t    attachAuxEffect(int effectId);
         virtual status_t    setParameters(const String8& keyValuePairs);
+        virtual VolumeShaper::Status applyVolumeShaper(
+                const sp<VolumeShaper::Configuration>& configuration,
+                const sp<VolumeShaper::Operation>& operation) override;
+        virtual sp<VolumeShaper::State> getVolumeShaperState(int id) override;
         virtual status_t    getTimestamp(AudioTimestamp& timestamp);
         virtual void        signal(); // signal playback thread for a change in control block
 

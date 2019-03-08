@@ -18,7 +18,7 @@
 //#define LOG_NDEBUG 0
 
 #include "VolumeCurve.h"
-#include "TypeConverter.h"
+#include "managerdefinitions/include/TypeConverter.h"
 
 namespace android {
 
@@ -79,6 +79,7 @@ void VolumeCurve::dump(int fd) const
 
 void VolumeCurvesForStream::dump(int fd, int spaces = 0, bool curvePoints) const
 {
+#if TODO
     const size_t SIZE = 256;
     char buffer[SIZE];
     String8 result;
@@ -106,10 +107,12 @@ void VolumeCurvesForStream::dump(int fd, int spaces = 0, bool curvePoints) const
     }
     result.append("\n");
     write(fd, result.string(), result.size());
+#endif
 }
 
 status_t VolumeCurvesCollection::dump(int fd) const
 {
+#if TODO
     const size_t SIZE = 256;
     char buffer[SIZE];
 
@@ -134,7 +137,7 @@ status_t VolumeCurvesCollection::dump(int fd) const
         write(fd, buffer, strlen(buffer));
         valueAt(i).dump(fd, 2, true);
     }
-
+#endif
     return NO_ERROR;
 }
 

@@ -36,7 +36,7 @@ size_t clampToSize(T x) {
 // a value between "other" + 1 and "other" + INT32_MAX, the choice of
 // which needs to be the "least recently used" sequence value for "self".
 // In general, this means (new_self) returned is max(self, other) + 1.
-
+__attribute__((no_sanitize("integer")))
 static uint32_t incrementSequence(uint32_t self, uint32_t other) {
     int32_t diff = (int32_t) self - (int32_t) other;
     if (diff >= 0 && diff < INT32_MAX) {
@@ -111,7 +111,8 @@ __attribute__((no_sanitize("integer")))
 status_t ClientProxy::obtainBuffer(Buffer* buffer, const struct timespec *requested,
         struct timespec *elapsed)
 {
-    LOG_ALWAYS_FATAL_IF(buffer == NULL || buffer->mFrameCount == 0, "");
+    LOG_ALWAYS_FATAL_IF(buffer == NULL || buffer->mFrameCount == 0,
+            "%s: null or zero frame buffer, buffer:%p", __func__, buffer);
     struct timespec total;          // total elapsed time spent waiting
     total.tv_sec = 0;
     total.tv_nsec = 0;
@@ -273,14 +274,7 @@ status_t ClientProxy::obtainBuffer(Buffer* buffer, const struct timespec *reques
         int32_t old = android_atomic_and(~CBLK_FUTEX_WAKE, &cblk->mFutex);
         if (!(old & CBLK_FUTEX_WAKE)) {
             if (measure && !beforeIsValid) {
-#if defined(_linux)
                 clock_gettime(CLOCK_MONOTONIC, &before);
-#else
-				struct timeval tv;
-				gettimeofday(&tv, NULL);
-				before.tv_sec = tv.tv_sec;
-				before.tv_nsec = tv.tv_usec * 1000;
-#endif
                 beforeIsValid = true;
             }
             errno = 0;
@@ -292,14 +286,7 @@ status_t ClientProxy::obtainBuffer(Buffer* buffer, const struct timespec *reques
             // update total elapsed time spent waiting
             if (measure) {
                 struct timespec after;
-#if defined(_linux)
                 clock_gettime(CLOCK_MONOTONIC, &after);
-#else
-				struct timeval tv;
-				gettimeofday(&tv, NULL);
-				after.tv_sec = tv.tv_sec;
-				after.tv_nsec = tv.tv_usec * 1000;
-#endif
                 total.tv_sec += after.tv_sec - before.tv_sec;
                 long deltaNs = after.tv_nsec - before.tv_nsec;
                 if (deltaNs < 0) {
@@ -361,7 +348,10 @@ void ClientProxy::releaseBuffer(Buffer* buffer)
         buffer->mNonContig = 0;
         return;
     }
-    LOG_ALWAYS_FATAL_IF(!(stepCount <= mUnreleased && mUnreleased <= mFrameCount), "");
+    LOG_ALWAYS_FATAL_IF(!(stepCount <= mUnreleased && mUnreleased <= mFrameCount),
+            "%s: mUnreleased out of range, "
+            "!(stepCount:%zu <= mUnreleased:%zu <= mFrameCount:%zu), BufferSizeInFrames:%u",
+            __func__, stepCount, mUnreleased, mFrameCount, getBufferSizeInFrames());
     mUnreleased -= stepCount;
     audio_track_cblk_t* cblk = mCblk;
     // Both of these barriers are required
@@ -409,6 +399,7 @@ size_t ClientProxy::getMisalignment()
 
 // ---------------------------------------------------------------------------
 
+__attribute__((no_sanitize("integer")))
 void AudioTrackClientProxy::flush()
 {
     // This works for mFrameCountP2 <= 2^30
@@ -644,9 +635,62 @@ ServerProxy::ServerProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCo
 }
 
 __attribute__((no_sanitize("integer")))
+void ServerProxy::flushBufferIfNeeded()
+{
+    audio_track_cblk_t* cblk = mCblk;
+    // The acquire_load is not really required. But since the write is a release_store in the
+    // client, using acquire_load here makes it easier for people to maintain the code,
+    // and the logic for communicating ipc variables seems somewhat standard,
+    // and there really isn't much penalty for 4 or 8 byte atomics.
+    int32_t flush = android_atomic_acquire_load(&cblk->u.mStreaming.mFlush);
+    if (flush != mFlush) {
+        ALOGV("ServerProxy::flushBufferIfNeeded() mStreaming.mFlush = 0x%x, mFlush = 0x%0x",
+                flush, mFlush);
+        int32_t rear = android_atomic_acquire_load(&cblk->u.mStreaming.mRear);
+        int32_t front = cblk->u.mStreaming.mFront;
+
+        // effectively obtain then release whatever is in the buffer
+        const size_t overflowBit = mFrameCountP2 << 1;
+        const size_t mask = overflowBit - 1;
+        int32_t newFront = (front & ~mask) | (flush & mask);
+        ssize_t filled = rear - newFront;
+        if (filled >= (ssize_t)overflowBit) {
+            // front and rear offsets span the overflow bit of the p2 mask
+            // so rebasing newFront on the front offset is off by the overflow bit.
+            // adjust newFront to match rear offset.
+            ALOGV("flush wrap: filled %zx >= overflowBit %zx", filled, overflowBit);
+            newFront += overflowBit;
+            filled -= overflowBit;
+        }
+        // Rather than shutting down on a corrupt flush, just treat it as a full flush
+        if (!(0 <= filled && (size_t) filled <= mFrameCount)) {
+            ALOGE("mFlush %#x -> %#x, front %#x, rear %#x, mask %#x, newFront %#x, "
+                    "filled %zd=%#x",
+                    mFlush, flush, front, rear,
+                    (unsigned)mask, newFront, filled, (unsigned)filled);
+            newFront = rear;
+        }
+        mFlush = flush;
+        android_atomic_release_store(newFront, &cblk->u.mStreaming.mFront);
+        // There is no danger from a false positive, so err on the side of caution
+        if (true /*front != newFront*/) {
+            int32_t old = android_atomic_or(CBLK_FUTEX_WAKE, &cblk->mFutex);
+            if (!(old & CBLK_FUTEX_WAKE)) {
+#if ENABLE_FUTEX
+                (void) syscall(__NR_futex, &cblk->mFutex,
+                        mClientInServer ? FUTEX_WAKE_PRIVATE : FUTEX_WAKE, 1);
+#endif
+            }
+        }
+        mFlushed += (newFront - front) & mask;
+    }
+}
+
+__attribute__((no_sanitize("integer")))
 status_t ServerProxy::obtainBuffer(Buffer* buffer, bool ackFlush)
 {
-    LOG_ALWAYS_FATAL_IF(buffer == NULL || buffer->mFrameCount == 0,"");
+    LOG_ALWAYS_FATAL_IF(buffer == NULL || buffer->mFrameCount == 0,
+            "%s: null or zero frame buffer, buffer:%p", __func__, buffer);
     if (mIsShutdown) {
         goto no_init;
     }
@@ -658,46 +702,9 @@ status_t ServerProxy::obtainBuffer(Buffer* buffer, bool ackFlush)
     int32_t rear;
     // See notes on barriers at ClientProxy::obtainBuffer()
     if (mIsOut) {
-        int32_t flush = cblk->u.mStreaming.mFlush;
+        flushBufferIfNeeded(); // might modify mFront
         rear = android_atomic_acquire_load(&cblk->u.mStreaming.mRear);
         front = cblk->u.mStreaming.mFront;
-        if (flush != mFlush) {
-            // effectively obtain then release whatever is in the buffer
-            const size_t overflowBit = mFrameCountP2 << 1;
-            const size_t mask = overflowBit - 1;
-            int32_t newFront = (front & ~mask) | (flush & mask);
-            ssize_t filled = rear - newFront;
-            if (filled >= (ssize_t)overflowBit) {
-                // front and rear offsets span the overflow bit of the p2 mask
-                // so rebasing newFront on the front offset is off by the overflow bit.
-                // adjust newFront to match rear offset.
-                ALOGV("flush wrap: filled %zx >= overflowBit %zx", filled, overflowBit);
-                newFront += overflowBit;
-                filled -= overflowBit;
-            }
-            // Rather than shutting down on a corrupt flush, just treat it as a full flush
-            if (!(0 <= filled && (size_t) filled <= mFrameCount)) {
-                ALOGE("mFlush %#x -> %#x, front %#x, rear %#x, mask %#x, newFront %#x, "
-                        "filled %zd=%#x",
-                        mFlush, flush, front, rear,
-                        (unsigned)mask, newFront, filled, (unsigned)filled);
-                newFront = rear;
-            }
-            mFlush = flush;
-            android_atomic_release_store(newFront, &cblk->u.mStreaming.mFront);
-            // There is no danger from a false positive, so err on the side of caution
-            if (true /*front != newFront*/) {
-                int32_t old = android_atomic_or(CBLK_FUTEX_WAKE, &cblk->mFutex);
-                if (!(old & CBLK_FUTEX_WAKE)) {
-#if ENABLE_FUTEX
-                    (void) syscall(__NR_futex, &cblk->mFutex,
-                            mClientInServer ? FUTEX_WAKE_PRIVATE : FUTEX_WAKE, 1);
-#endif
-                }
-            }
-            mFlushed += (newFront - front) & mask;
-            front = newFront;
-        }
     } else {
         front = android_atomic_acquire_load(&cblk->u.mStreaming.mFront);
         rear = cblk->u.mStreaming.mRear;
@@ -705,7 +712,8 @@ status_t ServerProxy::obtainBuffer(Buffer* buffer, bool ackFlush)
     ssize_t filled = rear - front;
     // pipe should not already be overfull
     if (!(0 <= filled && (size_t) filled <= mFrameCount)) {
-        ALOGE("Shared memory control block is corrupt (filled=%zd); shutting down", filled);
+        ALOGE("Shared memory control block is corrupt (filled=%zd, mFrameCount=%zu); shutting down",
+                filled, mFrameCount);
         mIsShutdown = true;
     }
     if (mIsShutdown) {
@@ -768,7 +776,10 @@ void ServerProxy::releaseBuffer(Buffer* buffer)
         buffer->mNonContig = 0;
         return;
     }
-    LOG_ALWAYS_FATAL_IF(!(stepCount <= mUnreleased && mUnreleased <= mFrameCount),"");
+    LOG_ALWAYS_FATAL_IF(!(stepCount <= mUnreleased && mUnreleased <= mFrameCount),
+            "%s: mUnreleased out of range, "
+            "!(stepCount:%zu <= mUnreleased:%zu <= mFrameCount:%zu)",
+            __func__, stepCount, mUnreleased, mFrameCount);
     mUnreleased -= stepCount;
     audio_track_cblk_t* cblk = mCblk;
     if (mIsOut) {
@@ -831,13 +842,33 @@ size_t AudioTrackServerProxy::framesReady()
     ssize_t filled = rear - cblk->u.mStreaming.mFront;
     // pipe should not already be overfull
     if (!(0 <= filled && (size_t) filled <= mFrameCount)) {
-        ALOGE("Shared memory control block is corrupt (filled=%zd); shutting down", filled);
+        ALOGE("Shared memory control block is corrupt (filled=%zd, mFrameCount=%zu); shutting down",
+                filled, mFrameCount);
         mIsShutdown = true;
         return 0;
     }
     //  cache this value for later use by obtainBuffer(), with added barrier
     //  and racy if called by normal mixer thread
     // ignores flush(), so framesReady() may report a larger mFrameCount than obtainBuffer()
+    return filled;
+}
+
+__attribute__((no_sanitize("integer")))
+size_t AudioTrackServerProxy::framesReadySafe() const
+{
+    if (mIsShutdown) {
+        return 0;
+    }
+    const audio_track_cblk_t* cblk = mCblk;
+    const int32_t flush = android_atomic_acquire_load(&cblk->u.mStreaming.mFlush);
+    if (flush != mFlush) {
+        return mFrameCount;
+    }
+    const int32_t rear = android_atomic_acquire_load(&cblk->u.mStreaming.mRear);
+    const ssize_t filled = rear - cblk->u.mStreaming.mFront;
+    if (!(0 <= filled && (size_t) filled <= mFrameCount)) {
+        return 0; // error condition, silently return 0.
+    }
     return filled;
 }
 
@@ -854,6 +885,7 @@ bool  AudioTrackServerProxy::setStreamEndDone() {
     return old;
 }
 
+__attribute__((no_sanitize("integer")))
 void AudioTrackServerProxy::tallyUnderrunFrames(uint32_t frameCount)
 {
     audio_track_cblk_t* cblk = mCblk;
@@ -908,6 +940,11 @@ size_t StaticAudioTrackServerProxy::framesReady()
     if (!mFramesReadyIsCalledByMultipleThreads) {
         (void) pollPosition();
     }
+    return mFramesReadySafe;
+}
+
+size_t StaticAudioTrackServerProxy::framesReadySafe() const
+{
     return mFramesReadySafe;
 }
 
@@ -1004,6 +1041,7 @@ ssize_t StaticAudioTrackServerProxy::pollPosition()
     return (ssize_t) mState.mPosition;
 }
 
+__attribute__((no_sanitize("integer")))
 status_t StaticAudioTrackServerProxy::obtainBuffer(Buffer* buffer, bool ackFlush)
 {
     if (mIsShutdown) {
@@ -1040,7 +1078,9 @@ status_t StaticAudioTrackServerProxy::obtainBuffer(Buffer* buffer, bool ackFlush
     }
     // As mFramesReady is the total remaining frames in the static audio track,
     // it is always larger or equal to avail.
-    LOG_ALWAYS_FATAL_IF(mFramesReady < (int64_t) avail,"");
+    LOG_ALWAYS_FATAL_IF(mFramesReady < (int64_t) avail,
+            "%s: mFramesReady out of range, mFramesReady:%lld < avail:%zu",
+            __func__, (long long)mFramesReady, avail);
     buffer->mNonContig = mFramesReady == INT64_MAX ? SIZE_MAX : clampToSize(mFramesReady - avail);
     if (!ackFlush) {
         mUnreleased = avail;
@@ -1048,11 +1088,18 @@ status_t StaticAudioTrackServerProxy::obtainBuffer(Buffer* buffer, bool ackFlush
     return NO_ERROR;
 }
 
+__attribute__((no_sanitize("integer")))
 void StaticAudioTrackServerProxy::releaseBuffer(Buffer* buffer)
 {
     size_t stepCount = buffer->mFrameCount;
-    LOG_ALWAYS_FATAL_IF(!((int64_t) stepCount <= mFramesReady),"");
-    LOG_ALWAYS_FATAL_IF(!(stepCount <= mUnreleased),"");
+    LOG_ALWAYS_FATAL_IF(!((int64_t) stepCount <= mFramesReady),
+            "%s: stepCount out of range, "
+            "!(stepCount:%zu <= mFramesReady:%lld)",
+            __func__, stepCount, (long long)mFramesReady);
+    LOG_ALWAYS_FATAL_IF(!(stepCount <= mUnreleased),
+            "%s: stepCount out of range, "
+            "!(stepCount:%zu <= mUnreleased:%zu)",
+            __func__, stepCount, mUnreleased);
     if (stepCount == 0) {
         // prevent accidental re-use of buffer
         buffer->mRaw = NULL;

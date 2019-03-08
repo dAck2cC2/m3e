@@ -39,7 +39,7 @@
 #endif
 #include <audio_utils/conversion.h>
 #include <audio_utils/format.h>
-#include "AudioMixer.h"
+#include <media/AudioMixer.h>
 #include "FastMixer.h"
 
 #include <cutils/compiler.h>
@@ -106,7 +106,7 @@ const FastThreadState *FastMixer::poll()
 void FastMixer::setLog(NBLog::Writer *logWriter)
 {
     if (mMixer != NULL) {
-        mMixer->setLog(logWriter);
+        //mMixer->setLog(logWriter);
     }
 }
 
@@ -190,6 +190,7 @@ void FastMixer::onStateChange()
             //       implementation; it would be better to have normal mixer allocate for us
             //       to avoid blocking here and to prevent possible priority inversion
             mMixer = new AudioMixer(frameCount, mSampleRate, FastMixerState::sMaxFastTracks);
+            // FIXME See the other FIXME at FastMixer::setNBLogWriter()
             const size_t mixerFrameSize = mSinkChannelCount
                     * audio_bytes_per_sample(mMixerBufferFormat);
             mMixerBufferSize = mixerFrameSize * frameCount;

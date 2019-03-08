@@ -17,8 +17,6 @@
 #ifndef ANDROID_AUDIO_BUFFER_PROVIDER_H
 #define ANDROID_AUDIO_BUFFER_PROVIDER_H
 
-#include <stddef.h>
-#include <stdint.h>
 #include <utils/Errors.h>
 
 namespace android {

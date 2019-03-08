@@ -19,6 +19,8 @@
 
 #define ATRACE_TAG ATRACE_TAG_AUDIO
 
+#include <stdint.h>
+
 #include "Configuration.h"
 #if ENABLE_FUTEX
 #include <linux/futex.h>

@@ -22,6 +22,7 @@
 #include "AudioGain.h"
 #include "DeviceDescriptor.h"
 #include <utils/Log.h>
+
 #include "IOProfile.h"
 
 namespace android {
@@ -91,7 +92,7 @@ void SessionRouteMap::log(const char* caption)
 void SessionRouteMap::addRoute(audio_session_t session,
                                audio_stream_type_t streamType,
                                audio_source_t source,
-                               sp<DeviceDescriptor> descriptor,
+                               const sp<DeviceDescriptor>& descriptor,
                                uid_t uid)
 {
     if (mMapType == MAPTYPE_INPUT && streamType != SessionRoute::STREAM_TYPE_NA) {

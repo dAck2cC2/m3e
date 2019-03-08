@@ -32,6 +32,7 @@ ${SOURCE_PATH}/factory/EffectsFactory.h
 
 set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/factory/EffectsFactory.c
+#${SOURCE_PATH}/config/src/EffectsConfig.cpp
 )
 
 set_source_files_properties( ${${PROJECT_NAME}_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )

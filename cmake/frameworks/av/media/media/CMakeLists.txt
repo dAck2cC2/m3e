@@ -13,12 +13,13 @@ include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 
-set(MEDIA_DEPLIB
+set(${PROJECT_NAME}_DEPLIB
 utils
 binder
 stagefright_foundation
@@ -37,12 +38,13 @@ elseif(MSVC)
     list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia/include/media )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
 
 # header files
 file(GLOB MEDIA_HEADER_FILES 
 ${HEADER_PATH}/*.h 
+${M3E_SOURCE_DIR}/src/frameworks/av/include/media/*.h 
 ${M3E_SOURCE_DIR}/src/frameworks/av/include/private/media/*.h
 )
 
@@ -104,6 +106,7 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/MediaScanner.cpp
     ${SOURCE_PATH}/MediaScannerClient.cpp
     ${SOURCE_PATH}/MidiIoWrapper.cpp
+    ${SOURCE_PATH}/TypeConverter.cpp
     )
 endif(ENABLE_AV_CODEC)
 
@@ -116,5 +119,5 @@ endif()
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(media SHARED ${MEDIA_SOURCE_FILES} ${MEDIA_HEADER_FILES})
-target_link_libraries(media ${MEDIA_DEPLIB})
+target_link_libraries(media ${${PROJECT_NAME}_DEPLIB})
 

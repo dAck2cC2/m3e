@@ -96,3 +96,8 @@ int clock_gettime(clockid_t clk_id, struct timespec *ts)
 
 	return 0;
 }
+
+struct tm *localtime_r(const time_t *timep, struct tm *result)
+{
+	return NULL;
+}

@@ -18,7 +18,8 @@
 
 #include <system/audio.h>
 
-static audio_stream_type_t audio_attributes_to_stream_type(const audio_attributes_t *attr)
+static inline
+audio_stream_type_t audio_attributes_to_stream_type(const audio_attributes_t *attr)
 {
     // flags to stream type mapping
     if ((attr->flags & AUDIO_FLAG_AUDIBILITY_ENFORCED) == AUDIO_FLAG_AUDIBILITY_ENFORCED) {
@@ -32,9 +33,11 @@ static audio_stream_type_t audio_attributes_to_stream_type(const audio_attribute
     switch (attr->usage) {
     case AUDIO_USAGE_MEDIA:
     case AUDIO_USAGE_GAME:
-    case AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY:
     case AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
+    case AUDIO_USAGE_ASSISTANT:
         return AUDIO_STREAM_MUSIC;
+    case AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY:
+        return AUDIO_STREAM_ACCESSIBILITY;
     case AUDIO_USAGE_ASSISTANCE_SONIFICATION:
         return AUDIO_STREAM_SYSTEM;
     case AUDIO_USAGE_VOICE_COMMUNICATION:
@@ -61,7 +64,8 @@ static audio_stream_type_t audio_attributes_to_stream_type(const audio_attribute
     }
 }
 
-static void stream_type_to_audio_attributes(audio_stream_type_t streamType,
+static inline
+void stream_type_to_audio_attributes(audio_stream_type_t streamType,
                                      audio_attributes_t *attr) {
     memset(attr, 0, sizeof(audio_attributes_t));
 

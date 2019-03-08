@@ -10,6 +10,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/nbaio/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audiohal/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/mediautils/include.cmake)
@@ -26,6 +28,7 @@ binder
 audioutils
 audiospdif
 audioclient
+audioprocessing
 nbaio
 media
 mediautils
@@ -63,8 +66,8 @@ ${SOURCE_PATH}/AudioHwDevice.cpp
 ${SOURCE_PATH}/AudioStreamOut.cpp          
 ${SOURCE_PATH}/SpdifStreamOut.cpp          
 ${SOURCE_PATH}/Effects.cpp                 
-${SOURCE_PATH}/AudioMixer.cpp          
-${SOURCE_PATH}/BufferProviders.cpp         
+#${SOURCE_PATH}/AudioMixer.cpp          
+#${SOURCE_PATH}/BufferProviders.cpp         
 ${SOURCE_PATH}/PatchPanel.cpp              
 ${SOURCE_PATH}/StateQueue.cpp
 ${SOURCE_PATH}/AudioWatchdog.cpp        
@@ -77,10 +80,10 @@ ${SOURCE_PATH}/FastMixerState.cpp
 ${SOURCE_PATH}/FastThread.cpp           
 ${SOURCE_PATH}/FastThreadDumpState.cpp  
 ${SOURCE_PATH}/FastThreadState.cpp
-${SOURCE_PATH}/AudioResampler.cpp
-${SOURCE_PATH}/AudioResamplerCubic.cpp
-${SOURCE_PATH}/AudioResamplerDyn.cpp
-${SOURCE_PATH}/AudioResamplerSinc.cpp
+#${SOURCE_PATH}/AudioResampler.cpp
+#${SOURCE_PATH}/AudioResamplerCubic.cpp
+#${SOURCE_PATH}/AudioResamplerDyn.cpp
+#${SOURCE_PATH}/AudioResamplerSinc.cpp
 ${SOURCE_PATH}/main_audioflinger.cpp
 )
 

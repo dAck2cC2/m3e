@@ -22,6 +22,7 @@ elseif(MSVC)
     add_definitions(-Dtypeof=decltype)
     add_definitions(-D__unused= )
     add_definitions(-D_USE_MATH_DEFINES=1)
+    add_definitions(-DNOMINMAX=1)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/media/audio_utils/include/audio_utils )
@@ -43,6 +44,8 @@ ${SOURCE_PATH}/limiter.c
 ${SOURCE_PATH}/minifloat.c 
 ${SOURCE_PATH}/primitives.c 
 ${SOURCE_PATH}/roundup.c
+${SOURCE_PATH}/PowerLog.cpp
+${SOURCE_PATH}/power.cpp
 )
 
 set_source_files_properties( ${AUDIO_UTILS_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )

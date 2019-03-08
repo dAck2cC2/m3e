@@ -20,14 +20,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <memory>
 #include <cutils/misc.h>
 #include <media/AudioEffect.h>
+#include <media/EffectsConfig.h>
 #include <system/audio.h>
-#include <hardware/audio_effect.h>
-#include <audio_effects/audio_effects_conf.h>
+#include <system/audio_effects/audio_effects_conf.h>
 #include <utils/Vector.h>
 #include <utils/SortedVector.h>
 #include <cutils/config_utils.h>
+#include <binder/IPCThreadState.h>
 #include "AudioPolicyEffects.h"
 #include "ServiceUtilities.h"
 
@@ -39,11 +41,17 @@ namespace android {
 
 AudioPolicyEffects::AudioPolicyEffects()
 {
-    // load automatic audio effect modules
-    if (access(AUDIO_EFFECT_VENDOR_CONFIG_FILE, R_OK) == 0) {
-        loadAudioEffectConfig(AUDIO_EFFECT_VENDOR_CONFIG_FILE);
-    } else if (access(AUDIO_EFFECT_DEFAULT_CONFIG_FILE, R_OK) == 0) {
-        loadAudioEffectConfig(AUDIO_EFFECT_DEFAULT_CONFIG_FILE);
+    status_t loadResult = loadAudioEffectXmlConfig();
+    if (loadResult < 0) {
+        ALOGW("Failed to load XML effect configuration, fallback to .conf");
+        // load automatic audio effect modules
+        if (access(AUDIO_EFFECT_VENDOR_CONFIG_FILE, R_OK) == 0) {
+            loadAudioEffectConfig(AUDIO_EFFECT_VENDOR_CONFIG_FILE);
+        } else if (access(AUDIO_EFFECT_DEFAULT_CONFIG_FILE, R_OK) == 0) {
+            loadAudioEffectConfig(AUDIO_EFFECT_DEFAULT_CONFIG_FILE);
+        }
+    } else if (loadResult > 0) {
+        ALOGE("Effect config is partially invalid, skipped %d elements", loadResult);
     }
 }
 
@@ -57,11 +65,11 @@ AudioPolicyEffects::~AudioPolicyEffects()
     }
     mInputSources.clear();
 
-    for (i = 0; i < mInputs.size(); i++) {
-        mInputs.valueAt(i)->mEffects.clear();
-        delete mInputs.valueAt(i);
+    for (i = 0; i < mInputSessions.size(); i++) {
+        mInputSessions.valueAt(i)->mEffects.clear();
+        delete mInputSessions.valueAt(i);
     }
-    mInputs.clear();
+    mInputSessions.clear();
 
     // release audio output processing resources
     for (i = 0; i < mOutputStreams.size(); i++) {
@@ -93,19 +101,20 @@ status_t AudioPolicyEffects::addInputEffects(audio_io_handle_t input,
         ALOGV("addInputEffects(): no processing needs to be attached to this source");
         return status;
     }
-    ssize_t idx = mInputs.indexOfKey(input);
-    EffectVector *inputDesc;
+    ssize_t idx = mInputSessions.indexOfKey(audioSession);
+    EffectVector *sessionDesc;
     if (idx < 0) {
-        inputDesc = new EffectVector(audioSession);
-        mInputs.add(input, inputDesc);
+        sessionDesc = new EffectVector(audioSession);
+        mInputSessions.add(audioSession, sessionDesc);
     } else {
         // EffectVector is existing and we just need to increase ref count
-        inputDesc = mInputs.valueAt(idx);
+        sessionDesc = mInputSessions.valueAt(idx);
     }
-    inputDesc->mRefCount++;
+    sessionDesc->mRefCount++;
 
-    ALOGV("addInputEffects(): input: %d, refCount: %d", input, inputDesc->mRefCount);
-    if (inputDesc->mRefCount == 1) {
+    ALOGV("addInputEffects(): input: %d, refCount: %d", input, sessionDesc->mRefCount);
+    if (sessionDesc->mRefCount == 1) {
+        int64_t token = IPCThreadState::self()->clearCallingIdentity();
         Vector <EffectDesc *> effects = mInputSources.valueAt(index)->mEffects;
         for (size_t i = 0; i < effects.size(); i++) {
             EffectDesc *effect = effects[i];
@@ -123,30 +132,32 @@ status_t AudioPolicyEffects::addInputEffects(audio_io_handle_t input,
             }
             ALOGV("addInputEffects(): added Fx %s on source: %d",
                   effect->mName, (int32_t)aliasSource);
-            inputDesc->mEffects.add(fx);
+            sessionDesc->mEffects.add(fx);
         }
-        inputDesc->setProcessorEnabled(true);
+        sessionDesc->setProcessorEnabled(true);
+        IPCThreadState::self()->restoreCallingIdentity(token);
     }
     return status;
 }
 
 
-status_t AudioPolicyEffects::releaseInputEffects(audio_io_handle_t input)
+status_t AudioPolicyEffects::releaseInputEffects(audio_io_handle_t input,
+                                                 audio_session_t audioSession)
 {
     status_t status = NO_ERROR;
 
     Mutex::Autolock _l(mLock);
-    ssize_t index = mInputs.indexOfKey(input);
+    ssize_t index = mInputSessions.indexOfKey(audioSession);
     if (index < 0) {
         return status;
     }
-    EffectVector *inputDesc = mInputs.valueAt(index);
-    inputDesc->mRefCount--;
-    ALOGV("releaseInputEffects(): input: %d, refCount: %d", input, inputDesc->mRefCount);
-    if (inputDesc->mRefCount == 0) {
-        inputDesc->setProcessorEnabled(false);
-        delete inputDesc;
-        mInputs.removeItemsAt(index);
+    EffectVector *sessionDesc = mInputSessions.valueAt(index);
+    sessionDesc->mRefCount--;
+    ALOGV("releaseInputEffects(): input: %d, refCount: %d", input, sessionDesc->mRefCount);
+    if (sessionDesc->mRefCount == 0) {
+        sessionDesc->setProcessorEnabled(false);
+        delete sessionDesc;
+        mInputSessions.removeItemsAt(index);
         ALOGV("releaseInputEffects(): all effects released");
     }
     return status;
@@ -160,16 +171,16 @@ status_t AudioPolicyEffects::queryDefaultInputEffects(audio_session_t audioSessi
 
     Mutex::Autolock _l(mLock);
     size_t index;
-    for (index = 0; index < mInputs.size(); index++) {
-        if (mInputs.valueAt(index)->mSessionId == audioSession) {
+    for (index = 0; index < mInputSessions.size(); index++) {
+        if (mInputSessions.valueAt(index)->mSessionId == audioSession) {
             break;
         }
     }
-    if (index == mInputs.size()) {
+    if (index == mInputSessions.size()) {
         *count = 0;
         return BAD_VALUE;
     }
-    Vector< sp<AudioEffect> > effects = mInputs.valueAt(index)->mEffects;
+    Vector< sp<AudioEffect> > effects = mInputSessions.valueAt(index)->mEffects;
 
     for (size_t i = 0; i < effects.size(); i++) {
         effect_descriptor_t desc = effects[i]->descriptor();
@@ -251,6 +262,8 @@ status_t AudioPolicyEffects::addOutputSessionEffects(audio_io_handle_t output,
     ALOGV("addOutputSessionEffects(): session: %d, refCount: %d",
           audioSession, procDesc->mRefCount);
     if (procDesc->mRefCount == 1) {
+        // make sure effects are associated to audio server even if we are executing a binder call
+        int64_t token = IPCThreadState::self()->clearCallingIdentity();
         Vector <EffectDesc *> effects = mOutputStreams.valueAt(index)->mEffects;
         for (size_t i = 0; i < effects.size(); i++) {
             EffectDesc *effect = effects[i];
@@ -269,6 +282,7 @@ status_t AudioPolicyEffects::addOutputSessionEffects(audio_io_handle_t output,
         }
 
         procDesc->setProcessorEnabled(true);
+        IPCThreadState::self()->restoreCallingIdentity(token);
     }
     return status;
 }
@@ -677,6 +691,32 @@ status_t AudioPolicyEffects::loadEffects(cnode *root, Vector <EffectDesc *>& eff
         node = node->next;
     }
     return NO_ERROR;
+}
+
+status_t AudioPolicyEffects::loadAudioEffectXmlConfig() {
+#if TODO
+    auto result = effectsConfig::parse();
+#else
+	effectsConfig::ParsingResult result = {};
+#endif
+    if (result.parsedConfig == nullptr) {
+        return -ENOENT;
+    }
+
+    auto loadProcessingChain = [](auto& processingChain, auto& streams) {
+        for (auto& stream : processingChain) {
+            auto effectDescs = std::make_unique<EffectDescVector>();
+            for (auto& effect : stream.effects) {
+                effectDescs->mEffects.add(
+                        new EffectDesc{effect.get().name.c_str(), effect.get().uuid});
+            }
+            streams.add(stream.type, effectDescs.release());
+        }
+    };
+    loadProcessingChain(result.parsedConfig->preprocess, mInputSources);
+    loadProcessingChain(result.parsedConfig->postprocess, mOutputStreams);
+    // Casting from ssize_t to status_t is probably safe, there should not be more than 2^31 errors
+    return result.nbSkippedElement;
 }
 
 status_t AudioPolicyEffects::loadAudioEffectConfig(const char *path)

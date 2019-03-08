@@ -29,7 +29,7 @@
 
 #include <private/media/AudioTrackShared.h>
 
-#include "AudioMixer.h"
+#include <media/AudioMixer.h>
 #include "AudioFlinger.h"
 #include "ServiceUtilities.h"
 
@@ -311,6 +311,18 @@ status_t AudioFlinger::TrackHandle::attachAuxEffect(int EffectId)
 
 status_t AudioFlinger::TrackHandle::setParameters(const String8& keyValuePairs) {
     return mTrack->setParameters(keyValuePairs);
+}
+
+VolumeShaper::Status AudioFlinger::TrackHandle::applyVolumeShaper(
+        const sp<VolumeShaper::Configuration>& configuration,
+        const sp<VolumeShaper::Operation>& operation) {
+    //return mTrack->applyVolumeShaper(configuration, operation);
+	return NOERROR;
+}
+
+sp<VolumeShaper::State> AudioFlinger::TrackHandle::getVolumeShaperState(int id) {
+    //return mTrack->getVolumeShaperState(id);
+	return NULL;
 }
 
 status_t AudioFlinger::TrackHandle::getTimestamp(AudioTimestamp& timestamp)

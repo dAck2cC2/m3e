@@ -46,6 +46,9 @@ typedef enum {
 MSVC_EXPORT
 int clock_gettime(clockid_t clk_id, struct timespec *tp);
 
+MSVC_EXPORT
+struct tm *localtime_r(const time_t *timep, struct tm *result);
+
 #ifdef __cplusplus
 }
 #endif

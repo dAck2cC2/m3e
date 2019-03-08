@@ -44,7 +44,7 @@
 #include <system/audio.h>
 #include <hardware/audio.h>
 
-#include "AudioMixer.h"
+#include <media/AudioMixer.h>
 #include "AudioFlinger.h"
 #include "ServiceUtilities.h"
 
@@ -598,7 +598,8 @@ sp<IAudioTrack> AudioFlinger::createTrack(
         pid_t tid,
         audio_session_t *sessionId,
         int clientUid,
-        status_t *status)
+        status_t *status,
+        audio_port_handle_t portId)
 {
     sp<PlaybackThread::Track> track;
     sp<TrackHandle> trackHandle;
@@ -1471,6 +1472,10 @@ void AudioFlinger::NotificationClient::binderDied(const wp<IBinder>& who __unuse
 }
 
 
+void AudioFlinger::requestLogMerge() {
+    //mMediaLogNotifier->requestMerge();
+}
+
 // ----------------------------------------------------------------------------
 
 sp<IAudioRecord> AudioFlinger::openRecord(
@@ -1488,7 +1493,8 @@ sp<IAudioRecord> AudioFlinger::openRecord(
         size_t *notificationFrames,
         sp<IMemory>& cblk,
         sp<IMemory>& buffers,
-        status_t *status)
+        status_t *status,
+        audio_port_handle_t portId)
 {
     sp<RecordThread::RecordTrack> recordTrack;
     sp<RecordHandle> recordHandle;
@@ -2628,6 +2634,7 @@ sp<IEffect> AudioFlinger::createEffect(
         audio_io_handle_t io,
         audio_session_t sessionId,
         const String16& opPackageName,
+        pid_t pid,
         status_t *status,
         int *id,
         int *enabled)
@@ -2636,9 +2643,17 @@ sp<IEffect> AudioFlinger::createEffect(
     sp<EffectHandle> handle;
     effect_descriptor_t desc;
 
-    pid_t pid = IPCThreadState::self()->getCallingPid();
-    ALOGV("createEffect pid %d, effectClient %p, priority %d, sessionId %d, io %d",
-            pid, effectClient.get(), priority, sessionId, io);
+    const uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    if (pid == -1 || !isTrustedCallingUid(callingUid)) {
+        const pid_t callingPid = IPCThreadState::self()->getCallingPid();
+        ALOGW_IF(pid != -1 && pid != callingPid,
+                 "%s uid %d pid %d tried to pass itself off as pid %d",
+                 __func__, callingUid, callingPid, pid);
+        pid = callingPid;
+    }
+
+    //ALOGV("createEffect pid %d, effectClient %p, priority %d, sessionId %d, io %d, factory %p",
+    //        pid, effectClient.get(), priority, sessionId, io, mEffectsFactoryHal.get());
 
     if (pDesc == NULL) {
         lStatus = BAD_VALUE;

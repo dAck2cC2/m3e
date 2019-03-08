@@ -35,7 +35,7 @@ class StaticAudioTrackClientProxy;
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOCLIENT AudioTrack : public RefBase
+class ANDROID_API_AUDIOCLIENT AudioTrack : public AudioSystem::AudioDeviceCallback
 {
 public:
 
@@ -233,7 +233,7 @@ public:
                                     audio_session_t sessionId  = AUDIO_SESSION_ALLOCATE,
                                     transfer_type transferType = TRANSFER_DEFAULT,
                                     const audio_offload_info_t *offloadInfo = NULL,
-                                    int uid = -1,
+                                    uid_t uid = AUDIO_UID_INVALID,
                                     pid_t pid = -1,
                                     const audio_attributes_t* pAttributes = NULL,
                                     bool doNotReconnect = false,
@@ -263,7 +263,7 @@ public:
                                     audio_session_t sessionId   = AUDIO_SESSION_ALLOCATE,
                                     transfer_type transferType = TRANSFER_DEFAULT,
                                     const audio_offload_info_t *offloadInfo = NULL,
-                                    int uid = -1,
+                                    uid_t uid = AUDIO_UID_INVALID,
                                     pid_t pid = -1,
                                     const audio_attributes_t* pAttributes = NULL,
                                     bool doNotReconnect = false,
@@ -309,7 +309,7 @@ public:
                             audio_session_t sessionId  = AUDIO_SESSION_ALLOCATE,
                             transfer_type transferType = TRANSFER_DEFAULT,
                             const audio_offload_info_t *offloadInfo = NULL,
-                            int uid = -1,
+                            uid_t uid = AUDIO_UID_INVALID,
                             pid_t pid = -1,
                             const audio_attributes_t* pAttributes = NULL,
                             bool doNotReconnect = false,
@@ -326,7 +326,7 @@ public:
      * This includes the latency due to AudioTrack buffer size, AudioMixer (if any)
      * and audio hardware driver.
      */
-            uint32_t    latency() const     { return mLatency; }
+            uint32_t    latency();
 
     /* Returns the number of application-level buffer underruns
      * since the AudioTrack was created.
@@ -348,7 +348,12 @@ public:
             uint32_t    channelCount() const { return mChannelCount; }
             size_t      frameCount() const  { return mFrameCount; }
 
-    // TODO consider notificationFrames() if needed
+    /*
+     * Return the period of the notification callback in frames.
+     * This value is set when the AudioTrack is constructed.
+     * It can be modified if the AudioTrack is rerouted.
+     */
+            uint32_t    getNotificationPeriodInFrames() const { return mNotificationFramesAct; }
 
     /* Return effective size of audio buffer that an application writes to
      * or a negative error if the track is uninitialized.
@@ -559,6 +564,12 @@ public:
      */
             status_t    reload();
 
+    /**
+     * @param transferType
+     * @return text string that matches the enum name
+     */
+            static const char * convertTransferToText(transfer_type transferType);
+
     /* Returns a handle on the audio output used by this AudioTrack.
      *
      * Parameters:
@@ -594,7 +605,11 @@ public:
 
      /* Returns the ID of the audio device actually used by the output to which this AudioTrack is
       * attached.
-      * A value of AUDIO_PORT_HANDLE_NONE indicates the audio track is not attached to any output.
+      * When the AudioTrack is inactive, the device ID returned can be either:
+      * - AUDIO_PORT_HANDLE_NONE if the AudioTrack is not attached to any output.
+      * - The device ID used before paused or stopped.
+      * - The device ID selected by audio policy manager of setOutputDevice() if the AudioTrack
+      * has not been started yet.
       *
       * Parameters:
       *  none.
@@ -732,6 +747,14 @@ public:
     /* Set parameters - only possible when using direct output */
             status_t    setParameters(const String8& keyValuePairs);
 
+    /* Sets the volume shaper object */
+            VolumeShaper::Status applyVolumeShaper(
+                    const sp<VolumeShaper::Configuration>& configuration,
+                    const sp<VolumeShaper::Operation>& operation);
+
+    /* Gets the volume shaper state */
+            sp<VolumeShaper::State> getVolumeShaperState(int id);
+
     /* Get parameters */
             String8     getParameters(const String8& keys);
 
@@ -758,6 +781,9 @@ public:
      * The timestamp parameter is undefined on return, if status is not NO_ERROR.
      */
             status_t    getTimestamp(AudioTimestamp& timestamp);
+private:
+            status_t    getTimestamp_l(AudioTimestamp& timestamp);
+public:
 
     /* Return the extended timestamp, with additional timebase info and improved drain behavior.
      *
@@ -823,6 +849,12 @@ public:
             status_t removeAudioDeviceCallback(
                     const sp<AudioSystem::AudioDeviceCallback>& callback);
 
+            // AudioSystem::AudioDeviceCallback> virtuals
+            virtual void onAudioDeviceUpdate(audio_io_handle_t audioIo,
+                                             audio_port_handle_t deviceId);
+
+
+
     /* Obtain the pending duration in milliseconds for playback of pure PCM
      * (mixable without embedded timing) data remaining in AudioTrack.
      *
@@ -840,6 +872,28 @@ public:
             status_t pendingDuration(int32_t *msec,
                     ExtendedTimestamp::Location location = ExtendedTimestamp::LOCATION_SERVER);
 
+    /* hasStarted() is used to determine if audio is now audible at the device after
+     * a start() command. The underlying implementation checks a nonzero timestamp position
+     * or increment for the audible assumption.
+     *
+     * hasStarted() returns true if the track has been started() and audio is audible
+     * and no subsequent pause() or flush() has been called.  Immediately after pause() or
+     * flush() hasStarted() will return false.
+     *
+     * If stop() has been called, hasStarted() will return true if audio is still being
+     * delivered or has finished delivery (even if no audio was written) for both offloaded
+     * and normal tracks. This property removes a race condition in checking hasStarted()
+     * for very short clips, where stop() must be called to finish drain.
+     *
+     * In all cases, hasStarted() may turn false briefly after a subsequent start() is called
+     * until audio becomes audible again.
+     */
+            bool hasStarted(); // not const
+
+            bool isPlaying() {
+                AutoMutex lock(mLock);
+                return mState == STATE_ACTIVE || mState == STATE_STOPPING;
+            }
 protected:
     /* copying audio tracks is not allowed */
                         AudioTrack(const AudioTrack& other);
@@ -895,6 +949,8 @@ protected:
 
             // caller must hold lock on mLock for all _l methods
 
+            void updateLatency_l(); // updates mAfLatency and mLatency from AudioSystem cache
+
             status_t createTrack_l();
 
             // can only be called when mState != STATE_ACTIVE
@@ -930,9 +986,11 @@ protected:
             Modulo<uint32_t> updateAndGetPosition_l();
 
             // check sample rate and speed is compatible with AudioTrack
-            bool     isSampleRateSpeedAllowed_l(uint32_t sampleRate, float speed) const;
+            bool     isSampleRateSpeedAllowed_l(uint32_t sampleRate, float speed);
 
             void     restartIfDisabled();
+
+            void     updateRoutedDeviceId_l();
 
     // Next 4 fields may be changed if IAudioTrack is re-created, but always != 0
     sp<IAudioTrack>         mAudioTrack;
@@ -1045,8 +1103,14 @@ protected:
                                                     // reset by stop() but continues monotonically
                                                     // after new IAudioTrack to restore mPosition,
                                                     // and could be easily widened to uint64_t
-    int64_t                 mStartUs;               // the start time after flush or stop.
+    int64_t                 mStartFromZeroUs;       // the start time after flush or stop,
+                                                    // when position should be 0.
                                                     // only used for offloaded and direct tracks.
+    int64_t                 mStartNs;               // the time when start() is called.
+    ExtendedTimestamp       mStartEts;              // Extended timestamp at start for normal
+                                                    // AudioTracks.
+    AudioTimestamp          mStartTs;               // Timestamp at start for offloaded or direct
+                                                    // AudioTracks.
 
     bool                    mPreviousTimestampValid;// true if mPreviousTimestamp is valid
     bool                    mTimestampStartupGlitchReported; // reduce log spam
@@ -1062,6 +1126,10 @@ protected:
                                                     // after flush.
     int64_t                 mFramesWrittenServerOffset; // An offset to server frames due to
                                                     // restoring AudioTrack, or stop/start.
+                                                    // This offset is also used for static tracks.
+    int64_t                 mFramesWrittenAtRestore; // Frames written at restore point (or frames
+                                                    // delivered for static tracks).
+                                                    // -1 indicates no previous restore point.
 
     audio_output_flags_t    mFlags;                 // same as mOrigFlags, except for bits that may
                                                     // be denied by client or server, such as
@@ -1093,7 +1161,12 @@ protected:
 
     // For Device Selection API
     //  a value of AUDIO_PORT_HANDLE_NONE indicated default (AudioPolicyManager) routing.
-    audio_port_handle_t     mSelectedDeviceId;
+    audio_port_handle_t    mSelectedDeviceId; // Device requested by the application.
+    audio_port_handle_t    mRoutedDeviceId;   // Device actually selected by audio policy manager:
+                                              // May not match the app selection depending on other
+                                              // activity and connected devices.
+
+    sp<VolumeHandler>       mVolumeHandler;
 
 private:
     class DeathNotifier : public IBinder::DeathRecipient {
@@ -1107,10 +1180,11 @@ private:
 
     sp<DeathNotifier>       mDeathNotifier;
     uint32_t                mSequence;              // incremented for each new IAudioTrack attempt
-    int                     mClientUid;
+    uid_t                   mClientUid;
     pid_t                   mClientPid;
 
-    sp<AudioSystem::AudioDeviceCallback> mDeviceCallback;
+    wp<AudioSystem::AudioDeviceCallback> mDeviceCallback;
+    audio_port_handle_t     mPortId;  // unique ID allocated by audio policy
 };
 
 }; // namespace android

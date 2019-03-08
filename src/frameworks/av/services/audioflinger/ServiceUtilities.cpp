@@ -113,7 +113,7 @@ bool captureAudioOutputAllowed(pid_t pid, uid_t uid) {
     return ok;
 }
 
-bool captureHotwordAllowed() {
+bool captureHotwordAllowed(pid_t pid, uid_t uid) {
     static const String16 sCaptureHotwordAllowed("android.permission.CAPTURE_AUDIO_HOTWORD");
     // IMPORTANT: Use PermissionCache - not a runtime permission and may not change.
     bool ok = PermissionCache::checkCallingPermission(sCaptureHotwordAllowed);

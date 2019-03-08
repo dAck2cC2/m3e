@@ -36,7 +36,7 @@ namespace android {
                                       (RULE_EXCLUSION_MASK|RULE_MATCH_ATTRIBUTE_CAPTURE_PRESET)
 #define RULE_EXCLUDE_UID              (RULE_EXCLUSION_MASK|RULE_MATCH_UID)
 
-#define MIX_TYPE_INVALID -1
+#define MIX_TYPE_INVALID (-1)
 #define MIX_TYPE_PLAYERS 0
 #define MIX_TYPE_RECORDERS 1
 
@@ -45,7 +45,7 @@ namespace android {
 // keep in sync with AudioSystem.java
 #define DYNAMIC_POLICY_EVENT_MIX_STATE_UPDATE 0
 
-#define MIX_STATE_DISABLED -1
+#define MIX_STATE_DISABLED (-1)
 #define MIX_STATE_IDLE 0
 #define MIX_STATE_MIXING 1
 
@@ -56,23 +56,23 @@ namespace android {
 #define MAX_MIXES_PER_POLICY 10
 #define MAX_CRITERIA_PER_MIX 20
 
-	class AudioMixMatchCriterion {
-	public:
-		AudioMixMatchCriterion() {}
-		AudioMixMatchCriterion(audio_usage_t usage, audio_source_t source, uint32_t rule);
+class AudioMixMatchCriterion {
+public:
+    AudioMixMatchCriterion() {}
+    AudioMixMatchCriterion(audio_usage_t usage, audio_source_t source, uint32_t rule);
 
-		status_t readFromParcel(Parcel *parcel);
-		status_t writeToParcel(Parcel *parcel) const;
+    status_t readFromParcel(Parcel *parcel);
+    status_t writeToParcel(Parcel *parcel) const;
 
-		union {
-			audio_usage_t   mUsage;
-			audio_source_t  mSource;
-			uid_t           mUid;
-		} mValue;
-		uint32_t        mRule;
-
+    union {
+        audio_usage_t   mUsage;
+        audio_source_t  mSource;
+        uid_t           mUid;
+    } mValue;
+    uint32_t        mRule;
+    
 #if defined(_MSC_VER)
-		inline  bool                operator<(const AudioMixMatchCriterion& other) const { return (this->mRule < other.mRule); };
+	inline  bool  operator<(const AudioMixMatchCriterion& other) const { return (this->mRule < other.mRule); };
 #endif // _MSC_VER
 };
 
