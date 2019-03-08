@@ -1,7 +1,7 @@
 project(NBAIO)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/av/nbaio/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/nbaio/include.cmake)
 
 # dependency
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
@@ -10,6 +10,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 
 set( NBAIO_DEPLIB
@@ -24,7 +25,7 @@ if (MSVC)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/include/media/nbaio )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libnbaio/include/media/nbaio )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libnbaio )
 
 # header files

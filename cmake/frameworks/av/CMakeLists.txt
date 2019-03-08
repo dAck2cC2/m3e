@@ -3,7 +3,6 @@ if(ENABLE_AV_UTILS)
     add_subdirectory(stagefright_foundation)
     add_subdirectory(media)
     add_subdirectory(mediautils) 
-    add_subdirectory(nbaio) 
     add_subdirectory(services) 
 endif(ENABLE_AV_UTILS)
 
