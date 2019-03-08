@@ -17,6 +17,7 @@
 #ifndef ANDROID_EFFECTSFACTORYAPI_H_
 #define ANDROID_EFFECTSFACTORYAPI_H_
 
+#include <cutils/compiler.h>
 #include <errno.h>
 #include <stdint.h>
 #include <sys/types.h>

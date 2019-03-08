@@ -14,11 +14,29 @@
 #include <sys/time.h>
 
 typedef struct {
+	int reserved;
+} pthread_mutexattr_t;
+
+typedef struct {
 	int                init;
 	CRITICAL_SECTION   lock[1];
 } pthread_mutex_t;
 
 #define PTHREAD_MUTEX_INITIALIZER  { 0, {{ NULL, 0, 0, NULL, NULL, 0 }} }
+
+static inline int pthread_mutex_init(pthread_mutex_t * lock,
+	const pthread_mutexattr_t * attr)
+{
+	if (!lock) {
+		return -1;
+	}
+
+	lock->init = 1;
+	InitializeCriticalSection(lock->lock);
+	lock->init = 2;
+
+	return 0;
+}
 
 static inline int pthread_mutex_trylock(pthread_mutex_t*  lock)
 {

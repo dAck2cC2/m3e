@@ -11,8 +11,9 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/av/effects/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/effects/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/soundtrigger/include.cmake)
 
 set( ${PROJECT_NAME}_DEPLIB

@@ -17,10 +17,10 @@
 #ifndef ANDROID_EFFECTSFACTORY_H_
 #define ANDROID_EFFECTSFACTORY_H_
 
-#include <cutils/log.h>
-#include <cutils/threads.h>
- //#include <pthread.h>
 #include <dirent.h>
+#include <pthread.h>
+
+#include <cutils/compiler.h>
 #include <hardware/audio_effect.h>
 
 #if __cplusplus
@@ -49,7 +49,7 @@ typedef struct lib_entry_s {
     char *path;
     void *handle;
     list_elem_t *effects; //list of effect_descriptor_t
-    mutex_t lock;
+    pthread_mutex_t lock;
 } lib_entry_t;
 
 typedef struct effect_entry_s {
@@ -57,6 +57,11 @@ typedef struct effect_entry_s {
     effect_handle_t subItfe;
     lib_entry_t *lib;
 } effect_entry_t;
+
+typedef struct lib_failed_entry_s {
+    char *name;
+    char *path;
+} lib_failed_entry_t;
 
 // Structure used to store the lib entry
 // and the descriptor of the sub effects.
@@ -67,6 +72,7 @@ typedef struct sub_effect_entry_s {
     lib_entry_t *lib;
     void *object;
 } sub_effect_entry_t;
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,6 +96,7 @@ typedef struct sub_effect_entry_s {
 //        *pDescriptor:     updated with the sub effect descriptors.
 //
 ////////////////////////////////////////////////////////////////////////////////
+ANDROID_API
 int EffectGetSubEffects(const effect_uuid_t *pEffectUuid,
                         sub_effect_entry_t **pSube,
                         size_t size);

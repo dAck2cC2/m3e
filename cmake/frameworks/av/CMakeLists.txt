@@ -4,7 +4,6 @@ if(ENABLE_AV_UTILS)
     add_subdirectory(media)
     add_subdirectory(mediautils) 
     add_subdirectory(nbaio) 
-    add_subdirectory(effects) 
     add_subdirectory(services) 
 endif(ENABLE_AV_UTILS)
 
