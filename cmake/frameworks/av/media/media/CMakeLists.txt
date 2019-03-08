@@ -42,10 +42,12 @@ endif()
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia/include/media )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
 
+include_directories(AFTER ${HEADER_PATH})
+
 # header files
 file(GLOB MEDIA_HEADER_FILES 
 ${HEADER_PATH}/*.h 
-${M3E_SOURCE_DIR}/src/frameworks/av/include/media/*.h 
+#${M3E_SOURCE_DIR}/src/frameworks/av/include/media/*.h 
 ${M3E_SOURCE_DIR}/src/frameworks/av/include/private/media/*.h
 )
 

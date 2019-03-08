@@ -17,7 +17,7 @@
 #ifndef ANDROID_FRAMEWORKS_BASE_MEDIA_LIBMEDIAPLAYERSERVICE_TESTPLAYERSTUB_H__
 #define ANDROID_FRAMEWORKS_BASE_MEDIA_LIBMEDIAPLAYERSERVICE_TESTPLAYERSTUB_H__
 
-#include <media/MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h>
 #include <utils/Errors.h>
 
 namespace android {

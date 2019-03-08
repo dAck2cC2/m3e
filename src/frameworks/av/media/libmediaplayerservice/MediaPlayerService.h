@@ -26,7 +26,7 @@
 #include <utils/String8.h>
 #include <utils/Vector.h>
 
-#include <media/MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h>
 #include <media/Metadata.h>
 #include <media/stagefright/foundation/ABase.h>
 

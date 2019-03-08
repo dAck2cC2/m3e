@@ -10,6 +10,9 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 
+# for MediaPlayerInterface.h
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmediaplayerservice/include/)
+
 set(SONIC_DEPLIB
 log
 )

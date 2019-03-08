@@ -23,7 +23,7 @@
 #include <utils/Errors.h>
 #include <utils/RefBase.h>
 #include <system/audio.h>
-#include <media/MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h>
 
 namespace android {
 

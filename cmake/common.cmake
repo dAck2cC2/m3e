@@ -19,6 +19,7 @@ set(EXT_TAG_UPDATE android-8.1.0_r52)
 set(EXT_TAG_LEGACY android-7.1.2_r36)
 
 set(EXT_UPDATE 
+sonivox
 )
 
 # modules which has been removed from latest android release

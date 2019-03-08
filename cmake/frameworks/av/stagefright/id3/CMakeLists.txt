@@ -9,6 +9,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaplayerservice/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
 include_directories(AFTER ${GENERIC_PATH})

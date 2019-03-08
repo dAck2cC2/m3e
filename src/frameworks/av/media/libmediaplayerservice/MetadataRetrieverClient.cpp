@@ -33,7 +33,7 @@
 #include <binder/IServiceManager.h>
 #include <media/IMediaHTTPService.h>
 #include <media/MediaMetadataRetrieverInterface.h>
-#include <media/MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h>
 #include <media/stagefright/DataSource.h>
 #include <media/stagefright/Utils.h>
 #include <private/media/VideoFrame.h>

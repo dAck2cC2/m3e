@@ -51,7 +51,7 @@
 #include <media/IRemoteDisplay.h>
 #include <media/IRemoteDisplayClient.h>
 #endif
-#include <media/MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h>
 #include <media/mediarecorder.h>
 #include <media/MediaMetadataRetrieverInterface.h>
 #include <media/Metadata.h>

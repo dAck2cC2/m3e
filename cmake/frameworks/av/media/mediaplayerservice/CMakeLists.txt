@@ -1,6 +1,7 @@
 project(MEDIAPLAYERSERVICE)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaplayerservice/include.cmake)
 
 # dependency
 
