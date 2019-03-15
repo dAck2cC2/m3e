@@ -19,7 +19,7 @@
 #define AUDIO_PLAYER_H_
 
 #include <media/IMediaSource.h>
-#include <media/MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h>
 #include <media/stagefright/MediaBuffer.h>
 #include <utils/threads.h>
 

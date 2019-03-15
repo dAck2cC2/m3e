@@ -31,6 +31,8 @@ if (MSVC)
     add_definitions(-D__unused= )
     add_definitions(-Dstrlcpy=strncpy)
     #add_definitions(-Dmemalign=_aligned_malloc)
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/audiopolicy )

@@ -19,7 +19,7 @@
 #define NU_PLAYER_H_
 
 #include <media/AudioResamplerPublic.h>
-#include <media/MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h>
 #include <media/stagefright/foundation/AHandler.h>
 
 namespace android {

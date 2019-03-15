@@ -13,6 +13,9 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/libhidl/transport/token/i
 
 set(${PROJECT_NAME}_DEPLIB
 log
+cutils
+utils
+base
 )
 
 if(MSVC)

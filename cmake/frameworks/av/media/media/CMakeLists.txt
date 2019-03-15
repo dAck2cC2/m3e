@@ -30,6 +30,7 @@ audioutils
 # define
 if(APPLE)
     add_definitions(-Dtypeof=__typeof__)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})    
 
 elseif(MSVC)
     add_definitions(-D__unused= )

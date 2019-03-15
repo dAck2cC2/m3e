@@ -7,6 +7,10 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/codecs/amrnb/common/in
 set(${PROJECT_NAME}_DEPLIB
 )
 
+if(APPLE)
+    add_definitions(-Dregister= )
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/codecs/amrnb/common/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/codecs/amrnb/common/src )
 

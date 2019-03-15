@@ -21,6 +21,8 @@ RScpp
 # define
 if(CYGWIN)
     add_definitions(-DPATH_MAX=4096)
+elseif (APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})    
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include )

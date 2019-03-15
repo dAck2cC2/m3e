@@ -34,6 +34,10 @@ stagefright_omx
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/openmax)
 
+if(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/mediacodec )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/mediacodec )
 

@@ -36,6 +36,10 @@
 #define PATH_MAX MAX_PATH
 #endif
 #define strndup(a, b) strdup(a)
+
+#elif defined(__APPLE__)
+#include <limits.h>
+
 #endif
 
 /////////////////////////////////////////////////
@@ -345,7 +349,7 @@ int loadEffect(cnode *root)
         skip = true;
     }
 
-    (effect_descriptor_t *)d = (effect_descriptor_t *)malloc(sizeof(effect_descriptor_t));
+    d = (effect_descriptor_t *)malloc(sizeof(effect_descriptor_t));
     if (l->desc->get_descriptor(&uuid, d) != 0) {
         char s[40];
         uuidToString(&uuid, s, 40);
@@ -364,7 +368,7 @@ int loadEffect(cnode *root)
         free(d);
         return -EINVAL;
     }
-    (list_elem_t *)e = (list_elem_t *)malloc(sizeof(list_elem_t));
+    e = (list_elem_t *)malloc(sizeof(list_elem_t));
     e->object = d;
     if (skip) {
         e->next = gSkippedEffects;

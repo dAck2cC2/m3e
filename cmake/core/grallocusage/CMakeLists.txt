@@ -12,6 +12,10 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 set(${PROJECT_NAME}_DEPLIB
 )
 
+if(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libgrallocusage/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libgrallocusage )
 

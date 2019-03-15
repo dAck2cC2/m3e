@@ -30,6 +30,8 @@ if(MSVC)
     #add_definitions(-D__STDC_LIMIT_MACROS=1)
     add_definitions(-D_USE_MATH_DEFINES=1)
     add_definitions(-DNOMINMAX=1)
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})    
 endif()
 
 # test function for angle

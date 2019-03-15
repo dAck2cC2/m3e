@@ -40,9 +40,14 @@ list(APPEND TEST_BINDER_SOURCE_FILES
 ${SOURCE_PATH}/Binder_test.cpp
 ${SOURCE_PATH}/MemoryDealer_test.cpp
 ${SOURCE_PATH}/Parcel_test.cpp
-${SOURCE_PATH}/binderValueTypeTest.cpp
 #${SOURCE_PATH}/binderTextOutputTest.cpp
 )
+
+if(MSVC)
+    list(APPEND TEST_BINDER_SOURCE_FILES
+    ${SOURCE_PATH}/binderValueTypeTest.cpp
+    )
+endif()
 
 # project
 set(EXECUTABLE_OUTPUT_PATH ${BUILD_PATH})

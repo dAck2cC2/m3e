@@ -50,6 +50,8 @@ elseif(MSVC)
     add_definitions(-Dstrcasecmp=strcmp)
     add_definitions(-Dlstat=_stat)
     add_definitions(-Dstat=_stat)
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()
 
 # include files

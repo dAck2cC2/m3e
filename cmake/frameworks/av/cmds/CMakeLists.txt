@@ -20,6 +20,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaplayerservice/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
@@ -31,6 +32,8 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/cmds/stagefright )
 
 if (MSVC)
     set( XGETOPT_SRC  ${MSVC_PATH}/XGetopt.cpp )
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()
 
 ###############################################################################

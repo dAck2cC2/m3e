@@ -37,7 +37,10 @@ if (MSVC)
 
     include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     list(APPEND GUI_DEPLIB ${LIB_MSVC_WRAP})
-endif(MSVC)
+else(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})    
+    add_definitions(-DMSG_NOSIGNAL=0)
+endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/gui/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/gui )
