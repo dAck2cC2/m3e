@@ -114,9 +114,14 @@ bool captureAudioOutputAllowed(pid_t pid, uid_t uid) {
 }
 
 bool captureHotwordAllowed(pid_t pid, uid_t uid) {
-    static const String16 sCaptureHotwordAllowed("android.permission.CAPTURE_AUDIO_HOTWORD");
-    // IMPORTANT: Use PermissionCache - not a runtime permission and may not change.
-    bool ok = PermissionCache::checkCallingPermission(sCaptureHotwordAllowed);
+    // CAPTURE_AUDIO_HOTWORD permission implies RECORD_AUDIO permission
+    bool ok = recordingAllowed(String16(""), pid, uid);
+
+    if (ok) {
+        static const String16 sCaptureHotwordAllowed("android.permission.CAPTURE_AUDIO_HOTWORD");
+        // IMPORTANT: Use PermissionCache - not a runtime permission and may not change.
+        ok = PermissionCache::checkCallingPermission(sCaptureHotwordAllowed);
+    }
     if (!ok) ALOGE("android.permission.CAPTURE_AUDIO_HOTWORD");
     return ok;
 }

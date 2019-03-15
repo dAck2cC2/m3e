@@ -47,6 +47,8 @@ public:
 
     virtual ssize_t read(void *buffer, size_t count);
 
+    virtual ssize_t flush();
+
     // NBAIO_Source end
 
 #if 0   // until necessary
@@ -55,7 +57,7 @@ public:
 
 private:
     Pipe&       mPipe;
-    int32_t     mFront;         // follows behind mPipe.mRear
+    audio_utils_fifo_reader mFifoReader;
     int64_t     mFramesOverrun;
     int64_t     mOverruns;
 };

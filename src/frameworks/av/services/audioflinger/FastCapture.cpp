@@ -19,8 +19,6 @@
 
 #define ATRACE_TAG ATRACE_TAG_AUDIO
 
-#include <stdint.h>
-
 #include "Configuration.h"
 #if ENABLE_FUTEX
 #include <linux/futex.h>
@@ -30,8 +28,6 @@
 #include <utils/Log.h>
 #include <utils/Trace.h>
 #include "FastCapture.h"
-
-#include <cutils/compiler.h>
 
 namespace android {
 
@@ -63,7 +59,7 @@ const FastThreadState *FastCapture::poll()
     return mSQ.poll();
 }
 
-void FastCapture::setLog(NBLog::Writer *logWriter __unused)
+void FastCapture::setNBLogWriter(NBLog::Writer *logWriter __unused)
 {
 }
 

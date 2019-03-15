@@ -18,7 +18,7 @@
 #define LOG_TAG "AudioHwDevice"
 //#define LOG_NDEBUG 0
 
-#include <hardware/audio.h>
+#include <system/audio.h>
 #include <utils/Log.h>
 
 #include <audio_utils/spdif/SPDIFEncoder.h>
@@ -66,7 +66,7 @@ status_t AudioHwDevice::openOutputStream(
             config->format,
             config->channel_mask,
             status);
-
+#if TODO
         // If the data is encoded then try again using wrapped PCM.
         bool wrapperNeeded = !audio_has_proportional_frames(originalConfig.format)
                 && ((flags & AUDIO_OUTPUT_FLAG_DIRECT) != 0)
@@ -87,10 +87,16 @@ status_t AudioHwDevice::openOutputStream(
                     originalConfig.format);
             }
         }
+#endif
     }
 
     *ppStreamOut = outputStream;
     return status;
+}
+
+bool AudioHwDevice::supportsAudioPatches() const {
+    bool result;
+    return mHwDevice->supportsAudioPatches(&result) == OK ? result : false;
 }
 
 

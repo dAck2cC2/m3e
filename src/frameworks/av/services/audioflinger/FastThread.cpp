@@ -28,9 +28,8 @@
 #include <utils/Trace.h>
 #include "FastThread.h"
 #include "FastThreadDumpState.h"
+#include "TypedLogger.h"
 
-#include <cutils/threads.h>
-#include <cutils/memory.h>
 #include <cutils/atomic.h>
 
 #define FAST_DEFAULT_NS    999999999L   // ~1 sec: default time to sleep
@@ -69,8 +68,8 @@ FastThread::FastThread(const char *cycleMs, const char *loadUs) : Thread(false /
     /* mMeasuredWarmupTs({0, 0}), */
     mWarmupCycles(0),
     mWarmupConsecutiveInRangeCycles(0),
-    // mDummyLogWriter
-    mLogWriter(&mDummyLogWriter),
+    // mDummyNBLogWriter
+    mNBLogWriter(&mDummyNBLogWriter),
     mTimestampStatus(INVALID_OPERATION),
 
     mCommand(FastThreadState::INITIAL),
@@ -95,6 +94,9 @@ FastThread::~FastThread()
 
 bool FastThread::threadLoop()
 {
+    // LOGT now works even if tlNBLogWriter is nullptr, but we're considering changing that,
+    // so this initialization permits a future change to remove the check for nullptr.
+    tlNBLogWriter = &mDummyNBLogWriter;
     for (;;) {
 
         // either nanosleep, sched_yield, or busy wait
@@ -126,8 +128,9 @@ bool FastThread::threadLoop()
 
             // As soon as possible of learning of a new dump area, start using it
             mDumpState = next->mDumpState != NULL ? next->mDumpState : mDummyDumpState;
-            mLogWriter = next->mNBLogWriter != NULL ? next->mNBLogWriter : &mDummyLogWriter;
-            setLog(mLogWriter);
+            mNBLogWriter = next->mNBLogWriter != NULL ? next->mNBLogWriter : &mDummyNBLogWriter;
+            setNBLogWriter(mNBLogWriter);   // FastMixer informs its AudioMixer, FastCapture ignores
+            tlNBLogWriter = mNBLogWriter;
 
             // We want to always have a valid reference to the previous (non-idle) state.
             // However, the state queue only guarantees access to current and previous states.
@@ -178,7 +181,7 @@ bool FastThread::threadLoop()
                 }
                 int policy = sched_getscheduler(0) & ~SCHED_RESET_ON_FORK;
                 if (!(policy == SCHED_FIFO || policy == SCHED_RR)) {
-                    ALOGE("did not receive expected priority boost");
+                    ALOGE("did not receive expected priority boost on time");
                 }
 #endif
                 // This may be overly conservative; there could be times that the normal mixer
@@ -227,7 +230,6 @@ bool FastThread::threadLoop()
         struct timespec newTs;
         int rc = clock_gettime(CLOCK_MONOTONIC, &newTs);
         if (rc == 0) {
-            //mLogWriter->logTimestamp(newTs);
             if (mOldTsValid) {
                 time_t sec = newTs.tv_sec - mOldTs.tv_sec;
                 long nsec = newTs.tv_nsec - mOldTs.tv_nsec;

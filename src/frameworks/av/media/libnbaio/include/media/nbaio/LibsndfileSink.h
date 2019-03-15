@@ -17,7 +17,8 @@
 #ifndef ANDROID_AUDIO_LIBSNDFILE_SINK_H
 #define ANDROID_AUDIO_LIBSNDFILE_SINK_H
 
-#include "NBAIO.h"
+#include <media/nbaio/NBAIO.h>
+
 #include "sndfile.h"
 
 // Implementation of NBAIO_Sink that wraps a libsndfile opened in SFM_WRITE mode
@@ -41,7 +42,7 @@ public:
     //virtual size_t framesWritten() const;
     //virtual size_t framesUnderrun() const;
     //virtual size_t underruns() const;
-    //virtual ssize_t availableToWrite() const;
+    //virtual ssize_t availableToWrite();
     virtual ssize_t write(const void *buffer, size_t count);
     //virtual ssize_t writeVia(writeVia_t via, size_t total, void *user, size_t block);
 

@@ -35,13 +35,16 @@ namespace android {
 
 // In addition to the usual status_t
 enum {
-    NEGOTIATE    = 0x80000010,  // Must (re-)negotiate format.  For negotiate() only, the offeree
-                                // doesn't accept offers, and proposes counter-offers
-    OVERRUN      = 0x80000011,  // availableToRead(), read(), or readVia() detected lost input due
-                                // to overrun; an event is counted and the caller should re-try
-    UNDERRUN     = 0x80000012,  // availableToWrite(), write(), or writeVia() detected a gap in
-                                // output due to underrun (not being called often enough, or with
-                                // enough data); an event is counted and the caller should re-try
+    NEGOTIATE    = (UNKNOWN_ERROR + 0x100),  // Must (re-)negotiate format.  For negotiate() only,
+                                             // the offeree doesn't accept offers, and proposes
+                                             // counter-offers
+    OVERRUN      = (UNKNOWN_ERROR + 0x101),  // availableToRead(), read(), or readVia() detected
+                                             // lost input due to overrun; an event is counted and
+                                             // the caller should re-try
+    UNDERRUN     = (UNKNOWN_ERROR + 0x102),  // availableToWrite(), write(), or writeVia() detected
+                                             // a gap in output due to underrun (not being called
+                                             // often enough, or with enough data); an event is
+                                             // counted and the caller should re-try
 };
 
 // Negotiation of format is based on the data provider and data sink, or the data consumer and
@@ -167,7 +170,12 @@ public:
     //  UNDERRUN    write() has not been called frequently enough, or with enough frames to keep up.
     //              An underrun event is counted, and the caller should re-try this operation.
     //  WOULD_BLOCK Determining how many frames can be written without blocking would itself block.
-    virtual ssize_t availableToWrite() const { return SSIZE_MAX; }
+    virtual ssize_t availableToWrite() {
+        if (!mNegotiated) {
+            return NEGOTIATE;
+        }
+        return SSIZE_MAX;
+    }
 
     // Transfer data to sink from single input buffer.  Implies a copy.
     // Inputs:
@@ -218,7 +226,7 @@ public:
     // Returns NO_ERROR if a timestamp is available.  The timestamp includes the total number
     // of frames presented to an external observer, together with the value of CLOCK_MONOTONIC
     // as of this presentation count.  The timestamp parameter is undefined if error is returned.
-    virtual status_t getTimestamp(ExtendedTimestamp &timestamp) { return INVALID_OPERATION; }
+    virtual status_t getTimestamp(ExtendedTimestamp& /*timestamp*/) { return INVALID_OPERATION; }
 
 protected:
     NBAIO_Sink(const NBAIO_Format& format = Format_Invalid) : NBAIO_Port(format), mFramesWritten(0)
@@ -272,6 +280,17 @@ public:
     //              One or more frames were lost due to overrun, try again to read more recent data.
     virtual ssize_t read(void *buffer, size_t count) = 0;
 
+    // Flush data from buffer.  There is no notion of overrun as all data is dropped.
+    // Flushed frames also count towards frames read.
+    //
+    // Return value:
+    //  >= 0    Number of frames successfully flushed
+    //  < 0     status_t error occurred
+    // Errors:
+    //  NEGOTIATE         (Re-)negotiation is needed.
+    //  INVALID_OPERATION Not implemented
+    virtual ssize_t flush() { return INVALID_OPERATION; }
+
     // Transfer data from source using a series of callbacks.  More suitable for zero-fill,
     // synthesis, and non-contiguous transfers (e.g. circular buffer or readv).
     // Inputs:
@@ -305,7 +324,7 @@ public:
 
     // Invoked asynchronously by corresponding sink when a new timestamp is available.
     // Default implementation ignores the timestamp.
-    virtual void    onTimestamp(const ExtendedTimestamp& timestamp) { }
+    virtual void    onTimestamp(const ExtendedTimestamp& /*timestamp*/) { }
 
 protected:
     NBAIO_Source(const NBAIO_Format& format = Format_Invalid) : NBAIO_Port(format), mFramesRead(0)

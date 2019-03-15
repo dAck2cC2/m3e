@@ -19,7 +19,6 @@
 #define LOG_TAG "MonoPipe"
 //#define LOG_NDEBUG 0
 
-#include <cutils/atomic.h>
 #include <cutils/compiler.h>
 #include <utils/Log.h>
 #include <utils/Trace.h>
@@ -33,11 +32,11 @@ namespace android {
 
 MonoPipe::MonoPipe(size_t reqFrames, const NBAIO_Format& format, bool writeCanBlock) :
         NBAIO_Sink(format),
-        mReqFrames(reqFrames),
+        // TODO fifo now supports non-power-of-2 buffer sizes, so could remove the roundup
         mMaxFrames(roundup(reqFrames)),
         mBuffer(malloc(mMaxFrames * Format_frameSize(format))),
-        mFront(0),
-        mRear(0),
+        mFifo(mMaxFrames, Format_frameSize(format), mBuffer, true /*throttlesWriter*/),
+        mFifoWriter(mFifo),
         mWriteTsValid(false),
         // mWriteTs
         mSetpoint((reqFrames * 11) / 16),
@@ -54,14 +53,14 @@ MonoPipe::~MonoPipe()
     free(mBuffer);
 }
 
-ssize_t MonoPipe::availableToWrite() const
+ssize_t MonoPipe::availableToWrite()
 {
     if (CC_UNLIKELY(!mNegotiated)) {
         return NEGOTIATE;
     }
-    // uses mMaxFrames not mReqFrames, so allows "over-filling" the pipe beyond requested limit
-    ssize_t ret = mMaxFrames - (mRear - android_atomic_acquire_load(&mFront));
-    ALOG_ASSERT((0 <= ret) && (ret <= mMaxFrames));
+    // uses mMaxFrames not reqFrames, so allows "over-filling" the pipe beyond requested limit
+    ssize_t ret = mFifoWriter.available();
+    ALOG_ASSERT(ret <= mMaxFrames);
     return ret;
 }
 
@@ -72,38 +71,33 @@ ssize_t MonoPipe::write(const void *buffer, size_t count)
     }
     size_t totalFramesWritten = 0;
     while (count > 0) {
-        // can't return a negative value, as we already checked for !mNegotiated
-        size_t avail = availableToWrite();
-        size_t written = avail;
-        if (CC_LIKELY(written > count)) {
-            written = count;
-        }
-        size_t rear = mRear & (mMaxFrames - 1);
-        size_t part1 = mMaxFrames - rear;
-        if (part1 > written) {
-            part1 = written;
-        }
-        if (CC_LIKELY(part1 > 0)) {
-            memcpy((char *) mBuffer + (rear * mFrameSize), buffer, part1 * mFrameSize);
-            if (CC_UNLIKELY(rear + part1 == mMaxFrames)) {
-                size_t part2 = written - part1;
-                if (CC_LIKELY(part2 > 0)) {
-                    memcpy(mBuffer, (char *) buffer + (part1 * mFrameSize), part2 * mFrameSize);
-                }
+        ssize_t actual = mFifoWriter.write(buffer, count);
+        ALOG_ASSERT(actual <= count);
+        if (actual < 0) {
+            if (totalFramesWritten == 0) {
+                return actual;
             }
-            android_atomic_release_store(written + mRear, &mRear);
-            totalFramesWritten += written;
+            break;
         }
+        size_t written = (size_t) actual;
+        totalFramesWritten += written;
         if (!mWriteCanBlock || mIsShutdown) {
             break;
         }
         count -= written;
         buffer = (char *) buffer + (written * mFrameSize);
+        // TODO Replace this whole section by audio_util_fifo's setpoint feature.
         // Simulate blocking I/O by sleeping at different rates, depending on a throttle.
         // The throttle tries to keep the mean pipe depth near the setpoint, with a slight jitter.
         uint32_t ns;
         if (written > 0) {
-            size_t filled = (mMaxFrames - avail) + written;
+            ssize_t avail = mFifoWriter.available();
+            ALOG_ASSERT(avail <= mMaxFrames);
+            if (avail < 0) {
+                // don't return avail as status, because totalFramesWritten > 0
+                break;
+            }
+            size_t filled = mMaxFrames - (size_t) avail;
             // FIXME cache these values to avoid re-computation
             if (filled <= mSetpoint / 2) {
                 // pipe is (nearly) empty, fill quickly
@@ -131,23 +125,14 @@ ssize_t MonoPipe::write(const void *buffer, size_t count)
             ns = 999999999;
         }
         struct timespec nowTs;
-#if defined(_linux)
         bool nowTsValid = !clock_gettime(CLOCK_MONOTONIC, &nowTs);
         // deduct the elapsed time since previous write() completed
         if (nowTsValid && mWriteTsValid) {
-#else
-		bool nowTsValid = true;
-		struct timeval tv;
-		gettimeofday(&tv, NULL);
-		nowTs.tv_sec = tv.tv_sec;
-		nowTs.tv_nsec = tv.tv_usec * 1000;
-		if (mWriteTsValid) {
-#endif
-			time_t sec = nowTs.tv_sec - mWriteTs.tv_sec;
-			long nsec = nowTs.tv_nsec - mWriteTs.tv_nsec;
-			ALOGE_IF(sec < 0 || (sec == 0 && nsec < 0),
-				"clock_gettime(CLOCK_MONOTONIC) failed: was %ld.%09ld but now %ld.%09ld",
-				mWriteTs.tv_sec, mWriteTs.tv_nsec, nowTs.tv_sec, nowTs.tv_nsec);
+            time_t sec = nowTs.tv_sec - mWriteTs.tv_sec;
+            long nsec = nowTs.tv_nsec - mWriteTs.tv_nsec;
+            ALOGE_IF(sec < 0 || (sec == 0 && nsec < 0),
+                    "clock_gettime(CLOCK_MONOTONIC) failed: was %ld.%09ld but now %ld.%09ld",
+                    mWriteTs.tv_sec, mWriteTs.tv_nsec, nowTs.tv_sec, nowTs.tv_nsec);
             if (nsec < 0) {
                 --sec;
                 nsec += 1000000000;

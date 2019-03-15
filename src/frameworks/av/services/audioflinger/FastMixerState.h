@@ -62,7 +62,6 @@ struct FastMixerState : FastThreadState {
     static const unsigned kDefaultFastTracks = 8;
 
     static unsigned sMaxFastTracks;             // Configured maximum number of fast tracks
-
     static pthread_once_t sMaxFastTracksOnce;   // Protects initializer for sMaxFastTracks
 
     // all pointer fields use raw pointers; objects are owned and ref-counted by the normal mixer

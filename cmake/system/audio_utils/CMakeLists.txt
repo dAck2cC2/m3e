@@ -37,15 +37,19 @@ ${SOURCE_PATH}/*.h
 # source files
 set(AUDIO_UTILS_SOURCE_FILES 
 ${SOURCE_PATH}/channels.c 
-${SOURCE_PATH}/conversion.cpp 
-${SOURCE_PATH}/fifo.c 
+${SOURCE_PATH}/ErrorLog.cpp 
+${SOURCE_PATH}/fifo.cpp 
+${SOURCE_PATH}/fifo_index.cpp 
+${SOURCE_PATH}/fifo_writer32.cpp 
 ${SOURCE_PATH}/format.c 
 ${SOURCE_PATH}/limiter.c 
 ${SOURCE_PATH}/minifloat.c 
+${SOURCE_PATH}/power.cpp
+${SOURCE_PATH}/PowerLog.cpp
 ${SOURCE_PATH}/primitives.c 
 ${SOURCE_PATH}/roundup.c
-${SOURCE_PATH}/PowerLog.cpp
-${SOURCE_PATH}/power.cpp
+
+${SOURCE_PATH}/mono_blend.cpp
 )
 
 set_source_files_properties( ${AUDIO_UTILS_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )

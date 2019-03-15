@@ -19,6 +19,8 @@
 
 #include <utils/Errors.h>
 
+#include <stdint.h>
+
 namespace android {
 // ----------------------------------------------------------------------------
 

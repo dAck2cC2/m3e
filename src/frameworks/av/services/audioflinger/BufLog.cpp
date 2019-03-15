@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <sys/time.h>
+
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 // ------------------------------
@@ -123,7 +125,7 @@ BufLogStream::BufLogStream(unsigned int id,
     }
     ALOGV("Creating BufLogStream id:%d tag:%s format:%d ch:%d sr:%d maxbytes:%zu", mId, mTag,
             mFormat, mChannels, mSamplingRate, mMaxBytes);
-
+#if TODO
     //open file (s), info about tag, format, etc.
     //timestamp
     char timeStr[16];   //size 16: format %Y%m%d%H%M%S 14 chars + string null terminator
@@ -138,6 +140,7 @@ BufLogStream::BufLogStream(unsigned int id,
     ALOGV("data output: %s", logPath);
 
     mFile = fopen(logPath, "wb");
+#endif
     if (mFile != NULL) {
         ALOGV("Success creating file at: %p", mFile);
     } else {

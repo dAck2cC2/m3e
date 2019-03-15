@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include <cutils/bitops.h>
 #include <audio_utils/roundup.h>
+
+#include <sys/cdefs.h>
 
 unsigned roundup(unsigned v)
 {

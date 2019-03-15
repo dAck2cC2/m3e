@@ -39,7 +39,7 @@ namespace android {
  *
  * Original source audioflinger/Threads.{h,cpp}
  */
-class RecordBufferConverter
+class ANDROID_API_AUDIOPROCESSING RecordBufferConverter
 {
 public:
     RecordBufferConverter(

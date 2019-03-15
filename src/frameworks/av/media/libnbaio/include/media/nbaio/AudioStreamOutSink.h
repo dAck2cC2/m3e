@@ -17,16 +17,17 @@
 #ifndef ANDROID_AUDIO_STREAM_OUT_SINK_H
 #define ANDROID_AUDIO_STREAM_OUT_SINK_H
 
-#include <hardware/audio.h>
-#include "NBAIO.h"
+#include <media/nbaio/NBAIO.h>
 
 namespace android {
+
+class StreamOutHalInterface;
 
 // not multi-thread safe
 class ANDROID_API_NBAIO AudioStreamOutSink : public NBAIO_Sink {
 
 public:
-    AudioStreamOutSink(audio_stream_out *stream);
+    AudioStreamOutSink(sp<StreamOutHalInterface> stream);
     virtual ~AudioStreamOutSink();
 
     // NBAIO_Port interface
@@ -43,7 +44,7 @@ public:
 
     // This is an over-estimate, and could dupe the caller into making a blocking write()
     // FIXME Use an audio HAL API to query the buffer emptying status when it's available.
-    virtual ssize_t availableToWrite() const { return mStreamBufferSizeBytes / mFrameSize; }
+    virtual ssize_t availableToWrite() { return mStreamBufferSizeBytes / mFrameSize; }
 
     virtual ssize_t write(const void *buffer, size_t count);
 
@@ -52,11 +53,11 @@ public:
     // NBAIO_Sink end
 
 #if 0   // until necessary
-    audio_stream_out *stream() const { return mStream; }
+    sp<StreamOutHalInterface> stream() const { return mStream; }
 #endif
 
 private:
-    audio_stream_out * const mStream;
+    sp<StreamOutHalInterface> mStream;
     size_t              mStreamBufferSizeBytes; // as reported by get_buffer_size()
 };
 

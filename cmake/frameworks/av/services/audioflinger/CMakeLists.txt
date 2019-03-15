@@ -28,6 +28,7 @@ binder
 audioutils
 audiospdif
 audioclient
+audiohal
 audioprocessing
 nbaio
 media
@@ -52,24 +53,30 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/media/audio_effects/inclu
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/audioflinger )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/audioflinger )
 
+include_directories(AFTER ${HEADER_PATH})
+
 # header files
 file(GLOB AUDIOFLINGER_HEADER_FILES  
 ${HEADER_PATH}/*.h
 )
 
 set(AUDIOFLINGER_SOURCE_FILES
+# libserviceutility
 ${SOURCE_PATH}/ServiceUtilities.cpp
+
+# libaudioflinger
 ${SOURCE_PATH}/AudioFlinger.cpp            
 ${SOURCE_PATH}/Threads.cpp                 
 ${SOURCE_PATH}/Tracks.cpp                  
 ${SOURCE_PATH}/AudioHwDevice.cpp           
 ${SOURCE_PATH}/AudioStreamOut.cpp          
-${SOURCE_PATH}/SpdifStreamOut.cpp          
-${SOURCE_PATH}/Effects.cpp                 
-#${SOURCE_PATH}/AudioMixer.cpp          
-#${SOURCE_PATH}/BufferProviders.cpp         
+#${SOURCE_PATH}/SpdifStreamOut.cpp          
+${SOURCE_PATH}/Effects.cpp                       
 ${SOURCE_PATH}/PatchPanel.cpp              
 ${SOURCE_PATH}/StateQueue.cpp
+${SOURCE_PATH}/BufLog.cpp
+${SOURCE_PATH}/TypedLogger.cpp
+
 ${SOURCE_PATH}/AudioWatchdog.cpp        
 ${SOURCE_PATH}/FastCapture.cpp          
 ${SOURCE_PATH}/FastCaptureDumpState.cpp 
@@ -80,10 +87,7 @@ ${SOURCE_PATH}/FastMixerState.cpp
 ${SOURCE_PATH}/FastThread.cpp           
 ${SOURCE_PATH}/FastThreadDumpState.cpp  
 ${SOURCE_PATH}/FastThreadState.cpp
-#${SOURCE_PATH}/AudioResampler.cpp
-#${SOURCE_PATH}/AudioResamplerCubic.cpp
-#${SOURCE_PATH}/AudioResamplerDyn.cpp
-#${SOURCE_PATH}/AudioResamplerSinc.cpp
+
 ${SOURCE_PATH}/main_audioflinger.cpp
 )
 
