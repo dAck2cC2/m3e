@@ -23,7 +23,7 @@ namespace android {
 
 // ------------------------------------------------------------------------------------
 
-class IActivityManager : public IInterface
+class ANDROID_API_BINDER IActivityManager : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ActivityManager)

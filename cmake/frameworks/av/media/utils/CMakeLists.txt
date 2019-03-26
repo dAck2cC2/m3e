@@ -8,6 +8,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
+
 
 set( ${PROJECT_NAME}_DEPLIB
 log
@@ -28,6 +30,7 @@ set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/BatteryNotifier.cpp 
 ${SOURCE_PATH}/ISchedulingPolicyService.cpp 
 ${SOURCE_PATH}/SchedulingPolicyService.cpp
+${SOURCE_PATH}/MemoryLeakTrackUtil.cpp
 )
 
 # target files

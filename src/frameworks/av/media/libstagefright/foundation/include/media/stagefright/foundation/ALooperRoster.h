@@ -28,7 +28,7 @@ struct ANDROID_API_STAGEFRIGHT_FOUNDATION ALooperRoster {
     ALooperRoster();
 
     ALooper::handler_id registerHandler(
-            const sp<ALooper> looper, const sp<AHandler> &handler);
+            const sp<ALooper> &looper, const sp<AHandler> &handler);
 
     void unregisterHandler(ALooper::handler_id handlerID);
     void unregisterStaleHandlers();

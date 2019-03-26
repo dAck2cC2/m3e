@@ -18,8 +18,6 @@
 
 #define META_DATA_H_
 
-#include <cutils/compiler.h>
-
 #include <sys/types.h>
 
 #include <stdint.h>
@@ -47,6 +45,8 @@ enum {
     kKeyDisplayHeight     = 'dHgt',  // int32_t, display/presentation
     kKeySARWidth          = 'sarW',  // int32_t, sampleAspectRatio width
     kKeySARHeight         = 'sarH',  // int32_t, sampleAspectRatio height
+    kKeyThumbnailWidth    = 'thbW',  // int32_t, thumbnail width
+    kKeyThumbnailHeight   = 'thbH',  // int32_t, thumbnail height
 
     // a rectangle, if absent assumed to be (0, 0, width - 1, height - 1)
     kKeyCropRect          = 'crop',
@@ -67,12 +67,14 @@ enum {
     kKeyAACProfile        = 'aacp',  // int32_t
     kKeyAVCC              = 'avcc',  // raw data
     kKeyHVCC              = 'hvcc',  // raw data
+    kKeyThumbnailHVCC     = 'thvc',  // raw data
     kKeyD263              = 'd263',  // raw data
     kKeyVorbisInfo        = 'vinf',  // raw data
     kKeyVorbisBooks       = 'vboo',  // raw data
     kKeyOpusHeader        = 'ohdr',  // raw data
     kKeyOpusCodecDelay    = 'ocod',  // uint64_t (codec delay in ns)
     kKeyOpusSeekPreRoll   = 'ospr',  // uint64_t (seek preroll in ns)
+    kKeyFlacMetadata      = 'flMd',  // raw data
     kKeyVp9CodecPrivate   = 'vp9p',  // raw data (vp9 csd information)
     kKeyWantsNALFragments = 'NALf',
     kKeyIsSyncFrame       = 'sync',  // int32_t (bool)
@@ -185,6 +187,8 @@ enum {
     kKeyCryptoDefaultIVSize = 'cryS',  // int32_t
 
     kKeyPssh              = 'pssh',  // raw data
+    kKeyCASystemID        = 'caid',  // int32_t
+    kKeyCASessionID       = 'seid',  // raw data
 
     // Please see MediaFormat.KEY_IS_AUTOSELECT.
     kKeyTrackIsAutoselect = 'auto', // bool (int32_t)
@@ -215,6 +219,12 @@ enum {
                                    // color Matrix, value defined by ColorAspects.MatrixCoeffs.
     kKeyTemporalLayerId  = 'iLyr', // int32_t, temporal layer-id. 0-based (0 => base layer)
     kKeyTemporalLayerCount = 'cLyr', // int32_t, number of temporal layers encoded
+
+    kKeyGridWidth        = 'grdW', // int32_t, HEIF grid width
+    kKeyGridHeight       = 'grdH', // int32_t, HEIF grid height
+    kKeyGridRows         = 'grdR', // int32_t, HEIF grid rows
+    kKeyGridCols         = 'grdC', // int32_t, HEIF grid columns
+    kKeyIccProfile       = 'prof', // raw data, ICC prifile data
 };
 
 enum {

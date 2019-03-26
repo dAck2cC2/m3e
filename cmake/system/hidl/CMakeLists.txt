@@ -28,10 +28,12 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/libhidl/ )
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES
 ${HEADER_PATH}/base/include/*.h
+${HEADER_PATH}/libhidlmemory/include/hidlmemory/*.h
 ${HEADER_PATH}/transport/include/*.h
 ${HEADER_PATH}/transport/include/base/android/hidl/base/1.0/*.h
 ${HEADER_PATH}/transport/include/manager/android/hidl/manager/1.0/*.h
 ${HEADER_PATH}/transport/token/1.0/utils/include/hidl/*.h
+${HEADER_PATH}/transport/allocator/include/android/hidl/allocator/1.0*.h
 )
 
 # source files
@@ -42,6 +44,7 @@ ${SOURCE_PATH}/base/Status.cpp
 #${SOURCE_PATH}/transport/ServiceManagement.cpp 
 ${SOURCE_PATH}/transport/token/1.0/utils/HybridInterface.cpp
 #${SOURCE_PATH}/transport/base/1.0/BaseAll.cpp
+${SOURCE_PATH}/libhidlmemory/mapping.cpp
 )
 
 ADD_LIB(hidl)

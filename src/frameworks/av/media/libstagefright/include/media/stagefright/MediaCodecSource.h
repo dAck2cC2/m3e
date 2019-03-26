@@ -21,8 +21,7 @@
 #include <media/stagefright/foundation/AHandlerReflector.h>
 #include <media/stagefright/foundation/Mutexed.h>
 #include <media/stagefright/MediaSource.h>
-
-#include <gui/IGraphicBufferConsumer.h>
+#include <media/stagefright/PersistentSurface.h>
 
 namespace android {
 
@@ -44,7 +43,7 @@ struct ANDROID_API_STAGEFRIGHT MediaCodecSource : public MediaSource,
             const sp<ALooper> &looper,
             const sp<AMessage> &format,
             const sp<MediaSource> &source,
-            const sp<IGraphicBufferConsumer> &consumer = NULL,
+            const sp<PersistentSurface> &persistentSurface = NULL,
             uint32_t flags = 0);
 
     bool isVideo() const { return mIsVideo; }
@@ -55,17 +54,22 @@ struct ANDROID_API_STAGEFRIGHT MediaCodecSource : public MediaSource,
     // MediaSource
     virtual status_t start(MetaData *params = NULL);
     virtual status_t stop();
-    virtual status_t pause();
+    virtual status_t pause() { return pause(NULL); }
+    virtual status_t pause(MetaData *params);
     virtual sp<MetaData> getFormat();
     virtual status_t read(
             MediaBuffer **buffer,
             const ReadOptions *options = NULL);
+    virtual status_t setStopTimeUs(int64_t stopTimeUs);
+
 
     // MediaBufferObserver
     virtual void signalBufferReturned(MediaBuffer *buffer);
 
     // for AHandlerReflector
     void onMessageReceived(const sp<AMessage> &msg);
+
+
 
 protected:
     virtual ~MediaCodecSource();
@@ -80,6 +84,7 @@ private:
         kWhatStop,
         kWhatPause,
         kWhatSetInputBufferTimeOffset,
+        kWhatSetStopTimeUs,
         kWhatGetFirstSampleSystemTimeUs,
         kWhatStopStalled,
     };
@@ -88,17 +93,27 @@ private:
             const sp<ALooper> &looper,
             const sp<AMessage> &outputFormat,
             const sp<MediaSource> &source,
-            const sp<IGraphicBufferConsumer> &consumer,
+            const sp<PersistentSurface> &persistentSurface,
             uint32_t flags = 0);
 
     status_t onStart(MetaData *params);
-    void onPause();
+
+    // Pause the source at pauseStartTimeUs. For non-surface input,
+    // buffers will be dropped immediately. For surface input, buffers
+    // with timestamp smaller than pauseStartTimeUs will still be encoded.
+    // Buffers with timestamp larger or queal to pauseStartTimeUs will be
+    // dropped. pauseStartTimeUs uses SYSTEM_TIME_MONOTONIC time base.
+    void onPause(int64_t pauseStartTimeUs);
+
     status_t init();
     status_t initEncoder();
     void releaseEncoder();
     status_t feedEncoderInputBuffers();
-    void suspend();
-    void resume(int64_t skipFramesBeforeUs = -1ll);
+    // Resume GraphicBufferSource at resumeStartTimeUs. Buffers
+    // from GraphicBufferSource with timestamp larger or equal to
+    // resumeStartTimeUs will be encoded. resumeStartTimeUs uses
+    // SYSTEM_TIME_MONOTONIC time base.
+    void resume(int64_t resumeStartTimeUs = -1ll);
     void signalEOS(status_t err = ERROR_END_OF_STREAM);
     bool reachedEOS();
     status_t postSynchronouslyAndReturnError(const sp<AMessage> &msg);
@@ -121,7 +136,7 @@ private:
     int32_t mEncoderDataSpace;
     sp<AMessage> mEncoderActivityNotify;
     sp<IGraphicBufferProducer> mGraphicBufferProducer;
-    sp<IGraphicBufferConsumer> mGraphicBufferConsumer;
+    sp<PersistentSurface> mPersistentSurface;
     List<MediaBuffer *> mInputBufferQueue;
     List<size_t> mAvailEncoderInputIndices;
     List<int64_t> mDecodingTimeQueue; // decoding time (us) for video

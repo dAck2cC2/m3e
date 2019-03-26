@@ -17,7 +17,8 @@
 #include <gui/Surface.h>
 
 #include <media/ICrypto.h>
-#include <media/stagefright/foundation/ABuffer.h>
+#include <media/MediaCodecBuffer.h>
+#include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/foundation/ALooper.h>
 #include <media/stagefright/foundation/AMessage.h>
 #include <media/stagefright/foundation/AUtils.h>
@@ -28,12 +29,18 @@
 #include <media/stagefright/SimpleDecodingSource.h>
 #include <media/stagefright/Utils.h>
 
-#include <utils/NativeHandle.h>
+#include <media/stagefright/foundation/ABuffer.h>
 
 using namespace android;
 
 const int64_t kTimeoutWaitForOutputUs = 500000; // 0.5 seconds
 const int64_t kTimeoutWaitForInputUs = 5000; // 5 milliseconds
+
+//static
+sp<SimpleDecodingSource> SimpleDecodingSource::Create(
+        const sp<IMediaSource> &source, uint32_t flags) {
+    return SimpleDecodingSource::Create(source, flags, nullptr, nullptr);
+}
 
 //static
 sp<SimpleDecodingSource> SimpleDecodingSource::Create(
@@ -76,7 +83,10 @@ sp<SimpleDecodingSource> SimpleDecodingSource::Create(
                 err = codec->getOutputFormat(&format);
             }
             if (err == OK) {
-                return new SimpleDecodingSource(codec, source, looper, surface != NULL, format);
+                return new SimpleDecodingSource(codec, source, looper,
+                        surface != NULL,
+                        strcmp(mime, MEDIA_MIMETYPE_AUDIO_VORBIS) == 0,
+                        format);
             }
 
             ALOGD("Failed to configure codec '%s'", componentName.c_str());
@@ -92,11 +102,12 @@ sp<SimpleDecodingSource> SimpleDecodingSource::Create(
 
 SimpleDecodingSource::SimpleDecodingSource(
         const sp<MediaCodec> &codec, const sp<IMediaSource> &source, const sp<ALooper> &looper,
-        bool usingSurface, const sp<AMessage> &format)
+        bool usingSurface, bool isVorbis, const sp<AMessage> &format)
     : mCodec(codec),
       mSource(source),
       mLooper(looper),
       mUsingSurface(usingSurface),
+      mIsVorbis(isVorbis),
       mProtectedState(format) {
     mCodec->getName(&mComponentName);
 }
@@ -122,7 +133,7 @@ status_t SimpleDecodingSource::start(MetaData *params) {
         me->mQueuedInputEOS = false;
         me->mGotOutputEOS = false;
     } else {
-        me->mState = ERR;
+        me->mState = ERROR;
     }
 
     return res;
@@ -148,7 +159,7 @@ status_t SimpleDecodingSource::stop() {
     if (res1 == OK && res2 == OK) {
         me->mState = STOPPED;
     } else {
-        me->mState = ERR;
+        me->mState = ERROR;
     }
     return res1 != OK ? res1 : res2;
 }
@@ -227,7 +238,7 @@ status_t SimpleDecodingSource::doRead(
                 break;
             }
 
-            sp<ABuffer> in_buffer;
+            sp<MediaCodecBuffer> in_buffer;
             if (res == OK) {
                 res = mCodec->getInputBuffer(in_ix, &in_buffer);
             }
@@ -235,7 +246,7 @@ status_t SimpleDecodingSource::doRead(
             if (res != OK || in_buffer == NULL) {
                 ALOGW("[%s] could not get input buffer #%zu",
                         mComponentName.c_str(), in_ix);
-                me->mState = ERR;
+                me->mState = ERROR;
                 return UNKNOWN_ERROR;
             }
 
@@ -257,13 +268,13 @@ status_t SimpleDecodingSource::doRead(
                                  in_ix, 0 /* offset */, 0 /* size */,
                                  0 /* pts */, MediaCodec::BUFFER_FLAG_EOS) != OK) {
                         ALOGI("[%s] failed to queue input EOS", mComponentName.c_str());
-                        me->mState = ERR;
+                        me->mState = ERROR;
                         return UNKNOWN_ERROR;
                     }
 
                     // don't stop on EOS, but report error or EOS on stop
                     if (res != ERROR_END_OF_STREAM) {
-                        me->mState = ERR;
+                        me->mState = ERROR;
                         return res;
                     }
                     if (me->mState != STARTED) {
@@ -282,20 +293,29 @@ status_t SimpleDecodingSource::doRead(
             if (in_buf != NULL) {
                 int64_t timestampUs = 0;
                 CHECK(in_buf->meta_data()->findInt64(kKeyTime, &timestampUs));
-                if (in_buf->range_length() > in_buffer->capacity()) {
+                if (in_buf->range_length() + (mIsVorbis ? 4 : 0) > in_buffer->capacity()) {
                     ALOGW("'%s' received %zu input bytes for buffer of size %zu",
                             mComponentName.c_str(),
-                            in_buf->range_length(), in_buffer->capacity());
+                            in_buf->range_length() + (mIsVorbis ? 4 : 0), in_buffer->capacity());
                 }
+                size_t cpLen = min(in_buf->range_length(), in_buffer->capacity());
                 memcpy(in_buffer->base(), (uint8_t *)in_buf->data() + in_buf->range_offset(),
-                       min(in_buf->range_length(), in_buffer->capacity()));
+                        cpLen );
+
+                if (mIsVorbis) {
+                    int32_t numPageSamples;
+                    if (!in_buf->meta_data()->findInt32(kKeyValidSamples, &numPageSamples)) {
+                        numPageSamples = -1;
+                    }
+                    memcpy(in_buffer->base() + cpLen, &numPageSamples, sizeof(numPageSamples));
+                }
 
                 res = mCodec->queueInputBuffer(
-                        in_ix, 0 /* offset */, in_buf->range_length(),
+                        in_ix, 0 /* offset */, in_buf->range_length() + (mIsVorbis ? 4 : 0),
                         timestampUs, 0 /* flags */);
                 if (res != OK) {
                     ALOGI("[%s] failed to queue input buffer #%zu", mComponentName.c_str(), in_ix);
-                    me->mState = ERR;
+                    me->mState = ERROR;
                 }
                 in_buf->release();
             }
@@ -320,7 +340,7 @@ status_t SimpleDecodingSource::doRead(
             continue;
         } else if (res == INFO_FORMAT_CHANGED) {
             if (mCodec->getOutputFormat(&me->mFormat) != OK) {
-                me->mState = ERR;
+                me->mState = ERROR;
                 res = UNKNOWN_ERROR;
             }
             return res;
@@ -328,16 +348,16 @@ status_t SimpleDecodingSource::doRead(
             ALOGV("output buffers changed");
             continue;
         } else if (res != OK) {
-            me->mState = ERR;
+            me->mState = ERROR;
             return res;
         }
 
-        sp<ABuffer> out_buffer;
+        sp<MediaCodecBuffer> out_buffer;
         res = mCodec->getOutputBuffer(out_ix, &out_buffer);
         if (res != OK) {
             ALOGW("[%s] could not get output buffer #%zu",
                     mComponentName.c_str(), out_ix);
-            me->mState = ERR;
+            me->mState = ERROR;
             return UNKNOWN_ERROR;
         }
         if (out_flags & MediaCodec::BUFFER_FLAG_EOS) {

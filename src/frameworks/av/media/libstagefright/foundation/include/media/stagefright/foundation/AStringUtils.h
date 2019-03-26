@@ -17,8 +17,6 @@
 #ifndef A_STRING_UTILS_H_
 #define A_STRING_UTILS_H_
 
-#include <cutils/compiler.h>
-
 #include <stdlib.h>
 
 namespace android {

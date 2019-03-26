@@ -26,7 +26,7 @@
 #include <cutils/properties.h>
 #include <utils/Errors.h>  // for status_t
 
-#include "MediaPlayerInterface.h"
+#include "MediaPlayerInterface.h" // "media/MediaPlayerInterface.h"
 
 
 namespace {

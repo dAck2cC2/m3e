@@ -20,8 +20,10 @@
 
 #include <media/mediascanner.h>
 
-//#include "CharacterEncodingDetector.h"
-#include "StringArray.h"
+#if ENABLE_ICU
+#include <media/CharacterEncodingDetector.h>
+#endif
+#include <media/StringArray.h>
 
 namespace android {
 

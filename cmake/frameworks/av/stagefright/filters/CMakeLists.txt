@@ -16,6 +16,7 @@ utils
 ui
 stagefright_foundation
 RScpp
+media
 )
 
 # define

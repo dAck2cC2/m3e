@@ -44,6 +44,7 @@ public:
         kStreamedFromLocalHost = 2,
         kIsCachingDataSource   = 4,
         kIsHTTPBasedSource     = 8,
+        kIsLocalFileSource     = 16,
     };
 
     static sp<DataSource> CreateFromURI(
@@ -55,6 +56,7 @@ public:
 
     static sp<DataSource> CreateMediaHTTP(const sp<IMediaHTTPService> &httpService);
     static sp<DataSource> CreateFromIDataSource(const sp<IDataSource> &source);
+    static sp<DataSource> CreateFromFd(int fd, int64_t offset, int64_t length);
 
     DataSource() {}
 
@@ -70,6 +72,11 @@ public:
     bool getUInt24(off64_t offset, uint32_t *x); // 3 byte int, returned as a 32-bit int
     bool getUInt32(off64_t offset, uint32_t *x);
     bool getUInt64(off64_t offset, uint64_t *x);
+
+    // read either int<N> or int<2N> into a uint<2N>_t, size is the int size in bytes.
+    bool getUInt16Var(off64_t offset, uint16_t *x, size_t size);
+    bool getUInt32Var(off64_t offset, uint32_t *x, size_t size);
+    bool getUInt64Var(off64_t offset, uint64_t *x, size_t size);
 
     // Reads in "count" entries of type T into vector *x.
     // Returns true if "count" entries can be read.
@@ -96,28 +103,17 @@ public:
         return String8("<unspecified>");
     }
 
-    virtual status_t reconnectAtOffset(off64_t offset) {
+    virtual status_t reconnectAtOffset(off64_t /*offset*/) {
         return ERROR_UNSUPPORTED;
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
-    bool sniff(String8 *mimeType, float *confidence, sp<AMessage> *meta);
-
-    // The sniffer can optionally fill in "meta" with an AMessage containing
-    // a dictionary of values that helps the corresponding extractor initialize
-    // its state without duplicating effort already exerted by the sniffer.
-    typedef bool (*SnifferFunc)(
-            const sp<DataSource> &source, String8 *mimeType,
-            float *confidence, sp<AMessage> *meta);
-
-    static void RegisterDefaultSniffers();
-
     // for DRM
-    virtual sp<DecryptHandle> DrmInitialization(const char *mime = NULL) {
+    virtual sp<DecryptHandle> DrmInitialization(const char * /*mime*/ = NULL) {
         return NULL;
     }
-    virtual void getDrmInfo(sp<DecryptHandle> &handle, DrmManagerClient **client) {};
+    virtual void getDrmInfo(sp<DecryptHandle> &/*handle*/, DrmManagerClient ** /*client*/) {};
 
     virtual String8 getUri() {
         return String8();
@@ -127,16 +123,16 @@ public:
 
     virtual void close() {};
 
+    // creates an IDataSource wrapper to the DataSource.
+    virtual sp<IDataSource> asIDataSource();
+
+    // returns a pointer to IDataSource if it is wrapped.
+    virtual sp<IDataSource> getIDataSource() const;
+
 protected:
     virtual ~DataSource() {}
 
 private:
-    static Mutex gSnifferMutex;
-    static List<SnifferFunc> gSniffers;
-    static bool gSniffersRegistered;
-
-    static void RegisterSniffer_l(SnifferFunc func);
-
     DataSource(const DataSource &);
     DataSource &operator=(const DataSource &);
 };
@@ -165,7 +161,7 @@ bool DataSource::getVector(off64_t offset, Vector<T>* x, size_t count,
         if (numBytesRead == -1) { // If readAt() returns -1, there is an error.
             return false;
         }
-        if (numBytesRead < numBytesPerChunk) {
+        if (static_cast<size_t>(numBytesRead) < numBytesPerChunk) {
             // This case is triggered when the stream ends before the whole
             // chunk is read.
             x->appendArray(tmp, (size_t)numBytesRead / sizeof(T));

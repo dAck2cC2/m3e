@@ -21,7 +21,8 @@
 #include <binder/IMemory.h>
 #include <binder/Parcel.h>
 #include <media/IDataSource.h>
-#include <include/OMX.h>
+#include <media/IOMX.h>
+#include <media/IOMXStore.h>
 
 namespace android {
 
@@ -31,6 +32,7 @@ public:
     DECLARE_META_INTERFACE(MediaCodecService);
 
     virtual sp<IOMX> getOMX() = 0;
+    virtual sp<IOMXStore> getOMXStore() = 0;
 };
 
 class ANDROID_API_MEDIA BnMediaCodecService: public BnInterface<IMediaCodecService>

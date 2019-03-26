@@ -15,6 +15,7 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
@@ -25,6 +26,7 @@ utils
 binder
 stagefright_foundation
 audioutils
+gui
 )
 
 # define
@@ -44,10 +46,13 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia/include/medi
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
 
 include_directories(AFTER ${HEADER_PATH})
+include_directories(AFTER ${SOURCE_PATH}/aidl)
 
 # header files
 file(GLOB MEDIA_HEADER_FILES 
 ${HEADER_PATH}/*.h 
+${HEADER_PATH}/omx/1.0/*.h 
+${SOURCE_PATH}/aidl/android/*.h
 #${M3E_SOURCE_DIR}/src/frameworks/av/include/media/*.h 
 ${M3E_SOURCE_DIR}/src/frameworks/av/include/private/media/*.h
 )
@@ -62,8 +67,7 @@ ${SOURCE_PATH}/IDataSource.cpp
 ${SOURCE_PATH}/IMediaExtractor.cpp
 ${SOURCE_PATH}/IMediaExtractorService.cpp
 ${SOURCE_PATH}/IMediaSource.cpp
-${SOURCE_PATH}/IMediaLogService.cpp
-${SOURCE_PATH}/MemoryLeakTrackUtil.cpp
+${SOURCE_PATH}/MediaDefs.cpp
 )
 
 if(ENABLE_AV_CODEC)
@@ -83,9 +87,14 @@ if(ENABLE_AV_CODEC)
     gui
     camera_client
     sonivox
+    interfaces
     )
 
     list(APPEND MEDIA_SOURCE_FILES
+    ${SOURCE_PATH}/BufferingSettings.cpp
+    ${SOURCE_PATH}/IOMXStore.cpp
+    ${SOURCE_PATH}/OMXBuffer.cpp
+    ${SOURCE_PATH}/MediaCodecBuffer.cpp
     ${SOURCE_PATH}/IOMX.cpp
     ${SOURCE_PATH}/IMediaCodecList.cpp
     ${SOURCE_PATH}/IMediaCodecService.cpp
@@ -111,6 +120,11 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/MediaScannerClient.cpp
     ${SOURCE_PATH}/MidiIoWrapper.cpp
     ${SOURCE_PATH}/TypeConverter.cpp
+    ${SOURCE_PATH}/omx/1.0/WOmxNode.cpp
+    ${SOURCE_PATH}/omx/1.0/WOmxBufferSource.cpp
+    #${SOURCE_PATH}/omx/1.0/WOmx.cpp
+    ${SOURCE_PATH}/aidl/IGraphicBufferSource.cpp
+    ${SOURCE_PATH}/aidl/IOMXBufferSource.cpp
     )
 endif(ENABLE_AV_CODEC)
 

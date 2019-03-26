@@ -15,12 +15,12 @@
  */
 
 #ifndef A_CODEC_H_
-
 #define A_CODEC_H_
 
 #include <stdint.h>
 #include <android/native_window.h>
 #include <media/hardware/MetadataBufferType.h>
+#include <media/MediaCodecInfo.h>
 #include <media/IOMX.h>
 #include <media/stagefright/foundation/AHierarchicalStateMachine.h>
 #include <media/stagefright/CodecBase.h>
@@ -29,23 +29,31 @@
 #include <media/stagefright/SkipCutBuffer.h>
 #include <utils/NativeHandle.h>
 #include <OMX_Audio.h>
+#include <hardware/gralloc.h>
+#include <nativebase/nativebase.h>
+#include <android/hidl/allocator/1.0/IAllocator.h>
+#include <android/hidl/memory/1.0/IMemory.h>
 
 #define TRACK_BUFFER_TIMING     0
 
 namespace android {
 
 struct ABuffer;
-struct MemoryDealer;
+class ACodecBufferChannel;
+class MediaCodecBuffer;
+class MemoryDealer;
 struct DescribeColorFormat2Params;
 struct DataConverter;
+
+typedef hidl::allocator::V1_0::IAllocator TAllocator;
+typedef hidl::memory::V1_0::IMemory TMemory;
 
 struct ACodec : public AHierarchicalStateMachine, public CodecBase {
     ACodec();
 
-    virtual void setNotificationMessage(const sp<AMessage> &msg);
-
     void initiateSetup(const sp<AMessage> &msg);
 
+    virtual std::shared_ptr<BufferChannelBase> getBufferChannel() override;
     virtual void initiateAllocateComponent(const sp<AMessage> &msg);
     virtual void initiateConfigureComponent(const sp<AMessage> &msg);
     virtual void initiateCreateInputSurface();
@@ -53,9 +61,10 @@ struct ACodec : public AHierarchicalStateMachine, public CodecBase {
     virtual void initiateStart();
     virtual void initiateShutdown(bool keepComponentAllocated = false);
 
-    virtual status_t queryCapabilities(
-            const AString &name, const AString &mime, bool isEncoder,
-            sp<MediaCodecInfo::Capabilities> *caps);
+    status_t queryCapabilities(
+            const char* owner, const char* name,
+            const char* mime, bool isEncoder,
+            MediaCodecInfo::CapabilitiesWriter* caps);
 
     virtual status_t setSurface(const sp<Surface> &surface);
 
@@ -71,38 +80,12 @@ struct ACodec : public AHierarchicalStateMachine, public CodecBase {
         handleMessage(msg);
     }
 
-    struct PortDescription : public CodecBase::PortDescription {
-        size_t countBuffers();
-        IOMX::buffer_id bufferIDAt(size_t index) const;
-        sp<ABuffer> bufferAt(size_t index) const;
-        sp<NativeHandle> handleAt(size_t index) const;
-        sp<RefBase> memRefAt(size_t index) const;
-
-    private:
-        friend struct ACodec;
-
-        Vector<IOMX::buffer_id> mBufferIDs;
-        Vector<sp<ABuffer> > mBuffers;
-        Vector<sp<NativeHandle> > mHandles;
-        Vector<sp<RefBase> > mMemRefs;
-
-        PortDescription();
-        void addBuffer(
-                IOMX::buffer_id id, const sp<ABuffer> &buffer,
-                const sp<NativeHandle> &handle, const sp<RefBase> &memRef);
-
-        DISALLOW_EVIL_CONSTRUCTORS(PortDescription);
-    };
-
-    static bool isFlexibleColorFormat(
-            const sp<IOMX> &omx, IOMX::node_id node,
-            uint32_t colorFormat, bool usingNativeBuffers, OMX_U32 *flexibleEquivalent);
-
     // Returns 0 if configuration is not supported.  NOTE: this is treated by
     // some OMX components as auto level, and by others as invalid level.
     static int /* OMX_VIDEO_AVCLEVELTYPE */ getAVCLevelFor(
             int width, int height, int rate, int bitrate,
-            OMX_VIDEO_AVCPROFILETYPE profile = OMX_VIDEO_AVCProfileBaseline);
+            OMX_VIDEO_AVCPROFILEEXTTYPE profile =
+                (OMX_VIDEO_AVCPROFILEEXTTYPE)OMX_VIDEO_AVCProfileBaseline);
 
     // Quirk still supported, even though deprecated
     enum Quirks {
@@ -111,6 +94,11 @@ struct ACodec : public AHierarchicalStateMachine, public CodecBase {
     };
 
     static status_t getOMXChannelMapping(size_t numChannels, OMX_AUDIO_CHANNELTYPE map[]);
+
+    // Save the flag.
+    void setTrebleFlag(bool trebleFlag);
+    // Return the saved flag.
+    bool getTrebleFlag() const;
 
 protected:
     virtual ~ACodec();
@@ -153,6 +141,7 @@ private:
         kWhatSubmitOutputMetadataBufferIfEOS = 'subm',
         kWhatOMXDied                 = 'OMXd',
         kWhatReleaseCodecInstance    = 'relC',
+        kWhatForceStateTransition    = 'fstt',
     };
 
     enum {
@@ -190,13 +179,14 @@ private:
         Status mStatus;
         unsigned mDequeuedAt;
 
-        sp<ABuffer> mData;      // the client's buffer; if not using data conversion, this is the
-                                // codec buffer; otherwise, it is allocated separately
-        sp<RefBase> mMemRef;    // and a reference to the IMemory, so it does not go away
-        sp<ABuffer> mCodecData; // the codec's buffer
-        sp<RefBase> mCodecRef;  // and a reference to the IMemory
+        sp<MediaCodecBuffer> mData;  // the client's buffer; if not using data conversion, this is
+                                     // the codec buffer; otherwise, it is allocated separately
+        sp<RefBase> mMemRef;         // and a reference to the IMemory, so it does not go away
+        sp<MediaCodecBuffer> mCodecData;  // the codec's buffer
+        sp<RefBase> mCodecRef;            // and a reference to the IMemory
+
         sp<GraphicBuffer> mGraphicBuffer;
-        sp<NativeHandle> mNativeHandle;
+        bool mNewGraphicBuffer;
         int mFenceFd;
         FrameRenderTracker::Info *mRenderInfo;
 
@@ -226,8 +216,6 @@ private:
     KeyedVector<int64_t, BufferStats> mBufferStats;
 #endif
 
-    sp<AMessage> mNotify;
-
     sp<UninitializedState> mUninitializedState;
     sp<LoadedState> mLoadedState;
     sp<LoadedToIdleState> mLoadedToIdleState;
@@ -238,13 +226,15 @@ private:
     sp<IdleToLoadedState> mIdleToLoadedState;
     sp<FlushingState> mFlushingState;
     sp<SkipCutBuffer> mSkipCutBuffer;
+    int32_t mSampleRate;
 
     AString mComponentName;
     uint32_t mFlags;
-    uint32_t mQuirks;
     sp<IOMX> mOMX;
-    sp<IBinder> mNodeBinder;
-    IOMX::node_id mNode;
+    sp<IOMXNode> mOMXNode;
+    int32_t mNodeGeneration;
+    bool mTrebleFlag;
+    sp<TAllocator> mAllocator[2];
     sp<MemoryDealer> mDealer[2];
 
     bool mUsingNativeWindow;
@@ -286,26 +276,34 @@ private:
     bool mChannelMaskPresent;
     int32_t mChannelMask;
     unsigned mDequeueCounter;
-    MetadataBufferType mInputMetadataType;
-    MetadataBufferType mOutputMetadataType;
-    bool mLegacyAdaptiveExperiment;
+    IOMX::PortMode mPortMode[2];
     int32_t mMetadataBuffersToSubmit;
     size_t mNumUndequeuedBuffers;
     sp<DataConverter> mConverter[2];
 
+    sp<IGraphicBufferSource> mGraphicBufferSource;
     int64_t mRepeatFrameDelayUs;
     int64_t mMaxPtsGapUs;
     float mMaxFps;
-
-    int64_t mTimePerFrameUs;
-    int64_t mTimePerCaptureUs;
-
+    double mFps;
+    double mCaptureFps;
     bool mCreateInputBuffersSuspended;
+    uint32_t mLatency;
 
     bool mTunneled;
 
     OMX_INDEXTYPE mDescribeColorAspectsIndex;
     OMX_INDEXTYPE mDescribeHDRStaticInfoIndex;
+
+    std::shared_ptr<ACodecBufferChannel> mBufferChannel;
+
+    int32_t mStateGeneration;
+
+    enum {
+        kExtensionsUnchecked,
+        kExtensionsNone,
+        kExtensionsExist,
+    } mVendorExtensionsStatus;
 
     status_t setCyclicIntraMacroblockRefresh(const sp<AMessage> &msg, int32_t mode);
     status_t allocateBuffersOnPort(OMX_U32 portIndex);
@@ -313,6 +311,7 @@ private:
     status_t freeBuffer(OMX_U32 portIndex, size_t i);
 
     status_t handleSetSurface(const sp<Surface> &surface);
+    status_t setPortMode(int32_t portIndex, IOMX::PortMode mode);
     status_t setupNativeWindowSizeFormatAndUsage(
             ANativeWindow *nativeWindow /* nonnull */, int *finalUsage /* nonnull */,
             bool reconnect);
@@ -329,21 +328,20 @@ private:
     BufferInfo *dequeueBufferFromNativeWindow();
 
     inline bool storingMetadataInDecodedBuffers() {
-        return mOutputMetadataType >= 0 && !mIsEncoder;
+        return (mPortMode[kPortIndexOutput] == IOMX::kPortModeDynamicANWBuffer) && !mIsEncoder;
     }
 
-    inline bool usingMetadataOnEncoderOutput() {
-        return mOutputMetadataType >= 0 && mIsEncoder;
+    inline bool usingSecureBufferOnEncoderOutput() {
+        return (mPortMode[kPortIndexOutput] == IOMX::kPortModePresetSecureBuffer) && mIsEncoder;
     }
 
     BufferInfo *findBufferByID(
             uint32_t portIndex, IOMX::buffer_id bufferID,
             ssize_t *index = NULL);
 
+    status_t fillBuffer(BufferInfo *info);
+
     status_t setComponentRole(bool isEncoder, const char *mime);
-    static const char *getComponentRole(bool isEncoder, const char *mime);
-    static status_t setComponentRole(
-            const sp<IOMX> &omx, IOMX::node_id node, const char *role);
 
     status_t configureCodec(const char *mime, const sp<AMessage> &msg);
 
@@ -480,6 +478,8 @@ private:
             AudioEncoding encoding = kAudioEncodingPcm16bit);
 
     status_t setPriority(int32_t priority);
+    status_t setLatency(uint32_t latency);
+    status_t getLatency(uint32_t *latency);
     status_t setOperatingRate(float rateFloat, bool isVideo);
     status_t getIntraRefreshPeriod(uint32_t *intraRefreshPeriod);
     status_t setIntraRefreshPeriod(uint32_t intraRefreshPeriod, bool inConfigure);
@@ -502,10 +502,9 @@ private:
 
     status_t configureBitrate(
             int32_t bitrate, OMX_VIDEO_CONTROLRATETYPE bitrateMode);
+    void configureEncoderLatency(const sp<AMessage> &msg);
 
     status_t setupErrorCorrectionParameters();
-
-    status_t initNativeWindow();
 
     // Returns true iff all buffers on the given port have status
     // OWNED_BY_US or OWNED_BY_NATIVE_WINDOW.
@@ -551,16 +550,21 @@ private:
             OMX_ERRORTYPE error = OMX_ErrorUndefined,
             status_t internalError = UNKNOWN_ERROR);
 
-    static bool describeDefaultColorFormat(DescribeColorFormat2Params &describeParams);
-    static bool describeColorFormat(
-        const sp<IOMX> &omx, IOMX::node_id node,
-        DescribeColorFormat2Params &describeParams);
-
     status_t requestIDRFrame();
     status_t setParameters(const sp<AMessage> &params);
 
+    // set vendor extension parameters specified in params that are supported by the codec
+    status_t setVendorParameters(const sp<AMessage> &params);
+
+    // get vendor extension parameters supported by the codec for a specific port and add it to
+    // |format|
+    status_t getVendorParameters(OMX_U32 portIndex, sp<AMessage> &format);
+
     // Send EOS on input stream.
     void onSignalEndOfInputStream();
+
+    // Force EXEC->IDLE->LOADED shutdown sequence if not stale.
+    void forceStateTransition(int generation);
 
 #if !TODO
 	sp<IOMXObserver> observer;

@@ -25,14 +25,13 @@
 #include <media/stagefright/MediaSource.h>
 #include <media/stagefright/MediaBuffer.h>
 
-#include <MetadataBufferType.h>
+#include <media/hardware/MetadataBufferType.h>
 
 #include "foundation/ABase.h"
 
 namespace android {
 // ----------------------------------------------------------------------------
 
-class IGraphicBufferAlloc;
 class String8;
 class GraphicBuffer;
 
@@ -107,8 +106,8 @@ public:
     void setFrameAvailableListener(const sp<FrameAvailableListener>& listener);
 
     // dump our state in a String
-    void dump(String8& result) const;
-    void dump(String8& result, const char* prefix, char* buffer,
+    void dumpState(String8& result) const;
+    void dumpState(String8& result, const char* prefix, char* buffer,
                                                     size_t SIZE) const;
 
     // metaDataStoredInVideoBuffers tells the encoder what kind of metadata

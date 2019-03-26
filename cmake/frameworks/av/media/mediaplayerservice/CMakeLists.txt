@@ -21,10 +21,12 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/xmlparser/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/camera/include.cmake)
 
 set( ${PROJECT_NAME}_DEPLIB
@@ -34,6 +36,8 @@ utils
 binder
 gui
 media
+mediautils
+#mediametrics
 stagefright_omx
 stagefright_foundation
 stagefright
@@ -50,6 +54,8 @@ if (MSVC)
     add_definitions(-Dstrcasecmp=_stricmp)
     add_definitions(-Dstrncasecmp=_strnicmp)
 
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()
@@ -80,18 +86,6 @@ ${SOURCE_PATH}/ActivityManager.cpp
 #${SOURCE_PATH}/nuplayer/NuPlayerDriver.cpp
 #${SOURCE_PATH}/nuplayer/NuPlayer.cpp
 )
-
-if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
-
-    list(APPEND ${PROJECT_NAME}_HEADER_FILES
-    ${MSVC_PATH}/unistd.h
-    ${MSVC_PATH}/sys/time.h
-    )
-    list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.c
-    )    
-endif(MSVC)
 
 set(LIB_TYPE SHARED)
 ADD_LIB(mediaplayerservice_default)

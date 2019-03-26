@@ -53,6 +53,7 @@ struct AudioSource : public MediaSource, public MediaBufferObserver {
 
     virtual status_t read(
             MediaBuffer **buffer, const ReadOptions *options = NULL);
+    virtual status_t setStopTimeUs(int64_t stopTimeUs);
 
     status_t dataCallback(const AudioRecord::Buffer& buffer);
     virtual void signalBufferReturned(MediaBuffer *buffer);
@@ -85,12 +86,16 @@ private:
 
     bool mTrackMaxAmplitude;
     int64_t mStartTimeUs;
+    int64_t mStopSystemTimeUs;
+    int64_t mLastFrameTimestampUs;
     int16_t mMaxAmplitude;
     int64_t mPrevSampleTimeUs;
-    int64_t mFirstSampleTimeUs;
     int64_t mInitialReadTimeUs;
     int64_t mNumFramesReceived;
+    int64_t mNumFramesSkipped;
+    int64_t mNumFramesLost;
     int64_t mNumClientOwnedBuffers;
+    bool mNoMoreFramesToRead;
 
     List<MediaBuffer * > mBuffersReceived;
 

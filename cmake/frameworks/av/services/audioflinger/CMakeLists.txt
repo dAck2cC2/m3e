@@ -33,6 +33,7 @@ audioprocessing
 nbaio
 media
 mediautils
+medialogservice
 effects
 sonic
 )

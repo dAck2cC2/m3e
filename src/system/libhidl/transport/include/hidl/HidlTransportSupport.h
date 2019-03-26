@@ -18,7 +18,7 @@
 #define ANDROID_HIDL_TRANSPORT_SUPPORT_H
 
 #include <android/hidl/base/1.0/IBase.h>
-#include <hidl/HidlBinderSupport.h>
+//#include <hidl/HidlBinderSupport.h>
 #include <hidl/HidlSupport.h>
 #include <hidl/HidlTransportUtils.h>
 

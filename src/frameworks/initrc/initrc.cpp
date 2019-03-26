@@ -74,6 +74,9 @@ void InitRC::ResetProperties()
 	// use the omx codec of media.player service
 	property_set("media.stagefright.codecremote", "false");
 
+	// treble omx is not supported yet
+	property_set("persist.media.treble_omx", "false");
+
 	// for debug
 	property_set("media.stagefright.extractremote", "false");
 	property_set("debug.stagefright.omx-debug", "OMX.google.raw.decoder:4");
@@ -103,7 +106,7 @@ status_t InitRC::Entry(int argc, char** argv)
     StartService(SERVICE_SF);
 	StartService(SERVICE_AF);
 	StartService(SERVICE_AP);
-    StartService(SERVICE_MEDIA_PLAYER);
+	StartService(SERVICE_MEDIA_PLAYER);
 	StartService(SERVICE_MEDIA_RESOURCE);
     StartService(SERVICE_MEDIA_CODEC);
 	StartService(SERVICE_MEDIA_EXTRACTOR);

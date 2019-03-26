@@ -18,26 +18,31 @@
 
 #define OMX_CLIENT_H_
 
-#include <media/IOMX.h>
-
 namespace android {
+
+class IOMX;
 
 class OMXClient {
 public:
     OMXClient();
 
     status_t connect();
+    status_t connect(bool* trebleFlag);
+    status_t connect(const char* name, bool* trebleFlag = nullptr);
+
+    status_t connectLegacy();
+    status_t connectTreble(const char* name = "default");
     void disconnect();
 
-    sp<IOMX> interfaced() {
+    sp<IOMX> _interface() {
         return mOMX;
     }
 
 private:
     sp<IOMX> mOMX;
 
-    OMXClient(const OMXClient &);
-    OMXClient &operator=(const OMXClient &);
+    OMXClient(const OMXClient &) = delete;
+    OMXClient &operator=(const OMXClient &) = delete;
 };
 
 }  // namespace android

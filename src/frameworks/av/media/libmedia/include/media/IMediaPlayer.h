@@ -23,6 +23,9 @@
 #include <utils/KeyedVector.h>
 #include <system/audio.h>
 
+#include <media/IMediaSource.h>
+#include <media/VolumeShaper.h>
+
 // Fwd decl to make sure everyone agrees that the scope of struct sockaddr_in is
 // global, and not in android::
 struct sockaddr_in;
@@ -37,6 +40,9 @@ class IGraphicBufferProducer;
 struct IMediaHTTPService;
 struct AudioPlaybackRate;
 struct AVSyncSettings;
+struct BufferingSettings;
+
+typedef IMediaSource::ReadOptions::SeekMode MediaPlayerSeekMode;
 
 class ANDROID_API_MEDIA IMediaPlayer: public IInterface
 {
@@ -55,6 +61,9 @@ public:
     virtual status_t        setDataSource(const sp<IDataSource>& source) = 0;
     virtual status_t        setVideoSurfaceTexture(
                                     const sp<IGraphicBufferProducer>& bufferProducer) = 0;
+    virtual status_t        getDefaultBufferingSettings(
+                                    BufferingSettings* buffering /* nonnull */) = 0;
+    virtual status_t        setBufferingSettings(const BufferingSettings& buffering) = 0;
     virtual status_t        prepareAsync() = 0;
     virtual status_t        start() = 0;
     virtual status_t        stop() = 0;
@@ -65,7 +74,9 @@ public:
     virtual status_t        setSyncSettings(const AVSyncSettings& sync, float videoFpsHint) = 0;
     virtual status_t        getSyncSettings(AVSyncSettings* sync /* nonnull */,
                                             float* videoFps /* nonnull */) = 0;
-    virtual status_t        seekTo(int msec) = 0;
+    virtual status_t        seekTo(
+            int msec,
+            MediaPlayerSeekMode mode = MediaPlayerSeekMode::SEEK_PREVIOUS_SYNC) = 0;
     virtual status_t        getCurrentPosition(int* msec) = 0;
     virtual status_t        getDuration(int* msec) = 0;
     virtual status_t        reset() = 0;
@@ -79,6 +90,16 @@ public:
     virtual status_t        setRetransmitEndpoint(const struct sockaddr_in* endpoint) = 0;
     virtual status_t        getRetransmitEndpoint(struct sockaddr_in* endpoint) = 0;
     virtual status_t        setNextPlayer(const sp<IMediaPlayer>& next) = 0;
+
+    virtual VolumeShaper::Status applyVolumeShaper(
+                                    const sp<VolumeShaper::Configuration>& configuration,
+                                    const sp<VolumeShaper::Operation>& operation) = 0;
+    virtual sp<VolumeShaper::State> getVolumeShaperState(int id) = 0;
+
+    // Modular DRM
+    virtual status_t        prepareDrm(const uint8_t uuid[16],
+                                    const Vector<uint8_t>& drmSessionId) = 0;
+    virtual status_t        releaseDrm() = 0;
 
     // Invoke a generic method on the player by using opaque parcels
     // for the request and reply.

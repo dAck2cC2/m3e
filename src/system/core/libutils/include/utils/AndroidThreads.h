@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 // Create and run a new thread.
+ANDROID_API_UTILS
 extern int androidCreateThread(android_thread_func_t, void *);
 
 // Create thread with lots of parameters

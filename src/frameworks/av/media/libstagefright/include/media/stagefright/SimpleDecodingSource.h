@@ -17,14 +17,14 @@
 #ifndef SIMPLE_DECODING_SOURCE_H_
 #define SIMPLE_DECODING_SOURCE_H_
 
-#include <system/window.h>
-
 #include <media/stagefright/MediaSource.h>
 #include <media/stagefright/foundation/AString.h>
 #include <media/stagefright/foundation/Mutexed.h>
 
 #include <utils/Condition.h>
 #include <utils/StrongPointer.h>
+
+struct ANativeWindow;
 
 namespace android {
 
@@ -33,6 +33,10 @@ struct AMessage;
 class MediaBuffer;
 struct MediaCodec;
 class MetaData;
+
+#if defined(ERROR)
+#undef ERROR
+#endif
 
 class ANDROID_API_STAGEFRIGHT SimpleDecodingSource : public MediaSource {
 public:
@@ -45,9 +49,12 @@ public:
     // does not support secure input or pausing.
     // if |desiredCodec| is given, use this specific codec.
     static sp<SimpleDecodingSource> Create(
-            const sp<IMediaSource> &source, uint32_t flags = 0,
-            const sp<ANativeWindow> &nativeWindow = NULL,
+            const sp<IMediaSource> &source, uint32_t flags,
+            const sp<ANativeWindow> &nativeWindow,
             const char *desiredCodec = NULL);
+
+    static sp<SimpleDecodingSource> Create(
+            const sp<IMediaSource> &source, uint32_t flags = 0);
 
     virtual ~SimpleDecodingSource();
 
@@ -71,18 +78,19 @@ private:
     // Construct this using a codec, source and looper.
     SimpleDecodingSource(
             const sp<MediaCodec> &codec, const sp<IMediaSource> &source, const sp<ALooper> &looper,
-            bool usingSurface, const sp<AMessage> &format);
+            bool usingSurface, bool isVorbis, const sp<AMessage> &format);
 
     sp<MediaCodec> mCodec;
     sp<IMediaSource> mSource;
     sp<ALooper> mLooper;
     bool mUsingSurface;
+    bool mIsVorbis;
     enum State {
         INIT,
         STARTED,
         STOPPING,
         STOPPED,
-        ERR,
+        ERROR,
     };
     AString mComponentName;
 

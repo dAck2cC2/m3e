@@ -103,4 +103,54 @@ static inline int pthread_once(pthread_once_t *once, void(*init_func)())
 	return 0;
 }
 
+typedef struct _pthread_Details {
+	void* (*func)(void*);
+	void* arg;
+} pthread_Details;
+static unsigned int pthread_Intermediary(void* vDetails)
+{
+	pthread_Details* pDetails = (pthread_Details*) vDetails;
+
+	(*(pDetails->func))(pDetails->arg);
+
+	free(pDetails);
+
+	return 0;
+};
+
+typedef DWORD pthread_t;
+typedef int pthread_attr_t;
+static inline int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
+	void *(*start_routine) (void *), void *arg)
+{
+	if (NULL == start_routine) {
+		return -1;
+	}
+
+	HANDLE hThread;
+	pthread_Details* pDetails = (pthread_Details*)malloc(sizeof(pthread_Details)); // must be on heap
+	DWORD thrdaddr;
+
+	pDetails->func = start_routine;
+	pDetails->arg = arg;
+
+	hThread = CreateThread(NULL, 0,
+		(LPTHREAD_START_ROUTINE)pthread_Intermediary,
+		(void*)pDetails, 0, (DWORD*)&thrdaddr);
+	if (hThread == NULL)
+	{
+		return -2;
+	}
+
+	/* close the management handle */
+	CloseHandle(hThread);
+
+	if (thread != NULL) {
+		*thread = thrdaddr;
+	}
+
+
+	return 0;
+}
+
 #endif // _MSC_PTHREAD_H_ ]

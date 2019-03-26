@@ -158,6 +158,7 @@ status_t AMRWriter::reset() {
 #else
     void *dummy;
     pthread_join(mThread, &dummy);
+
     status_t err = static_cast<status_t>(reinterpret_cast<uintptr_t>(dummy));
 #endif
     {

@@ -22,6 +22,10 @@
 #include "media/MemoryLeakTrackUtil.h"
 #include <sstream>
 
+#if defined(_MSC_VER)
+#define __i386__ 
+#endif
+
 /*
  * The code here originally resided in MediaPlayerService.cpp
  */
@@ -54,11 +58,12 @@ extern "C" void free_malloc_leak_info(uint8_t* info);
 
 std::string dumpMemoryAddresses(size_t limit)
 {
-    uint8_t *info;
+    uint8_t *info = nullptr;
     size_t overallSize;
     size_t infoSize;
     size_t totalMemory;
     size_t backtraceSize;
+
     get_malloc_leak_info(&info, &overallSize, &infoSize, &totalMemory, &backtraceSize);
 
     size_t count;
@@ -72,7 +77,7 @@ std::string dumpMemoryAddresses(size_t limit)
     oss << totalMemory << " bytes in " << count << " allocations\n";
     oss << "  ABI: '" ABI_STRING "'" << "\n\n";
     if (count > limit) count = limit;
-
+#if TODO
     // The memory is sorted based on total size which is useful for finding
     // worst memory offenders. For diffs, sometimes it is preferable to sort
     // based on the backtrace.
@@ -91,7 +96,20 @@ std::string dumpMemoryAddresses(size_t limit)
     }
     oss << "\n";
     free_malloc_leak_info(info);
+#endif
     return oss.str();
 }
+
+#if !TODO
+extern "C" void get_malloc_leak_info(uint8_t** info, size_t* overallSize,
+	size_t* infoSize, size_t* totalMemory, size_t* backtraceSize)
+{
+	if (info) (*info) = nullptr;
+	if (overallSize) (*overallSize) = 0;
+	if (infoSize) (*infoSize) = 0;
+	if (totalMemory) (*totalMemory) = 0;
+	if (backtraceSize) (*backtraceSize) = 0;
+}
+#endif
 
 }  // namespace android

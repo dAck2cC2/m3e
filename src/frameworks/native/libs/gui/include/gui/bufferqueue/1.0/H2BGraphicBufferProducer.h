@@ -55,7 +55,7 @@ typedef ::android::IGraphicBufferProducer BGraphicBufferProducer;
 using ::android::BnGraphicBufferProducer;
 using ::android::IProducerListener;
 
-struct H2BGraphicBufferProducer : public ::android::H2BConverter<
+struct ANDROID_API_GUI H2BGraphicBufferProducer : public ::android::H2BConverter<
         HGraphicBufferProducer,
         BGraphicBufferProducer,
         BnGraphicBufferProducer> {

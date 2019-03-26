@@ -18,7 +18,7 @@
 #ifndef ANDROID_MEDIAPLAYERFACTORY_H
 #define ANDROID_MEDIAPLAYERFACTORY_H
 
-#include <MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h> // <media/MediaPlayerInterface.h>
 #include <media/stagefright/foundation/ABase.h>
 
 namespace android {
@@ -65,7 +65,7 @@ class MediaPlayerFactory {
                                      const sp<DataSource> &source);
 
     static sp<MediaPlayerBase> createPlayer(player_type playerType,
-                                            void* cookie,
+                                            const wp<IMediaPlayer> &client,
                                             notify_callback_f notifyFunc,
                                             pid_t pid);
 

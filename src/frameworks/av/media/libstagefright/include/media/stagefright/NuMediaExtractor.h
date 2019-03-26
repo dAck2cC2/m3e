@@ -34,7 +34,7 @@ struct AMessage;
 class DataSource;
 struct IMediaHTTPService;
 class MediaBuffer;
-struct MediaExtractor;
+class MediaExtractor;
 struct MediaSource;
 class MetaData;
 
@@ -60,6 +60,8 @@ struct ANDROID_API_STAGEFRIGHT NuMediaExtractor : public RefBase {
 
     status_t setDataSource(const sp<DataSource> &datasource);
 
+    status_t setMediaCas(const HInterfaceToken &casToken);
+
     size_t countTracks() const;
     status_t getTrackFormat(size_t index, sp<AMessage> *format, uint32_t flags = 0) const;
 
@@ -78,6 +80,7 @@ struct ANDROID_API_STAGEFRIGHT NuMediaExtractor : public RefBase {
     status_t getSampleTrackIndex(size_t *trackIndex);
     status_t getSampleTime(int64_t *sampleTimeUs);
     status_t getSampleMeta(sp<MetaData> *sampleMeta);
+    status_t getMetrics(Parcel *reply);
 
     bool getCachedDuration(int64_t *durationUs, bool *eos) const;
 
@@ -108,7 +111,7 @@ private:
     sp<DataSource> mDataSource;
 
     sp<IMediaExtractor> mImpl;
-    bool mIsWidevineExtractor;
+    HInterfaceToken mCasToken;
 
     Vector<TrackInfo> mSelectedTracks;
     int64_t mTotalBitrate;  // in bits/sec

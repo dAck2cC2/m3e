@@ -21,7 +21,6 @@
 #include <media/stagefright/foundation/ABase.h>
 #include <media/stagefright/foundation/AString.h>
 #include <media/IMediaCodecList.h>
-#include <media/IOMX.h>
 #include <media/MediaCodecInfo.h>
 
 #include <sys/types.h>
@@ -36,7 +35,9 @@ extern const char *kMaxEncoderInputBuffers;
 
 struct AMessage;
 
-class ANDROID_API_STAGEFRIGHT MediaCodecList : public BnMediaCodecList {
+struct MediaCodecListBuilderBase;
+
+struct ANDROID_API_STAGEFRIGHT MediaCodecList : public BnMediaCodecList {
 public:
     static sp<IMediaCodecList> getInstance();
 
@@ -52,19 +53,16 @@ public:
             ALOGE("b/24445127");
             return NULL;
         }
-        return mCodecInfos.itemAt(index);
+        return mCodecInfos[index];
     }
 
     virtual const sp<AMessage> getGlobalSettings() const;
 
     // to be used by MediaPlayerService alone
-	static sp<IMediaCodecList> getLocalInstance();
+    static sp<IMediaCodecList> getLocalInstance();
 
     // only to be used by getLocalInstance
     static void *profilerThreadWrapper(void * /*arg*/);
-
-    // only to be used by MediaPlayerService
-    void parseTopLevelXMLFile(const char *path, bool ignore_errors = false);
 
     enum Flags {
         kPreferSoftwareCodecs   = 1,
@@ -75,12 +73,10 @@ public:
             const char *mime,
             bool createEncoder,
             uint32_t flags,
-            Vector<AString> *matching);
-
-    static uint32_t getQuirksFor(const char *mComponentName);
+            Vector<AString> *matchingCodecs,
+            Vector<AString> *owners = nullptr);
 
     static bool isSoftwareCodec(const AString &componentName);
-
 
 private:
     class BinderDeathObserver : public IBinder::DeathRecipient {
@@ -89,65 +85,86 @@ private:
 
     static sp<BinderDeathObserver> sBinderDeathObserver;
 
-    enum Section {
-        SECTION_TOPLEVEL,
-        SECTION_SETTINGS,
-        SECTION_DECODERS,
-        SECTION_DECODER,
-        SECTION_DECODER_TYPE,
-        SECTION_ENCODERS,
-        SECTION_ENCODER,
-        SECTION_ENCODER_TYPE,
-        SECTION_INCLUDE,
-    };
-
     static sp<IMediaCodecList> sCodecList;
     static sp<IMediaCodecList> sRemoteList;
 
     status_t mInitCheck;
-    Section mCurrentSection;
-    bool mUpdate;
-    Vector<Section> mPastSections;
-    int32_t mDepth;
-    AString mHrefBase;
 
     sp<AMessage> mGlobalSettings;
-    KeyedVector<AString, CodecSettings> mOverrides;
+    std::vector<sp<MediaCodecInfo> > mCodecInfos;
 
-    Vector<sp<MediaCodecInfo> > mCodecInfos;
-    sp<MediaCodecInfo> mCurrentInfo;
-    sp<IOMX> mOMX;
+    /**
+     * This constructor will call `buildMediaCodecList()` from the given
+     * `MediaCodecListBuilderBase` object.
+     */
+    MediaCodecList(MediaCodecListBuilderBase* builder);
 
-    MediaCodecList();
     ~MediaCodecList();
 
     status_t initCheck() const;
-    void parseXMLFile(const char *path);
 
-    static void StartElementHandlerWrapper(
-            void *me, const char *name, const char **attrs);
+    MediaCodecList(const MediaCodecList&) = delete;
+    MediaCodecList& operator=(const MediaCodecList&) = delete;
 
-    static void EndElementHandlerWrapper(void *me, const char *name);
+    friend MediaCodecListWriter;
+};
 
-    void startElementHandler(const char *name, const char **attrs);
-    void endElementHandler(const char *name);
+/**
+ * This class is to be used by a `MediaCodecListBuilderBase` instance to add
+ * information to the associated `MediaCodecList` object.
+ */
+struct MediaCodecListWriter {
+    /**
+     * Add a key-value pair to a `MediaCodecList`'s global settings.
+     *
+     * @param key Key.
+     * @param value Value.
+     */
+    void addGlobalSetting(const char* key, const char* value);
+    /**
+     * Create an add a new `MediaCodecInfo` object to a `MediaCodecList`, and
+     * return a `MediaCodecInfoWriter` object associated with the newly added
+     * `MediaCodecInfo`.
+     *
+     * @return The `MediaCodecInfoWriter` object associated with the newly
+     * added `MediaCodecInfo` object.
+     */
+    std::unique_ptr<MediaCodecInfoWriter> addMediaCodecInfo();
+private:
+    /**
+     * The associated `MediaCodecList` object.
+     */
+    MediaCodecList* mList;
 
-    status_t includeXMLFile(const char **attrs);
-    status_t addSettingFromAttributes(const char **attrs);
-    status_t addMediaCodecFromAttributes(bool encoder, const char **attrs);
-    void addMediaCodec(bool encoder, const char *name, const char *type = NULL);
+    /**
+     * Construct this writer object associated with the given `MediaCodecList`
+     * object.
+     *
+     * @param list The "base" `MediaCodecList` object.
+     */
+    MediaCodecListWriter(MediaCodecList* list);
 
-    void setCurrentCodecInfo(bool encoder, const char *name, const char *type);
+    friend MediaCodecList;
+};
 
-    status_t addQuirk(const char **attrs);
-    status_t addTypeFromAttributes(const char **attrs);
-    status_t addLimit(const char **attrs);
-    status_t addFeature(const char **attrs);
-    void addType(const char *name);
+/**
+ * This interface is to be used by `MediaCodecList` to fill its members with
+ * appropriate information. `buildMediaCodecList()` will be called from a
+ * `MediaCodecList` object during its construction.
+ */
+struct MediaCodecListBuilderBase {
+    /**
+     * Build the `MediaCodecList` via the given `MediaCodecListWriter` interface.
+     *
+     * @param writer The writer interface.
+     * @return The status of the construction. `NO_ERROR` means success.
+     */
+    virtual status_t buildMediaCodecList(MediaCodecListWriter* writer) = 0;
 
-    status_t initializeCapabilities(const char *type);
-
-    DISALLOW_EVIL_CONSTRUCTORS(MediaCodecList);
+    /**
+     * The default destructor does nothing.
+     */
+    virtual ~MediaCodecListBuilderBase();
 };
 
 }  // namespace android

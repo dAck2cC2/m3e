@@ -31,7 +31,7 @@ struct AString;
 class Parcel;
 
 struct AReplyToken : public RefBase {
-    AReplyToken(const sp<ALooper> &looper)
+    explicit AReplyToken(const sp<ALooper> &looper)
         : mLooper(looper),
           mReplied(false) {
     }
@@ -122,6 +122,9 @@ struct ANDROID_API_STAGEFRIGHT_FOUNDATION AMessage : public RefBase {
     bool findObject(const char *name, sp<RefBase> *obj) const;
     bool findBuffer(const char *name, sp<ABuffer> *buffer) const;
     bool findMessage(const char *name, sp<AMessage> *obj) const;
+
+    // finds signed integer types cast to int64_t
+    bool findAsInt64(const char *name, int64_t *value) const;
 
     // finds any numeric type cast to a float
     bool findAsFloat(const char *name, float *value) const;

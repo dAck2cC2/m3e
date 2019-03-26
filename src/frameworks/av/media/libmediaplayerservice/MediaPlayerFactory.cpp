@@ -26,7 +26,6 @@
 #include <media/stagefright/foundation/ADebug.h>
 #include <utils/Errors.h>
 #include <utils/misc.h>
-#include <../libstagefright/include/WVMExtractor.h>
 
 #include "MediaPlayerFactory.h"
 
@@ -180,7 +179,7 @@ player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
 
 player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
                                               const char* url) {
-	GET_PLAYER_TYPE_IMPL(client, url);
+    GET_PLAYER_TYPE_IMPL(client, url);
 }
 
 player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
@@ -205,7 +204,7 @@ player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
 
 sp<MediaPlayerBase> MediaPlayerFactory::createPlayer(
         player_type playerType,
-        void* cookie,
+        const wp<IMediaPlayer> &client,
         notify_callback_f notifyFunc,
         pid_t pid) {
     sp<MediaPlayerBase> p;
@@ -231,7 +230,7 @@ sp<MediaPlayerBase> MediaPlayerFactory::createPlayer(
 
     init_result = p->initCheck();
     if (init_result == NO_ERROR) {
-        p->setNotifyCallback(cookie, notifyFunc);
+        p->setNotifyCallback(client, notifyFunc);
     } else {
         ALOGE("Failed to create player object of type %d, initCheck failed"
               " (res = %d)", playerType, init_result);
@@ -328,8 +327,12 @@ void MediaPlayerFactory::registerBuiltinFactories() {
     if (sInitComplete)
         return;
 
-    registerFactory_l(new NuPlayerFactory(), NU_PLAYER);
-    registerFactory_l(new TestPlayerFactory(), TEST_PLAYER);
+    IFactory* factory = new NuPlayerFactory();
+    if (registerFactory_l(factory, NU_PLAYER) != OK)
+        delete factory;
+    factory = new TestPlayerFactory();
+    if (registerFactory_l(factory, TEST_PLAYER) != OK)
+        delete factory;
 
     sInitComplete = true;
 }

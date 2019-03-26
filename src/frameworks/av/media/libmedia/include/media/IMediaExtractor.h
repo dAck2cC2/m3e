@@ -20,16 +20,21 @@
 
 #include <media/IMediaSource.h>
 #include <media/stagefright/DataSource.h>
+#include <vector>
 
 namespace android {
 
 class MetaData;
+typedef std::vector<uint8_t> HInterfaceToken;
 
 class ANDROID_API_MEDIA IMediaExtractor : public IInterface {
 public:
     DECLARE_META_INTERFACE(MediaExtractor);
 
     virtual size_t countTracks() = 0;
+    // This function could return NULL IMediaSource even when index is within the
+    // track count returned by countTracks, since it's possible the track is malformed
+    // and it's not detected during countTracks call.
     virtual sp<IMediaSource> getTrack(size_t index) = 0;
 
     enum GetTrackMetaDataFlags {
@@ -41,6 +46,8 @@ public:
     // Return container specific meta-data. The default implementation
     // returns an empty metadata object.
     virtual sp<MetaData> getMetaData() = 0;
+
+    virtual status_t getMetrics(Parcel *reply) = 0;
 
     enum Flags {
         CAN_SEEK_BACKWARD  = 1,  // the "seek 10secs back button"
@@ -54,12 +61,15 @@ public:
     virtual uint32_t flags() const = 0;
 
     // for DRM
-    virtual void setDrmFlag(bool flag) = 0;
-    virtual bool getDrmFlag() = 0;
     virtual char* getDrmTrackInfo(size_t trackID, int *len)  = 0;
+
+    virtual status_t setMediaCas(const HInterfaceToken &casToken) = 0;
+
     virtual void setUID(uid_t uid)  = 0;
 
     virtual const char * name() = 0;
+
+    virtual void release() = 0;
 };
 
 

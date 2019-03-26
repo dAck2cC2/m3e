@@ -14,6 +14,8 @@
 *  Please add functionality as neeeded
 */
 
+#include "msvc_export.h"
+
 #include <stdlib.h>
 #include <io.h>
 #include <XGetopt.h> /* getopt at: http://www.codeproject.com/Articles/1940/XGetopt-A-Unix-compatible-getopt-for-MFC-and-Win32 */
@@ -85,6 +87,7 @@ typedef unsigned __int64  uint64_t;
 
 inline static uid_t getuid() { return 1000; };
 
+MSVC_EXPORT 
 void *memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
 
 #endif /* unistd.h  */

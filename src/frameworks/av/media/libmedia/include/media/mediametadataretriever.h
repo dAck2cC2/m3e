@@ -23,6 +23,8 @@
 #include <binder/IMemory.h>
 #include <media/IMediaMetadataRetriever.h>
 
+#include <system/graphics-base.h>
+
 namespace android {
 
 class IDataSource;
@@ -76,8 +78,10 @@ public:
             const KeyedVector<String8, String8> *headers = NULL);
 
     status_t setDataSource(int fd, int64_t offset, int64_t length);
-    status_t setDataSource(const sp<IDataSource>& dataSource);
-    sp<IMemory> getFrameAtTime(int64_t timeUs, int option);
+    status_t setDataSource(
+            const sp<IDataSource>& dataSource, const char *mime = NULL);
+    sp<IMemory> getFrameAtTime(int64_t timeUs, int option,
+            int colorFormat = HAL_PIXEL_FORMAT_RGB_565, bool metaOnly = false);
     sp<IMemory> extractAlbumArt();
     const char* extractMetadata(int keyCode);
 

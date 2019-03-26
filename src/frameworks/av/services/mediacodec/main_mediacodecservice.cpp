@@ -5,6 +5,8 @@
 #include <binder/IPCThreadState.h>
 #include "MediaCodecService.h"
 
+#include <media/stagefright/omx/OMXNodeInstance.h>
+
 namespace android {
     
     class MediaCodecServiceThread : public Thread

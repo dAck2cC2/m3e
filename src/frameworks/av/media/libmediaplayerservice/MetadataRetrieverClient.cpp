@@ -33,7 +33,7 @@
 #include <binder/IServiceManager.h>
 #include <media/IMediaHTTPService.h>
 #include <media/MediaMetadataRetrieverInterface.h>
-#include <MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h> // <media/MediaPlayerInterface.h>
 #include <media/stagefright/DataSource.h>
 #include <media/stagefright/Utils.h>
 #include <private/media/VideoFrame.h>
@@ -177,7 +177,7 @@ status_t MetadataRetrieverClient::setDataSource(int fd, int64_t offset, int64_t 
 }
 
 status_t MetadataRetrieverClient::setDataSource(
-        const sp<IDataSource>& source)
+        const sp<IDataSource>& source, const char *mime)
 {
     ALOGV("setDataSource(IDataSource)");
     Mutex::Autolock lock(mLock);
@@ -188,16 +188,18 @@ status_t MetadataRetrieverClient::setDataSource(
     ALOGV("player type = %d", playerType);
     sp<MediaMetadataRetrieverBase> p = createRetriever(playerType);
     if (p == NULL) return NO_INIT;
-    status_t ret = p->setDataSource(dataSource);
+    status_t ret = p->setDataSource(dataSource, mime);
     if (ret == NO_ERROR) mRetriever = p;
     return ret;
 }
 
 Mutex MetadataRetrieverClient::sLock;
 
-sp<IMemory> MetadataRetrieverClient::getFrameAtTime(int64_t timeUs, int option)
+sp<IMemory> MetadataRetrieverClient::getFrameAtTime(
+        int64_t timeUs, int option, int colorFormat, bool metaOnly)
 {
-    ALOGV("getFrameAtTime: time(%lld us) option(%d)", (long long)timeUs, option);
+    ALOGV("getFrameAtTime: time(%lld us) option(%d) colorFormat(%d), metaOnly(%d)",
+            (long long)timeUs, option, colorFormat, metaOnly);
     Mutex::Autolock lock(mLock);
     Mutex::Autolock glock(sLock);
     mThumbnail.clear();
@@ -205,12 +207,13 @@ sp<IMemory> MetadataRetrieverClient::getFrameAtTime(int64_t timeUs, int option)
         ALOGE("retriever is not initialized");
         return NULL;
     }
-    VideoFrame *frame = mRetriever->getFrameAtTime(timeUs, option);
+    VideoFrame *frame = mRetriever->getFrameAtTime(
+            timeUs, option, colorFormat, metaOnly);
     if (frame == NULL) {
         ALOGE("failed to capture a video frame");
         return NULL;
     }
-    size_t size = sizeof(VideoFrame) + frame->mSize;
+    size_t size = frame->getFlattenedSize();
     sp<MemoryHeapBase> heap = new MemoryHeapBase(size, 0, "MetadataRetrieverClient");
     if (heap == NULL) {
         ALOGE("failed to create MemoryDealer");
@@ -224,16 +227,7 @@ sp<IMemory> MetadataRetrieverClient::getFrameAtTime(int64_t timeUs, int option)
         return NULL;
     }
     VideoFrame *frameCopy = static_cast<VideoFrame *>(mThumbnail->pointer());
-    frameCopy->mWidth = frame->mWidth;
-    frameCopy->mHeight = frame->mHeight;
-    frameCopy->mDisplayWidth = frame->mDisplayWidth;
-    frameCopy->mDisplayHeight = frame->mDisplayHeight;
-    frameCopy->mSize = frame->mSize;
-    frameCopy->mRotationAngle = frame->mRotationAngle;
-    ALOGV("rotation: %d", frameCopy->mRotationAngle);
-    frameCopy->mData = (uint8_t *)frameCopy + sizeof(VideoFrame);
-    memcpy(frameCopy->mData, frame->mData, frame->mSize);
-    frameCopy->mData = 0;
+    frameCopy->copyFlattened(*frame);
     delete frame;  // Fix memory leakage
     return mThumbnail;
 }

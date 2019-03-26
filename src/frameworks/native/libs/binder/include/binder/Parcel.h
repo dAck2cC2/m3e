@@ -483,7 +483,7 @@ private:
     release_func        mOwner;
     void*               mOwnerCookie;
 
-    class Blob {
+    class ANDROID_API_BINDER Blob {
     public:
         Blob();
         ~Blob();

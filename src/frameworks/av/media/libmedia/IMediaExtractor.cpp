@@ -23,6 +23,7 @@
 
 #include <binder/IPCThreadState.h>
 #include <binder/Parcel.h>
+#include <binder/PermissionCache.h>
 #include <media/IMediaExtractor.h>
 #include <media/stagefright/MetaData.h>
 
@@ -34,16 +35,17 @@ enum {
     GETTRACKMETADATA,
     GETMETADATA,
     FLAGS,
-    SETDRMFLAG,
-    GETDRMFLAG,
     GETDRMTRACKINFO,
+    SETMEDIACAS,
     SETUID,
-    NAME
+    NAME,
+    GETMETRICS,
+    RELEASE,
 };
 
 class BpMediaExtractor : public BpInterface<IMediaExtractor> {
 public:
-    BpMediaExtractor(const sp<IBinder>& impl)
+    explicit BpMediaExtractor(const sp<IBinder>& impl)
         : BpInterface<IMediaExtractor>(impl)
     {
     }
@@ -96,22 +98,40 @@ public:
         return NULL;
     }
 
+    virtual status_t getMetrics(Parcel * reply) {
+        Parcel data;
+        data.writeInterfaceToken(BpMediaExtractor::getInterfaceDescriptor());
+        status_t ret = remote()->transact(GETMETRICS, data, reply);
+        if (ret == NO_ERROR) {
+            return OK;
+        }
+        return UNKNOWN_ERROR;
+    }
+
     virtual uint32_t flags() const {
         ALOGV("flags NOT IMPLEMENTED");
         return 0;
     }
 
-    virtual void setDrmFlag(bool flag __unused) {
-        ALOGV("setDrmFlag NOT IMPLEMENTED");
-    }
-    virtual bool getDrmFlag() {
-        ALOGV("getDrmFlag NOT IMPLEMENTED");
-       return false;
-    }
     virtual char* getDrmTrackInfo(size_t trackID __unused, int *len __unused) {
         ALOGV("getDrmTrackInfo NOT IMPLEMENTED");
         return NULL;
     }
+
+    virtual status_t setMediaCas(const HInterfaceToken &casToken) {
+        ALOGV("setMediaCas");
+
+        Parcel data, reply;
+        data.writeInterfaceToken(BpMediaExtractor::getInterfaceDescriptor());
+        data.writeByteVector(casToken);
+
+        status_t err = remote()->transact(SETMEDIACAS, data, &reply);
+        if (err != NO_ERROR) {
+            return err;
+        }
+        return reply.readInt32();
+    }
+
     virtual void setUID(uid_t uid __unused) {
         ALOGV("setUID NOT IMPLEMENTED");
     }
@@ -119,6 +139,13 @@ public:
     virtual const char * name() {
         ALOGV("name NOT IMPLEMENTED");
         return NULL;
+    }
+
+    virtual void release() {
+        ALOGV("release");
+        Parcel data, reply;
+        data.writeInterfaceToken(BpMediaExtractor::getInterfaceDescriptor());
+        remote()->transact(RELEASE, data, &reply);
     }
 };
 
@@ -160,6 +187,9 @@ status_t BnMediaExtractor::onTransact(
             if (data.readUint32(&idx) == NO_ERROR &&
                     data.readUint32(&flags) == NO_ERROR) {
                 sp<MetaData> meta = getTrackMetaData(idx, flags);
+                if (meta == NULL) {
+                    return UNKNOWN_ERROR;
+                }
                 meta->writeToParcel(*reply);
                 return NO_ERROR;
             }
@@ -174,6 +204,31 @@ status_t BnMediaExtractor::onTransact(
                 return NO_ERROR;
             }
             return UNKNOWN_ERROR;
+        }
+        case GETMETRICS: {
+            CHECK_INTERFACE(IMediaExtractor, data, reply);
+            status_t ret = getMetrics(reply);
+            return ret;
+        }
+        case SETMEDIACAS: {
+            ALOGV("setMediaCas");
+            CHECK_INTERFACE(IMediaExtractor, data, reply);
+
+            HInterfaceToken casToken;
+            status_t err = data.readByteVector(&casToken);
+            if (err != NO_ERROR) {
+                ALOGE("Error reading casToken from parcel");
+                return err;
+            }
+
+            reply->writeInt32(setMediaCas(casToken));
+            return OK;
+        }
+        case RELEASE: {
+            ALOGV("release");
+            CHECK_INTERFACE(IMediaExtractor, data, reply);
+            release();
+            return OK;
         }
         default:
             return BBinder::onTransact(code, data, reply, flags);
@@ -206,11 +261,16 @@ String8 ExtractorInstance::toString() const {
     for (size_t i = 0; i < tracks.size(); i++) {
         const String8 desc = trackDescriptions.itemAt(i);
         str.appendFormat("    track {%s} ", desc.string());
-        const sp<IMediaSource> source = tracks.itemAt(i).promote();
-        if (source == NULL) {
-            str.append(": deleted\n");
+        wp<IMediaSource> wSource = tracks.itemAt(i);
+        if (wSource == NULL) {
+            str.append(": null\n");
         } else {
-            str.appendFormat(": active\n");
+            const sp<IMediaSource> source = wSource.promote();
+            if (source == NULL) {
+                str.append(": deleted\n");
+            } else {
+                str.appendFormat(": active\n");
+            }
         }
     }
     return str;
@@ -229,9 +289,14 @@ void registerMediaSource(
         if (extractor != NULL && extractor == ex) {
             if (instance.tracks.size() > 5) {
                 instance.tracks.resize(5);
+                instance.trackDescriptions.resize(5);
             }
             instance.tracks.push_front(source);
-            instance.trackDescriptions.add(source->getFormat()->toString());
+            if (source != NULL) {
+                instance.trackDescriptions.push_front(source->getFormat()->toString());
+            } else {
+                instance.trackDescriptions.push_front(String8::empty());
+            }
             break;
         }
     }
@@ -259,13 +324,21 @@ void registerMediaExtractor(
 
 status_t dumpExtractors(int fd, const Vector<String16>&) {
     String8 out;
-    out.append("Recent extractors, most recent first:\n");
-    {
-        Mutex::Autolock lock(sExtractorsLock);
-        for (size_t i = 0; i < sExtractors.size(); i++) {
-            const ExtractorInstance &instance = sExtractors.itemAt(i);
-            out.append("  ");
-            out.append(instance.toString());
+    const IPCThreadState* ipc = IPCThreadState::self();
+    const int pid = ipc->getCallingPid();
+    const int uid = ipc->getCallingUid();
+    if (!PermissionCache::checkPermission(String16("android.permission.DUMP"), pid, uid)) {
+        out.appendFormat("Permission Denial: "
+                "can't dump MediaExtractor from pid=%d, uid=%d\n", pid, uid);
+    } else {
+        out.append("Recent extractors, most recent first:\n");
+        {
+            Mutex::Autolock lock(sExtractorsLock);
+            for (size_t i = 0; i < sExtractors.size(); i++) {
+                const ExtractorInstance &instance = sExtractors.itemAt(i);
+                out.append("  ");
+                out.append(instance.toString());
+            }
         }
     }
     write(fd, out.string(), out.size());

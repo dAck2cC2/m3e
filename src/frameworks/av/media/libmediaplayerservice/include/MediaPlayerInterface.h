@@ -30,6 +30,7 @@
 #include <media/AudioSystem.h>
 #include <media/AudioTimestamp.h>
 #include <media/AVSyncSettings.h>
+#include <media/BufferingSettings.h>
 #include <media/Metadata.h>
 
 // Fwd decl to make sure everyone agrees that the scope of struct sockaddr_in is
@@ -66,7 +67,7 @@ enum player_type {
 #define AUDIO_SINK_MIN_DEEP_BUFFER_DURATION_US 5000000
 
 // callback mechanism for passing messages to MediaPlayer object
-typedef void (*notify_callback_f)(void* cookie,
+typedef void (*notify_callback_f)(const wp<IMediaPlayer> &listener,
         int msg, int ext1, int ext2, const Parcel *obj);
 
 // abstract base class - use MediaPlayerInterface
@@ -144,9 +145,14 @@ public:
 
         virtual status_t    setParameters(const String8& /* keyValuePairs */) { return NO_ERROR; }
         virtual String8     getParameters(const String8& /* keys */) { return String8::empty(); }
+
+		virtual VolumeShaper::Status applyVolumeShaper(
+			const sp<VolumeShaper::Configuration>& configuration,
+			const sp<VolumeShaper::Operation>& operation) { return 0; };
+		virtual sp<VolumeShaper::State> getVolumeShaperState(int id) { return NULL; };
     };
 
-                        MediaPlayerBase() : mCookie(0), mNotify(0) {}
+                        MediaPlayerBase() : mClient(0), mNotify(0) {}
     virtual             ~MediaPlayerBase() {}
     virtual status_t    initCheck() = 0;
     virtual bool        hardwareOutput() = 0;
@@ -173,6 +179,15 @@ public:
     // pass the buffered IGraphicBufferProducer to the media player service
     virtual status_t    setVideoSurfaceTexture(
                                 const sp<IGraphicBufferProducer>& bufferProducer) = 0;
+
+    virtual status_t    getDefaultBufferingSettings(
+                                BufferingSettings* buffering /* nonnull */) {
+        *buffering = BufferingSettings();
+        return OK;
+    }
+    virtual status_t    setBufferingSettings(const BufferingSettings& /* buffering */) {
+        return OK;
+    }
 
     virtual status_t    prepare() = 0;
     virtual status_t    prepareAsync() = 0;
@@ -205,7 +220,8 @@ public:
         *videoFps = -1.f;
         return OK;
     }
-    virtual status_t    seekTo(int msec) = 0;
+    virtual status_t    seekTo(
+            int msec, MediaPlayerSeekMode mode = MediaPlayerSeekMode::SEEK_PREVIOUS_SYNC) = 0;
     virtual status_t    getCurrentPosition(int *msec) = 0;
     virtual status_t    getDuration(int *msec) = 0;
     virtual status_t    reset() = 0;
@@ -247,25 +263,33 @@ public:
     };
 
     void        setNotifyCallback(
-            void* cookie, notify_callback_f notifyFunc) {
+            const wp<IMediaPlayer> &client, notify_callback_f notifyFunc) {
         Mutex::Autolock autoLock(mNotifyLock);
-        mCookie = cookie; mNotify = notifyFunc;
+        mClient = client; mNotify = notifyFunc;
     }
 
     void        sendEvent(int msg, int ext1=0, int ext2=0,
                           const Parcel *obj=NULL) {
         notify_callback_f notifyCB;
-        void* cookie;
+        wp<IMediaPlayer> client;
         {
             Mutex::Autolock autoLock(mNotifyLock);
             notifyCB = mNotify;
-            cookie = mCookie;
+            client = mClient;
         }
 
-        if (notifyCB) notifyCB(cookie, msg, ext1, ext2, obj);
+        if (notifyCB) notifyCB(client, msg, ext1, ext2, obj);
     }
 
     virtual status_t dump(int /* fd */, const Vector<String16>& /* args */) const {
+        return INVALID_OPERATION;
+    }
+
+    // Modular DRM
+    virtual status_t prepareDrm(const uint8_t /* uuid */[16], const Vector<uint8_t>& /* drmSessionId */) {
+        return INVALID_OPERATION;
+    }
+    virtual status_t releaseDrm() {
         return INVALID_OPERATION;
     }
 
@@ -273,7 +297,7 @@ private:
     friend class MediaPlayerService;
 
     Mutex               mNotifyLock;
-    void*               mCookie;
+    wp<IMediaPlayer>    mClient;
     notify_callback_f   mNotify;
 };
 

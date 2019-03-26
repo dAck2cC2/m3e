@@ -17,7 +17,7 @@
 #ifndef ANDROID_FRAMEWORKS_BASE_MEDIA_LIBMEDIAPLAYERSERVICE_TESTPLAYERSTUB_H__
 #define ANDROID_FRAMEWORKS_BASE_MEDIA_LIBMEDIAPLAYERSERVICE_TESTPLAYERSTUB_H__
 
-#include <MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h> // <media/MediaPlayerInterface.h>
 #include <utils/Errors.h>
 
 namespace android {
@@ -87,7 +87,11 @@ class TestPlayerStub : public MediaPlayerInterface {
     virtual status_t stop()  {return mPlayer->stop();}
     virtual status_t pause()  {return mPlayer->pause();}
     virtual bool isPlaying() {return mPlayer->isPlaying();}
-    virtual status_t seekTo(int msec) {return mPlayer->seekTo(msec);}
+    virtual status_t seekTo(
+            int msec,
+            MediaPlayerSeekMode mode = MediaPlayerSeekMode::SEEK_PREVIOUS_SYNC) {
+        return mPlayer->seekTo(msec, mode);
+    }
     virtual status_t getCurrentPosition(int *p)  {
         return mPlayer->getCurrentPosition(p);
     }

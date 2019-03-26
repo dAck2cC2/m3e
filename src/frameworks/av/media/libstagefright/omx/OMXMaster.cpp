@@ -18,43 +18,37 @@
 #define LOG_TAG "OMXMaster"
 #include <utils/Log.h>
 
-#include "OMXMaster.h"
-
-#include "SoftOMXPlugin.h"
+#include <media/stagefright/omx/OMXMaster.h>
+#include <media/stagefright/omx/SoftOMXPlugin.h>
+#include <media/stagefright/foundation/ADebug.h>
 
 #include <dlfcn.h>
 #include <fcntl.h>
 
-#include <media/stagefright/foundation/ADebug.h>
-
-#include <cutils/threads.h>
+#include <cutils/threads.h> // gettid()
 
 namespace android {
 
 OMXMaster::OMXMaster()
     : mVendorLibHandle(NULL) {
-
 #if TODO
-    mProcessName[0] = 0;
-    if (mProcessName[0] == 0) {
-        pid_t pid = getpid();
-        char filename[20];
-        snprintf(filename, sizeof(filename), "/proc/%d/comm", pid);
-        int fd = open(filename, O_RDONLY);
-        if (fd < 0) {
-            ALOGW("couldn't determine process name");
-            sprintf(mProcessName, "<unknown>");
-        } else {
-            ssize_t len = read(fd, mProcessName, sizeof(mProcessName));
-            if (len < 2) {
-                ALOGW("couldn't determine process name");
-                sprintf(mProcessName, "<unknown>");
-            } else {
-                // the name is newline terminated, so erase the newline
-                mProcessName[len - 1] = 0;
-            }
-            close(fd);
-        }
+    pid_t pid = getpid();
+    char filename[20];
+    snprintf(filename, sizeof(filename), "/proc/%d/comm", pid);
+    int fd = open(filename, O_RDONLY);
+    if (fd < 0) {
+      ALOGW("couldn't determine process name");
+      strlcpy(mProcessName, "<unknown>", sizeof(mProcessName));
+    } else {
+      ssize_t len = read(fd, mProcessName, sizeof(mProcessName));
+      if (len < 2) {
+        ALOGW("couldn't determine process name");
+        strlcpy(mProcessName, "<unknown>", sizeof(mProcessName));
+      } else {
+        // the name is newline terminated, so erase the newline
+        mProcessName[len - 1] = 0;
+      }
+      close(fd);
     }
 #else
 	// Since we are doing mutli-thread program but not mulit-process, 

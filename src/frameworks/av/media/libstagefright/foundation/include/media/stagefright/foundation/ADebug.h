@@ -57,6 +57,9 @@ inline static const char *asString(status_t i, const char *def = "??") {
 #define LITERAL_TO_STRING_INTERNAL(x)    #x
 #define LITERAL_TO_STRING(x) LITERAL_TO_STRING_INTERNAL(x)
 
+#ifdef CHECK
+#undef CHECK
+#endif
 #define CHECK(condition)                                \
     LOG_ALWAYS_FATAL_IF(                                \
             !(condition),                               \
@@ -96,6 +99,15 @@ MAKE_COMPARATOR(GT,>)
         }                                                               \
     } while (false)
 
+#ifdef CHECK_EQ
+#undef CHECK_EQ
+#undef CHECK_NE
+#undef CHECK_LE
+#undef CHECK_LT
+#undef CHECK_GE
+#undef CHECK_GT
+#endif
+
 #define CHECK_EQ(x,y)   CHECK_OP(x,y,EQ,==)
 #define CHECK_NE(x,y)   CHECK_OP(x,y,NE,!=)
 #define CHECK_LE(x,y)   CHECK_OP(x,y,LE,<=)
@@ -107,6 +119,26 @@ MAKE_COMPARATOR(GT,>)
         LOG_ALWAYS_FATAL(                                       \
             __FILE__ ":" LITERAL_TO_STRING(__LINE__)            \
                 " Should not be here.");
+
+#ifdef NDEBUG
+#define CHECK_DBG CHECK
+#define CHECK_EQ_DBG CHECK_EQ
+#define CHECK_NE_DBG CHECK_NE
+#define CHECK_LE_DBG CHECK_LE
+#define CHECK_LT_DBG CHECK_LT
+#define CHECK_GE_DBG CHECK_GE
+#define CHECK_GT_DBG CHECK_GT
+#define TRESPASS_DBG TRESPASS
+#else
+#define CHECK_DBG(condition)
+#define CHECK_EQ_DBG(x,y)
+#define CHECK_NE_DBG(x,y)
+#define CHECK_LE_DBG(x,y)
+#define CHECK_LT_DBG(x,y)
+#define CHECK_GE_DBG(x,y)
+#define CHECK_GT_DBG(x,y)
+#define TRESPASS_DBG(...)
+#endif
 
 struct ANDROID_API_STAGEFRIGHT_FOUNDATION ADebug {
     enum Level {

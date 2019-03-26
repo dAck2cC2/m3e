@@ -49,16 +49,14 @@ struct Crypto : public BnCrypto {
 
     virtual status_t setMediaDrmSession(const Vector<uint8_t> &sessionId);
 
-    virtual ssize_t decrypt(
-            DestinationType dstType,
-            const uint8_t key[16],
-            const uint8_t iv[16],
-            CryptoPlugin::Mode mode,
-            const CryptoPlugin::Pattern &pattern,
-            const sp<IMemory> &sharedBuffer, size_t offset,
+    virtual ssize_t decrypt(const uint8_t key[16], const uint8_t iv[16],
+            CryptoPlugin::Mode mode, const CryptoPlugin::Pattern &pattern,
+            const sp<IMemory> &source, size_t offset,
             const CryptoPlugin::SubSample *subSamples, size_t numSubSamples,
-            void *dstPtr,
-            AString *errorDetailMsg);
+            const DestinationBuffer &destination, AString *errorDetailMsg);
+
+    virtual void setHeap(const sp<IMemoryHeap>&) {}
+    virtual void unsetHeap(const sp<IMemoryHeap>&) {}
 
 private:
     mutable Mutex mLock;

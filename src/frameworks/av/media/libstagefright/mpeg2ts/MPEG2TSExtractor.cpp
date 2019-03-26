@@ -26,6 +26,7 @@
 #include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/ALooper.h>
+#include <media/stagefright/foundation/AUtils.h>
 #include <media/stagefright/DataSource.h>
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MediaErrors.h>
@@ -143,6 +144,44 @@ sp<MetaData> MPEG2TSExtractor::getMetaData() {
     meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_CONTAINER_MPEG2TS);
 
     return meta;
+}
+
+//static
+bool MPEG2TSExtractor::isScrambledFormat(const sp<MetaData> &format) {
+    const char *mime;
+    return format->findCString(kKeyMIMEType, &mime)
+            && (!strcasecmp(MEDIA_MIMETYPE_VIDEO_SCRAMBLED, mime)
+                    || !strcasecmp(MEDIA_MIMETYPE_AUDIO_SCRAMBLED, mime));
+}
+
+status_t MPEG2TSExtractor::setMediaCas(const HInterfaceToken &casToken) {
+#if 0
+    HalToken halToken;
+    halToken.setToExternal((uint8_t*)casToken.data(), casToken.size());
+    sp<ICas> cas = ICas::castFrom(retrieveHalInterface(halToken));
+    ALOGD("setMediaCas: %p", cas.get());
+
+    status_t err = mParser->setMediaCas(cas);
+    if (err == OK) {
+        ALOGI("All tracks now have descramblers");
+        init();
+    }
+    return err;
+#endif
+	return OK;
+}
+
+void MPEG2TSExtractor::addSource(const sp<AnotherPacketSource> &impl) {
+    bool found = false;
+    for (size_t i = 0; i < mSourceImpls.size(); i++) {
+        if (mSourceImpls[i] == impl) {
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        mSourceImpls.push(impl);
+    }
 }
 
 void MPEG2TSExtractor::init() {

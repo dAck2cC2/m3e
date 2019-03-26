@@ -23,7 +23,7 @@
 
 namespace android {
 
-class ANDROID_API_MEDIA IMediaLogService: public IInterface
+class IMediaLogService: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaLogService);
@@ -31,6 +31,7 @@ public:
     virtual void    registerWriter(const sp<IMemory>& shared, size_t size, const char *name) = 0;
     virtual void    unregisterWriter(const sp<IMemory>& shared) = 0;
 
+    virtual void    requestMergeWakeup() = 0;
 };
 
 class BnMediaLogService: public BnInterface<IMediaLogService>

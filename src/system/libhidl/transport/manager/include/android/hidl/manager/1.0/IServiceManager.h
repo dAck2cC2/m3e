@@ -13,6 +13,10 @@
 #include <utils/NativeHandle.h>
 #include <utils/misc.h>
 
+#if defined(PASSTHROUGH)
+#undef PASSTHROUGH
+#endif
+
 namespace android {
 namespace hidl {
 namespace manager {

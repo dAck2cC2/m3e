@@ -23,12 +23,13 @@
 #include <utils/Errors.h>
 #include <utils/RefBase.h>
 #include <system/audio.h>
-#include <MediaPlayerInterface.h>
+#include <media/BufferingSettings.h>
+#include <MediaPlayerInterface.h> // <media/MediaPlayerInterface.h>
 
 namespace android {
 
 #define FOURCC(c1, c2, c3, c4) \
-    (c1 << 24 | c2 << 16 | c3 << 8 | c4)
+    ((c1) << 24 | (c2) << 16 | (c3) << 8 | (c4))
 
 uint16_t U16_AT(const uint8_t *ptr);
 uint32_t U32_AT(const uint8_t *ptr);
@@ -75,7 +76,7 @@ struct HLSTime {
     int64_t mTimeUs;
     sp<AMessage> mMeta;
 
-    HLSTime(const sp<AMessage> &meta = NULL);
+    explicit HLSTime(const sp<AMessage> &meta = NULL);
     int64_t getSegmentTimeUs() const;
 };
 
@@ -83,16 +84,19 @@ bool operator <(const HLSTime &t0, const HLSTime &t1);
 
 // read and write various object to/from AMessage
 
-void writeToAMessage(sp<AMessage> msg, const AudioPlaybackRate &rate);
+void writeToAMessage(const sp<AMessage> &msg, const AudioPlaybackRate &rate);
 void readFromAMessage(const sp<AMessage> &msg, AudioPlaybackRate *rate /* nonnull */);
 
-void writeToAMessage(sp<AMessage> msg, const AVSyncSettings &sync, float videoFpsHint);
+void writeToAMessage(const sp<AMessage> &msg, const AVSyncSettings &sync, float videoFpsHint);
 void readFromAMessage(
         const sp<AMessage> &msg, AVSyncSettings *sync /* nonnull */, float *videoFps /* nonnull */);
 
+void writeToAMessage(const sp<AMessage> &msg, const BufferingSettings &buffering);
+void readFromAMessage(const sp<AMessage> &msg, BufferingSettings *buffering /* nonnull */);
+
 ANDROID_API_STAGEFRIGHT
 AString nameForFd(int fd);
-
+void MakeFourCCString(uint32_t x, char *s);
 }  // namespace android
 
 #endif  // UTILS_H_

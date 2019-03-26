@@ -18,8 +18,6 @@
 
 #define MEDIA_BUFFER_GROUP_H_
 
-#include <cutils/compiler.h>
-
 #include <media/stagefright/MediaBuffer.h>
 #include <utils/Errors.h>
 #include <utils/threads.h>
@@ -55,10 +53,7 @@ public:
 
     size_t buffers() const { return mBuffers.size(); }
 
-    // freeBuffers is the number of free buffers allowed to remain.
-    void gc(size_t freeBuffers = 0);
-
-protected:
+    // If buffer is nullptr, have acquire_buffer() check for remote release.
     virtual void signalBufferReturned(MediaBuffer *buffer);
 
 private:

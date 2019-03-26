@@ -1,5 +1,6 @@
 if(ENABLE_AV_UTILS)
     add_subdirectory(audioflinger) 
+    add_subdirectory(medialog) 
 endif(ENABLE_AV_UTILS)
 
 if(ENABLE_AV_CODEC)

@@ -64,6 +64,9 @@
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
 
+#include <android/hardware/media/omx/1.0/IOmx.h>
+#include <media/omx/1.0/WOmx.h>
+
 using namespace android;
 
 static long gNumRepetitions;
@@ -159,7 +162,7 @@ static void dumpSource(const sp<IMediaSource> &source, const String8 &filename) 
                        1,
                        mbuf->range_length(),
                        out),
-                (ssize_t)mbuf->range_length());
+                mbuf->range_length());
 
         mbuf->release();
         mbuf = NULL;
@@ -401,7 +404,7 @@ static void playSource(sp<IMediaSource> &source) {
 ////////////////////////////////////////////////////////////////////////////////
 
 struct DetectSyncSource : public MediaSource {
-    DetectSyncSource(const sp<IMediaSource> &source);
+    explicit DetectSyncSource(const sp<IMediaSource> &source);
 
     virtual status_t start(MetaData *params = NULL);
     virtual status_t stop();
@@ -867,7 +870,9 @@ int main(int argc, char **argv) {
 
             sp<IMemory> mem =
                     retriever->getFrameAtTime(-1,
-                                    MediaSource::ReadOptions::SEEK_PREVIOUS_SYNC);
+                            MediaSource::ReadOptions::SEEK_PREVIOUS_SYNC,
+                            HAL_PIXEL_FORMAT_RGB_565,
+                            false /*metaOnly*/);
 
             if (mem != NULL) {
                 failed = false;
@@ -904,13 +909,23 @@ int main(int argc, char **argv) {
     }
 
     if (listComponents) {
-        sp<IServiceManager> sm = defaultServiceManager();
-        sp<IBinder> binder = sm->getService(String16("media.codec"));
-        sp<IMediaCodecService> service = interface_cast<IMediaCodecService>(binder);
+        sp<IOMX> omx;
+        if (property_get_bool("persist.media.treble_omx", true)) {
+            using namespace ::android::hardware::media::omx::V1_0;
+            sp<IOmx> tOmx = IOmx::getService();
 
-        CHECK(service.get() != NULL);
+            CHECK(tOmx.get() != NULL);
 
-        sp<IOMX> omx = service->getOMX();
+            omx = new utils::LWOmx(tOmx);
+        } else {
+            sp<IServiceManager> sm = defaultServiceManager();
+            sp<IBinder> binder = sm->getService(String16("media.codec"));
+            sp<IMediaCodecService> service = interface_cast<IMediaCodecService>(binder);
+
+            CHECK(service.get() != NULL);
+
+            omx = service->getOMX();
+        }
         CHECK(omx.get() != NULL);
 
         List<IOMX::ComponentInfo> list;
@@ -964,8 +979,6 @@ int main(int argc, char **argv) {
             gSurface = new Surface(producer);
         }
     }
-
-    DataSource::RegisterDefaultSniffers();
 
     status_t err = OK;
 
@@ -1037,6 +1050,10 @@ int main(int argc, char **argv) {
                 bool haveVideo = false;
                 for (size_t i = 0; i < numTracks; ++i) {
                     sp<IMediaSource> source = extractor->getTrack(i);
+                    if (source == nullptr) {
+                        fprintf(stderr, "skip NULL track %zu, track count %zu.\n", i, numTracks);
+                        continue;
+                    }
 
                     const char *mime;
                     CHECK(source->getFormat()->findCString(
@@ -1099,6 +1116,10 @@ int main(int argc, char **argv) {
                 }
 
                 mediaSource = extractor->getTrack(i);
+                if (mediaSource == nullptr) {
+                    fprintf(stderr, "skip NULL track %zu, total tracks %zu.\n", i, numTracks);
+                    return -1;
+                }
             }
         }
 

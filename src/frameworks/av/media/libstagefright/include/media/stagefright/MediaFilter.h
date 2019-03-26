@@ -21,16 +21,15 @@
 
 namespace android {
 
-struct ABuffer;
+class ACodecBufferChannel;
 struct GraphicBufferListener;
-struct MemoryDealer;
+class MemoryDealer;
 struct SimpleFilter;
 
 struct MediaFilter : public CodecBase {
     MediaFilter();
 
-    virtual void setNotificationMessage(const sp<AMessage> &msg);
-
+    virtual std::shared_ptr<BufferChannelBase> getBufferChannel() override;
     virtual void initiateAllocateComponent(const sp<AMessage> &msg);
     virtual void initiateConfigureComponent(const sp<AMessage> &msg);
     virtual void initiateCreateInputSurface();
@@ -48,25 +47,6 @@ struct MediaFilter : public CodecBase {
 
     virtual void onMessageReceived(const sp<AMessage> &msg);
 
-    struct PortDescription : public CodecBase::PortDescription {
-        virtual size_t countBuffers();
-        virtual IOMX::buffer_id bufferIDAt(size_t index) const;
-        virtual sp<ABuffer> bufferAt(size_t index) const;
-
-    protected:
-        PortDescription();
-
-    private:
-        friend struct MediaFilter;
-
-        Vector<IOMX::buffer_id> mBufferIDs;
-        Vector<sp<ABuffer> > mBuffers;
-
-        void addBuffer(IOMX::buffer_id id, const sp<ABuffer> &buffer);
-
-        DISALLOW_EVIL_CONSTRUCTORS(PortDescription);
-    };
-
 protected:
     virtual ~MediaFilter();
 
@@ -82,7 +62,7 @@ private:
         int32_t mOutputFlags;
         Status mStatus;
 
-        sp<ABuffer> mData;
+        sp<MediaCodecBuffer> mData;
     };
 
     enum State {
@@ -121,7 +101,6 @@ private:
     int32_t mColorFormatIn, mColorFormatOut;
     size_t mMaxInputSize, mMaxOutputSize;
     int32_t mGeneration;
-    sp<AMessage> mNotify;
     sp<AMessage> mInputFormat;
     sp<AMessage> mOutputFormat;
 
@@ -134,6 +113,8 @@ private:
     sp<SimpleFilter> mFilter;
     sp<GraphicBufferListener> mGraphicBufferListener;
 
+    std::shared_ptr<ACodecBufferChannel> mBufferChannel;
+
     // helper functions
     void signalProcessBuffers();
     void signalError(status_t error);
@@ -145,7 +126,6 @@ private:
     void postFillThisBuffer(BufferInfo *info);
     void postDrainThisBuffer(BufferInfo *info);
     void postEOS();
-    void sendFormatChange();
     void requestFillEmptyInput();
     void processBuffers();
 
