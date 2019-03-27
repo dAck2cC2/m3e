@@ -24,6 +24,7 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/hexdump.h>
+
 #include <media/stagefright/foundation/AMessage.h>
 
 namespace android {
@@ -225,10 +226,6 @@ OMX_ERRORTYPE SoftAMRNBEncoder::internalSetParameter(
 
             if (formatParams->nPortIndex > 1) {
                 return OMX_ErrorUndefined;
-            }
-
-            if (formatParams->nIndex > 0) {
-                return OMX_ErrorNoMore;
             }
 
             if ((formatParams->nPortIndex == 0

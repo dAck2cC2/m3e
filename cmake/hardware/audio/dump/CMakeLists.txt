@@ -12,18 +12,16 @@ log
 cutils
 )
 
+if(MSVC)
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
+endif()
+
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/audio/dump )
 
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/audio_dump.cpp
 )
-
-if (MSVC)
-    list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.h
-    ${MSVC_PATH}/sys/time.c
-    )
-endif()
 
 # target files
 set(LIB_NAME audio_primary_dump)

@@ -31,20 +31,12 @@
 namespace android {
 
 static const CodecProfileLevel kM4VProfileLevels[] = {
-    { OMX_VIDEO_MPEG4ProfileSimple, OMX_VIDEO_MPEG4Level0 },
-    { OMX_VIDEO_MPEG4ProfileSimple, OMX_VIDEO_MPEG4Level0b },
-    { OMX_VIDEO_MPEG4ProfileSimple, OMX_VIDEO_MPEG4Level1 },
-    { OMX_VIDEO_MPEG4ProfileSimple, OMX_VIDEO_MPEG4Level2 },
     { OMX_VIDEO_MPEG4ProfileSimple, OMX_VIDEO_MPEG4Level3 },
 };
 
 static const CodecProfileLevel kH263ProfileLevels[] = {
-    { OMX_VIDEO_H263ProfileBaseline, OMX_VIDEO_H263Level10 },
-    { OMX_VIDEO_H263ProfileBaseline, OMX_VIDEO_H263Level20 },
     { OMX_VIDEO_H263ProfileBaseline, OMX_VIDEO_H263Level30 },
     { OMX_VIDEO_H263ProfileBaseline, OMX_VIDEO_H263Level45 },
-    { OMX_VIDEO_H263ProfileISWV2,    OMX_VIDEO_H263Level10 },
-    { OMX_VIDEO_H263ProfileISWV2,    OMX_VIDEO_H263Level20 },
     { OMX_VIDEO_H263ProfileISWV2,    OMX_VIDEO_H263Level30 },
     { OMX_VIDEO_H263ProfileISWV2,    OMX_VIDEO_H263Level45 },
 };
@@ -255,13 +247,28 @@ void SoftMPEG4::onQueueFilled(OMX_U32 /* portIndex */) {
             mSignalledError = true;
             return;
         }
+
+        // Need to check if header contains new info, e.g., width/height, etc.
+        VopHeaderInfo header_info;
+        uint8_t *bitstreamTmp = bitstream;
+        if (PVDecodeVopHeader(
+                    mHandle, &bitstreamTmp, &timestamp, &tmp,
+                    &header_info, &useExtTimestamp,
+                    outHeader->pBuffer) != PV_TRUE) {
+            ALOGE("failed to decode vop header.");
+
+            notify(OMX_EventError, OMX_ErrorUndefined, 0, NULL);
+            mSignalledError = true;
+            return;
+        }
+        if (handlePortSettingsChange()) {
+            return;
+        }
+
         // The PV decoder is lying to us, sometimes it'll claim to only have
         // consumed a subset of the buffer when it clearly consumed all of it.
         // ignore whatever it says...
-        if (PVDecodeVideoFrame(
-                    mHandle, &bitstream, &timestamp, &tmp,
-                    &useExtTimestamp,
-                    outHeader->pBuffer) != PV_TRUE) {
+        if (PVDecodeVopBody(mHandle, &tmp) != PV_TRUE) {
             ALOGE("failed to decode video frame.");
 
             notify(OMX_EventError, OMX_ErrorUndefined, 0, NULL);

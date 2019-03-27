@@ -28,7 +28,7 @@
 #include <cctype>
 #include <algorithm>
 
-#include <utils/Compat.h>
+#include <utils/Compat.h> // OS_PATH_SEPARATOR
 
 namespace android {
 
@@ -141,7 +141,7 @@ bool MediaCodecsXmlParser::parseTopLevelXMLFile(
         const char *codecs_xml,
         bool ignore_errors) {
     // get href_base
-    const char *href_base_end = strrchr(codecs_xml, /*'/'*/ OS_PATH_SEPARATOR);
+    const char *href_base_end = strrchr(codecs_xml, OS_PATH_SEPARATOR);
     if (href_base_end != nullptr) {
         mHrefBase = std::string(codecs_xml, href_base_end - codecs_xml + 1);
     }

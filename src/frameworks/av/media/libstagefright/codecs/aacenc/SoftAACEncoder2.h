@@ -18,7 +18,7 @@
 
 #define SOFT_AAC_ENCODER_2_H_
 
-#include "SimpleSoftOMXComponent.h"
+#include <media/stagefright/omx/SimpleSoftOMXComponent.h>
 
 #include "aacenc_lib.h"
 
@@ -42,6 +42,8 @@ protected:
 
     virtual void onQueueFilled(OMX_U32 portIndex);
 
+    virtual void onReset();
+
 private:
     enum {
         kNumBuffers             = 4,
@@ -60,6 +62,7 @@ private:
     bool mSentCodecSpecificData;
     size_t mInputSize;
     int16_t *mInputFrame;
+    size_t mAllocatedFrameSize;
     int64_t mInputTimeUs;
 
     bool mSawInputEOS;

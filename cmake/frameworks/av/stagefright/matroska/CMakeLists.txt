@@ -12,6 +12,11 @@ include(${M3E_SOURCE_DIR}/cmake/core/system/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaplayerservice/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/flac/include.cmake)
+
+set(${PROJECT_NAME}_DEPLIB
+stagefright_flacdec
+)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/matroska )

@@ -15,6 +15,9 @@ cutils
 
 if (MSVC)
     add_definitions(-D__unused= )
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP}) 
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/libhardware/modules/audio )
@@ -23,13 +26,6 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/libhardware/modules/audio )
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/audio_hw.c
 )
-
-if (MSVC)
-    list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.h
-    ${MSVC_PATH}/sys/time.c
-    )
-endif()
 
 set_source_files_properties( ${${PROJECT_NAME}_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )
 

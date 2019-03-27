@@ -31,7 +31,7 @@ using hardware::hidl_vec;
 using hardware::Return;
 using namespace hardware::cas::V1_0;
 using namespace hardware::cas::native::V1_0;
-
+#if !defined(_MSC_VER)
 struct ATSParser::CasManager::ProgramCasManager : public RefBase {
     ProgramCasManager(unsigned programNumber, const CADescriptor &descriptor);
     ProgramCasManager(unsigned programNumber);
@@ -66,7 +66,7 @@ private:
     CasSession mProgramCas;
     KeyedVector<unsigned, CasSession> mStreamPidToCasMap;
 };
-
+#endif
 ATSParser::CasManager::ProgramCasManager::ProgramCasManager(
         unsigned programNumber, const CADescriptor &descriptor) :
     mProgramNumber(programNumber),
@@ -129,7 +129,7 @@ status_t ATSParser::CasManager::ProgramCasManager::initSession(
          const sp<ICas>& cas,
          PidToSessionMap &sessionMap,
          CasSession *session) {
-    sp<IMediaCasService> casService = IMediaCasService::getService("default");
+	sp<IMediaCasService> casService; // = IMediaCasService::getService("default");
     if (casService == NULL) {
         ALOGE("Cannot obtain IMediaCasService");
         return NO_INIT;
@@ -179,8 +179,9 @@ status_t ATSParser::CasManager::ProgramCasManager::initSession(
                 returnStatus.description().c_str(), (Status) returnStatus);
         goto l_fail;
     }
-
+#if TODO
     descrambler = IDescrambler::castFrom(descramblerBase);
+#endif
     if (descrambler == NULL) {
         ALOGE("Failed to cast from IDescramblerBase to IDescrambler");
         goto l_fail;

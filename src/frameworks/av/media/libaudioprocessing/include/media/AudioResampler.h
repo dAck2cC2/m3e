@@ -27,6 +27,11 @@
 #include <system/audio.h>
 
 namespace android {
+
+#if defined(DEFAULT_QUALITY)
+#undef DEFAULT_QUALITY
+#endif
+
 // ----------------------------------------------------------------------------
 
 class ANDROID_API_AUDIOPROCESSING AudioResampler {
@@ -39,7 +44,7 @@ public:
     // certain fixed rate conversions. Sample rate cannot be
     // changed dynamically.
     enum src_quality {
-        DEFAULT_SRC_QUALITY=0,
+        DEFAULT_QUALITY=0,
         LOW_QUALITY=1,
         MED_QUALITY=2,
         HIGH_QUALITY=3,
@@ -52,7 +57,7 @@ public:
     static const CONSTEXPR float UNITY_GAIN_FLOAT = 1.0f;
 
     static AudioResampler* create(audio_format_t format, int inChannelCount,
-            int32_t sampleRate, src_quality quality= DEFAULT_SRC_QUALITY);
+            int32_t sampleRate, src_quality quality=DEFAULT_QUALITY);
 
     virtual ~AudioResampler();
 

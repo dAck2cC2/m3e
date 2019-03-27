@@ -9,6 +9,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
 
 set( ${PROJECT_NAME}_DEPLIB
@@ -31,6 +33,7 @@ ${SOURCE_PATH}/BatteryNotifier.cpp
 ${SOURCE_PATH}/ISchedulingPolicyService.cpp 
 ${SOURCE_PATH}/SchedulingPolicyService.cpp
 ${SOURCE_PATH}/MemoryLeakTrackUtil.cpp
+${SOURCE_PATH}/ProcessInfo.cpp
 )
 
 # target files

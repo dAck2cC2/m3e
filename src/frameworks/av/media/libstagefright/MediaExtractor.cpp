@@ -52,6 +52,11 @@
 
 #include <media/stagefright/foundation/ABuffer.h>
 
+#if defined(_MSC_VER)
+#include "CasManager.h"
+#include <android/hardware/cas/native/1.0/IDescrambler.h>
+#endif
+
 // still doing some on/off toggling here.
 #define MEDIA_LOG       1
 

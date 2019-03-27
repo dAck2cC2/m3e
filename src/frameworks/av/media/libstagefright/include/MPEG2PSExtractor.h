@@ -78,7 +78,7 @@ private:
     DISALLOW_EVIL_CONSTRUCTORS(MPEG2PSExtractor);
 };
 
-#if  defined(_MSC_VER)
+#if defined(_MSC_VER)
 
 struct MPEG2PSExtractor::Track : public MediaSource {
 	Track(MPEG2PSExtractor *extractor,

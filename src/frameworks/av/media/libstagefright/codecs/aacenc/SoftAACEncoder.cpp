@@ -62,11 +62,10 @@ SoftAACEncoder::SoftAACEncoder(
 }
 
 SoftAACEncoder::~SoftAACEncoder() {
-    delete[] mInputFrame;
-    mInputFrame = NULL;
+    onReset();
 
     if (mEncoderHandle) {
-        CHECK_EQ(VO_ERR_NONE, mApiHandle->Uninit(mEncoderHandle));
+        CHECK_EQ((VO_U32)VO_ERR_NONE, mApiHandle->Uninit(mEncoderHandle));
         mEncoderHandle = NULL;
     }
 
@@ -267,10 +266,6 @@ OMX_ERRORTYPE SoftAACEncoder::internalSetParameter(
                 return OMX_ErrorUndefined;
             }
 
-            if (formatParams->nIndex > 0) {
-                return OMX_ErrorNoMore;
-            }
-
             if ((formatParams->nPortIndex == 0
                         && formatParams->eEncoding != OMX_AUDIO_CodingPCM)
                 || (formatParams->nPortIndex == 1
@@ -338,7 +333,7 @@ status_t SoftAACEncoder::setAudioParams() {
     // We call this whenever sample rate, number of channels or bitrate change
     // in reponse to setParameter calls.
 
-    ALOGV("setAudioParams: %lu Hz, %lu channels, %lu bps",
+    ALOGV("setAudioParams: %u Hz, %u channels, %u bps",
          mSampleRate, mNumChannels, mBitRate);
 
     status_t err = setAudioSpecificConfigData();
@@ -388,12 +383,12 @@ status_t SoftAACEncoder::setAudioSpecificConfigData() {
     int32_t index;
     status_t err = getSampleRateTableIndex(mSampleRate, index);
     if (err != OK) {
-        ALOGE("Unsupported sample rate (%lu Hz)", mSampleRate);
+        ALOGE("Unsupported sample rate (%u Hz)", mSampleRate);
         return err;
     }
 
     if (mNumChannels > 2 || mNumChannels <= 0) {
-        ALOGE("Unsupported number of channels(%lu)", mNumChannels);
+        ALOGE("Unsupported number of channels(%u)", mNumChannels);
         return UNKNOWN_ERROR;
     }
 
@@ -404,7 +399,7 @@ status_t SoftAACEncoder::setAudioSpecificConfigData() {
     return OK;
 }
 
-void SoftAACEncoder::onQueueFilled(OMX_U32 portIndex) {
+void SoftAACEncoder::onQueueFilled(OMX_U32 /*portIndex*/) {
     if (mSignalledError) {
         return;
     }
@@ -525,7 +520,7 @@ void SoftAACEncoder::onQueueFilled(OMX_U32 portIndex) {
         memset(&inputData, 0, sizeof(inputData));
         inputData.Buffer = (unsigned char *)mInputFrame;
         inputData.Length = numBytesPerInputFrame;
-        CHECK(VO_ERR_NONE ==
+        CHECK((VO_U32)VO_ERR_NONE ==
                 mApiHandle->SetInputData(mEncoderHandle, &inputData));
 
         VO_CODECBUFFER outputData;
@@ -577,6 +572,17 @@ void SoftAACEncoder::onQueueFilled(OMX_U32 portIndex) {
 
         mInputSize = 0;
     }
+}
+
+void SoftAACEncoder::onReset() {
+    delete[] mInputFrame;
+    mInputFrame = NULL;
+    mInputSize = 0;
+
+    mSentCodecSpecificData = false;
+    mInputTimeUs = -1ll;
+    mSawInputEOS = false;
+    mSignalledError = false;
 }
 
 }  // namespace android

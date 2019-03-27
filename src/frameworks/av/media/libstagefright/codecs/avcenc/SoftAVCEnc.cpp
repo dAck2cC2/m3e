@@ -27,10 +27,8 @@
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MediaErrors.h>
 #include <media/stagefright/MetaData.h>
-#include <media/stagefright/Utils.h>
 #include <OMX_IndexExt.h>
 #include <OMX_VideoExt.h>
-#include <ui/Rect.h>
 
 #include "ih264_typedefs.h"
 #include "iv2.h"
@@ -76,33 +74,11 @@ static LevelConversion ConversionTable[] = {
 };
 
 static const CodecProfileLevel kProfileLevels[] = {
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel1  },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel1b },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel11 },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel12 },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel13 },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel2  },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel21 },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel22 },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel3  },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel31 },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel32 },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel4  },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel41 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel1  },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel1b },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel11 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel12 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel13 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel2  },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel21 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel22 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel3  },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel31 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel32 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel4  },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel41 },
+    { OMX_VIDEO_AVCProfileConstrainedBaseline, OMX_VIDEO_AVCLevel41 },
 
+    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel41 },
+
+    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel41 },
 };
 
 static size_t GetCPUCoreCount() {
@@ -614,6 +590,7 @@ OMX_ERRORTYPE SoftAVC::initEncoder() {
     IV_STATUS_T status;
     WORD32 level;
     uint32_t displaySizeY;
+
     CHECK(!mStarted);
 
     OMX_ERRORTYPE errType = OMX_ErrorNone;
@@ -629,8 +606,10 @@ OMX_ERRORTYPE SoftAVC::initEncoder() {
         level = 30;
     } else if (displaySizeY > (352 * 288)) {
         level = 21;
-    } else {
+    } else if (displaySizeY > (176 * 144)) {
         level = 20;
+    } else {
+        level = 10;
     }
     mAVCEncLevel = MAX(level, mAVCEncLevel);
 
@@ -917,6 +896,9 @@ OMX_ERRORTYPE SoftAVC::releaseEncoder() {
         }
     }
 
+    // clear other pointers into the space being free()d
+    mCodecCtx = NULL;
+
     mStarted = false;
 
     return OMX_ErrorNone;
@@ -960,7 +942,8 @@ OMX_ERRORTYPE SoftAVC::internalGetParameter(OMX_INDEXTYPE index, OMX_PTR params)
                 return OMX_ErrorUndefined;
             }
 
-            avcParams->eProfile = OMX_VIDEO_AVCProfileBaseline;
+            // TODO: maintain profile
+            avcParams->eProfile = (OMX_VIDEO_AVCPROFILETYPE)OMX_VIDEO_AVCProfileConstrainedBaseline;
             avcParams->eLevel = omxLevel;
             avcParams->nRefFrames = 1;
             avcParams->bUseHadamard = OMX_TRUE;
@@ -1187,6 +1170,12 @@ OMX_ERRORTYPE SoftAVC::setEncodeArgs(
     ps_inp_raw_buf->e_color_fmt = mIvVideoColorFormat;
     source = NULL;
     if ((inputBufferHeader != NULL) && inputBufferHeader->nFilledLen) {
+        OMX_ERRORTYPE error = validateInputBuffer(inputBufferHeader);
+        if (error != OMX_ErrorNone) {
+            ALOGE("b/69065651");
+            android_errorWriteLog(0x534e4554, "69065651");
+            return error;
+        }
         source = inputBufferHeader->pBuffer + inputBufferHeader->nOffset;
 
         if (mInputDataIsMeta) {
@@ -1507,6 +1496,14 @@ void SoftAVC::onQueueFilled(OMX_U32 portIndex) {
         }
     }
     return;
+}
+
+void SoftAVC::onReset() {
+    SoftVideoEncoderOMXComponent::onReset();
+
+    if (releaseEncoder() != OMX_ErrorNone) {
+        ALOGW("releaseEncoder failed");
+    }
 }
 
 }  // namespace android

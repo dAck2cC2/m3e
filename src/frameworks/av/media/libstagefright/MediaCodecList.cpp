@@ -121,6 +121,7 @@ sp<IMediaCodecList> MediaCodecList::getLocalInstance() {
         MediaCodecList *codecList = new MediaCodecList(&sOmxInfoBuilder);
         if (codecList->initCheck() == OK) {
             sCodecList = codecList;
+
             if (isProfilingNeeded()) {
                 ALOGV("Codec profiling needed, will be run in separated thread.");
                 pthread_t profiler;

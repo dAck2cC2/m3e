@@ -128,12 +128,6 @@ if(ENABLE_AV_CODEC)
     )
 endif(ENABLE_AV_CODEC)
 
-if (MSVC OR APPLE)
-    list(APPEND MEDIA_SOURCE_FILES
-    ${SOURCE_PATH}/backtrace.cpp
-    )
-endif()
-
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(media SHARED ${MEDIA_SOURCE_FILES} ${MEDIA_HEADER_FILES})

@@ -22,11 +22,12 @@
 
 #include <binder/IServiceManager.h>
 #include <media/stagefright/foundation/ADebug.h>
-#include <media/stagefright/foundation/AMessage.h>
 #include <media/stagefright/foundation/ALooper.h>
 #include <media/stagefright/Utils.h>
 
 #include <media/IMediaHTTPConnection.h>
+
+#include <media/stagefright/foundation/AMessage.h>
 
 namespace android {
 

@@ -22,10 +22,6 @@
 #include "ISchedulingPolicyService.h"
 #include "mediautils/SchedulingPolicyService.h"
 
-#if defined(_MSC_VER)
-#define sleep(t) Sleep((t)*1000)
-#endif
-
 namespace android {
 
 static sp<ISchedulingPolicyService> sSchedulingPolicyService;

@@ -86,7 +86,7 @@ const double AudioResampler::kPhaseMultiplier = 1L << AudioResampler::kNumPhaseB
 bool AudioResampler::qualityIsSupported(src_quality quality)
 {
     switch (quality) {
-    case DEFAULT_SRC_QUALITY:
+    case DEFAULT_QUALITY:
     case LOW_QUALITY:
     case MED_QUALITY:
     case HIGH_QUALITY:
@@ -103,7 +103,7 @@ bool AudioResampler::qualityIsSupported(src_quality quality)
 // ----------------------------------------------------------------------------
 
 static pthread_once_t once_control = PTHREAD_ONCE_INIT;
-static AudioResampler::src_quality defaultQuality = AudioResampler::DEFAULT_SRC_QUALITY;
+static AudioResampler::src_quality defaultQuality = AudioResampler::DEFAULT_QUALITY;
 
 void AudioResampler::init_routine()
 {
@@ -114,8 +114,8 @@ void AudioResampler::init_routine()
         if (*endptr == '\0') {
             defaultQuality = (src_quality) l;
             ALOGD("forcing AudioResampler quality to %d", defaultQuality);
-            if (defaultQuality < DEFAULT_SRC_QUALITY || defaultQuality > DYN_HIGH_QUALITY) {
-                defaultQuality = DEFAULT_SRC_QUALITY;
+            if (defaultQuality < DEFAULT_QUALITY || defaultQuality > DYN_HIGH_QUALITY) {
+                defaultQuality = DEFAULT_QUALITY;
             }
         }
     }
@@ -125,7 +125,7 @@ uint32_t AudioResampler::qualityMHz(src_quality quality)
 {
     switch (quality) {
     default:
-    case DEFAULT_SRC_QUALITY:
+    case DEFAULT_QUALITY:
     case LOW_QUALITY:
         return 3;
     case MED_QUALITY:
@@ -151,7 +151,7 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
         int32_t sampleRate, src_quality quality) {
 
     bool atFinalQuality;
-    if (quality == DEFAULT_SRC_QUALITY) {
+    if (quality == DEFAULT_QUALITY) {
         // read the resampler default quality property the first time it is needed
         int ok = pthread_once(&once_control, init_routine);
         if (ok != 0) {
@@ -169,7 +169,7 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
      * due to estimated CPU load of having too many active resamplers
      * (the code below the if).
      */
-    if (quality == DEFAULT_SRC_QUALITY) {
+    if (quality == DEFAULT_QUALITY) {
         quality = DYN_MED_QUALITY;
     }
 

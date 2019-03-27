@@ -18,11 +18,7 @@
 #include <utils/Log.h>
 
 #include <errno.h>
-#if defined(_MSC_VER)
-#include <windows.h>
-#else  // _MSC_VER
 #include <pthread.h>
-#endif // _MSC_VER
 #include <stdlib.h>
 
 #include <media/stagefright/foundation/ABuffer.h>

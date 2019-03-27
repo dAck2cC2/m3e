@@ -772,7 +772,7 @@ bool AudioMixer::track_t::setResampler(uint32_t trackSampleRate, uint32_t devSam
                 // quality level based on the initial ratio, but that could change later.
                 // Should have a way to distinguish tracks with static ratios vs. dynamic ratios.
                 if (isMusicRate(trackSampleRate)) {
-                    quality = AudioResampler::DEFAULT_SRC_QUALITY;
+                    quality = AudioResampler::DEFAULT_QUALITY;
                 } else {
                     quality = AudioResampler::DYN_LOW_QUALITY;
                 }

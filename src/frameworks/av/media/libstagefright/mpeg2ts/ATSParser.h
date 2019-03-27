@@ -26,11 +26,19 @@
 #include <utils/KeyedVector.h>
 #include <utils/Vector.h>
 #include <utils/RefBase.h>
+#include <vector>
 
 namespace android {
+namespace hardware {
+namespace cas {
+namespace V1_0 {
+struct ICas;
+}}}
+using hardware::cas::V1_0::ICas;
 
 class ABitReader;
 struct ABuffer;
+struct AnotherPacketSource;
 
 struct ATSParser : public RefBase {
     enum DiscontinuityType {
@@ -62,18 +70,26 @@ struct ATSParser : public RefBase {
         ALIGNED_VIDEO_DATA         = 2,
     };
 
+    enum SourceType {
+        VIDEO = 0,
+        AUDIO = 1,
+        META  = 2,
+        NUM_SOURCE_TYPES = 3
+    };
+
     // Event is used to signal sync point event at feedTSPacket().
     struct SyncEvent {
-        SyncEvent(off64_t offset);
+        explicit SyncEvent(off64_t offset);
 
         void init(off64_t offset, const sp<MediaSource> &source,
-                int64_t timeUs);
+                int64_t timeUs, SourceType type);
 
         bool hasReturnedData() const { return mHasReturnedData; }
         void reset();
         off64_t getOffset() const { return mOffset; }
         const sp<MediaSource> &getMediaSource() const { return mMediaSource; }
         int64_t getTimeUs() const { return mTimeUs; }
+        SourceType getType() const { return mType; }
 
     private:
         bool mHasReturnedData;
@@ -87,9 +103,12 @@ struct ATSParser : public RefBase {
         sp<MediaSource> mMediaSource;
         /* The timestamp of the sync frame. */
         int64_t mTimeUs;
+        SourceType mType;
     };
 
-    ATSParser(uint32_t flags = 0);
+    explicit ATSParser(uint32_t flags = 0);
+
+    status_t setMediaCas(const sp<ICas> &cas);
 
     // Feed a TS packet into the parser. uninitialized event with the start
     // offset of this TS packet goes in, and if the parser detects PES with
@@ -107,16 +126,14 @@ struct ATSParser : public RefBase {
 
     void signalEOS(status_t finalResult);
 
-    enum SourceType {
-        VIDEO = 0,
-        AUDIO = 1,
-        META  = 2,
-        NUM_SOURCE_TYPES = 3
-    };
     sp<MediaSource> getSource(SourceType type);
     bool hasSource(SourceType type) const;
 
     bool PTSTimeDeltaEstablished();
+
+    int64_t getFirstPTSTimeUs();
+
+    void signalNewSampleAesKey(const sp<AMessage> &keyItem);
 
     enum {
         // From ISO/IEC 13818-1: 2000 (E), Table 2-29
@@ -136,6 +153,11 @@ struct ATSParser : public RefBase {
         // Stream type 0x83 is non-standard,
         // it could be LPCM or TrueHD AC3
         STREAMTYPE_LPCM_AC3             = 0x83,
+
+        //Sample Encrypted types
+        STREAMTYPE_H264_ENCRYPTED       = 0xDB,
+        STREAMTYPE_AAC_ENCRYPTED        = 0xCF,
+        STREAMTYPE_AC3_ENCRYPTED        = 0xC1,
     };
 
 protected:
@@ -145,6 +167,14 @@ private:
     struct Program;
     struct Stream;
     struct PSISection;
+    struct CasManager;
+    struct CADescriptor {
+        int32_t mSystemID;
+        unsigned mPID;
+        std::vector<uint8_t> mPrivateData;
+    };
+
+    sp<CasManager> mCasManager;
 
     uint32_t mFlags;
     Vector<sp<Program> > mPrograms;
@@ -159,6 +189,8 @@ private:
     int64_t mLastRecoveredPTS;
 
     size_t mNumTSPacketsParsed;
+
+    sp<AMessage> mSampleAesKeyItem;
 
     void parseProgramAssociationTable(ABitReader *br);
     void parseProgramMap(ABitReader *br);
@@ -176,9 +208,13 @@ private:
         ABitReader *br, unsigned PID,
         unsigned continuity_counter,
         unsigned payload_unit_start_indicator,
+        unsigned transport_scrambling_control,
+        unsigned random_access_indicator,
         SyncEvent *event);
 
-    status_t parseAdaptationField(ABitReader *br, unsigned PID);
+    status_t parseAdaptationField(
+            ABitReader *br, unsigned PID, unsigned *random_access_indicator);
+
     // see feedTSPacket().
     status_t parseTS(ABitReader *br, SyncEvent *event);
 
@@ -193,6 +229,20 @@ private:
 };
 
 #if defined(_MSC_VER)
+
+namespace hardware {
+	namespace cas {
+		namespace native {
+			namespace V1_0 {
+				struct IDescrambler;
+			}
+		}
+	}
+}
+using namespace hardware::cas::native::V1_0;
+
+struct ElementaryStreamQueue;
+
 struct ATSParser::Program : public RefBase {
 	Program(ATSParser *parser, unsigned programNumber, unsigned programMapPID,
 		int64_t lastRecoveredPTS);
@@ -206,6 +256,8 @@ struct ATSParser::Program : public RefBase {
 	bool parsePID(
 		unsigned pid, unsigned continuity_counter,
 		unsigned payload_unit_start_indicator,
+		unsigned transport_scrambling_control,
+		unsigned random_access_indicator,
 		ABitReader *br, status_t *err, SyncEvent *event);
 
 	void signalDiscontinuity(
@@ -236,10 +288,23 @@ struct ATSParser::Program : public RefBase {
 		return mParser->mFlags;
 	}
 
+	sp<CasManager> casManager() const {
+		return mParser->mCasManager;
+	}
+
+	uint64_t firstPTS() const {
+		return mFirstPTS;
+	}
+
+	void updateCasSessions();
+
+	void signalNewSampleAesKey(const sp<AMessage> &keyItem);
+
 private:
 	struct StreamInfo {
 		unsigned mType;
 		unsigned mPID;
+		int32_t mCASystemId;
 	};
 
 	ATSParser *mParser;
@@ -249,26 +314,32 @@ private:
 	bool mFirstPTSValid;
 	uint64_t mFirstPTS;
 	int64_t mLastRecoveredPTS;
+	sp<AMessage> mSampleAesKeyItem;
 
 	status_t parseProgramMap(ABitReader *br);
 	int64_t recoverPTS(uint64_t PTS_33bit);
+	bool findCADescriptor(
+		ABitReader *br, unsigned infoLength, CADescriptor *caDescriptor);
 	bool switchPIDs(const Vector<StreamInfo> &infos);
 
 	DISALLOW_EVIL_CONSTRUCTORS(Program);
 };
 
-struct AnotherPacketSource;
-struct ElementaryStreamQueue;
-
 struct ATSParser::Stream : public RefBase {
 	Stream(Program *program,
 		unsigned elementaryPID,
 		unsigned streamType,
-		unsigned PCR_PID);
+		unsigned PCR_PID,
+		int32_t CA_system_ID);
 
 	unsigned type() const { return mStreamType; }
 	unsigned pid() const { return mElementaryPID; }
 	void setPID(unsigned pid) { mElementaryPID = pid; }
+
+	void setCasInfo(
+		int32_t systemId,
+		const sp<IDescrambler> &descrambler,
+		const std::vector<uint8_t> &sessionId);
 
 	// Parse the payload and set event when PES with a sync frame is detected.
 	// This method knows when a PES starts; so record mPesStartOffsets in that
@@ -276,6 +347,8 @@ struct ATSParser::Stream : public RefBase {
 	status_t parse(
 		unsigned continuity_counter,
 		unsigned payload_unit_start_indicator,
+		unsigned transport_scrambling_control,
+		unsigned random_access_indicator,
 		ABitReader *br,
 		SyncEvent *event);
 
@@ -284,16 +357,24 @@ struct ATSParser::Stream : public RefBase {
 
 	void signalEOS(status_t finalResult);
 
+	SourceType getSourceType();
 	sp<MediaSource> getSource(SourceType type);
 
 	bool isAudio() const;
 	bool isVideo() const;
 	bool isMeta() const;
 
+	void signalNewSampleAesKey(const sp<AMessage> &keyItem);
+
 protected:
 	virtual ~Stream();
 
 private:
+	struct SubSampleInfo {
+		size_t subSampleSize;
+		unsigned transport_scrambling_mode;
+		unsigned random_access_indicator;
+	};
 	Program *mProgram;
 	unsigned mElementaryPID;
 	unsigned mStreamType;
@@ -310,10 +391,28 @@ private:
 
 	ElementaryStreamQueue *mQueue;
 
+	bool mScrambled;
+	bool mSampleEncrypted;
+	sp<AMessage> mSampleAesKeyItem;
+	sp<IMemory> mMem;
+	sp<MemoryDealer> mDealer;
+	sp<ABuffer> mDescrambledBuffer;
+	List<SubSampleInfo> mSubSamples;
+	sp<IDescrambler> mDescrambler;
+
 	// Flush accumulated payload if necessary --- i.e. at EOS or at the start of
 	// another payload. event is set if the flushed payload is PES with a sync
 	// frame.
 	status_t flush(SyncEvent *event);
+
+	// Flush accumulated payload for scrambled streams if necessary --- i.e. at
+	// EOS or at the start of another payload. event is set if the flushed
+	// payload is PES with a sync frame.
+	status_t flushScrambled(SyncEvent *event);
+
+	// Check if a PES packet is scrambled at PES level.
+	uint32_t getPesScramblingControl(ABitReader *br, int32_t *pesOffset);
+
 	// Strip and parse PES headers and pass remaining payload into onPayload
 	// with parsed metadata. event is set if the PES contains a sync frame.
 	status_t parsePES(ABitReader *br, SyncEvent *event);
@@ -323,7 +422,13 @@ private:
 	// and timestamp of the packet.
 	void onPayloadData(
 		unsigned PTS_DTS_flags, uint64_t PTS, uint64_t DTS,
-		const uint8_t *data, size_t size, SyncEvent *event);
+		unsigned PES_scrambling_control,
+		const uint8_t *data, size_t size,
+		int32_t payloadOffset, SyncEvent *event);
+
+	// Ensure internal buffers can hold specified size, and will re-allocate
+	// as needed.
+	bool ensureBufferCapacity(size_t size);
 
 	DISALLOW_EVIL_CONSTRUCTORS(Stream);
 };

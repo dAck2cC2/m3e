@@ -64,4 +64,41 @@ private:
     std::set<uint32_t> mCAPidSet;
 };
 
+#if defined(_MSC_VER)
+struct ATSParser::CasManager::ProgramCasManager : public RefBase {
+	ProgramCasManager(unsigned programNumber, const CADescriptor &descriptor);
+	ProgramCasManager(unsigned programNumber);
+
+	bool addStream(unsigned elementaryPID, const CADescriptor &descriptor);
+
+	status_t setMediaCas(const sp<ICas> &cas, PidToSessionMap &sessionMap);
+
+	bool getCasSession(unsigned elementaryPID,
+		sp<IDescrambler> *descrambler, std::vector<uint8_t> *sessionId) const;
+
+	void closeAllSessions(const sp<ICas>& cas);
+
+private:
+	struct CasSession {
+		CasSession() {}
+		CasSession(const CADescriptor &descriptor) :
+			mCADescriptor(descriptor) {}
+
+		CADescriptor mCADescriptor;
+		std::vector<uint8_t> mSessionId;
+		sp<IDescrambler> mDescrambler;
+	};
+	status_t initSession(
+		const sp<ICas>& cas,
+		PidToSessionMap &sessionMap,
+		CasSession *session);
+	void closeSession(const sp<ICas>& cas, const CasSession &casSession);
+
+	unsigned mProgramNumber;
+	bool mHasProgramCas;
+	CasSession mProgramCas;
+	KeyedVector<unsigned, CasSession> mStreamPidToCasMap;
+};
+#endif
+
 }  // namespace android

@@ -91,7 +91,7 @@ status_t OmxInfoBuilder::buildMediaCodecList(MediaCodecListWriter* writer) {
 
     treble = property_get_bool("persist.media.treble_omx", true);
     if (treble) {
-#if 0
+#if TODO
         using namespace ::android::hardware::media::omx::V1_0;
         using ::android::hardware::hidl_vec;
         using ::android::hardware::hidl_string;

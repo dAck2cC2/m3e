@@ -19,7 +19,7 @@
 
 #include <media/stagefright/MediaBuffer.h>
 #include <media/stagefright/foundation/ABase.h>
-#include "SoftVideoEncoderOMXComponent.h"
+#include <media/stagefright/omx/SoftVideoEncoderOMXComponent.h>
 #include "mp4enc_api.h"
 
 
@@ -47,6 +47,8 @@ struct SoftMPEG4Encoder : public SoftVideoEncoderOMXComponent {
             OMX_INDEXTYPE index, const OMX_PTR params);
 
     virtual void onQueueFilled(OMX_U32 portIndex);
+
+    virtual void onReset();
 
 protected:
     virtual ~SoftMPEG4Encoder();

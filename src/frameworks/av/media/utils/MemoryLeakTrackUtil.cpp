@@ -58,12 +58,11 @@ extern "C" void free_malloc_leak_info(uint8_t* info);
 
 std::string dumpMemoryAddresses(size_t limit)
 {
-    uint8_t *info = nullptr;
+    uint8_t *info;
     size_t overallSize;
     size_t infoSize;
     size_t totalMemory;
     size_t backtraceSize;
-
     get_malloc_leak_info(&info, &overallSize, &infoSize, &totalMemory, &backtraceSize);
 
     size_t count;

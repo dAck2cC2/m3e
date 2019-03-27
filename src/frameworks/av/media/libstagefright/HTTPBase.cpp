@@ -22,12 +22,13 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/ALooper.h>
-#include <media/stagefright/foundation/AMessage.h>
 
 #include <cutils/properties.h>
 #include <cutils/qtaguid.h>
 
 //#include <NetdClient.h>
+
+#include <media/stagefright/foundation/AMessage.h>
 
 #if defined(_MSC_VER)
 #define geteuid() 1000

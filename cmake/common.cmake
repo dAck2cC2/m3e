@@ -20,6 +20,7 @@ set(EXT_TAG_LEGACY android-7.1.2_r36)
 
 set(EXT_UPDATE 
 sonivox
+boringssl
 )
 
 # modules which has been removed from latest android release

@@ -7,11 +7,13 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/media_plugin/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaplayerservice/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
+
+include(${M3E_SOURCE_DIR}/cmake/external/boringssl/include.cmake)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/mpeg2ts )
@@ -23,8 +25,10 @@ ${SOURCE_PATH}/*.h
 # source files
 set(${PROJECT_NAME}_SOURCE_FILES 
 ${SOURCE_PATH}/AnotherPacketSource.cpp   
-${SOURCE_PATH}/ATSParser.cpp             
+${SOURCE_PATH}/ATSParser.cpp   
+${SOURCE_PATH}/CasManager.cpp             
 ${SOURCE_PATH}/ESQueue.cpp               
+${SOURCE_PATH}/HlsSampleDecryptor.cpp 
 ${SOURCE_PATH}/MPEG2PSExtractor.cpp      
 ${SOURCE_PATH}/MPEG2TSExtractor.cpp      
 )

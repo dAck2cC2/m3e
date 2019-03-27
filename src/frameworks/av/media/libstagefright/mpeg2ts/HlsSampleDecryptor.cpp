@@ -47,7 +47,7 @@ void HlsSampleDecryptor::signalNewSampleAesKey(const sp<AMessage> &sampleAesKeyI
     sp<ABuffer> keyDataBuffer, initVecBuffer;
     sampleAesKeyItem->findBuffer("keyData", &keyDataBuffer);
     sampleAesKeyItem->findBuffer("initVec", &initVecBuffer);
-
+#if ENABLE_SSL
     if (keyDataBuffer != NULL && keyDataBuffer->size() == AES_BLOCK_SIZE &&
         initVecBuffer != NULL && initVecBuffer->size() == AES_BLOCK_SIZE) {
 
@@ -64,7 +64,9 @@ void HlsSampleDecryptor::signalNewSampleAesKey(const sp<AMessage> &sampleAesKeyI
             ALOGE("signalNewSampleAesKey: failed to set AES decryption key.");
         }
 
-    } else {
+    } else
+#endif
+	{
         // Media scanner might try extract/parse the TS files without knowing the key.
         // Otherwise, shouldn't get here (unless an invalid playlist has swaped SAMPLE-AES with
         // NONE method while still sample-encrypted stream is parsed).
@@ -83,7 +85,7 @@ size_t HlsSampleDecryptor::processNal(uint8_t *nalData, size_t nalSize) {
         ALOGV("processNal[%d]: (%p)/%zu Skipping due to invalid key", nalType, nalData, nalSize);
         return nalSize;
     }
-
+#if ENABLE_SSL
     bool isEncrypted = (nalSize > VIDEO_CLEAR_LEAD + AES_BLOCK_SIZE);
     ALOGV("processNal[%d]: (%p)/%zu isEncrypted: %d", nalType, nalData, nalSize, isEncrypted);
 
@@ -137,7 +139,7 @@ size_t HlsSampleDecryptor::processNal(uint8_t *nalData, size_t nalSize) {
     } else { // isEncrypted == false
         ALOGV("processNal[%d]: Unencrypted NALU  (%p)/%zu", nalType, nalData, nalSize);
     }
-
+#endif
     return nalSize;
 }
 
@@ -151,7 +153,7 @@ void HlsSampleDecryptor::processAAC(size_t adtsHdrSize, uint8_t *data, size_t si
     // ADTS header is included in the size
     size_t offset = adtsHdrSize;
     size_t remainingBytes = size - adtsHdrSize;
-
+#if ENABLE_SSL
     bool isEncrypted = (remainingBytes >= AUDIO_CLEAR_LEAD + AES_BLOCK_SIZE);
     ALOGV("processAAC: header: %zu data: %p(%zu) isEncrypted: %d",
           adtsHdrSize, data, size, isEncrypted);
@@ -199,7 +201,7 @@ void HlsSampleDecryptor::processAAC(size_t adtsHdrSize, uint8_t *data, size_t si
         ALOGV("processAAC: Unencrypted frame (without lead bytes) size %zu = %zu (hdr) + %zu (rem)",
               size, adtsHdrSize, remainingBytes);
     }
-
+#endif
 }
 
 void HlsSampleDecryptor::processAC3(uint8_t *data, size_t size) {
@@ -208,7 +210,7 @@ void HlsSampleDecryptor::processAC3(uint8_t *data, size_t size) {
         ALOGV("processAC3: (%p)/%zu Skipping due to invalid key", data, size);
         return;
     }
-
+#if ENABLE_SSL
     bool isEncrypted = (size >= AUDIO_CLEAR_LEAD + AES_BLOCK_SIZE);
     ALOGV("processAC3 %p(%zu) isEncrypted: %d", data, size, isEncrypted);
 
@@ -254,6 +256,7 @@ void HlsSampleDecryptor::processAC3(uint8_t *data, size_t size) {
     } else {
         ALOGV("processAC3: Unencrypted frame (without lead bytes) size %zu", size);
     }
+#endif
 }
 
 // Unescapes data replacing occurrences of [0, 0, 3] with [0, 0] and returns the new size
@@ -299,7 +302,7 @@ size_t HlsSampleDecryptor::findNextUnescapeIndex(uint8_t *data, size_t offset, s
     }
     return limit;
 }
-
+#if ENABLE_SSL
 status_t HlsSampleDecryptor::decryptBlock(uint8_t *buffer, size_t size,
         uint8_t AESInitVec[AES_BLOCK_SIZE]) {
     if (size == 0) {
@@ -331,6 +334,6 @@ AString HlsSampleDecryptor::aesBlockToStr(uint8_t block[AES_BLOCK_SIZE]) {
 
     return result;
 }
-
+#endif
 
 }  // namespace android

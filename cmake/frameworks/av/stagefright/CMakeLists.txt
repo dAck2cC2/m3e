@@ -26,6 +26,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/xmlparser/include.cmak
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/sonivox/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/vpx/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/boringssl/include.cmake)
 
 set(${PROJECT_NAME}_DEPLIB
 log
@@ -141,7 +142,6 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/OMXClient.cpp
     ${SOURCE_PATH}/SkipCutBuffer.cpp
     ${SOURCE_PATH}/FrameRenderTracker.cpp
-    ${SOURCE_PATH}/ProcessInfo.cpp 
     ${SOURCE_PATH}/AMRWriter.cpp
     ${SOURCE_PATH}/NuMediaExtractor.cpp
     ${SOURCE_PATH}/AMRExtractor.cpp 
@@ -214,4 +214,5 @@ if(ENABLE_AV_CODEC)
     add_subdirectory(mpeg2ts) 
     add_subdirectory(matroska)
     add_subdirectory(xmlparser)
+    add_subdirectory(flac)
 endif()

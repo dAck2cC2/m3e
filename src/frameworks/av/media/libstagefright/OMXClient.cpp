@@ -97,7 +97,7 @@ status_t OMXClient::connectTreble(const char* name) {
     if (name == nullptr) {
         name = "default";
     }
-	sp<IOmx> tOmx = IOmx::getService(name);
+    sp<IOmx> tOmx = IOmx::getService(name);
     if (tOmx.get() == nullptr) {
         ALOGE("Cannot obtain Treble IOmx.");
         return NO_INIT;

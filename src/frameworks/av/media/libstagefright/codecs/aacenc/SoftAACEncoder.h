@@ -18,7 +18,7 @@
 
 #define SOFT_AAC_ENCODER_H_
 
-#include "SimpleSoftOMXComponent.h"
+#include <media/stagefright/omx/SimpleSoftOMXComponent.h>
 
 struct VO_AUDIO_CODECAPI;
 struct VO_MEM_OPERATOR;
@@ -42,6 +42,8 @@ protected:
             OMX_INDEXTYPE index, const OMX_PTR params);
 
     virtual void onQueueFilled(OMX_U32 portIndex);
+
+    virtual void onReset();
 
 private:
     enum {

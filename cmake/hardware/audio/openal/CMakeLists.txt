@@ -13,6 +13,9 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 if (MSVC)
     include(${M3E_SOURCE_DIR}/cmake/external/openal-soft/include.cmake)
     set(LIB_OPENAL  OpenAL)
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})  
 else()
     find_package(OpenAL REQUIRED)
     include_directories(AFTER ${OPENAL_INCLUDE_DIR})
@@ -30,13 +33,6 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/audio/openal )
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/audio_openal.cpp
 )
-
-if (MSVC)
-    list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.h
-    ${MSVC_PATH}/sys/time.c
-    )
-endif()
 
 # target files
 set(LIB_NAME audio_primary_openal)

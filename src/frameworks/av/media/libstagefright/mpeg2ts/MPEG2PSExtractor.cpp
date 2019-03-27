@@ -38,6 +38,9 @@
 
 #include <inttypes.h>
 
+#include "CasManager.h"
+#include <android/hardware/cas/native/1.0/IDescrambler.h>
+
 namespace android {
 #if !defined(_MSC_VER)
 struct MPEG2PSExtractor::Track : public MediaSource {

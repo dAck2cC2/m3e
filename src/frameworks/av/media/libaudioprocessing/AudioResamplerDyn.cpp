@@ -181,7 +181,7 @@ template<typename TC, typename TI, typename TO>
 AudioResamplerDyn<TC, TI, TO>::AudioResamplerDyn(
         int inChannelCount, int32_t sampleRate, src_quality quality)
     : AudioResampler(inChannelCount, sampleRate, quality),
-      mResampleFunc(0), mFilterSampleRate(0), mFilterQuality(DEFAULT_SRC_QUALITY),
+      mResampleFunc(0), mFilterSampleRate(0), mFilterQuality(DEFAULT_QUALITY),
     mCoefBuffer(NULL)
 {
     mVolumeSimd[0] = mVolumeSimd[1] = 0;

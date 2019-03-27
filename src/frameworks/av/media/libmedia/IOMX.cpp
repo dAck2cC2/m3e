@@ -64,7 +64,7 @@ enum {
 
 class BpOMX : public BpInterface<IOMX> {
 public:
-    BpOMX(const sp<IBinder> &impl)
+    explicit BpOMX(const sp<IBinder> &impl)
         : BpInterface<IOMX>(impl) {
     }
 
