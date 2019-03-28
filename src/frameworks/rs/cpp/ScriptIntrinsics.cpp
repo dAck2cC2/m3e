@@ -24,6 +24,19 @@
 using namespace android;
 using namespace RSC;
 
+using android::RSC::ScriptIntrinsic;
+using android::RSC::ScriptIntrinsic3DLUT;
+using android::RSC::ScriptIntrinsicBlend;
+using android::RSC::ScriptIntrinsicBlur;
+using android::RSC::ScriptIntrinsicColorMatrix;
+using android::RSC::ScriptIntrinsicConvolve3x3;
+using android::RSC::ScriptIntrinsicConvolve5x5;
+using android::RSC::ScriptIntrinsicHistogram;
+using android::RSC::ScriptIntrinsicLUT;
+using android::RSC::ScriptIntrinsicResize;
+using android::RSC::ScriptIntrinsicYuvToRGB;
+using android::RSC::sp;
+
 ScriptIntrinsic::ScriptIntrinsic(sp<RS> rs, int id, sp<const Element> e)
     : Script(nullptr, rs) {
     mID = createDispatch(rs, RS::dispatch->ScriptIntrinsicCreate(rs->getContext(), id,
@@ -35,7 +48,7 @@ ScriptIntrinsic::~ScriptIntrinsic() {
 
 }
 
-sp<ScriptIntrinsic3DLUT> ScriptIntrinsic3DLUT::create(sp<RS> rs, sp<const Element> e) {
+sp<ScriptIntrinsic3DLUT> ScriptIntrinsic3DLUT::create(const sp<RS>& rs, const sp<const Element>& e) {
     if (e->isCompatible(Element::U8_4(rs)) == false) {
         rs->throwError(RS_ERROR_INVALID_ELEMENT, "Element not supported for intrinsic");
         return nullptr;
@@ -47,7 +60,7 @@ ScriptIntrinsic3DLUT::ScriptIntrinsic3DLUT(sp<RS> rs, sp<const Element> e)
     : ScriptIntrinsic(rs, RS_SCRIPT_INTRINSIC_ID_3DLUT, e) {
 
 }
-void ScriptIntrinsic3DLUT::forEach(sp<Allocation> ain, sp<Allocation> aout) {
+void ScriptIntrinsic3DLUT::forEach(const sp<Allocation>& ain, const sp<Allocation>& aout) {
     if (ain->getType()->getElement()->isCompatible(mElement) == false ||
         aout->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "3DLUT forEach element mismatch");
@@ -55,7 +68,7 @@ void ScriptIntrinsic3DLUT::forEach(sp<Allocation> ain, sp<Allocation> aout) {
     }
     Script::forEach(0, ain, aout, nullptr, 0);
 }
-void ScriptIntrinsic3DLUT::setLUT(sp<Allocation> lut) {
+void ScriptIntrinsic3DLUT::setLUT(const sp<Allocation>& lut) {
     sp<const Type> t = lut->getType();
     if (!t->getElement()->isCompatible(mElement)) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "setLUT element does not match");
@@ -69,7 +82,7 @@ void ScriptIntrinsic3DLUT::setLUT(sp<Allocation> lut) {
     Script::setVar(0, lut);
 }
 
-sp<ScriptIntrinsicBlend> ScriptIntrinsicBlend::create(sp<RS> rs, sp<const Element> e) {
+sp<ScriptIntrinsicBlend> ScriptIntrinsicBlend::create(const sp<RS>& rs, const sp<const Element>& e) {
     if (e->isCompatible(Element::U8_4(rs)) == false) {
         rs->throwError(RS_ERROR_INVALID_ELEMENT, "Element not supported for intrinsic");
         return nullptr;
@@ -81,7 +94,7 @@ ScriptIntrinsicBlend::ScriptIntrinsicBlend(sp<RS> rs, sp<const Element> e)
     : ScriptIntrinsic(rs, RS_SCRIPT_INTRINSIC_ID_BLEND, e) {
 }
 
-void ScriptIntrinsicBlend::forEachClear(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachClear(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -89,7 +102,7 @@ void ScriptIntrinsicBlend::forEachClear(sp<Allocation> in, sp<Allocation> out) {
     Script::forEach(0, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachSrc(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachSrc(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -97,7 +110,7 @@ void ScriptIntrinsicBlend::forEachSrc(sp<Allocation> in, sp<Allocation> out) {
     Script::forEach(1, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachDst(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachDst(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -105,7 +118,7 @@ void ScriptIntrinsicBlend::forEachDst(sp<Allocation> in, sp<Allocation> out) {
     Script::forEach(2, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachSrcOver(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachSrcOver(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -113,7 +126,7 @@ void ScriptIntrinsicBlend::forEachSrcOver(sp<Allocation> in, sp<Allocation> out)
     Script::forEach(3, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachDstOver(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachDstOver(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -121,7 +134,7 @@ void ScriptIntrinsicBlend::forEachDstOver(sp<Allocation> in, sp<Allocation> out)
     Script::forEach(4, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachSrcIn(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachSrcIn(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -129,7 +142,7 @@ void ScriptIntrinsicBlend::forEachSrcIn(sp<Allocation> in, sp<Allocation> out) {
     Script::forEach(5, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachDstIn(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachDstIn(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -137,7 +150,7 @@ void ScriptIntrinsicBlend::forEachDstIn(sp<Allocation> in, sp<Allocation> out) {
     Script::forEach(6, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachSrcOut(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachSrcOut(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -145,7 +158,7 @@ void ScriptIntrinsicBlend::forEachSrcOut(sp<Allocation> in, sp<Allocation> out) 
     Script::forEach(7, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachDstOut(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachDstOut(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -153,7 +166,7 @@ void ScriptIntrinsicBlend::forEachDstOut(sp<Allocation> in, sp<Allocation> out) 
     Script::forEach(8, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachSrcAtop(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachSrcAtop(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -161,7 +174,7 @@ void ScriptIntrinsicBlend::forEachSrcAtop(sp<Allocation> in, sp<Allocation> out)
     Script::forEach(9, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachDstAtop(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachDstAtop(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -169,7 +182,7 @@ void ScriptIntrinsicBlend::forEachDstAtop(sp<Allocation> in, sp<Allocation> out)
     Script::forEach(10, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachXor(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachXor(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -177,7 +190,7 @@ void ScriptIntrinsicBlend::forEachXor(sp<Allocation> in, sp<Allocation> out) {
     Script::forEach(11, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachMultiply(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachMultiply(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -185,7 +198,7 @@ void ScriptIntrinsicBlend::forEachMultiply(sp<Allocation> in, sp<Allocation> out
     Script::forEach(14, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachAdd(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachAdd(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -193,7 +206,7 @@ void ScriptIntrinsicBlend::forEachAdd(sp<Allocation> in, sp<Allocation> out) {
     Script::forEach(34, in, out, nullptr, 0);
 }
 
-void ScriptIntrinsicBlend::forEachSubtract(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicBlend::forEachSubtract(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (in->getType()->getElement()->isCompatible(mElement) == false ||
         out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blend");
@@ -204,7 +217,7 @@ void ScriptIntrinsicBlend::forEachSubtract(sp<Allocation> in, sp<Allocation> out
 
 
 
-sp<ScriptIntrinsicBlur> ScriptIntrinsicBlur::create(sp<RS> rs, sp<const Element> e) {
+sp<ScriptIntrinsicBlur> ScriptIntrinsicBlur::create(const sp<RS>& rs, const sp<const Element>& e) {
     if ((e->isCompatible(Element::U8_4(rs)) == false) &&
         (e->isCompatible(Element::U8(rs)) == false)) {
         rs->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blur");
@@ -218,7 +231,7 @@ ScriptIntrinsicBlur::ScriptIntrinsicBlur(sp<RS> rs, sp<const Element> e)
 
 }
 
-void ScriptIntrinsicBlur::setInput(sp<Allocation> in) {
+void ScriptIntrinsicBlur::setInput(const sp<Allocation>& in) {
     if (in->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blur input");
         return;
@@ -226,7 +239,7 @@ void ScriptIntrinsicBlur::setInput(sp<Allocation> in) {
     Script::setVar(1, in);
 }
 
-void ScriptIntrinsicBlur::forEach(sp<Allocation> out) {
+void ScriptIntrinsicBlur::forEach(const sp<Allocation>& out) {
     if (out->getType()->getElement()->isCompatible(mElement) == false) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element in blur output");
         return;
@@ -244,7 +257,7 @@ void ScriptIntrinsicBlur::setRadius(float radius) {
 
 
 
-sp<ScriptIntrinsicColorMatrix> ScriptIntrinsicColorMatrix::create(sp<RS> rs) {
+sp<ScriptIntrinsicColorMatrix> ScriptIntrinsicColorMatrix::create(const sp<RS>& rs) {
     return new ScriptIntrinsicColorMatrix(rs, Element::RGBA_8888(rs));
 }
 
@@ -255,7 +268,7 @@ ScriptIntrinsicColorMatrix::ScriptIntrinsicColorMatrix(sp<RS> rs, sp<const Eleme
 
 }
 
-void ScriptIntrinsicColorMatrix::forEach(sp<Allocation> in, sp<Allocation> out) {
+void ScriptIntrinsicColorMatrix::forEach(const sp<Allocation>& in, const sp<Allocation>& out) {
     if (!(in->getType()->getElement()->isCompatible(Element::U8(mRS))) &&
         !(in->getType()->getElement()->isCompatible(Element::U8_2(mRS))) &&
         !(in->getType()->getElement()->isCompatible(Element::U8_3(mRS))) &&
@@ -337,7 +350,7 @@ void ScriptIntrinsicColorMatrix::setYUVtoRGB() {
 
 
 
-sp<ScriptIntrinsicConvolve3x3> ScriptIntrinsicConvolve3x3::create(sp<RS> rs, sp<const Element> e) {
+sp<ScriptIntrinsicConvolve3x3> ScriptIntrinsicConvolve3x3::create(const sp<RS>& rs, const sp<const Element>& e) {
     if (!(e->isCompatible(Element::U8(rs))) &&
         !(e->isCompatible(Element::U8_2(rs))) &&
         !(e->isCompatible(Element::U8_3(rs))) &&
@@ -358,7 +371,7 @@ ScriptIntrinsicConvolve3x3::ScriptIntrinsicConvolve3x3(sp<RS> rs, sp<const Eleme
 
 }
 
-void ScriptIntrinsicConvolve3x3::setInput(sp<Allocation> in) {
+void ScriptIntrinsicConvolve3x3::setInput(const sp<Allocation>& in) {
     if (!(in->getType()->getElement()->isCompatible(mElement))) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Element mismatch in Convolve3x3");
         return;
@@ -366,7 +379,7 @@ void ScriptIntrinsicConvolve3x3::setInput(sp<Allocation> in) {
     Script::setVar(1, in);
 }
 
-void ScriptIntrinsicConvolve3x3::forEach(sp<Allocation> out) {
+void ScriptIntrinsicConvolve3x3::forEach(const sp<Allocation>& out) {
     if (!(out->getType()->getElement()->isCompatible(mElement))) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Element mismatch in Convolve3x3");
         return;
@@ -378,7 +391,7 @@ void ScriptIntrinsicConvolve3x3::setCoefficients(float* v) {
     Script::setVar(0, (void*)v, sizeof(float) * 9);
 }
 
-sp<ScriptIntrinsicConvolve5x5> ScriptIntrinsicConvolve5x5::create(sp<RS> rs, sp<const Element> e) {
+sp<ScriptIntrinsicConvolve5x5> ScriptIntrinsicConvolve5x5::create(const sp<RS>& rs, const sp<const Element>& e) {
     if (!(e->isCompatible(Element::U8(rs))) &&
         !(e->isCompatible(Element::U8_2(rs))) &&
         !(e->isCompatible(Element::U8_3(rs))) &&
@@ -399,7 +412,7 @@ ScriptIntrinsicConvolve5x5::ScriptIntrinsicConvolve5x5(sp<RS> rs, sp<const Eleme
 
 }
 
-void ScriptIntrinsicConvolve5x5::setInput(sp<Allocation> in) {
+void ScriptIntrinsicConvolve5x5::setInput(const sp<Allocation>& in) {
     if (!(in->getType()->getElement()->isCompatible(mElement))) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Element mismatch in Convolve5x5 input");
         return;
@@ -407,7 +420,7 @@ void ScriptIntrinsicConvolve5x5::setInput(sp<Allocation> in) {
     Script::setVar(1, in);
 }
 
-void ScriptIntrinsicConvolve5x5::forEach(sp<Allocation> out) {
+void ScriptIntrinsicConvolve5x5::forEach(const sp<Allocation>& out) {
     if (!(out->getType()->getElement()->isCompatible(mElement))) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Element mismatch in Convolve5x5 output");
         return;
@@ -420,7 +433,7 @@ void ScriptIntrinsicConvolve5x5::setCoefficients(float* v) {
     Script::setVar(0, (void*)v, sizeof(float) * 25);
 }
 
-sp<ScriptIntrinsicHistogram> ScriptIntrinsicHistogram::create(sp<RS> rs, sp<const Element> e) {
+sp<ScriptIntrinsicHistogram> ScriptIntrinsicHistogram::create(const sp<RS>& rs, const sp<const Element>& e) {
     return new ScriptIntrinsicHistogram(rs, e);
 }
 
@@ -429,7 +442,7 @@ ScriptIntrinsicHistogram::ScriptIntrinsicHistogram(sp<RS> rs, sp<const Element> 
 
 }
 
-void ScriptIntrinsicHistogram::setOutput(sp<Allocation> out) {
+void ScriptIntrinsicHistogram::setOutput(const sp<Allocation>& out) {
     if (!(out->getType()->getElement()->isCompatible(Element::U32(mRS))) &&
         !(out->getType()->getElement()->isCompatible(Element::U32_2(mRS))) &&
         !(out->getType()->getElement()->isCompatible(Element::U32_3(mRS))) &&
@@ -469,7 +482,7 @@ void ScriptIntrinsicHistogram::setDotCoefficients(float r, float g, float b, flo
 
 }
 
-void ScriptIntrinsicHistogram::forEach(sp<Allocation> ain) {
+void ScriptIntrinsicHistogram::forEach(const sp<Allocation>& ain) {
     if (ain->getType()->getElement()->getVectorSize() <
         mOut->getType()->getElement()->getVectorSize()) {
         mRS->throwError(RS_ERROR_INVALID_PARAMETER,
@@ -488,7 +501,7 @@ void ScriptIntrinsicHistogram::forEach(sp<Allocation> ain) {
 }
 
 
-void ScriptIntrinsicHistogram::forEach_dot(sp<Allocation> ain) {
+void ScriptIntrinsicHistogram::forEach_dot(const sp<Allocation>& ain) {
     if (mOut->getType()->getElement()->getVectorSize() != 1) {
         mRS->throwError(RS_ERROR_INVALID_PARAMETER,
                         "Output Histogram allocation must have vector size of 1 " \
@@ -505,7 +518,7 @@ void ScriptIntrinsicHistogram::forEach_dot(sp<Allocation> ain) {
     Script::forEach(1, ain, nullptr, nullptr, 0);
 }
 
-sp<ScriptIntrinsicLUT> ScriptIntrinsicLUT::create(sp<RS> rs, sp<const Element> e) {
+sp<ScriptIntrinsicLUT> ScriptIntrinsicLUT::create(const sp<RS>& rs, const sp<const Element>& e) {
     if (!(e->isCompatible(Element::U8_4(rs)))) {
         rs->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element for LUT");
         return nullptr;
@@ -525,7 +538,7 @@ ScriptIntrinsicLUT::ScriptIntrinsicLUT(sp<RS> rs, sp<const Element> e)
     setVar(0, LUT);
 }
 
-void ScriptIntrinsicLUT::forEach(sp<Allocation> ain, sp<Allocation> aout) {
+void ScriptIntrinsicLUT::forEach(const sp<Allocation>& ain, const sp<Allocation>& aout) {
     if (mDirty) {
         LUT->copy1DFrom((void*)mCache);
         mDirty = false;
@@ -570,7 +583,7 @@ ScriptIntrinsicLUT::~ScriptIntrinsicLUT() {
 
 }
 
-sp<ScriptIntrinsicResize> ScriptIntrinsicResize::create(sp<RS> rs) {
+sp<ScriptIntrinsicResize> ScriptIntrinsicResize::create(const sp<RS>& rs) {
     return new ScriptIntrinsicResize(rs, nullptr);
 }
 
@@ -578,7 +591,7 @@ ScriptIntrinsicResize::ScriptIntrinsicResize(sp<RS> rs, sp<const Element> e)
     : ScriptIntrinsic(rs, RS_SCRIPT_INTRINSIC_ID_RESIZE, e) {
 
 }
-void ScriptIntrinsicResize::forEach_bicubic(sp<Allocation> aout) {
+void ScriptIntrinsicResize::forEach_bicubic(const sp<Allocation>& aout) {
     if (aout == mInput) {
         mRS->throwError(RS_ERROR_INVALID_PARAMETER, "Resize Input and Ouput cannot be the same");
     }
@@ -589,7 +602,7 @@ void ScriptIntrinsicResize::forEach_bicubic(sp<Allocation> aout) {
     }
     Script::forEach(0, nullptr, aout, nullptr, 0);
 }
-void ScriptIntrinsicResize::setInput(sp<Allocation> ain) {
+void ScriptIntrinsicResize::setInput(const sp<Allocation>& ain) {
     if (!(ain->getType()->getElement()->isCompatible(Element::U8(mRS))) &&
         !(ain->getType()->getElement()->isCompatible(Element::U8_2(mRS))) &&
         !(ain->getType()->getElement()->isCompatible(Element::U8_3(mRS))) &&
@@ -607,7 +620,7 @@ void ScriptIntrinsicResize::setInput(sp<Allocation> ain) {
 }
 
 
-sp<ScriptIntrinsicYuvToRGB> ScriptIntrinsicYuvToRGB::create(sp<RS> rs, sp<const Element> e) {
+sp<ScriptIntrinsicYuvToRGB> ScriptIntrinsicYuvToRGB::create(const sp<RS>& rs, const sp<const Element>& e) {
     if (!(e->isCompatible(Element::U8_4(rs)))) {
         rs->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element for YuvToRGB");
         return nullptr;
@@ -620,7 +633,7 @@ ScriptIntrinsicYuvToRGB::ScriptIntrinsicYuvToRGB(sp<RS> rs, sp<const Element> e)
 
 }
 
-void ScriptIntrinsicYuvToRGB::setInput(sp<Allocation> in) {
+void ScriptIntrinsicYuvToRGB::setInput(const sp<Allocation>& in) {
     if (!(in->getType()->getElement()->isCompatible(Element::YUV(mRS)))) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element for input in YuvToRGB");
         return;
@@ -628,7 +641,7 @@ void ScriptIntrinsicYuvToRGB::setInput(sp<Allocation> in) {
     Script::setVar(0, in);
 }
 
-void ScriptIntrinsicYuvToRGB::forEach(sp<Allocation> out) {
+void ScriptIntrinsicYuvToRGB::forEach(const sp<Allocation>& out) {
     if (!(out->getType()->getElement()->isCompatible(mElement))) {
         mRS->throwError(RS_ERROR_INVALID_ELEMENT, "Invalid element for output in YuvToRGB");
         return;

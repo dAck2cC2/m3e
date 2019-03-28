@@ -27,7 +27,7 @@
 namespace android {
 namespace hardware {
 
-class ICameraClient: public IInterface
+class ICameraClient: public android::IInterface
 {
 public:
     DECLARE_META_INTERFACE(CameraClient);
@@ -41,11 +41,18 @@ public:
     // ICamera::releaseRecordingFrameHandle to release the frame handle.
     virtual void            recordingFrameHandleCallbackTimestamp(nsecs_t timestamp,
                                          native_handle_t* handle) = 0;
+
+    // Invoked to send a batch of recording frame handles with timestamp. Call
+    // ICamera::releaseRecordingFrameHandleBatch to release the frame handles.
+    // Size of timestamps and handles must match
+    virtual void            recordingFrameHandleCallbackTimestampBatch(
+                                        const std::vector<nsecs_t>& timestamps,
+                                        const std::vector<native_handle_t*>& handles) = 0;
 };
 
 // ----------------------------------------------------------------------------
 
-class BnCameraClient: public BnInterface<ICameraClient>
+class BnCameraClient: public android::BnInterface<ICameraClient>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

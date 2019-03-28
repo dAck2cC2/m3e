@@ -31,6 +31,9 @@ if (MSVC)
     add_definitions(-D__unused= )
     add_definitions(-Dstrlcpy=strncpy)
     #add_definitions(-Dmemalign=_aligned_malloc)
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()
@@ -104,13 +107,9 @@ ${${PROJECT_NAME}_SERVICE_PATH}/AudioPolicyService.cpp
 ${${PROJECT_NAME}_SERVICE_PATH}/AudioPolicyEffects.cpp
 ${${PROJECT_NAME}_SERVICE_PATH}/AudioPolicyInterfaceImpl.cpp
 ${${PROJECT_NAME}_SERVICE_PATH}/AudioPolicyClientImpl.cpp
-#${${PROJECT_NAME}_SERVICE_PATH}/AudioPolicyInterfaceImplLegacy.cpp
-#${${PROJECT_NAME}_SERVICE_PATH}/AudioPolicyClientImplLegacy.cpp
 )
 if(MSVC)
     list(APPEND ${PROJECT_NAME}_SERVICE
-    ${MSVC_PATH}/sys/time.h
-    ${MSVC_PATH}/sys/time.c
     ${M3E_SOURCE_DIR}/src/frameworks/av/services/audioflinger/ServiceUtilities.h 
     ${M3E_SOURCE_DIR}/src/frameworks/av/services/audioflinger/ServiceUtilities.cpp
     )

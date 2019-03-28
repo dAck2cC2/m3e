@@ -17,10 +17,11 @@
 #if !defined(__APPLE__)
 #include <malloc.h>
 #endif
+#if defined(_MSC_VER)
+#include <dirent.h>
+#endif
 #include <string.h>
-//#include <pthread.h>
-#include <cutils/threads.h>
-#include <utils/AndroidThreads.h>
+#include <pthread.h>
 
 #include "RenderScript.h"
 #include "rsCppStructs.h"
@@ -31,20 +32,14 @@
 #endif
 #include <unistd.h>
 
-#if !defined(RS_SERVER) && !defined(RS_COMPATIBILITY_LIB) //&& defined(__ANDROID__)
-#include <cutils/properties.h>
-#else
-#include "rsCompatibilityLib.h"
-#endif
+using namespace android::RSC;
 
-#include <sys/time.h>
-
-using namespace android;
-using namespace RSC;
+using android::RSC::RS;
+using android::RSC::RSError;
 
 bool RS::gInitialized = false;
 bool RS::usingNative = false;
-mutex_t RS::gInitMutex = MUTEX_INITIALIZER;
+pthread_mutex_t RS::gInitMutex = PTHREAD_MUTEX_INITIALIZER;
 dispatchTable* RS::dispatch = nullptr;
 static int gInitError = 0;
 
@@ -107,9 +102,9 @@ static bool loadSO(const char* filename, int targetApi) {
 }
 
 static uint32_t getProp(const char *str) {
-#if !defined(__LP64__) && !defined(RS_SERVER) && defined(__ANDROID__)
+#if !defined(__LP64__) && defined(__ANDROID__)
     char buf[256];
-    property_get(str, buf, "0");
+    android::renderscript::property_get(str, buf, "0");
     return atoi(buf);
 #else
     return 0;
@@ -117,11 +112,11 @@ static uint32_t getProp(const char *str) {
 }
 
 bool RS::initDispatch(int targetApi) {
-    mutex_lock(&gInitMutex);
+    pthread_mutex_lock(&gInitMutex);
     if (gInitError) {
         goto error;
     } else if (gInitialized) {
-        mutex_unlock(&gInitMutex);
+        pthread_mutex_unlock(&gInitMutex);
         return true;
     }
 
@@ -141,12 +136,12 @@ bool RS::initDispatch(int targetApi) {
 
     gInitialized = true;
 
-    mutex_unlock(&gInitMutex);
+    pthread_mutex_unlock(&gInitMutex);
     return true;
 
  error:
     gInitError = 1;
-    mutex_unlock(&gInitMutex);
+    pthread_mutex_unlock(&gInitMutex);
     return false;
 }
 

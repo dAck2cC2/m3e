@@ -36,6 +36,7 @@ struct ProcessInfoInterface;
 struct ResourceInfo {
     int64_t clientId;
     sp<IResourceManagerClient> client;
+    sp<IBinder::DeathRecipient> deathNotifier;
     Vector<MediaResource> resources;
 #if defined(_MSC_VER)
 	bool operator<(const ResourceInfo &rhs) const { return (clientId < rhs.clientId); };
@@ -55,7 +56,7 @@ public:
     virtual status_t dump(int fd, const Vector<String16>& args);
 
     ResourceManagerService();
-    ResourceManagerService(sp<ProcessInfoInterface> processInfo);
+    explicit ResourceManagerService(sp<ProcessInfoInterface> processInfo);
 
     // IResourceManagerService interface
     virtual void config(const Vector<MediaResourcePolicy> &policies);
@@ -72,6 +73,8 @@ public:
     // according to the requested resources.
     // Returns true if any resource has been reclaimed, otherwise returns false.
     virtual bool reclaimResource(int callingPid, const Vector<MediaResource> &resources);
+
+    void removeResource(int pid, int64_t clientId, bool checkValid);
 
 protected:
     virtual ~ResourceManagerService();

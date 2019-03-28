@@ -33,7 +33,7 @@ namespace hardware {
 
 class ICameraClient;
 
-class ANDROID_API_CAMERA_CLIENT ICamera: public IInterface
+class ANDROID_API_CAMERA_CLIENT ICamera: public android::IInterface
 {
     /**
      * Keep up-to-date with ICamera.aidl in frameworks/base
@@ -101,6 +101,11 @@ public:
     // ICameraClient::recordingFrameHandleCallbackTimestamp.
     virtual void            releaseRecordingFrameHandle(native_handle_t *handle) = 0;
 
+    // Release a batch of recording frame handles that was received via
+    // ICameraClient::recordingFrameHandleCallbackTimestampBatch
+    virtual void            releaseRecordingFrameHandleBatch(
+            const std::vector<native_handle_t*>& handles) = 0;
+
     // auto focus
     virtual status_t        autoFocus() = 0;
 
@@ -139,7 +144,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnCamera: public BnInterface<ICamera>
+class BnCamera: public android::BnInterface<ICamera>
 {
 public:
     virtual status_t    onTransact( uint32_t code,
