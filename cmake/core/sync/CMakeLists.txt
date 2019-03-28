@@ -8,10 +8,14 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libsync/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libsync/ )
 
 # header files
-file(GLOB SYNC_HEADER_FILES  ${HEADER_PATH}/sync/*.h)
+file(GLOB SYNC_HEADER_FILES  
+${HEADER_PATH}/sync/*.h
+${HEADER_PATH}/android/*.h
+${HEADER_PATH}/ndk/*.h
+)
 
 # source files
-file(GLOB SYNC_SOURCE_FILES ${SOURCE_PATH}/*.c)
+file(GLOB SYNC_SOURCE_FILES ${SOURCE_PATH}/sync_dummy.c)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

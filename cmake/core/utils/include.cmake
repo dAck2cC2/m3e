@@ -27,5 +27,7 @@ elseif(UNIX)
 endif()
 
 # include
+include(${M3E_SOURCE_DIR}/cmake/core/system/include.cmake)
+
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/core/libutils/include)
 

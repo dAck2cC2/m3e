@@ -73,15 +73,17 @@ LIBLOG_HIDDEN void __android_log_config_write() {
                                 &logdLoggerWrite);
     __android_log_add_transport(&__android_log_persist_write, &pmsgLoggerWrite);
 #else
-    //extern struct android_log_transport_write fakeLoggerWrite;
+#if 0
+    extern struct android_log_transport_write fakeLoggerWrite;
 
-    //__android_log_add_transport(&__android_log_transport_write,
-    //                            &fakeLoggerWrite);
-
+    __android_log_add_transport(&__android_log_transport_write,
+                                &fakeLoggerWrite);
+#else
 	extern struct android_log_transport_write fileLoggerWrite;
 
 	__android_log_add_transport(&__android_log_transport_write,
 								&fileLoggerWrite);
+#endif
 #endif
   }
 

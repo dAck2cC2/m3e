@@ -28,7 +28,7 @@
 
 #include <log/log.h>
 #include <cutils/qtaguid.h>
-#if 0
+#if TODO
 static const char* CTRL_PROCPATH = "/proc/net/xt_qtaguid/ctrl";
 static const int CTRL_MAX_INPUT_LEN = 128;
 static const char *GLOBAL_PACIFIER_PARAM = "/sys/module/xt_qtaguid/parameters/passive";
@@ -96,7 +96,7 @@ static int write_param(const char *param_path, const char *value) {
 }
 #endif
 int qtaguid_tagSocket(int sockfd, int tag, uid_t uid) {
-#if 0
+#if TODO
     char lineBuf[CTRL_MAX_INPUT_LEN];
     int res;
     uint64_t kTag = ((uint64_t)tag << 32);
@@ -120,7 +120,7 @@ int qtaguid_tagSocket(int sockfd, int tag, uid_t uid) {
 }
 
 int qtaguid_untagSocket(int sockfd) {
-#if 0
+#if TODO
     char lineBuf[CTRL_MAX_INPUT_LEN];
     int res;
 
@@ -137,7 +137,7 @@ int qtaguid_untagSocket(int sockfd) {
 	return 0;
 #endif
 }
-#if 0
+#if TODO
 int qtaguid_setCounterSet(int counterSetNum, uid_t uid) {
     char lineBuf[CTRL_MAX_INPUT_LEN];
     int res;

@@ -27,7 +27,7 @@ extern "C" {
          * Returns 0 on failure.
          */
 ANDROID_API_CUTILS
-void *load_file(const char *fn, unsigned *sz);
+extern void *load_file(const char *fn, unsigned *sz);
 
         /* This is the range of UIDs (and GIDs) that are reserved
          * for assigning to applications.

@@ -26,9 +26,21 @@ ${SOURCE_PATH}/*.h
 )
 
 # source files
-file(GLOB LOG_SOURCE_FILES 
-${SOURCE_PATH}/*.c
-${SOURCE_PATH}/*.cpp
+set(LOG_SOURCE_FILES 
+${SOURCE_PATH}/config_read.c
+${SOURCE_PATH}/config_write.c
+${SOURCE_PATH}/fake_log_device.c
+${SOURCE_PATH}/fake_writer.c
+${SOURCE_PATH}/log_event_list.c
+${SOURCE_PATH}/log_event_write.c
+${SOURCE_PATH}/log_ratelimit.cpp
+${SOURCE_PATH}/logger_lock.c
+${SOURCE_PATH}/logger_name.c
+${SOURCE_PATH}/logger_write.c
+${SOURCE_PATH}/logprint.c
+${SOURCE_PATH}/uio.c
+
+${SOURCE_PATH}/local/file_writer.c
 )
 
 #set_source_files_properties( ${LOG_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )
