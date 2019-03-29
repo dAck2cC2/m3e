@@ -24,12 +24,15 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+#include <memory>
+
 #include <utils/Compat.h>
 #include <utils/Errors.h>
-#include <utils/FileMap.h>
 #include <utils/String8.h>
 
 namespace android {
+
+class FileMap;
 
 /*
  * Instances of this class provide read-only operations on a byte stream.
@@ -44,11 +47,11 @@ namespace android {
  */
 class Asset {
 public:
-    virtual ~Asset(void);
+    virtual ~Asset(void) = default;
 
     static int32_t getGlobalCount();
     static String8 getAssetAllocations();
-    
+
     /* used when opening an asset */
     typedef enum AccessMode {
         ACCESS_UNKNOWN = 0,
@@ -119,6 +122,19 @@ public:
     const char* getAssetSource(void) const { return mAssetSource.string(); }
 
 protected:
+    /*
+     * Adds this Asset to the global Asset list for debugging and
+     * accounting.
+     * Concrete subclasses must call this in their constructor.
+     */
+    static void registerAsset(Asset* asset);
+
+    /*
+     * Removes this Asset from the global Asset list.
+     * Concrete subclasses must call this in their destructor.
+     */
+    static void unregisterAsset(Asset* asset);
+
     Asset(void);        // constructor; only invoked indirectly
 
     /* handle common seek() housekeeping */
@@ -136,6 +152,7 @@ private:
 
     /* AssetManager needs access to our "create" functions */
     friend class AssetManager;
+    friend class ApkAssets;
 
     /*
      * Create the asset from a named file on disk.
@@ -180,6 +197,9 @@ private:
      */
     static Asset* createFromUncompressedMap(FileMap* dataMap, AccessMode mode);
 
+    static std::unique_ptr<Asset> createFromUncompressedMap(std::unique_ptr<FileMap> dataMap,
+        AccessMode mode);
+
     /*
      * Create the asset from a memory-mapped file segment with compressed
      * data.
@@ -187,6 +207,9 @@ private:
      * The asset takes ownership of the FileMap.
      */
     static Asset* createFromCompressedMap(FileMap* dataMap,
+        size_t uncompressedLen, AccessMode mode);
+
+    static std::unique_ptr<Asset> createFromCompressedMap(std::unique_ptr<FileMap> dataMap,
         size_t uncompressedLen, AccessMode mode);
 
 
@@ -197,7 +220,7 @@ private:
 
     AccessMode  mAccessMode;        // how the asset was opened
     String8    mAssetSource;       // debug string
-    
+
     Asset*		mNext;				// linked list.
     Asset*		mPrev;
 };
@@ -263,7 +286,7 @@ private:
 #endif
     FileMap*    mMap;           // for memory map
     unsigned char* mBuf;        // for read
-    
+
     const void* ensureAlignment(FileMap* map);
 };
 
@@ -300,7 +323,7 @@ public:
     virtual const void* getBuffer(bool wordAligned);
     virtual off64_t getLength(void) const { return mUncompressedLen; }
     virtual off64_t getRemainingLength(void) const { return mUncompressedLen-mOffset; }
-    virtual int openFileDescriptor(off64_t* outStart, off64_t* outLength) const { return -1; }
+    virtual int openFileDescriptor(off64_t* /* outStart */, off64_t* /* outLength */) const { return -1; }
     virtual bool isAllocated(void) const { return mBuf != NULL; }
 
 private:

@@ -39,8 +39,81 @@ class SurfaceControl;
 class BootAnimation : public Thread, public IBinder::DeathRecipient
 {
 public:
-                BootAnimation();
-    virtual     ~BootAnimation();
+    struct Texture {
+        GLint   w;
+        GLint   h;
+        GLuint  name;
+    };
+
+    struct Font {
+        FileMap* map;
+        Texture texture;
+        int char_width;
+        int char_height;
+    };
+
+    struct Animation {
+        struct Frame {
+            String8 name;
+            FileMap* map;
+            int trimX;
+            int trimY;
+            int trimWidth;
+            int trimHeight;
+            mutable GLuint tid;
+            bool operator < (const Frame& rhs) const {
+                return name < rhs.name;
+            }
+        };
+        struct Part {
+            int count;  // The number of times this part should repeat, 0 for infinite
+            int pause;  // The number of frames to pause for at the end of this part
+            int clockPosX;  // The x position of the clock, in pixels. Positive values offset from
+                            // the left of the screen, negative values offset from the right.
+            int clockPosY;  // The y position of the clock, in pixels. Positive values offset from
+                            // the bottom of the screen, negative values offset from the top.
+                            // If either of the above are INT_MIN the clock is disabled, if INT_MAX
+                            // the clock is centred on that axis.
+            String8 path;
+            String8 trimData;
+            SortedVector<Frame> frames;
+            bool playUntilComplete;
+            float backgroundColor[3];
+            uint8_t* audioData;
+            int audioLength;
+            Animation* animation;
+        };
+        int fps;
+        int width;
+        int height;
+        Vector<Part> parts;
+        String8 audioConf;
+        String8 fileName;
+        ZipFileRO* zip;
+        Font clockFont;
+    };
+
+    // All callbacks will be called from this class's internal thread.
+    class Callbacks : public RefBase {
+    public:
+        // Will be called during initialization after we have loaded
+        // the animation and be provided with all parts in animation.
+        virtual void init(const Vector<Animation::Part>& /*parts*/) {}
+
+        // Will be called while animation is playing before each part is
+        // played. It will be provided with the part and play count for it.
+        // It will be provided with the partNumber for the part about to be played,
+        // as well as a reference to the part itself. It will also be provided with
+        // which play of that part is about to start, some parts are repeated
+        // multiple times.
+        virtual void playPart(int /*partNumber*/, const Animation::Part& /*part*/,
+                              int /*playNumber*/) {}
+
+        // Will be called when animation is done and thread is shutting down.
+        virtual void shutdown() {}
+    };
+
+    BootAnimation(sp<Callbacks> callbacks);
 
     sp<SurfaceComposerClient> session() const;
 
@@ -68,66 +141,25 @@ private:
         BootAnimation* mBootAnimation;
     };
 
-    struct Texture {
-        GLint   w;
-        GLint   h;
-        GLuint  name;
-    };
-
-    struct Animation {
-        struct Frame {
-            String8 name;
-            FileMap* map;
-            int trimX;
-            int trimY;
-            int trimWidth;
-            int trimHeight;
-            mutable GLuint tid;
-            bool operator < (const Frame& rhs) const {
-                return name < rhs.name;
-            }
-        };
-        struct Part {
-            int count;  // The number of times this part should repeat, 0 for infinite
-            int pause;  // The number of frames to pause for at the end of this part
-            int clockPosY;  // The y position of the clock, in pixels, from the bottom of the
-                            // display (the clock is centred horizontally). -1 to disable the clock
-            String8 path;
-            String8 trimData;
-            SortedVector<Frame> frames;
-            bool playUntilComplete;
-            float backgroundColor[3];
-            uint8_t* audioData;
-            int audioLength;
-            Animation* animation;
-        };
-        int fps;
-        int width;
-        int height;
-        Vector<Part> parts;
-        String8 audioConf;
-        String8 fileName;
-        ZipFileRO* zip;
-    };
-
     status_t initTexture(Texture* texture, AssetManager& asset, const char* name);
-    status_t initTexture(const Animation::Frame& frame);
+    status_t initTexture(FileMap* map, int* width, int* height);
+    status_t initFont(Font* font, const char* fallback);
     bool android();
     bool movie();
-    void drawTime(const Texture& clockTex, const int yPos);
+    void drawText(const char* str, const Font& font, bool bold, int* x, int* y);
+    void drawClock(const Font& font, const int xPos, const int yPos);
+    bool validClock(const Animation::Part& part);
     Animation* loadAnimation(const String8&);
     bool playAnimation(const Animation&);
     void releaseAnimation(Animation*) const;
     bool parseAnimationDesc(Animation&);
     bool preloadZip(Animation &animation);
-    bool playSoundsAllowed() const;
 
     void checkExit();
 
     sp<SurfaceComposerClient>       mSession;
     AssetManager mAssets;
     Texture     mAndroid[2];
-    Texture     mClock;
     int         mWidth;
     int         mHeight;
     bool        mUseNpotTextures = false;
@@ -138,12 +170,14 @@ private:
     sp<Surface> mFlingerSurface;
     bool        mClockEnabled;
     bool        mTimeIsAccurate;
-    bool        mSystemBoot;
+    bool        mTimeFormat12Hour;
+    bool        mShuttingDown;
     String8     mZipFileName;
     SortedVector<String8> mLoadedFiles;
-#if ENABLE_TIME_CHECK
-    sp<TimeCheckThread> mTimeCheckThread;
-#endif // ENABLE_TIME_CHECK
+#if ENABLE_TIME_CHECK 
+    sp<TimeCheckThread> mTimeCheckThread = nullptr;
+#endif
+    sp<Callbacks> mCallbacks;
 };
 
 // ---------------------------------------------------------------------------

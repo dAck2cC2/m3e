@@ -17,6 +17,21 @@
 
 using namespace android;
 
+// Create a typedef for readability.
+typedef android::BootAnimation::Animation Animation;
+
+class DummyAnimationCallbacks : public android::BootAnimation::Callbacks {
+public:
+	void init(const Vector<Animation::Part>& parts) override {
+	};
+
+	void playPart(int partNumber, const Animation::Part& part, int playNumber) override {
+	};
+
+	void shutdown() override {
+	};
+};
+
 static sp<BootAnimation> gBootAnimation;
 
 //  interface for initrc
@@ -31,7 +46,7 @@ int open_bootanimation(const struct hw_module_t* module, const char* id,
 	struct hw_device_t** device)
 {
 	if (gBootAnimation == NULL) {
-		gBootAnimation = new BootAnimation();
+		gBootAnimation = new BootAnimation(new DummyAnimationCallbacks());
 	}
 
 	return OK;

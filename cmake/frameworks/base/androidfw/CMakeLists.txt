@@ -26,6 +26,14 @@ zlib
 ziparchive
 )
 
+if(MSVC)
+    add_definitions(-DNOMINMAX=1)
+    add_definitions(-Dstrcasecmp=strcmp)
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ANDROIDFW_DEPLIB ${LIB_MSVC_WRAP})
+endif(MSVC)
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/libs/androidfw/include/androidfw )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/base/libs/androidfw )
 
@@ -46,17 +54,6 @@ ${SOURCE_PATH}/TypeWrappers.cpp
 ${SOURCE_PATH}/ZipFileRO.cpp
 ${SOURCE_PATH}/ZipUtils.cpp
 )
-
-if(MSVC)
-    add_definitions(-DNOMINMAX=1)
-    add_definitions(-Dstrcasecmp=strcmp)
-
-    include_directories(AFTER ${MSVC_PATH})
-
-    list(APPEND ANDROIDFW_HEADER_FILES
-    ${MSVC_PATH}/dirent.h
-    )
-endif(MSVC)
 
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

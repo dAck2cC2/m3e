@@ -30,7 +30,14 @@ skia_android
 ${OPENGL_DEPLIB}
 )
 
-if (APPLE)
+if(MSVC)
+    #add_definitions(-DNOMINMAX=1)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+    add_definitions(-Dstrcasecmp=strcmp)
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND BOOTANIMATION_DEPLIB ${LIB_MSVC_WRAP})
+elseif (APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()
 
@@ -46,21 +53,6 @@ set( BOOTANIMATION_SOURCE_FILES
 ${SOURCE_PATH}/BootAnimation.cpp
 ${SOURCE_PATH}/main_bootanimation.cpp
 )
-
-if(MSVC)
-    #add_definitions(-DNOMINMAX=1)
-    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
-    add_definitions(-Dstrcasecmp=strcmp)
-
-    include_directories(AFTER ${MSVC_PATH})
-
-    list(APPEND BOOTANIMATION_HEADER_FILES
-    ${MSVC_PATH}/sys/time.h
-    )
-    list(APPEND BOOTANIMATION_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.c
-    )    
-endif(MSVC)
 
 set(LIB_NAME bootanimation_default)
 
