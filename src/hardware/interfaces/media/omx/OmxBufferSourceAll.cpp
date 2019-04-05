@@ -1,5 +1,7 @@
 #define LOG_TAG "android.hardware.media.omx@1.0::OmxBufferSource"
 
+#include <cutils/atomic.h>
+
 #include <android/log.h>
 #include <cutils/trace.h>
 #include <hidl/HidlTransportSupport.h>

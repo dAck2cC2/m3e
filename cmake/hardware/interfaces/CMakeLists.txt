@@ -11,11 +11,17 @@ include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 
 set(${PROJECT_NAME}_DEPLIB
 log
+utils
+hidl
 )
+
+# define
+if(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS}) 
+endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/interfaces/ )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/interfaces/ )
-
 
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES

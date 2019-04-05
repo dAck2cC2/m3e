@@ -17,6 +17,8 @@ add_definitions(-DFAKE_LOG_DEVICE=1)
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/liblog/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/liblog )
 
+include_directories(AFTER ${SOURCE_PATH})
+
 # header files
 file(GLOB LOG_HEADER_FILES
 ${HEADER_PATH}/android/*.h

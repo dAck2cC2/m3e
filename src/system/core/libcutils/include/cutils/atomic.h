@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-/* We need a stdatomic.h, which is cross-platform instead of standard one.
+   We need a stdatomic.h, which is cross-platform instead of standard one.   */
 /* #include <stdatomic.h> */
 #include <cutils/stdatomic.h>
 

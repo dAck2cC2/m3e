@@ -60,7 +60,7 @@ enum {
 
 static inline nsecs_t systemTime(int clock)
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
     static const clockid_t clocks[] = {
             CLOCK_REALTIME,
             CLOCK_MONOTONIC,

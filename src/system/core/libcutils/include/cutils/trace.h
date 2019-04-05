@@ -18,7 +18,7 @@
 #define _LIBS_CUTILS_TRACE_H
 
 #include <inttypes.h>
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__APPLE__)
 #include <cutils/stdatomic.h>
 #else
 #include <stdatomic.h>

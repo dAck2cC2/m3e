@@ -51,7 +51,7 @@
 # endif
 #elif defined (_MSC_VER) && defined(__cplusplus)
 # define _STDATOMIC_HAVE_ATOMIC
-#elif defined (__APPLE__)
+#elif defined (__APPLE__) && defined(__cplusplus)
 # define _STDATOMIC_HAVE_ATOMIC
 #else
 #endif
@@ -162,7 +162,12 @@ using std::atomic_uintmax_t;
 #include <stddef.h>  /* For ptrdiff_t.                          */
 #include <stdint.h>  /* TODO: Should pollute namespace less.    */
 #if __STDC_VERSION__ >= 201112L
+#if defined(__APPLE__)
+typedef uint16_t char16_t;
+typedef uint32_t char32_t;
+#else
 # include <uchar.h>  /* For char16_t and char32_t.              */
+#endif
 #endif
 
 #ifdef __clang__

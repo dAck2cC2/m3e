@@ -27,6 +27,7 @@
 #include <ui/GraphicBuffer.h>
 
 #include <list>
+#include <limits.h> // SSIZE_MAX of Apple
 
 struct ANativeWindowBuffer;
 

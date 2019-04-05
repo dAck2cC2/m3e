@@ -30,4 +30,5 @@ ${SOURCE_PATH}/MediaCodecsXmlParser.cpp
 )
 
 # target files
+set(LIB_TYPE STATIC)
 ADD_LIB(stagefright_xmlparser)

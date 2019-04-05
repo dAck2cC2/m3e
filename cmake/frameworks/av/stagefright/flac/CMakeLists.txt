@@ -10,6 +10,11 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 
+set(${PROJECT_NAME}_DEPLIB
+log
+utils
+FLAC
+)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/flac/dec )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/flac/dec )
