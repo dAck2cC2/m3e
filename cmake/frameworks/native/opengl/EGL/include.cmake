@@ -11,4 +11,13 @@ elseif (ENABLE_ANGLE)
     set(OPENGL_DEPLIB  EGL GLESv2 GLESv1_CM)
     include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 
+elseif (OPENGLES2_FOUND)
+    set(OPENGL_DEPLIB EGL GLESv2 GLESv1_CM)
+    #include_directories(AFTER ${EGL_INCLUDE_DIR})
+    #include_directories(AFTER ${OPENGLES2_INCLUDE_DIR})
+    #message(STATUS "OpenGLES lib: ${OPENGLES2_LIBRARY}")
+    #message(STATUS "OpenGLES inc: ${OPENGLES2_INCLUDE_DIR}")
+
+else()
+    message(FATAL_ERROR "No OpenGLES library !")
 endif()

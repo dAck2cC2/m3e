@@ -12,8 +12,10 @@ elseif(APPLE)
     add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)
 elseif(CYGWIN)
     add_definitions(-Dffs=__builtin_ffs)
+elseif(LINUX)
+    add_definitions(-D_GNU_SOURCE=1)
 elseif(UNIX)
-
+    add_definitions(-D_USING_LIBCXX=1)
 endif()
 
 # include

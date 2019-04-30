@@ -71,4 +71,9 @@ ${SOURCE_PATH}/utils/utils.c
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(${WEBP_DEC} STATIC ${WEBP_DEC_SRC})
+if(LINUX)
+	set(LIB_TYPE SHARED)
+else(LINUX)
+	set(LIB_TYPE STATIC)
+endif(LINUX)
+add_library(${WEBP_DEC} ${LIB_TYPE} ${WEBP_DEC_SRC})

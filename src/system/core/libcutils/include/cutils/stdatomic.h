@@ -39,21 +39,22 @@
 	((__GNUC__ == (x) && __GNUC_MINOR__ >= (y)) || (__GNUC__ > (x)))
 #endif /* __GNUC__ && ... */
 
-#if defined(__cplusplus) && __cplusplus >= 201103L && defined(_USING_LIBCXX)
+#if defined(__cplusplus) && __cplusplus >= 201103L //&& defined(_USING_LIBCXX)
 # ifdef __clang__
 #  if __has_feature(cxx_atomic)
 #   define _STDATOMIC_HAVE_ATOMIC
 #  endif
+# elif defined(_MSC_VER) || defined(__APPLE__)
+#   define _STDATOMIC_HAVE_ATOMIC
 # else /* gcc */
 #  if __GNUC_PREREQ(4, 7)
 #   define _STDATOMIC_HAVE_ATOMIC
 #  endif
 # endif
-#elif defined (_MSC_VER) && defined(__cplusplus)
-# define _STDATOMIC_HAVE_ATOMIC
-#elif defined (__APPLE__) && defined(__cplusplus)
-# define _STDATOMIC_HAVE_ATOMIC
+//#elif defined (__linux__) && defined(__cplusplus)
+//# define _STDATOMIC_HAVE_ATOMIC
 #else
+//#error DEBUG
 #endif
 
 #ifdef _STDATOMIC_HAVE_ATOMIC

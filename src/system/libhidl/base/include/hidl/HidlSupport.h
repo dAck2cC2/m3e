@@ -291,7 +291,7 @@ struct hidl_vec {
         : mBuffer(NULL),
           mSize(0),
           mOwnsBuffer(true) {
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__linux__)
         static_assert(hidl_vec<T>::kOffsetOfBuffer == 0, "wrong offset");
 #endif
     }

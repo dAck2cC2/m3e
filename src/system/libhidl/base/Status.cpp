@@ -21,6 +21,10 @@
 
 #include <unordered_map>
 
+#if defined(__linux__)
+#include <string.h> // strerror()
+#endif 
+
 namespace android {
 namespace hardware {
 

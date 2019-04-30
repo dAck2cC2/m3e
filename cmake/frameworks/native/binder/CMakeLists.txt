@@ -49,7 +49,7 @@ set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(binder SHARED ${BINDER_SOURCE_FILES} ${BINDER_HEADER_FILES})
 target_link_libraries(binder ${BINDER_DEPLIB})
 
-set(ENABLE_TEST true)
+#set(ENABLE_TEST true)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif()

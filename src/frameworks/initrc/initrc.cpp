@@ -67,6 +67,8 @@ void InitRC::ResetProperties()
     property_set("ro.product.board", "openal");
 	//property_set("ro.product.board", "dump");
     property_set("ro.board.platform", "win");
+#elif defined(__linux__)
+    property_set("ro.product.board", "dump");
 #else
 #error Unknown Platform
 #endif

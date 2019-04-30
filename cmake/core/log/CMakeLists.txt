@@ -58,6 +58,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 
+#set(ENABLE_TEST TRUE)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif(ENABLE_TEST)

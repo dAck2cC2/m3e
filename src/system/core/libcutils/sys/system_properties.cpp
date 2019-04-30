@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__linux__)
 #include <cutils/stdatomic.h>
 #else
 #include <stdatomic.h>
@@ -85,7 +85,11 @@ static prop_info* prop_info_new(void * p, const char *name, const uint8_t namele
     prop_info* thiz = reinterpret_cast<prop_info*>(p);
     memcpy(thiz->name, name, namelen);
     thiz->name[namelen] = '\0';
+#if defined(__linux__)
+    atomic_init((atomic_int_least32_t *)(&thiz->serial), valuelen << 24);
+#else
     atomic_init(&thiz->serial, valuelen << 24);
+#endif
     memcpy(thiz->value, value, valuelen);
     thiz->value[valuelen] = '\0';
     
@@ -98,7 +102,11 @@ class prop_area {
 public:
 	prop_area(const uint32_t magic, const uint32_t version) :
 		magic_(magic), version_(version) {
+#if defined(__linux__)
+		atomic_init((atomic_int_least32_t *)(&serial_), 0);
+#else
 		atomic_init(&serial_, 0);
+#endif
 		memset(reserved_, 0, sizeof(reserved_));
 		// Allocate enough space for the root node.
 		bytes_used_ = sizeof(prop_bt);
@@ -490,7 +498,7 @@ int __system_property_foreach(void (*callback)(const struct prop_info* pi, void*
 
 unsigned int __system_property_area_serial()
 {
-	return *(_property.serial());
+	return atomic_load_explicit(_property.serial(), memory_order_acquire);
 }
 
 unsigned int __system_property_serial(const struct prop_info* info)
@@ -501,7 +509,7 @@ unsigned int __system_property_serial(const struct prop_info* info)
 
 	_lock.lock();
 
-	unsigned int serial = info->serial;
+	unsigned int serial = load_const_atomic(&(info->serial), memory_order_acquire);
 
 	_lock.unlock();
 

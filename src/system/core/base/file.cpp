@@ -35,12 +35,15 @@
 
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
-#endif
-#if defined(_WIN32)
+
+#elif defined(_WIN32)
 #include <windows.h>
 #define O_CLOEXEC O_NOINHERIT
 #define O_NOFOLLOW 0
 #include <dirent.h> // PATH_MAX
+
+#elif defined(__linux__)
+#include <string.h> // strerror()
 #endif
 
 namespace android {

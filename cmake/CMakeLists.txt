@@ -63,6 +63,14 @@ else(CFG_NO_DEFAULT)
   #set(ENABLE_TEST      "TRUE")
 endif(CFG_NO_DEFAULT)
 
+if (ENABLE_ANGLE)
+	set(CMAKE_MODULE_PATH ${M3E_SOURCE_DIR}/cmake/tool)
+	find_package(OpenGLES2)
+	if (OPENGLES2_FOUND)
+	  	set(ENABLE_ANGLE "FALSE")
+	endif(OPENGLES2_FOUND)
+endif(ENABLE_ANGLE)
+
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
 # create hte folder for building result

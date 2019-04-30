@@ -18,6 +18,10 @@
 
 #include <errno.h>
 
+#if defined(__linux__)
+#include <string.h>
+#endif
+
 namespace android {
 namespace base {
 

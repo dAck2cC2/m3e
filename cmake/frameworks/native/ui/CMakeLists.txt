@@ -38,6 +38,8 @@ if(MSVC)
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})    
     add_definitions(-DPRIx64= )
+elseif(LINUX)
+    set(CMAKE_CXX_FLAGS "-std=c++14" ${CMAKE_CXX_FLAGS})    
 endif()
 
 
@@ -52,7 +54,6 @@ ${M3E_SOURCE_DIR}/src/frameworks/native/include/private/ui/*.h
 
 # source files
 set(UI_SOURCE_FILES 
-#${SOURCE_PATH}/ColorSpace.cpp
 ${SOURCE_PATH}/DebugUtils.cpp
 ${SOURCE_PATH}/Fence.cpp
 ${SOURCE_PATH}/FenceTime.cpp
@@ -66,6 +67,7 @@ ${SOURCE_PATH}/PixelFormat.cpp
 ${SOURCE_PATH}/Rect.cpp
 ${SOURCE_PATH}/Region.cpp
 ${SOURCE_PATH}/UiConfig.cpp
+#${SOURCE_PATH}/ColorSpace.cpp
 )
 
 

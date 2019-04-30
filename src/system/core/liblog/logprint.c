@@ -44,7 +44,7 @@
 
 #include "log_portability.h"
 
-#if __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #include <limits.h>
 #endif
 

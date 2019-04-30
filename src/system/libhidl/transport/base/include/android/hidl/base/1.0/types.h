@@ -52,7 +52,7 @@ constexpr int32_t operator&(const int32_t lhs, const DebugInfo::Architecture rhs
 constexpr int32_t operator&(const DebugInfo::Architecture lhs, const int32_t rhs) {
     return static_cast<int32_t>(static_cast<int32_t>(lhs) & rhs);
 }
-
+#if !defined(__linux__)
 constexpr int32_t &operator|=(int32_t& v, const DebugInfo::Architecture e) {
     v |= static_cast<int32_t>(e);
     return v;
@@ -62,7 +62,7 @@ constexpr int32_t &operator&=(int32_t& v, const DebugInfo::Architecture e) {
     v &= static_cast<int32_t>(e);
     return v;
 }
-
+#endif
 template<typename>
 std::string toString(int32_t o);
 template<>

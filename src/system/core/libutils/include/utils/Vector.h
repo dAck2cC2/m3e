@@ -250,13 +250,21 @@ Vector<TYPE>::~Vector() {
 
 template<class TYPE> inline
 Vector<TYPE>& Vector<TYPE>::operator = (const Vector<TYPE>& rhs) {
+#if defined(__linux__)
+    VectorImpl::operator = (static_cast<const VectorImpl&>(rhs));
+#else
     VectorImpl::operator = (rhs);
+#endif
     return *this;
 }
 
 template<class TYPE> inline
 const Vector<TYPE>& Vector<TYPE>::operator = (const Vector<TYPE>& rhs) const {
+#if defined(__linux__)
+    VectorImpl::operator = (rhs);
+#else
     VectorImpl::operator = (static_cast<const VectorImpl&>(rhs));
+#endif
     return *this;
 }
 
