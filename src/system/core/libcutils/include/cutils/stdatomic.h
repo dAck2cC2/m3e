@@ -44,15 +44,15 @@
 #  if __has_feature(cxx_atomic)
 #   define _STDATOMIC_HAVE_ATOMIC
 #  endif
-# elif defined(_MSC_VER) || defined(__APPLE__)
+# elif defined(__APPLE__)
 #   define _STDATOMIC_HAVE_ATOMIC
 # else /* gcc */
 #  if __GNUC_PREREQ(4, 7)
 #   define _STDATOMIC_HAVE_ATOMIC
 #  endif
 # endif
-//#elif defined (__linux__) && defined(__cplusplus)
-//# define _STDATOMIC_HAVE_ATOMIC
+#elif defined(_MSC_VER) && defined(__cplusplus)
+# define _STDATOMIC_HAVE_ATOMIC
 #else
 //#error DEBUG
 #endif

@@ -32,9 +32,9 @@ if(WIN32)
 		endif()
 	endif()
 elseif(APPLE)
-	create_search_paths(/Developer/Platforms)
-	findpkg_framework(OpenGLES2)
-	set(OPENGLES2_LIBRARY "-framework OpenGLES")
+	#create_search_paths(/Developer/Platforms)
+	#findpkg_framework(OpenGLES2)
+	#set(OPENGLES2_LIBRARY "-framework OpenGLES")
 else()
 	find_path(OPENGLES2_INCLUDE_DIR GLES2/gl2.h
 		PATHS /usr/openwin/share/include

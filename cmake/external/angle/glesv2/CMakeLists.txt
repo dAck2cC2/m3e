@@ -318,7 +318,7 @@ if(MSVC)
     source_group(angle\\d3d FILES ${ANGLE_SOURCE_ANGLE_D3D})
     list(APPEND ANGLE_SOURCE_ANGLE ${ANGLE_SOURCE_ANGLE_D3D} ) 
 
-    include(${M3E_SOURCE_DIR}/cmake/FindWindowsSDK.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/tool/FindWindowsSDK.cmake)
     get_windowssdk_library_dirs(${WINDOWSSDK_PREFERRED_DIR} DirectX_LIBRARY_PATHS)
 
     #message("DirectX_LIBRARY_PATHS=${DirectX_LIBRARY_PATHS}")
