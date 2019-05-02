@@ -61,7 +61,7 @@ void joinRpcThreadpool();
  */
 bool setMinSchedulerPolicy(const sp<::android::hidl::base::V1_0::IBase>& service,
                            int policy, int priority);
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(__linux__)
 template <typename ILeft, typename IRight>
 bool interfacesEqual(sp<ILeft> left, sp<IRight> right) {
     if (left == nullptr || right == nullptr || !left->isRemote() || !right->isRemote()) {

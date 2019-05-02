@@ -37,6 +37,12 @@
 #include <media/RecordBufferConverter.h>
 #include <audio_utils/minifloat.h>
 
+#if defined(__linux__)
+#  if !defined(FUTEX_WAKE)
+#    define FUTEX_WAKE CBLK_FUTEX_WAKE
+#  endif
+#endif
+
 // ----------------------------------------------------------------------------
 
 // Note: the following macro is used for extremely verbose logging message.  In

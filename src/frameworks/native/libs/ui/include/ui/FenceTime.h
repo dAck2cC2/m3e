@@ -26,6 +26,10 @@
 #include <queue>
 #include <unordered_map>
 
+#if defined(__linux__)
+#include <memory>
+#endif
+
 namespace android {
 
 class FenceToFenceTimeMap;

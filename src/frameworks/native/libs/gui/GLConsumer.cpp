@@ -18,8 +18,10 @@
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 //#define LOG_NDEBUG 0
 
+#if !defined(__linux__)
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
+#endif
 
 #include <inttypes.h>
 
@@ -708,6 +710,7 @@ status_t GLConsumer::attachToContext(uint32_t tex) {
 status_t GLConsumer::syncForReleaseLocked(EGLDisplay dpy) {
     GLC_LOGV("syncForReleaseLocked");
 
+#if defined(EGL_EGLEXT_PROTOTYPES)
     if (mCurrentTexture != BufferQueue::INVALID_BUFFER_SLOT) {
         if (SyncFeatures::getInstance().useNativeFenceSync()) {
             EGLSyncKHR sync = eglCreateSyncKHR(dpy,
@@ -765,6 +768,7 @@ status_t GLConsumer::syncForReleaseLocked(EGLDisplay dpy) {
             mEglSlots[mCurrentTexture].mEglFence = fence;
         }
     }
+#endif
 
     return OK;
 }
@@ -1039,6 +1043,7 @@ status_t GLConsumer::doGLFenceWaitLocked() const {
 
     if (mCurrentFence->isValid()) {
         if (SyncFeatures::getInstance().useWaitSync()) {
+#if defined(EGL_EGLEXT_PROTOTYPES)
             // Create an EGLSyncKHR from the current fence.
             int fenceFd = mCurrentFence->dup();
             if (fenceFd == -1) {
@@ -1069,6 +1074,7 @@ status_t GLConsumer::doGLFenceWaitLocked() const {
                         eglErr);
                 return UNKNOWN_ERROR;
             }
+#endif
         } else {
             status_t err = mCurrentFence->waitForever(
                     "GLConsumer::doGLFenceWaitLocked");
@@ -1197,9 +1203,11 @@ GLConsumer::EglImage::EglImage(sp<GraphicBuffer> graphicBuffer) :
 
 GLConsumer::EglImage::~EglImage() {
     if (mEglImage != EGL_NO_IMAGE_KHR) {
+#if defined(EGL_EGLEXT_PROTOTYPES)
         if (!eglDestroyImageKHR(mEglDisplay, mEglImage)) {
            ALOGE("~EglImage: eglDestroyImageKHR failed");
         }
+#endif
         eglTerminate(mEglDisplay);
     }
 }
@@ -1212,9 +1220,11 @@ status_t GLConsumer::EglImage::createIfNeeded(EGLDisplay eglDisplay,
     bool displayInvalid = mEglDisplay != eglDisplay;
     bool cropInvalid = hasEglAndroidImageCrop() && mCropRect != cropRect;
     if (haveImage && (displayInvalid || cropInvalid || forceCreation)) {
+#if defined(EGL_EGLEXT_PROTOTYPES)
         if (!eglDestroyImageKHR(mEglDisplay, mEglImage)) {
            ALOGE("createIfNeeded: eglDestroyImageKHR failed");
         }
+#endif
         eglTerminate(mEglDisplay);
         mEglImage = EGL_NO_IMAGE_KHR;
         mEglDisplay = EGL_NO_DISPLAY;
@@ -1242,7 +1252,7 @@ status_t GLConsumer::EglImage::createIfNeeded(EGLDisplay eglDisplay,
 }
 
 void GLConsumer::EglImage::bindToTextureTarget(uint32_t texTarget) {
-#ifdef GL_OES_EGL_image
+#if GL_OES_EGL_image && defined(GL_GLEXT_PROTOTYPES)
     glEGLImageTargetTexture2DOES(texTarget,
             static_cast<GLeglImageOES>(mEglImage));
 #endif
@@ -1283,8 +1293,12 @@ EGLImageKHR GLConsumer::EglImage::createImage(EGLDisplay dpy,
         attrs[4] = EGL_NONE;
     }
     eglInitialize(dpy, 0, 0);
+#if defined(EGL_EGLEXT_PROTOTYPES)
     EGLImageKHR image = eglCreateImageKHR(dpy, EGL_NO_CONTEXT,
             EGL_NATIVE_BUFFER_ANDROID, cbuf, attrs);
+#else
+    EGLImageKHR image = EGL_NO_IMAGE_KHR;
+#endif
     if (image == EGL_NO_IMAGE_KHR) {
         EGLint error = eglGetError();
         ALOGE("error creating EGLImage: %#x", error);

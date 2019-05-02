@@ -18,7 +18,9 @@
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 //#define LOG_NDEBUG 0
 
+#if !defined(__linux__)
 #define EGL_EGLEXT_PROTOTYPES
+#endif
 
 #if DEBUG_ONLY_CODE
 #define VALIDATE_CONSISTENCY() do { validateConsistencyLocked(); } while (0)
@@ -217,7 +219,9 @@ void BufferQueueCore::clearBufferSlotLocked(int slot) {
 
     // Destroy fence as BufferQueue now takes ownership
     if (mSlots[slot].mEglFence != EGL_NO_SYNC_KHR) {
+#if defined(EGL_EGLEXT_PROTOTYPES)
         eglDestroySyncKHR(mSlots[slot].mEglDisplay, mSlots[slot].mEglFence);
+#endif
         mSlots[slot].mEglFence = EGL_NO_SYNC_KHR;
     }
     mSlots[slot].mFence = Fence::NO_FENCE;

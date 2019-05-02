@@ -25,11 +25,11 @@
 #include <media/stagefright/MediaBuffer.h>
 #include <media/stagefright/MediaErrors.h>
 
-#if defined(_MSC_VER)
-#include <memory>
-#ifndef UINT64_MAX
-#define UINT64_MAX       0xffffffffffffffffui64
-#endif // UINT64_MAX
+#if defined(_MSC_VER) || defined(__linux__)
+#  include <memory>
+#  ifndef UINT64_MAX
+#    define UINT64_MAX       0xffffffffffffffffui64
+#  endif // UINT64_MAX
 #endif // _MSC_VER
 
 namespace android {

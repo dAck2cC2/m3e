@@ -20,6 +20,12 @@ namespace graphics {
 namespace bufferqueue {
 namespace V1_0 {
 
+#if defined(__linux__)
+#  if defined(Status)
+#    undef Status
+#  endif
+#endif
+
 struct IGraphicBufferProducer : public ::android::hidl::base::V1_0::IBase {
     typedef int32_t Status;
 

@@ -28,7 +28,7 @@ namespace android {
 
 
 // Descriptors for all available tones (See ToneGenerator::ToneDescriptor class declaration for details)
-#if defined(_MSC_VER) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__) || defined(__linux__)
 const ToneGenerator::ToneDescriptor ToneGenerator::sToneDescriptors[] = {
         { /* .segments = */{ { /* .duration = */ ToneGenerator::TONEGEN_INF, /* .waveFreq = */ { 1336, 941, 0 }, 0, 0},
                         { /* .duration = */ 0 , /* .waveFreq = */ { 0 }, 0, 0}},

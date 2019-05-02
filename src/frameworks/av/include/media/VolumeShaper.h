@@ -27,7 +27,7 @@
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__linux__)
 #include <functional>
 #include <random>
 #endif
@@ -41,6 +41,12 @@
 #define VS_LOG(...) ALOGD_IF(VS_LOGGING, __VA_ARGS__)
 
 namespace android {
+
+#if defined(__linux__)
+#  if defined(Status)
+#    undef Status
+#  endif
+#endif
 
 // The native VolumeShaper class mirrors the java VolumeShaper class;
 // in addition, the native class contains implementation for actual operation.

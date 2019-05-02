@@ -38,7 +38,7 @@ AudioSession::AudioSession(audio_session_t session,
                            bool isSoundTrigger,
                            AudioMix* policyMix,
                            AudioPolicyClientInterface *clientInterface) :
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) && !defined(__linux__)
     mRecordClientInfo({ .uid = uid, .session = session, .source = inputSource}),
     mConfig({ .format = format, .sample_rate = sampleRate, .channel_mask = channelMask}),
 #endif
@@ -46,7 +46,11 @@ AudioSession::AudioSession(audio_session_t session,
     mOpenCount(1), mActiveCount(0), mPolicyMix(policyMix), mClientInterface(clientInterface),
     mInfoProvider(NULL)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__linux__)
+	mRecordClientInfo.uid = uid;
+	mRecordClientInfo.session = session;
+	mRecordClientInfo.source = inputSource;
+
 	struct audio_config_base* config = (struct audio_config_base*)(&mConfig);
 	memset(config, 0x00, sizeof(mConfig));
 	config->format = format;

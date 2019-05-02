@@ -25,6 +25,8 @@ if (MSVC)
 
     #include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     #list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
+elseif(LINUX)
+    add_definitions(-D__unused= )
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/medialog )

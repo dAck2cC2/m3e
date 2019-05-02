@@ -77,7 +77,11 @@ public:
     virtual void        signal() = 0;
 
     /* Sets the volume shaper */
+#if defined(__linux__)
+    virtual status_t applyVolumeShaper(
+#else
     virtual VolumeShaper::Status applyVolumeShaper(
+#endif
             const sp<VolumeShaper::Configuration>& configuration,
             const sp<VolumeShaper::Operation>& operation) = 0;
 

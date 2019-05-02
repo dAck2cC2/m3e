@@ -58,7 +58,7 @@ if(MSVC)
     ${SOURCE_PATH}/utf8_test.cpp
     )
 else()
-    list(APPEND BASE_SOURCE_FILES
+    list(APPEND TEST_BASE_SOURCE_FILES
     ${SOURCE_PATH}/errors_unix.cpp  
     )
 endif()

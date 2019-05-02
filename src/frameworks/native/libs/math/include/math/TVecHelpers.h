@@ -25,7 +25,7 @@
 #include <limits>
 #include <iostream>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__linux__)
 #include <functional>
 #endif
 

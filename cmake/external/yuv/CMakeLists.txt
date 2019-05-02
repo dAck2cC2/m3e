@@ -27,7 +27,12 @@ file(GLOB YUV_SOURCE_FILES
 ${M3E_SOURCE_DIR}/${EXT_PATH}/libyuv/files/source/*.cc
 )
 
+if(LINUX)
+    set(LIB_TYPE SHARED)
+else()
+    set(LIB_TYPE STATIC)
+endif()
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(yuv STATIC ${YUV_SOURCE_FILES} ${YUV_HEADER_FILES})
+add_library(yuv ${LIB_TYPE} ${YUV_SOURCE_FILES} ${YUV_HEADER_FILES})
 target_link_libraries(yuv ${YUV_DEPLIB})
 

@@ -170,6 +170,8 @@ if(ENABLE_AV_CODEC)
         #add_definitions(-DNOMINMAX=1)
         add_definitions(-D__unused= )
         add_definitions(-Dstrcasestr=strstr)
+    elseif(LINUX)
+        add_definitions(-D__unused= )
     endif() 
 endif(ENABLE_AV_CODEC)
 

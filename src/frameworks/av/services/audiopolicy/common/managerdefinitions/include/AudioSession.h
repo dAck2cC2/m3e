@@ -67,7 +67,11 @@ public:
 
 private:
     record_client_info_t mRecordClientInfo;
+#if defined(__linux__)
+    struct audio_config_base mConfig;
+#else
     const struct audio_config_base mConfig;
+#endif
     const audio_input_flags_t mFlags;
     bool  mIsSoundTrigger;
     uint32_t  mOpenCount;

@@ -73,7 +73,7 @@ namespace android {
     
 }; // namespace android
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__linux__)
 
 #include <cutils/trace.h>
 

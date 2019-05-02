@@ -27,6 +27,12 @@
 namespace android {
 namespace hardware {
 
+#if defined(__linux__)
+#  if defined(Status)
+#    undef Status
+#  endif
+#endif
+
 // An object similar in function to a status_t except that it understands
 // how exceptions are encoded in the prefix of a Parcel. Used like:
 //

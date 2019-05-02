@@ -31,6 +31,10 @@
 
 #include <cutils/memory.h> // strlcpy
 
+#if defined(__linux__)
+#include <memory>
+#endif
+
 namespace android {
 
 class String8;

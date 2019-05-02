@@ -36,6 +36,12 @@
 
 namespace android {
 
+#if defined(__linux__)
+#  if defined(Status)
+#    undef Status
+#  endif
+#endif
+
 using ::android::binder::Status;
 
 struct FrameDropper;

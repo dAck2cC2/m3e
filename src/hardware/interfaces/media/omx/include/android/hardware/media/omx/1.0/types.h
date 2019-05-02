@@ -20,6 +20,12 @@ typedef uint32_t BufferId;
 #undef NO_ERROR
 #endif
 
+#if defined(__linux__)
+#  if defined(Status)
+#    undef Status
+#  endif
+#endif
+
 enum class Status : int32_t {
     OK = 0,
     NO_ERROR = 0,

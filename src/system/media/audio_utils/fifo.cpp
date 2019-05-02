@@ -29,6 +29,10 @@
 #include <cutils/log.h>
 #include <utils/Errors.h>
 
+#if defined(__linux__)
+#  define __attribute__(A)  /* do nothing */  
+#endif
+
 audio_utils_fifo_base::audio_utils_fifo_base(uint32_t frameCount,
         audio_utils_fifo_index& writerRear, audio_utils_fifo_index *throttleFront)
         __attribute__((no_sanitize("integer"))) :

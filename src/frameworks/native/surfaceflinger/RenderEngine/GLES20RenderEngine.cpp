@@ -214,7 +214,9 @@ void GLES20RenderEngine::bindImageAsFramebuffer(EGLImageKHR image,
     // turn our EGLImage into a texture
     glGenTextures(1, &tname);
     glBindTexture(GL_TEXTURE_2D, tname);
+#if EGL_EGLEXT_PROTOTYPES
     glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)image);
+#endif
 
     // create a Framebuffer Object to render into
     glGenFramebuffers(1, &name);

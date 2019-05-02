@@ -23,6 +23,8 @@ elseif(MSVC)
     add_definitions(-D__unused= )
     add_definitions(-D_USE_MATH_DEFINES=1)
     add_definitions(-DNOMINMAX=1)
+elseif(LINUX)
+    add_definitions(-D__unused= )
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/media/audio_utils/include/audio_utils )

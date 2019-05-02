@@ -27,6 +27,11 @@
 #include <binder/IInterface.h>
 #include <gui/ISurfaceComposer.h>
 
+#if defined(__linux__)
+#include <memory>
+#endif
+
+
 // ----------------------------------------------------------------------------
 
 namespace android {

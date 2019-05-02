@@ -40,6 +40,7 @@ elseif(APPLE)
     add_definitions(-DPRIx64= )
 elseif(LINUX)
     set(CMAKE_CXX_FLAGS "-std=c++14" ${CMAKE_CXX_FLAGS})    
+    add_definitions(-DPRIx64= )
 endif()
 
 
@@ -76,7 +77,7 @@ set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(ui SHARED ${UI_SOURCE_FILES} ${UI_HEADER_FILES})
 target_link_libraries(ui ${UI_DEPLIB})
 
-set(ENABLE_TEST true)
+#set(ENABLE_TEST true)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif()

@@ -25,6 +25,10 @@
 
 #include "IOProfile.h"
 
+#if defined(__linux__)
+#include <climits>
+#endif
+
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif

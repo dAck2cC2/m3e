@@ -32,7 +32,7 @@
 #endif
 #endif
 
-#if __cplusplus >= 201402L
+#if __cplusplus >= 201402L && !defined(__linux__)
 #define CONSTEXPR constexpr
 #else
 #define CONSTEXPR

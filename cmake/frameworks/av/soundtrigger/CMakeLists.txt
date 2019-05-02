@@ -19,7 +19,7 @@ binder
 audioutils
 )
 
-if (MSVC)
+if (MSVC OR LINUX)
     add_definitions(-D__unused= )
 endif()
 

@@ -20,6 +20,10 @@ elseif(CYGWIN)
     #add_definitions(-Dffs=__builtin_ffs)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11")
 
+elseif(LINUX)
+    add_definitions(-D_LINUX)
+    add_definitions(-DHAVE_PTHREADS)
+
 elseif(UNIX)
     add_definitions(-D_LINUX)
     add_definitions(-DHAVE_PTHREADS)

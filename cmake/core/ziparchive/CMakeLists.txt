@@ -45,6 +45,7 @@ set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(ziparchive SHARED ${ZIPARCHIVE_SOURCE_FILES} ${ZIPARCHIVE_HEADER_FILES})
 target_link_libraries(ziparchive ${ZIPARCHIVE_DEPLIB})
 
+#set(ENABLE_TEST TRUE)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif(ENABLE_TEST)

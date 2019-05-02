@@ -26,7 +26,9 @@
 #define VALIDATE_CONSISTENCY()
 #endif
 
+#if !defined(__linux__)
 #define EGL_EGLEXT_PROTOTYPES
+#endif
 
 #include <binder/IPCThreadState.h>
 #include <gui/BufferItem.h>
@@ -539,6 +541,7 @@ status_t BufferQueueProducer::dequeueBuffer(int* outSlot, sp<android::Fence>* ou
     }
 
     if (eglFence != EGL_NO_SYNC_KHR) {
+#if defined(EGL_EGLEXT_PROTOTYPES)
         EGLint result = eglClientWaitSyncKHR(eglDisplay, eglFence, 0,
                 1000000000);
         // If something goes wrong, log the error, but return the buffer without
@@ -551,6 +554,7 @@ status_t BufferQueueProducer::dequeueBuffer(int* outSlot, sp<android::Fence>* ou
             BQ_LOGE("dequeueBuffer: timeout waiting for fence");
         }
         eglDestroySyncKHR(eglDisplay, eglFence);
+#endif
     }
 
     BQ_LOGV("dequeueBuffer: returning slot=%d/%" PRIu64 " buf=%p flags=%#x",

@@ -31,6 +31,12 @@
 namespace android {
 namespace hardware {
 
+#if defined(__linux__)
+#  if defined(Status)
+#    undef Status
+#  endif
+#endif
+
 enum {
     DISCONNECT = IBinder::FIRST_CALL_TRANSACTION,
     SET_PREVIEW_TARGET,

@@ -45,9 +45,11 @@ static inline void * memalign(size_t align, size_t size) {
 
 #include <cutils/threads.h>
 
-#if defined(__clang__) && !__has_builtin(__builtin_assume_aligned)
-#define __builtin_assume_aligned(p, a) \
+#if defined(__clang__) && defined(__has_builtin)
+#  if !__has_builtin(__builtin_assume_aligned)
+#    define __builtin_assume_aligned(p, a) \
 	(((uintptr_t(p) % (a)) == 0) ? (p) : (__builtin_unreachable(), (p)))
+#  endif
 #endif
 
 #if defined(__arm__) && !defined(__thumb__)

@@ -27,6 +27,10 @@
 #include <media/stagefright/foundation/hexdump.h>
 #include <utils/Log.h>
 
+#if defined(__linux__)
+#include <algorithm>
+#endif
+
 namespace android {
 
 namespace heif {

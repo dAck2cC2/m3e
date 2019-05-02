@@ -14,7 +14,11 @@ set(WEBM_SOURCE_FILES
 ${SOURCE_PATH}/mkvparser.cc
 )
 
-set(LIB_TYPE STATIC)
+if(LINUX)
+    set(LIB_TYPE SHARED)
+else()
+    set(LIB_TYPE STATIC)
+endif()
 set(LIB_NAME webm)
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

@@ -2,5 +2,7 @@
 # the subdirectory
 if(ENABLE_AV_UTILS)
     add_subdirectory(androidfw)
-    add_subdirectory(bootanimation)    
+    if (NOT LINUX)
+         add_subdirectory(bootanimation)
+    endif()    
 endif(ENABLE_AV_UTILS)

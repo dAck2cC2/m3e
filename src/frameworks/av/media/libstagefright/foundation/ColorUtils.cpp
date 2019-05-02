@@ -498,7 +498,7 @@ android_dataspace ColorUtils::getDataSpaceForColorAspects(ColorAspects &aspects,
     (void)sTransfers.map(aspects.mTransfer, &transfer);
 
     ColorStandard standard = kColorStandardBT709;
-#if !defined(ENABLE_CUSTOMISE)
+#if !defined(ENABLE_CUSTOMISE) && !defined(__linux__)
     auto pair = std::make_pair(aspects.mPrimaries, aspects.mMatrixCoeffs);
     if (!sStandards.map(pair, &standard)) {
         if (!sStandardFallbacks.map(pair, &standard)) {

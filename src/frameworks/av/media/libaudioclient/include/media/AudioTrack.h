@@ -20,10 +20,12 @@
 #include <cutils/sched_policy.h>
 #include <media/AudioSystem.h>
 #include <media/AudioTimestamp.h>
-#include <media/IAudioTrack.h>
+//#include <media/IAudioTrack.h>
 #include <media/AudioResamplerPublic.h>
 #include <media/Modulo.h>
 #include <utils/threads.h>
+
+#include <media/IAudioTrack.h>
 
 namespace android {
 
@@ -748,7 +750,11 @@ public:
             status_t    setParameters(const String8& keyValuePairs);
 
     /* Sets the volume shaper object */
+#if defined(__linux__)
+            status_t applyVolumeShaper(
+#else
             VolumeShaper::Status applyVolumeShaper(
+#endif
                     const sp<VolumeShaper::Configuration>& configuration,
                     const sp<VolumeShaper::Operation>& operation);
 

@@ -31,7 +31,11 @@ ${SOURCE_PATH}/MatroskaExtractor.cpp
 )
 
 # target files
-set(LIB_TYPE STATIC)
+if(LINUX)
+    set(LIB_TYPE SHARED)
+else()
+    set(LIB_TYPE STATIC)
+endif()
 set(LIB_NAME stagefright_matroska)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(${LIB_NAME} ${LIB_TYPE} ${${PROJECT_NAME}_SOURCE_FILES} ${${PROJECT_NAME}_HEADER_FILES})
