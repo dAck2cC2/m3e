@@ -8,10 +8,14 @@ frameworks/base \
 frameworks/native \
 frameworks/rs \
 frameworks/compile/slang \
+frameworks/wilhelm \
 hardware/libhardware \
+hardware/interfaces \
 system/core \
 system/media \
 system/netd \
+system/libhidl \
+system/libhwbinder \
 "
 
 TARGET_SRC="https://android.googlesource.com/platform"
