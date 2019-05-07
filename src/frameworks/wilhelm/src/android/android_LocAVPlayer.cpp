@@ -41,6 +41,7 @@ LocAVPlayer::~LocAVPlayer() {
 
 }
 
+#define __BRILLO__  // avoid Java Layer
 
 //--------------------------------------------------
 // Event handlers

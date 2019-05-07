@@ -17,6 +17,10 @@
 #ifndef __MPH_to_H
 #define __MPH_to_H
 
+#include <sys/cdefs.h>
+
+__BEGIN_DECLS
+
 /** \brief Map minimal perfect hash of an interface ID to its class index. */
 
 extern const signed char
@@ -34,5 +38,7 @@ extern const signed char
 
 /** \brief Maximum number of interfaces on a single object. */
 #define MAX_INDEX 32
+
+__END_DECLS
 
 #endif // !defined(__MPH_to_H)

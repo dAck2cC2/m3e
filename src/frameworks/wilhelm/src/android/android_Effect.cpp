@@ -611,7 +611,11 @@ android::status_t android_fx_setParam(const android::sp<android::AudioEffect>& p
 {
 
     android::status_t status;
+#if defined(_MSC_VER)
+	uint32_t* buf32 = new uint32_t[(paramSizeMax - 1) / sizeof(uint32_t) + 1];
+#else
     uint32_t buf32[(paramSizeMax - 1) / sizeof(uint32_t) + 1];
+#endif
     effect_param_t *p = (effect_param_t *)buf32;
 
     p->psize = sizeof(int32_t);
@@ -622,6 +626,10 @@ android::status_t android_fx_setParam(const android::sp<android::AudioEffect>& p
     if (android::NO_ERROR == status) {
         status = p->status;
     }
+#if defined(_MSC_VER)
+	delete[] buf32;
+#endif
+
     return status;
 }
 
@@ -631,7 +639,11 @@ android::status_t android_fx_getParam(const android::sp<android::AudioEffect>& p
         int32_t param, uint32_t paramSizeMax, void *pValue, uint32_t valueSize)
 {
     android::status_t status;
-    uint32_t buf32[(paramSizeMax - 1) / sizeof(uint32_t) + 1];
+#if defined(_MSC_VER)
+    uint32_t* buf32 = new uint32_t[(paramSizeMax - 1) / sizeof(uint32_t) + 1];
+#else
+	uint32_t buf32[(paramSizeMax - 1) / sizeof(uint32_t) + 1];
+#endif
     effect_param_t *p = (effect_param_t *)buf32;
 
     p->psize = sizeof(int32_t);
@@ -644,6 +656,9 @@ android::status_t android_fx_getParam(const android::sp<android::AudioEffect>& p
             memcpy(pValue, p->data + p->psize, p->vsize);
         }
     }
+#if defined(_MSC_VER)
+	delete[] buf32;
+#endif
 
     return status;
 }

@@ -24,7 +24,7 @@
 
 namespace android {
 
-class PlayerBase : public BnPlayer
+class ANDROID_API_AUDIOCLIENT PlayerBase : public BnPlayer
 {
 public:
     explicit PlayerBase();

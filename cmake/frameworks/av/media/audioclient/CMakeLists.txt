@@ -9,6 +9,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/audiomanager/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
@@ -23,6 +24,7 @@ cutils
 utils
 binder
 audioutils
+audiomanager
 )
 
 if(MSVC)
@@ -67,8 +69,8 @@ ${SOURCE_PATH}/IAudioTrack.cpp
 ${SOURCE_PATH}/IEffect.cpp 
 ${SOURCE_PATH}/IEffectClient.cpp 
 ${SOURCE_PATH}/ToneGenerator.cpp 
-#${SOURCE_PATH}/PlayerBase.cpp 
-#${SOURCE_PATH}/TrackPlayerBase.cpp 
+${SOURCE_PATH}/PlayerBase.cpp 
+${SOURCE_PATH}/TrackPlayerBase.cpp 
 )
 
 # target files

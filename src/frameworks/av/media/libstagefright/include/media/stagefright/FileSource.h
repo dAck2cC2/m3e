@@ -27,7 +27,7 @@
 
 namespace android {
 
-class FileSource : public DataSource {
+class ANDROID_API_STAGEFRIGHT FileSource : public DataSource {
 public:
     FileSource(const char *filename);
     // FileSource takes ownership and will close the fd

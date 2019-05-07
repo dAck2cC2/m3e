@@ -57,9 +57,6 @@ extern unsigned handler_OutputMix_gain(IObject *thiz);
 #define handler_OutputMix_gain          NULL
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 
 
 /* Table entry for an attribute update handler.
@@ -78,6 +75,10 @@ extern unsigned handler_OutputMix_gain(IObject *thiz);
 typedef unsigned (*AttributeHandler)(IObject *thiz);
 
 extern const AttributeHandler handlerTable[][ATTR_INDEX_MAX];
+
+#ifdef __cplusplus
+}
+#endif
 
 #undef IObject
 

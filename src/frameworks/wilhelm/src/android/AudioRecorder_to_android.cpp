@@ -23,7 +23,9 @@
 #include <system/audio.h>
 #include <SLES/OpenSLES_Android.h>
 
+#if ENABLE_ANDROID_RT
 #include <android_runtime/AndroidRuntime.h>
+#endif
 
 #define KEY_RECORDING_SOURCE_PARAMSIZE  sizeof(SLuint32)
 #define KEY_RECORDING_PRESET_PARAMSIZE  sizeof(SLuint32)
@@ -715,6 +717,7 @@ SLresult android_audioRecorder_realize(CAudioRecorder* ar, SLboolean async) {
     // update performance mode according to actual flags granted to AudioRecord
     checkAndSetPerformanceModePost(ar);
 
+#if ENABLE_ANDROD_RT
     // If there is a JavaAudioRoutingProxy associated with this recorder, hook it up...
     JNIEnv* j_env = NULL;
     jclass clsAudioRecord = NULL;
@@ -735,6 +738,7 @@ SLresult android_audioRecorder_realize(CAudioRecorder* ar, SLboolean async) {
             return result;
         }
    }
+#endif
 
     if (ar->mPerformanceMode != ANDROID_PERFORMANCE_MODE_LATENCY) {
         audio_session_t sessionId = ar->mAudioRecord->getSessionId();

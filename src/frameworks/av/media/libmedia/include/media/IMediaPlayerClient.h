@@ -23,7 +23,7 @@
 
 namespace android {
 
-class IMediaPlayerClient: public IInterface
+class ANDROID_API_MEDIA IMediaPlayerClient: public IInterface
 {
 public:
     DECLARE_META_INTERFACE(MediaPlayerClient);
@@ -33,7 +33,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnMediaPlayerClient: public BnInterface<IMediaPlayerClient>
+class ANDROID_API_MEDIA BnMediaPlayerClient: public BnInterface<IMediaPlayerClient>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

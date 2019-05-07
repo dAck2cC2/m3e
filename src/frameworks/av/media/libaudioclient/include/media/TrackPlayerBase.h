@@ -22,7 +22,7 @@
 
 namespace android {
 
-class TrackPlayerBase : public PlayerBase
+class ANDROID_API_AUDIOCLIENT TrackPlayerBase : public PlayerBase
 {
 public:
     explicit TrackPlayerBase();

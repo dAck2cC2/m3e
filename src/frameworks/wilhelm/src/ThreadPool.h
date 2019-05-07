@@ -80,7 +80,11 @@ typedef struct {
 #else // !ANDROID
 #define THREAD_TYPICAL 4
 #endif
+#if THREAD_TYPICAL
     pthread_t mThreadTypical[THREAD_TYPICAL];
+#else
+	pthread_t* mThreadTypical;
+#endif
 } ThreadPool;
 
 extern SLresult ThreadPool_init(ThreadPool *tp, unsigned maxClosures, unsigned maxThreads);

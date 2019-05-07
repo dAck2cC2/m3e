@@ -40,7 +40,7 @@ int nanosleep(const struct timespec *req, struct timespec *rem);
 
 typedef enum {
 	CLOCK_MONOTONIC = 0,
-	//CLOCK_REALTIME,
+	CLOCK_REALTIME,
 } clockid_t;
 
 MSVC_EXPORT

@@ -43,4 +43,5 @@ ${SOURCE_PATH}/NdkImage.cpp
 ${SOURCE_PATH}/NdkImageReader.cpp
 )
 
+set(LIB_TYPE SHARED)
 ADD_LIB(mediandk)

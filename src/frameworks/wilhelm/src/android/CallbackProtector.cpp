@@ -19,6 +19,8 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 
+#include <cutils/threads.h> // gettid()
+
 //--------------------------------------------------------------------------------------------------
 namespace android {
 

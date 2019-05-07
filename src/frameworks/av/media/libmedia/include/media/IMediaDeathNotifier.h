@@ -23,7 +23,7 @@
 
 namespace android {
 
-class IMediaDeathNotifier: virtual public RefBase
+class ANDROID_API_MEDIA IMediaDeathNotifier: virtual public RefBase
 {
 public:
     IMediaDeathNotifier() { addObitRecipient(this); }

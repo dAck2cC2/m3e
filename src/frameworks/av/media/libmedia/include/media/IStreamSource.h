@@ -26,7 +26,7 @@ struct AMessage;
 class IMemory;
 struct IStreamListener;
 
-struct IStreamSource : public IInterface {
+struct ANDROID_API_MEDIA IStreamSource : public IInterface {
     DECLARE_META_INTERFACE(StreamSource);
 
     virtual void setListener(const sp<IStreamListener> &listener) = 0;
@@ -94,7 +94,7 @@ struct ANDROID_API_MEDIA IStreamListener : public IInterface {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct BnStreamSource : public BnInterface<IStreamSource> {
+struct ANDROID_API_MEDIA BnStreamSource : public BnInterface<IStreamSource> {
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,
             uint32_t flags = 0);

@@ -27,7 +27,7 @@ namespace android {
 struct ALooper;
 struct PageCache;
 
-struct NuCachedSource2 : public DataSource {
+struct ANDROID_API_STAGEFRIGHT NuCachedSource2 : public DataSource {
     static sp<NuCachedSource2> Create(
             const sp<DataSource> &source,
             const char *cacheConfig = NULL,

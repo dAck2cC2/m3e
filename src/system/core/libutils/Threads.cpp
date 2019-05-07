@@ -27,7 +27,8 @@
 # include <windows.h>
 # include <stdint.h>
 # include <process.h>
-# define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
+# define HAVE__BEGINTHREADEX
+//# define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
 #endif
 
 #if defined(__linux__)
@@ -234,7 +235,7 @@ static bool doCreateThread(android_thread_func_t fn, void* arg, android_thread_i
     pDetails->arg = arg;
 
 #if defined(HAVE__BEGINTHREADEX)
-    hThread = (HANDLE) _beginthreadex(NULL, 0, threadIntermediary, pDetails, 0,
+    hThread = (HANDLE) _beginthreadex(NULL, 0, (_beginthreadex_proc_type)threadIntermediary, pDetails, 0,
                     &thrdaddr);
     if (hThread == 0)
 #elif defined(HAVE_CREATETHREAD)

@@ -25,6 +25,12 @@
 #include "android_LocAVPlayer.h"
 #include "android_StreamPlayer.h"
 
+#if defined(_MSC_VER) 
+#  if defined(NO_ERROR)
+#    undef NO_ERROR
+#  endif
+#endif
+
 //-----------------------------------------------------------------------------
 static void player_handleMediaPlayerEventNotifications(int event, int data1, int data2, void* user)
 {

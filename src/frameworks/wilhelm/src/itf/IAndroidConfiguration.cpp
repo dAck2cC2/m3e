@@ -21,7 +21,9 @@
 #include "sles_allinclusive.h"
 #include <SLES/OpenSLES_Android.h>
 
+#if ENABLE_ANDROID_RT
 #include <android_runtime/AndroidRuntime.h>
+#endif
 
 static SLresult IAndroidConfiguration_SetConfiguration(SLAndroidConfigurationItf self,
         const SLchar *configKey,
@@ -147,6 +149,7 @@ static SLresult AllocPlayerRoutingProxy(IAndroidConfiguration* iConfig, jobject*
     IObject* configObj = iConfig->mThis;                // get corresponding object
     android::AudioTrack* pAudioTrack = ((CAudioPlayer*)configObj)->mTrackPlayer->mAudioTrack.get();
 
+#if ENABLE_ANDROID_RT
     JNIEnv* j_env = android::AndroidRuntime::getJNIEnv();
 
     // Get the constructor for (Java) AudioTrackRoutingProxy
@@ -172,7 +175,7 @@ static SLresult AllocPlayerRoutingProxy(IAndroidConfiguration* iConfig, jobject*
         iConfig->mRoutingProxy = *proxyObj;
         result = SL_RESULT_SUCCESS;
     }
-
+#endif
     return result;
 }
 
@@ -222,7 +225,7 @@ static SLresult AllocRecorderRoutingProxy(IAndroidConfiguration* iConfig, jobjec
 
     IObject* configObj = iConfig->mThis;                  // get corresponding object
     android::AudioRecord* pAudioRecord = ((CAudioRecorder*)configObj)->mAudioRecord.get();
-
+#if ENABLE_ANDROID_RT
     JNIEnv* j_env = android::AndroidRuntime::getJNIEnv();
 
     // Get the constructor for (Java) AudioRecordRoutingProxy
@@ -246,7 +249,7 @@ static SLresult AllocRecorderRoutingProxy(IAndroidConfiguration* iConfig, jobjec
         iConfig->mRoutingProxy = *proxyObj;
         result = SL_RESULT_SUCCESS;
     }
-
+#endif
     return result;
 }
 
@@ -329,6 +332,7 @@ static SLresult IAndroidConfiguration_ReleaseJavaProxy(SLAndroidConfigurationItf
         switch (objID) {
         case SL_OBJECTID_AUDIOPLAYER:
             {
+#if ENABLE_ANDROID_RT
                 JNIEnv* j_env = android::AndroidRuntime::getJNIEnv();
 
                 // Get the release method for (Java) AudioTrackRoutingProxy
@@ -345,11 +349,13 @@ static SLresult IAndroidConfiguration_ReleaseJavaProxy(SLAndroidConfigurationItf
                 }
                 j_env->DeleteGlobalRef(iConfig->mRoutingProxy);
                 iConfig->mRoutingProxy = NULL;
+#endif
             }
             break;
 
         case SL_OBJECTID_AUDIORECORDER:
             {
+#if ENABLE_ANDROID_RT
                 JNIEnv* j_env = android::AndroidRuntime::getJNIEnv();
 
                 // Get the release method for (Java) AudioTrackRoutingProxy
@@ -366,6 +372,7 @@ static SLresult IAndroidConfiguration_ReleaseJavaProxy(SLAndroidConfigurationItf
                 }
                 j_env->DeleteGlobalRef(iConfig->mRoutingProxy);
                 iConfig->mRoutingProxy = NULL;
+#endif
             }
             break;
         }

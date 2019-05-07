@@ -9,6 +9,7 @@ endif(ENABLE_HARDWARE)
 
 if(ENABLE_AV_CODEC)
     add_subdirectory(rs)
+    add_subdirectory(wilhelm)
 endif(ENABLE_AV_CODEC)
 
 add_subdirectory(av)

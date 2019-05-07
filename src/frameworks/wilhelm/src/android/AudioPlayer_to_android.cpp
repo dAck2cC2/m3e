@@ -22,7 +22,9 @@
 #include "android/include/AacBqToPcmCbRenderer.h"
 #include "android/channels.h"
 
+#if ENABLE_ANDROID_RT
 #include <android_runtime/AndroidRuntime.h>
+#endif
 #include <binder/IServiceManager.h>
 #include <utils/StrongPointer.h>
 #include <audiomanager/AudioManager.h>
@@ -34,6 +36,11 @@
 
 #include <system/audio.h>
 #include <SLES/OpenSLES_Android.h>
+
+#if defined(_MSC_VER)
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif
 
 template class android::KeyedVector<SLuint32,
                                     android::sp<android::AudioEffect> > ;
@@ -1714,7 +1721,7 @@ SLresult android_audioPlayer_realize(CAudioPlayer *pAudioPlayer, SLboolean async
 
         // This use case does not have a separate "prepare" step
         pAudioPlayer->mAndroidObjState = ANDROID_READY;
-
+#if ENABLE_ANDROID_RT
         // If there is a JavaAudioRoutingProxy associated with this player, hook it up...
         JNIEnv* j_env = NULL;
         jclass clsAudioTrack = NULL;
@@ -1735,6 +1742,7 @@ SLresult android_audioPlayer_realize(CAudioPlayer *pAudioPlayer, SLboolean async
                 return result;
             }
         }
+#endif
     }
         break;
 

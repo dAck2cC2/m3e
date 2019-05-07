@@ -124,6 +124,7 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/MediaScannerClient.cpp
     ${SOURCE_PATH}/MidiIoWrapper.cpp
     ${SOURCE_PATH}/TypeConverter.cpp
+    ${SOURCE_PATH}/IMediaDeathNotifier.cpp
     ${SOURCE_PATH}/omx/1.0/WOmxNode.cpp
     ${SOURCE_PATH}/omx/1.0/WOmxBufferSource.cpp
     #${SOURCE_PATH}/omx/1.0/WOmx.cpp

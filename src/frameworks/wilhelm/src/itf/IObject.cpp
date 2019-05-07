@@ -18,6 +18,11 @@
 
 #include "sles_allinclusive.h"
 
+#if defined(_MSC_VER)
+#  if defined(interface)
+#    undef interface
+#  endif
+#endif
 
 // Called by a worker thread to handle an asynchronous Object.Realize.
 // Parameter self is the Object.
