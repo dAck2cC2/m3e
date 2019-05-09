@@ -56,7 +56,7 @@
 #define MAX_NUMBER_OUTPUT_DEVICES 6
 
 //The expected playback duration
-const int MP3_DURATION = 30000; // 71030; //71 secs
+const int MP3_DURATION = 71030; //71 secs
 
 
 //-----------------------------------------------------------------
@@ -197,7 +197,7 @@ void TestPlayUri( SLObjectItf sl, const char* path)
     /*     wait until there's data to play */
     //SLpermille fillLevel = 0;
     SLuint32 prefetchStatus = SL_PREFETCHSTATUS_UNDERFLOW;
-    SLuint32 timeOutIndex = 200; // 10s
+    SLuint32 timeOutIndex = 200; // 20s
     while ((prefetchStatus != SL_PREFETCHSTATUS_SUFFICIENTDATA) && (timeOutIndex > 0)) {
         usleep(100 * 1000);
         (*prefetchItf)->GetPrefetchStatus(prefetchItf, &prefetchStatus);

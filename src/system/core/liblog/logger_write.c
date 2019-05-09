@@ -15,7 +15,7 @@
  */
 
 #include <errno.h>
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <stdatomic.h>
 #else
 #include <cutils/stdatomic.h>

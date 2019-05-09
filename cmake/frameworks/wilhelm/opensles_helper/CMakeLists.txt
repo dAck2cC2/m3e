@@ -31,4 +31,7 @@ ${SOURCE_PATH}/MPH_to.c
 ${SOURCE_PATH}/handlers.c
 )
 
+if (APPLE)
+    set(LIB_TYPE STATIC)
+endif()
 ADD_LIB(opensles_helper)

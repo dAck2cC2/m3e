@@ -16,7 +16,11 @@
 
 /* Engine implementation */
 
+#if defined(__APPLE__)
+#include <machine/endian.h>
+#else
 #include <endian.h>
+#endif
 #include "sles_allinclusive.h"
 
 

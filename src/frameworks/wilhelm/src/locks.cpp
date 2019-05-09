@@ -16,10 +16,45 @@
 
 #include "sles_allinclusive.h"
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 #define pthread_gettid_np(a) (-1)
 #endif
 
+#if defined(__APPLE__)
+/*
+ https://ponymail-vm.apache.org/_GUI_/thread.html/98c2c605b3dc601b49e86b2934c2140e782a9fcb1032781f49d12ddc@%3Cdev.apr.apache.org%3E
+ */
+/* * A pthread_mutex_timedlock() impl for OSX/macOS, which lacks the
+ * real thing.
+ * NOTE: Unlike the real McCoy, won't return EOWNERDEAD, EDEADLK
+ * or EOWNERDEAD */
+static int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec * abs_timeout)
+{
+    int rv;
+    struct timespec remaining, slept, ts;
+    remaining = *abs_timeout;
+    while ((rv = pthread_mutex_trylock(mutex)) == EBUSY)
+    {
+        ts.tv_sec = 0;
+        ts.tv_nsec = (remaining.tv_sec > 0 ? 10000000 :  (remaining.tv_nsec < 10000000 ? remaining.tv_nsec : 10000000));
+        
+        nanosleep(&ts, &slept);
+        
+        ts.tv_nsec -= slept.tv_nsec;
+        if (ts.tv_nsec <= remaining.tv_nsec) {
+            remaining.tv_nsec -= ts.tv_nsec;
+        } else {
+            remaining.tv_sec--;
+            remaining.tv_nsec = (1000000 - (ts.tv_nsec - remaining.tv_nsec));
+        }
+        
+        if (remaining.tv_sec < 0 || (!remaining.tv_sec && remaining.tv_nsec <= 0)) {
+            return ETIMEDOUT;
+        }
+    }
+    return rv;
+}
+#endif
 
 // Use this macro to validate a pthread_t before passing it into pthread_gettid_np.
 // One of the common reasons for deadlock is trying to lock a mutex for an object
