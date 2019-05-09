@@ -16,6 +16,10 @@
 
 #include "sles_allinclusive.h"
 
+#if defined(__linux__)
+#define pthread_gettid_np(a) (-1)
+#endif
+
 
 // Use this macro to validate a pthread_t before passing it into pthread_gettid_np.
 // One of the common reasons for deadlock is trying to lock a mutex for an object

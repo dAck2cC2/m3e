@@ -30,6 +30,10 @@
 #include <media/stagefright/foundation/AUtils.h>
 #include <media/stagefright/VideoFrameScheduler.h>
 
+#if defined(__linux__)
+#include <climits>
+#endif
+
 namespace android {
 
 static const nsecs_t kNanosIn1s = 1000000000;

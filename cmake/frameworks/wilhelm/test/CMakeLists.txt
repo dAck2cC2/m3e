@@ -19,9 +19,13 @@ initrc
 
 if(MSVC)
     add_definitions(-D__unused= )
+
     include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
-endif(MSVC)
+
+else(LINUX)
+    add_definitions(-D__unused= )
+endif()
 
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/wilhelm/tests )
 

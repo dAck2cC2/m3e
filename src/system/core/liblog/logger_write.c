@@ -15,7 +15,11 @@
  */
 
 #include <errno.h>
+#if defined(__linux__)
+#include <stdatomic.h>
+#else
 #include <cutils/stdatomic.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>

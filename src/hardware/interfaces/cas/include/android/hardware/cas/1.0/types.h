@@ -11,6 +11,12 @@ namespace hardware {
 namespace cas {
 namespace V1_0 {
 
+#if defined(__linux__)
+#  if defined(Status)
+#    undef Status
+#  endif
+#endif
+
 enum class Status : uint32_t {
     OK = 0u, // 0
     ERROR_CAS_NO_LICENSE = 1u, // 1
