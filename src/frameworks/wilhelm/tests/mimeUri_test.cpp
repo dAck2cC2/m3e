@@ -56,7 +56,7 @@
 #define MAX_NUMBER_OUTPUT_DEVICES 6
 
 //The expected playback duration
-const int MP3_DURATION = 71030; //71 secs
+const int MP3_DURATION = 30000; // 71030; //71 secs
 
 
 //-----------------------------------------------------------------
@@ -197,7 +197,7 @@ void TestPlayUri( SLObjectItf sl, const char* path)
     /*     wait until there's data to play */
     //SLpermille fillLevel = 0;
     SLuint32 prefetchStatus = SL_PREFETCHSTATUS_UNDERFLOW;
-    SLuint32 timeOutIndex = 100; // 10s
+    SLuint32 timeOutIndex = 200; // 10s
     while ((prefetchStatus != SL_PREFETCHSTATUS_SUFFICIENTDATA) && (timeOutIndex > 0)) {
         usleep(100 * 1000);
         (*prefetchItf)->GetPrefetchStatus(prefetchItf, &prefetchStatus);
@@ -228,8 +228,8 @@ void TestPlayUri( SLObjectItf sl, const char* path)
     res = (*playItf)->SetPlayState( playItf, SL_PLAYSTATE_PLAYING );
     CheckErr(res);
 
-    /* Play for the song duration*/
-    usleep(MP3_DURATION * 1000);
+	/* Play for the song duration*/
+	usleep(MP3_DURATION * 1000);
 
     /* Validate the play position*/
     SLmillisecond currentPositionInMsec = SL_TIME_UNKNOWN;
@@ -299,14 +299,20 @@ protected:
     }
 };
 
-#define TEST_ABS_PATH  "D:\\Shared\\Media\\04_Goodbye_days.mp3"
+#if defined(_MSC_VER)
+#define TEST_ABS_PATH  ".\\test.mp3"
+#define TEST_FILE_PATH  "file://.\\test.mp3"
+#else
+#define TEST_ABS_PATH  "./test.mp3"
+#define TEST_FILE_PATH  "file://./test.mp3"
+#endif
 
 TEST_F(MimeUri, testPlayAbsPath){
     TestPlayUri(sl, TEST_ABS_PATH);
 }
 
 TEST_F(MimeUri, testPlayfilePath){
-    TestPlayUri(sl, "file:///sdcard/media_api/music/MP3_256kbps_2ch.mp3");
+    TestPlayUri(sl, TEST_FILE_PATH);
 }
 
 //-----------------------------------------------------------------

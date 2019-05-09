@@ -1773,7 +1773,11 @@ SLresult android_audioPlayer_realize(CAudioPlayer *pAudioPlayer, SLboolean async
                         pathname += 7;
                     }
                     // attempt to open it as a file using the application's credentials
-                    int fd = ::open(pathname, O_RDONLY);
+                    int fd = ::open(pathname, 
+#ifdef O_BINARY
+						O_BINARY |
+#endif
+						O_RDONLY );
                     if (fd >= 0) {
                         // if open is successful, then check to see if it's a regular file
                         struct stat statbuf;
