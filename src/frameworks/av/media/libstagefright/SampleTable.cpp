@@ -29,6 +29,8 @@
 #include <media/stagefright/DataSource.h>
 #include <media/stagefright/Utils.h>
 
+#include <media/stagefright/foundation/AMessage.h>
+
 /* TODO: remove after being merged into other branches */
 #ifndef UINT32_MAX
 #define UINT32_MAX       (4294967295U)

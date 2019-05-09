@@ -52,6 +52,7 @@ static uint64_t u64at(const uint8_t *data) {
 // static
 const int64_t ARTPConnection::kSelectTimeoutUs = 1000ll;
 
+#if !defined(_MSC_VER)
 struct ARTPConnection::StreamInfo {
     int mRTPSocket;
     int mRTCPSocket;
@@ -66,6 +67,7 @@ struct ARTPConnection::StreamInfo {
 
     bool mIsInjected;
 };
+#endif
 
 ARTPConnection::ARTPConnection(uint32_t flags)
     : mFlags(flags),

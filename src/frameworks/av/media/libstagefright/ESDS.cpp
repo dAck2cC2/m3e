@@ -24,6 +24,8 @@
 
 #include <string.h>
 
+#include <media/stagefright/foundation/AMessage.h>
+
 namespace android {
 
 ESDS::ESDS(const void *data, size_t size)

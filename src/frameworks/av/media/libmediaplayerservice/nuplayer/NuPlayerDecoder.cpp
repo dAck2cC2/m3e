@@ -43,6 +43,9 @@
 #include "avc_utils.h"
 #include "ATSParser.h"
 
+#include <CasManager.h>
+#include <android/hardware/cas/native/1.0/IDescrambler.h>
+
 namespace android {
 
 static float kDisplayRefreshingRate = 60.f; // TODO: get this from the display

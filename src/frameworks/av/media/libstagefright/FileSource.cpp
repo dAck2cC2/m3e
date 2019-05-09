@@ -28,6 +28,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <media/stagefright/foundation/AMessage.h>
+
 namespace android {
 
 FileSource::FileSource(const char *filename)

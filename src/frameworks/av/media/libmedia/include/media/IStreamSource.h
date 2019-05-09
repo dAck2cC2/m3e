@@ -100,7 +100,7 @@ struct ANDROID_API_MEDIA BnStreamSource : public BnInterface<IStreamSource> {
             uint32_t flags = 0);
 };
 
-struct BnStreamListener : public BnInterface<IStreamListener> {
+struct ANDROID_API_MEDIA BnStreamListener : public BnInterface<IStreamListener> {
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,
             uint32_t flags = 0);

@@ -303,7 +303,11 @@ sp<IMediaRecorder> MediaPlayerService::createMediaRecorder(const String16 &opPac
     sp<MediaRecorderClient> recorder = new MediaRecorderClient(this, pid, opPackageName);
     wp<MediaRecorderClient> w = recorder;
     Mutex::Autolock lock(mLock);
+#if TODO
     mMediaRecorderClients.add(w);
+#else
+	mMediaRecorderClients.add(recorder);
+#endif
     ALOGV("Create new media recorder client from pid %d", pid);
     return recorder;
 }
@@ -311,7 +315,12 @@ sp<IMediaRecorder> MediaPlayerService::createMediaRecorder(const String16 &opPac
 void MediaPlayerService::removeMediaRecorderClient(const wp<MediaRecorderClient>& client)
 {
     Mutex::Autolock lock(mLock);
+#if TODO
     mMediaRecorderClients.remove(client);
+#else
+	sp<MediaRecorderClient> c = client.promote();
+	mMediaRecorderClients.remove(c);
+#endif
     ALOGV("Delete media recorder client");
 }
 
@@ -336,11 +345,18 @@ sp<IMediaPlayer> MediaPlayerService::create(const sp<IMediaPlayerClient>& client
     ALOGV("Create new client(%d) from pid %d, uid %d, ", connId, pid,
          IPCThreadState::self()->getCallingUid());
 
+#if TODO
     wp<Client> w = c;
     {
         Mutex::Autolock lock(mLock);
         mClients.add(w);
     }
+#else
+	{
+		Mutex::Autolock lock(mLock);
+		mClients.add(c);
+	}
+#endif
     return c;
 }
 
@@ -462,7 +478,11 @@ status_t MediaPlayerService::dump(int fd, const Vector<String16>& args)
     } else {
         Mutex::Autolock lock(mLock);
         for (int i = 0, n = mClients.size(); i < n; ++i) {
+#if TODO
             sp<Client> c = mClients[i].promote();
+#else
+			sp<Client> c = mClients[i];
+#endif
             if (c != 0) c->dump(fd, args);
             clients.add(c);
         }
@@ -470,7 +490,11 @@ status_t MediaPlayerService::dump(int fd, const Vector<String16>& args)
                 result.append(" No media recorder client\n\n");
         } else {
             for (int i = 0, n = mMediaRecorderClients.size(); i < n; ++i) {
+#if TODO
                 sp<MediaRecorderClient> c = mMediaRecorderClients[i].promote();
+#else
+				sp<MediaRecorderClient> c = mMediaRecorderClients[i];
+#endif
                 if (c != 0) {
                     snprintf(buffer, 255, " MediaRecorderClient pid(%d)\n", c->mPid);
                     result.append(buffer);
@@ -582,14 +606,25 @@ status_t MediaPlayerService::dump(int fd, const Vector<String16>& args)
 void MediaPlayerService::removeClient(const wp<Client>& client)
 {
     Mutex::Autolock lock(mLock);
+#if TODO
     mClients.remove(client);
+#else
+	sp<Client> c = client.promote();
+	mClients.remove(c);
+#endif
 }
 
 bool MediaPlayerService::hasClient(wp<Client> client)
 {
     Mutex::Autolock lock(mLock);
+#if TODO
     return mClients.indexOf(client) != NAME_NOT_FOUND;
+#else
+	sp<Client> c = client.promote();
+	return mClients.indexOf(c) != NAME_NOT_FOUND;
+#endif
 }
+
 
 MediaPlayerService::Client::Client(
         const sp<MediaPlayerService>& service, pid_t pid,

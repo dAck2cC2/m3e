@@ -31,7 +31,7 @@
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/Utils.h>
 
-#include <media/IMediaAnalyticsService.h>
+#include <IMediaAnalyticsService.h> // <media/IMediaAnalyticsService.h>
 
 static const int kDumpLockRetries = 50;
 static const int kDumpLockSleepUs = 20000;

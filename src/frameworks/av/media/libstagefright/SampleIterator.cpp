@@ -28,6 +28,8 @@
 
 #include "include/SampleTable.h"
 
+#include <media/stagefright/foundation/AMessage.h>
+
 namespace android {
 
 SampleIterator::SampleIterator(SampleTable *table)

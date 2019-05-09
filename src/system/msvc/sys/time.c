@@ -49,6 +49,7 @@ int gettimeofday(struct timeval *tv/*in*/, struct timezone *tz/*in*/)
 
 void usleep(DWORD waitTime)
 {
+#if 0
 	HANDLE timer;
 	LARGE_INTEGER ft;
 
@@ -58,6 +59,9 @@ void usleep(DWORD waitTime)
 	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
 	WaitForSingleObject(timer, INFINITE);
 	CloseHandle(timer);
+#else
+	Sleep(waitTime/1000);
+#endif
 }
 
 int clock_nanosleep(int clock_id, int flags,

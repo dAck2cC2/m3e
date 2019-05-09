@@ -43,8 +43,10 @@
 #include <media/stagefright/Utils.h>
 
 #include <arpa/inet.h>
+#if !defined(_MSC_VER)
 #include <sys/socket.h>
 #include <netdb.h>
+#endif
 
 #include "HTTPBase.h"
 
@@ -268,7 +270,11 @@ struct MyHandler : public AHandler {
         struct sockaddr_in addr;
         socklen_t addrSize = sizeof(addr);
         if (getsockname(s, (sockaddr *)&addr, &addrSize) != 0) {
+#if defined(_MSC_VER)
+			inet_pton(AF_INET, "0.0.0.0", &(addr.sin_addr));
+#else
             inet_aton("0.0.0.0", &(addr.sin_addr));
+#endif
         }
 
         uint8_t *data = buffer->data() + buffer->size();
@@ -343,8 +349,11 @@ struct MyHandler : public AHandler {
 
                 return false;
             }
-
+#if defined(_MSC_VER)
+			addr.sin_addr.s_addr = (ULONG)ent->h_addr;
+#else
             addr.sin_addr.s_addr = *(in_addr_t *)ent->h_addr;
+#endif
         } else {
             addr.sin_addr.s_addr = inet_addr(source.c_str());
         }
@@ -392,7 +401,13 @@ struct MyHandler : public AHandler {
         addr.sin_port = htons(rtpPort);
 
         ssize_t n = sendto(
-                rtpSocket, buf->data(), buf->size(), 0,
+                rtpSocket,
+#if defined(_MSC_VER)
+			    (const char *)buf->data(),
+#else
+			    buf->data(), 
+#endif
+			    buf->size(), 0,
                 (const sockaddr *)&addr, sizeof(addr));
 
         if (n < (ssize_t)buf->size()) {
@@ -403,7 +418,13 @@ struct MyHandler : public AHandler {
         addr.sin_port = htons(rtcpPort);
 
         n = sendto(
-                rtcpSocket, buf->data(), buf->size(), 0,
+                rtcpSocket, 
+#if defined(_MSC_VER)
+			    (const char *)buf->data(),
+#else
+			    buf->data(),
+#endif
+			    buf->size(), 0,
                 (const sockaddr *)&addr, sizeof(addr));
 
         if (n < (ssize_t)buf->size()) {

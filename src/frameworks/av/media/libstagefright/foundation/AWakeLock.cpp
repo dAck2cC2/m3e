@@ -23,28 +23,34 @@
 
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
+#if ENABLE_POWERMANAGER
 #include <powermanager/PowerManager.h>
-
+#endif
 
 namespace android {
 
 AWakeLock::AWakeLock() :
+#if ENABLE_POWERMANAGER
     mPowerManager(NULL),
+#endif
     mWakeLockToken(NULL),
     mWakeLockCount(0),
     mDeathRecipient(new PMDeathRecipient(this)) {}
 
 AWakeLock::~AWakeLock() {
+#if ENABLE_POWERMANAGER
     if (mPowerManager != NULL) {
         sp<IBinder> binder = IInterface::asBinder(mPowerManager);
         binder->unlinkToDeath(mDeathRecipient);
     }
+#endif
     clearPowerManager();
 }
 
 bool AWakeLock::acquire() {
     if (mWakeLockCount == 0) {
         CHECK(mWakeLockToken == NULL);
+#if ENABLE_POWERMANAGER
         if (mPowerManager == NULL) {
             // use checkService() to avoid blocking if power service is not up yet
             sp<IBinder> binder =
@@ -69,6 +75,7 @@ bool AWakeLock::acquire() {
                 return true;
             }
         }
+#endif
     } else {
         mWakeLockCount++;
         return true;
@@ -86,18 +93,22 @@ void AWakeLock::release(bool force) {
     }
     if (--mWakeLockCount == 0) {
         CHECK(mWakeLockToken != NULL);
+#if ENABLE_POWERMANAGER
         if (mPowerManager != NULL) {
             int64_t token = IPCThreadState::self()->clearCallingIdentity();
             mPowerManager->releaseWakeLock(mWakeLockToken, 0 /* flags */);
             IPCThreadState::self()->restoreCallingIdentity(token);
         }
+#endif
         mWakeLockToken.clear();
     }
 }
 
 void AWakeLock::clearPowerManager() {
     release(true);
+#if ENABLE_POWERMANAGER
     mPowerManager.clear();
+#endif
 }
 
 void AWakeLock::PMDeathRecipient::binderDied(const wp<IBinder>& who __unused) {

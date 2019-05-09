@@ -17,9 +17,10 @@ cutils
 utils
 )
 
+add_definitions(-DANDROID)
+add_definitions(-DUNDEBUG)
 add_definitions(-DSL_API= )
 add_definitions(-DXA_API= )
-add_definitions(-DUNDEBUG)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/wilhelm/src/ut/ )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/wilhelm/src/ )

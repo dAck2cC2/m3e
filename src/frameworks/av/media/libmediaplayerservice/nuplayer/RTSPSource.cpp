@@ -18,6 +18,10 @@
 #define LOG_TAG "RTSPSource"
 #include <utils/Log.h>
 
+#if defined(_MSC_VER)
+#include <cutils/sockets.h>
+#endif
+
 #include "RTSPSource.h"
 
 #include "AnotherPacketSource.h"
@@ -27,6 +31,10 @@
 #include <media/IMediaHTTPService.h>
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MetaData.h>
+
+#include <CasManager.h>
+#include <android/hardware/cas/native/1.0/IDescrambler.h>
+#include "ARTPSource.h"
 
 namespace android {
 

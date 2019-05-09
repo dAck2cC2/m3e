@@ -19,6 +19,7 @@ utils
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/wilhelm/src/autogen/)
 #add_definitions(-DUSE_DESIGNATED_INITIALIZERS)
 
+add_definitions(-DANDROID)
 add_definitions(-UNDEBUG)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/wilhelm/src/ )

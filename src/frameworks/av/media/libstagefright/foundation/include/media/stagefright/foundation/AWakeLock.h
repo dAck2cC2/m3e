@@ -17,13 +17,16 @@
 #ifndef A_WAKELOCK_H_
 #define A_WAKELOCK_H_
 
+#include <binder/IBinder.h>
 #include <media/stagefright/foundation/ABase.h>
+#if ENABLE_POWERMANAGER
 #include <powermanager/IPowerManager.h>
+#endif
 #include <utils/RefBase.h>
 
 namespace android {
 
-class AWakeLock : public RefBase {
+class ANDROID_API_STAGEFRIGHT_FOUNDATION AWakeLock : public RefBase {
 
 public:
     AWakeLock();
@@ -37,7 +40,9 @@ public:
     virtual ~AWakeLock();
 
 private:
+#if ENABLE_POWERMANAGER
     sp<IPowerManager> mPowerManager;
+#endif
     sp<IBinder>       mWakeLockToken;
     uint32_t          mWakeLockCount;
 

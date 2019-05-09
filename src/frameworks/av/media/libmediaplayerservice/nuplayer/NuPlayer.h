@@ -20,7 +20,7 @@
 
 #include <media/AudioResamplerPublic.h>
 #include <media/ICrypto.h>
-#include <media/MediaPlayerInterface.h>
+#include <MediaPlayerInterface.h> // <media/MediaPlayerInterface.h>
 #include <media/stagefright/foundation/AHandler.h>
 
 namespace android {
@@ -326,6 +326,17 @@ private:
 
     DISALLOW_EVIL_CONSTRUCTORS(NuPlayer);
 };
+
+#if defined(_MSC_VER)
+struct NuPlayer::Action : public RefBase {
+	Action() {}
+
+	virtual void execute(NuPlayer *player) = 0;
+
+private:
+	DISALLOW_EVIL_CONSTRUCTORS(Action);
+};
+#endif
 
 }  // namespace android
 

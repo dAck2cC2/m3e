@@ -19,7 +19,9 @@
 #define PLAYLIST_FETCHER_H_
 
 #include <media/stagefright/foundation/AHandler.h>
+#if ENABLE_SSL
 #include <openssl/aes.h>
+#endif
 
 #include "mpeg2ts/ATSParser.h"
 #include "LiveSession.h"
@@ -173,6 +175,7 @@ private:
     int64_t mSegmentFirstPTS;
     sp<AnotherPacketSource> mVideoBuffer;
 
+#if ENABLE_SSL
     // Stores the initialization vector to decrypt the next block of cipher text, which can
     // either be derived from the sequence number, read from the manifest, or copied from
     // the last block of cipher text (cipher-block chaining).
@@ -180,6 +183,7 @@ private:
     unsigned char mKeyData[AES_BLOCK_SIZE];
     bool mSampleAesKeyItemChanged;
     sp<AMessage> mSampleAesKeyItem;
+#endif
 
     Mutex mThresholdLock;
     float mThresholdRatio;

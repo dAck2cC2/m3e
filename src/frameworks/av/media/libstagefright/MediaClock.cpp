@@ -23,6 +23,8 @@
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/ALooper.h>
 
+#include <media/stagefright/foundation/AMessage.h>
+
 namespace android {
 
 // Maximum allowed time backwards from anchor change.

@@ -50,20 +50,24 @@ void FindAVCDimensions(
 
 // Gets and returns an unsigned exp-golomb (ue) value from a bit reader |br|. Aborts if the value
 // is more than 64 bits long (>=0xFFFF (!)) or the bit reader overflows.
+ANDROID_API_STAGEFRIGHT
 unsigned parseUE(ABitReader *br);
 
 // Gets and returns a signed exp-golomb (se) value from a bit reader |br|. Aborts if the value is
 // more than 64 bits long (>0x7FFF || <-0x7FFF (!)) or the bit reader overflows.
+ANDROID_API_STAGEFRIGHT
 signed parseSE(ABitReader *br);
 
 // Gets an unsigned exp-golomb (ue) value from a bit reader |br|, and returns it if it was
 // successful. Returns |fallback| if it was unsuccessful. Note: if the value was longer that 64
 // bits, it reads past the value and still returns |fallback|.
+ANDROID_API_STAGEFRIGHT
 unsigned parseUEWithFallback(ABitReader *br, unsigned fallback);
 
 // Gets a signed exp-golomb (se) value from a bit reader |br|, and returns it if it was successful.
 // Returns |fallback| if it was unsuccessful. Note: if the value was longer that 64 bits, it reads
 // past the value and still returns |fallback|.
+ANDROID_API_STAGEFRIGHT
 signed parseSEWithFallback(ABitReader *br, signed fallback);
 
 // Skips an unsigned exp-golomb (ue) value from bit reader |br|.
@@ -76,19 +80,26 @@ inline void skipSE(ABitReader *br) {
     (void)parseSEWithFallback(br, 0);
 }
 
+ANDROID_API_STAGEFRIGHT
 status_t getNextNALUnit(
         const uint8_t **_data, size_t *_size,
         const uint8_t **nalStart, size_t *nalSize,
         bool startCodeFollows = false);
 
 class MetaData;
+ANDROID_API_STAGEFRIGHT
 sp<MetaData> MakeAVCCodecSpecificData(const sp<ABuffer> &accessUnit);
 
+ANDROID_API_STAGEFRIGHT
 bool IsIDR(const sp<ABuffer> &accessUnit);
+ANDROID_API_STAGEFRIGHT
 bool IsIDR(const sp<MediaCodecBuffer> &accessUnit);
+ANDROID_API_STAGEFRIGHT
 bool IsAVCReferenceFrame(const sp<ABuffer> &accessUnit);
+ANDROID_API_STAGEFRIGHT
 uint32_t FindAVCLayerId(const uint8_t *data, size_t size);
 
+ANDROID_API_STAGEFRIGHT
 const char *AVCProfileToString(uint8_t profile);
 
 ANDROID_API_STAGEFRIGHT
@@ -98,9 +109,11 @@ sp<MetaData> MakeAACCodecSpecificData(
 
 // Given an MPEG4 video VOL-header chunk (starting with 0x00 0x00 0x01 0x2?)
 // parse it and fill in dimensions, returns true iff successful.
+ANDROID_API_STAGEFRIGHT
 bool ExtractDimensionsFromVOLHeader(
         const uint8_t *data, size_t size, int32_t *width, int32_t *height);
 
+ANDROID_API_STAGEFRIGHT
 bool GetMPEGAudioFrameSize(
         uint32_t header, size_t *frame_size,
         int *out_sampling_rate = NULL, int *out_channels = NULL,

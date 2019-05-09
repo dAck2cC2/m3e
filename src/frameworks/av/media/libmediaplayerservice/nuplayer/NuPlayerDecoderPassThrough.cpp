@@ -33,6 +33,9 @@
 
 #include "ATSParser.h"
 
+#include <CasManager.h>
+#include <android/hardware/cas/native/1.0/IDescrambler.h>
+
 namespace android {
 
 // TODO optimize buffer size for power consumption

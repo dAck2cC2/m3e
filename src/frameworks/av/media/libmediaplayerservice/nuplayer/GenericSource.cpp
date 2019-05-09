@@ -39,6 +39,9 @@
 #include "../../libstagefright/include/NuCachedSource2.h"
 #include "../../libstagefright/include/HTTPBase.h"
 
+#include <CasManager.h>
+#include <android/hardware/cas/native/1.0/IDescrambler.h>
+
 namespace android {
 
 static const int kLowWaterMarkMs          = 2000;  // 2secs

@@ -12,6 +12,7 @@ include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/media_plugin/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
@@ -43,10 +44,18 @@ stagefright_foundation
 stagefright
 )
 
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/headers/media_plugin/media/openmax)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/headers/media_plugin/media/hardware)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/wifi-display)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/httplive)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/mpeg2ts)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/timedtext)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/rtsp)
+
+# option
+set(ENABLE_NUPLAYER         "TRUE")
+set(ENABLE_RTSP_SOURCE      "FALSE")
+set(ENABLE_HTTP_LIVE_SOURCE "FALSE")
+
 
 if (MSVC)
     add_definitions(-DNOMINMAX=1)
@@ -68,11 +77,9 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmediaplayerservice
 include_directories(AFTER ${SOURCE_PATH})
 include_directories(AFTER ${SOURCE_PATH}/nuplayer)
 
-
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES  
 ${HEADER_PATH}/*.h
-${HEADER_PATH}/nuplayer/*.h
 )
 
 set(${PROJECT_NAME}_SOURCE_FILES
@@ -85,9 +92,51 @@ ${SOURCE_PATH}/MetadataRetrieverClient.cpp
 ${SOURCE_PATH}/MediaRecorderClient.cpp
 ${SOURCE_PATH}/ActivityManager.cpp
 #${SOURCE_PATH}/StagefrightRecorder.cpp
-#${SOURCE_PATH}/nuplayer/NuPlayerDriver.cpp
-#${SOURCE_PATH}/nuplayer/NuPlayer.cpp
 )
+
+if (ENABLE_NUPLAYER)
+    add_definitions(-DENABLE_NUPLAYER=1)
+
+    list(APPEND ${PROJECT_NAME}_DEPLIB
+    stagefright_timedtext
+    )
+
+    file(GLOB ${PROJECT_NAME}_SOURCE_NUPLAYER
+    ${HEADER_PATH}/nuplayer/*.h
+    )
+    list(APPEND ${PROJECT_NAME}_SOURCE_NUPLAYER
+    ${SOURCE_PATH}/nuplayer/NuPlayerDriver.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayer.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDecoderBase.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDecoder.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerCCDecoder.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDecoderPassThrough.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerRenderer.cpp
+    ${SOURCE_PATH}/nuplayer/StreamingSource.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerStreamListener.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDrm.cpp
+    ${SOURCE_PATH}/nuplayer/GenericSource.cpp
+    )
+
+    if (ENABLE_RTSP_SOURCE)
+        add_definitions(-DENABLE_RTSP_SOURCE=1)
+
+        list(APPEND ${PROJECT_NAME}_SOURCE_NUPLAYER
+        ${SOURCE_PATH}/nuplayer/RTSPSource.cpp
+        )
+    endif(ENABLE_RTSP_SOURCE)
+
+    if (ENABLE_HTTP_LIVE_SOURCE)
+        add_definitions(-DENABLE_HTTP_LIVE_SOURCE=1)
+        
+        list(APPEND ${PROJECT_NAME}_SOURCE_NUPLAYER
+        ${SOURCE_PATH}/nuplayer/HTTPLiveSsource.cpp
+        )
+    endif(ENABLE_HTTP_LIVE_SOURCE)
+
+    source_group(NuPlayer FILES ${${PROJECT_NAME}_SOURCE_NUPLAYER})
+    list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_SOURCE_NUPLAYER})
+endif(ENABLE_NUPLAYER)
 
 set(LIB_TYPE SHARED)
 ADD_LIB(mediaplayerservice_default)

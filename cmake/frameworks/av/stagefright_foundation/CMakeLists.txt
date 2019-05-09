@@ -62,6 +62,8 @@ ${SOURCE_PATH}/MetaData.cpp
 ${SOURCE_PATH}/ParsedMessage.cpp
 ${SOURCE_PATH}/base64.cpp
 ${SOURCE_PATH}/hexdump.cpp
+${SOURCE_PATH}/AWakeLock.cpp
+
 )
 
 if(MSVC)

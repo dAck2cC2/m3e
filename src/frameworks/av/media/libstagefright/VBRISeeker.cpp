@@ -30,6 +30,8 @@
 #include <media/stagefright/DataSource.h>
 #include <media/stagefright/Utils.h>
 
+#include <media/stagefright/foundation/AMessage.h>
+
 namespace android {
 
 static uint32_t U24_AT(const uint8_t *ptr) {

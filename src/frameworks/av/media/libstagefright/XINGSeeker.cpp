@@ -23,6 +23,8 @@
 #include <media/stagefright/DataSource.h>
 #include <media/stagefright/Utils.h>
 
+#include <media/stagefright/foundation/AMessage.h>
+
 namespace android {
 
 XINGSeeker::XINGSeeker()

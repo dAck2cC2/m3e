@@ -478,8 +478,15 @@ private:
     virtual                 ~MediaPlayerService();
 
     mutable     Mutex                       mLock;
+	            
+#if TODO
                 SortedVector< wp<Client> >  mClients;
                 SortedVector< wp<MediaRecorderClient> > mMediaRecorderClients;
+#else
+				/* We need sp to save the instance of Bn Server currently. */
+				SortedVector< sp<Client> >  mClients;
+				SortedVector< sp<MediaRecorderClient> > mMediaRecorderClients;
+#endif
                 int32_t                     mNextConnId;
                 sp<IOMX>                    mOMX;
 };

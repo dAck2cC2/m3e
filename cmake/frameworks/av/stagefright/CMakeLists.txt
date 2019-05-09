@@ -159,6 +159,8 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/BufferImpl.cpp
     ${SOURCE_PATH}/ACodecBufferChannel.cpp
     ${SOURCE_PATH}/OmxInfoBuilder.cpp
+    ${SOURCE_PATH}/MediaClock.cpp
+    ${SOURCE_PATH}/VideoFrameScheduler.cpp
     #${SOURCE_PATH}/StagefrightMetadataRetriever.cpp
     )
 
@@ -217,4 +219,5 @@ if(ENABLE_AV_CODEC)
     add_subdirectory(matroska)
     add_subdirectory(xmlparser)
     add_subdirectory(flac)
+    add_subdirectory(timedtext)
 endif()

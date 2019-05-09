@@ -26,7 +26,7 @@ namespace android {
 
 struct AMessage;
 
-struct MediaClock : public RefBase {
+struct ANDROID_API_STAGEFRIGHT MediaClock : public RefBase {
     MediaClock();
 
     void setStartingTimeMedia(int64_t startingTimeMediaUs);

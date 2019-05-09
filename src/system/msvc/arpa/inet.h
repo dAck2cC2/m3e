@@ -26,6 +26,8 @@ extern "C" {
 # define htons(x)    ntohs(x)
 #endif
 
+#define IN_LOOPBACK(a)  (a)
+
 #ifdef __cplusplus
 }
 #endif

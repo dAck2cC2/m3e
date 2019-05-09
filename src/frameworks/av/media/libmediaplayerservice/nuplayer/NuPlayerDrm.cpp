@@ -34,8 +34,11 @@ sp<IDrm> NuPlayerDrm::CreateDrm(status_t *pstatus)
     sp<IServiceManager> sm = defaultServiceManager();
     sp<IBinder> binder = sm->getService(String16("media.drm"));
     ALOGV("CreateDrm binder %p", (binder != NULL ? binder.get() : 0));
-
+#if TODO
     sp<IMediaDrmService> service = interface_cast<IMediaDrmService>(binder);
+#else
+	sp<IMediaDrmService> service;
+#endif
     if (service == NULL) {
         ALOGE("CreateDrm failed at IMediaDrmService");
         return NULL;
@@ -62,7 +65,11 @@ sp<ICrypto> NuPlayerDrm::createCrypto(status_t *pstatus)
     sp<IServiceManager> sm = defaultServiceManager();
     sp<IBinder> binder = sm->getService(String16("media.drm"));
 
+#if TODO
     sp<IMediaDrmService> service = interface_cast<IMediaDrmService>(binder);
+#else
+	sp<IMediaDrmService> service;
+#endif
     if (service == NULL) {
         status = UNKNOWN_ERROR;
         ALOGE("CreateCrypto failed at IMediaDrmService");

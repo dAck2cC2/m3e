@@ -34,6 +34,8 @@
 #include <media/stagefright/Utils.h>
 #include <utils/String8.h>
 
+#include <media/stagefright/foundation/AMessage.h>
+
 extern "C" {
     #include <Tremolo/codec_internal.h>
 

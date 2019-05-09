@@ -92,6 +92,23 @@ private:
     DISALLOW_EVIL_CONSTRUCTORS(ARTPConnection);
 };
 
+#if defined(_MSC_VER)
+struct ARTPConnection::StreamInfo {
+	int mRTPSocket;
+	int mRTCPSocket;
+	sp<ASessionDescription> mSessionDesc;
+	size_t mIndex;
+	sp<AMessage> mNotifyMsg;
+	KeyedVector<uint32_t, sp<ARTPSource> > mSources;
+
+	int64_t mNumRTCPPacketsReceived;
+	int64_t mNumRTPPacketsReceived;
+	struct sockaddr_in mRemoteRTCPAddr;
+
+	bool mIsInjected;
+};
+#endif
+
 }  // namespace android
 
 #endif  // A_RTP_CONNECTION_H_

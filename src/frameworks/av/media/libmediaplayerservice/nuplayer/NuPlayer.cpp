@@ -61,8 +61,13 @@
 #include "ESDS.h"
 #include <media/stagefright/Utils.h>
 
-namespace android {
+#include <CasManager.h>
+#include <android/hardware/cas/native/1.0/IDescrambler.h>
+#include <AnotherPacketSource.h>
+#include <PlaylistFetcher.h>
 
+namespace android {
+#if !defined(_MSC_VER)
 struct NuPlayer::Action : public RefBase {
     Action() {}
 
@@ -71,7 +76,7 @@ struct NuPlayer::Action : public RefBase {
 private:
     DISALLOW_EVIL_CONSTRUCTORS(Action);
 };
-
+#endif
 struct NuPlayer::SeekAction : public Action {
     explicit SeekAction(int64_t seekTimeUs, MediaPlayerSeekMode mode)
         : mSeekTimeUs(seekTimeUs),
@@ -258,22 +263,28 @@ void NuPlayer::setDataSourceAsync(
 
     sp<Source> source;
     if (IsHTTPLiveURL(url)) {
+#if ENABLE_HTTP_LIVE_SOURCE
         source = new HTTPLiveSource(notify, httpService, url, headers);
         ALOGV("setDataSourceAsync HTTPLiveSource %s", url);
         mDataSourceType = DATA_SOURCE_TYPE_HTTP_LIVE;
+#endif
     } else if (!strncasecmp(url, "rtsp://", 7)) {
+#if ENABLE_RTSP_SOURCE
         source = new RTSPSource(
                 notify, httpService, url, headers, mUIDValid, mUID);
         ALOGV("setDataSourceAsync RTSPSource %s", url);
         mDataSourceType = DATA_SOURCE_TYPE_RTSP;
+#endif
     } else if ((!strncasecmp(url, "http://", 7)
                 || !strncasecmp(url, "https://", 8))
                     && ((len >= 4 && !strcasecmp(".sdp", &url[len - 4]))
                     || strstr(url, ".sdp?"))) {
+#if ENABLE_RTSP_SOURCE
         source = new RTSPSource(
                 notify, httpService, url, headers, mUIDValid, mUID, true);
         ALOGV("setDataSourceAsync RTSPSource http/https/.sdp %s", url);
         mDataSourceType = DATA_SOURCE_TYPE_RTSP;
+#endif
     } else {
         ALOGV("setDataSourceAsync GenericSource %s", url);
 
