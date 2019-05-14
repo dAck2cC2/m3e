@@ -15,10 +15,6 @@
 
 namespace android {
 
-enum {
-    GET_NATIVE_WINDOW = IBinder::FIRST_CALL_TRANSACTION,
-};
-
 class BpSurfaceHandle : public BpInterface<ISurfaceHandle>
 {
 public:
@@ -45,7 +41,7 @@ public:
 // translation unit (see clang warning -Wweak-vtables)
 BpSurfaceHandle::~BpSurfaceHandle() {}
 
-IMPLEMENT_META_INTERFACE(SurfaceHandle, "android.ui.ISurfaceHandle");
+IMPLEMENT_META_INTERFACE(SurfaceHandle, "android.gui.ISurfaceHandle");
 
 // ----------------------------------------------------------------------
 
@@ -65,5 +61,20 @@ status_t BnSurfaceHandle::onTransact(
             return BBinder::onTransact(code, data, reply, flags);
      }
 };
+
+// ----------------------------------------------------------------------
+
+EGLNativeWindowType ISurfaceHandle_getNativeWindow(sp<IBinder> handler)
+{
+	EGLNativeWindowType win = 0;
+	Parcel data, reply;
+	data.writeInterfaceToken(String16(ISURFACE_HANDLE_NAME));
+	handler->transact(GET_NATIVE_WINDOW, data, &reply);
+	const flat_binder_object* obj = reply.readObject(true);
+	if ((obj) && (obj->type == BINDER_TYPE_POINTER)) {
+		win = (EGLNativeWindowType)(obj->cookie);
+	}
+	return (win);
+}
 
 }; // namespace android

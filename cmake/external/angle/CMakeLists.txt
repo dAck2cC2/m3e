@@ -27,6 +27,7 @@ add_subdirectory(glesv1_cm)
 add_subdirectory(egl)
 add_subdirectory(util)
 
+#set(ENABLE_TEST "TRUE")
 if(ENABLE_TEST)
-    #add_subdirectory(test)
+    add_subdirectory(test)
 endif(ENABLE_TEST)

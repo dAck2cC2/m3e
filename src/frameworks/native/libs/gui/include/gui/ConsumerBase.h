@@ -38,7 +38,7 @@ class GraphicBuffer;
 // ConsumerBase is a base class for BufferQueue consumer end-points. It
 // handles common tasks like management of the connection to the BufferQueue
 // and the buffer pool.
-class ConsumerBase : public virtual RefBase,
+class ANDROID_API_GUI ConsumerBase : public virtual RefBase,
         protected ConsumerListener {
 public:
     struct FrameAvailableListener : public virtual RefBase {

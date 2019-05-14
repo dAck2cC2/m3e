@@ -118,7 +118,7 @@ struct ComposerState {
     status_t    read(const Parcel& input);
 };
 
-struct DisplayState {
+struct ANDROID_API_GUI DisplayState {
 
     enum {
         eOrientationDefault     = 0,

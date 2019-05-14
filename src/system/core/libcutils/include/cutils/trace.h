@@ -261,8 +261,10 @@ static inline void atrace_int(uint64_t tag, const char* name, int32_t value)
 static inline void atrace_int64(uint64_t tag, const char* name, int64_t value)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
+#if !defined(_MSC_VER)
         void atrace_int64_body(const char*, int64_t);
         atrace_int64_body(name, value);
+#endif
     }
 }
 

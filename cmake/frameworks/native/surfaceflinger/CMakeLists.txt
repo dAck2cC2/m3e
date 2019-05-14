@@ -16,6 +16,8 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include)
+
 set( SURFACEFLINGER_DEPLIB
 log
 cutils
@@ -26,7 +28,7 @@ ${OPENGL_DEPLIB}
 )
 
 if(MSVC)
-    #add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     #add_definitions(-D__STDC_LIMIT_MACROS=1)
     add_definitions(-D_USE_MATH_DEFINES=1)
     add_definitions(-DNOMINMAX=1)
@@ -34,135 +36,116 @@ elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})    
 endif()
 
-# test function for angle
-if (ENABLE_ANGLE)
-    #set(ENABLE_ANGLE_TEST       "TRUE")  
-endif(ENABLE_ANGLE) 
-
-if (ENABLE_ANGLE_TEST)
-    add_definitions(-DENABLE_ANGLE_TEST=1)
-    include(${M3E_SOURCE_DIR}/cmake/${EXT_PATH}/angle/include_util.cmake)
-    include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src)    
-    include_directories(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/angle)
-    list(APPEND SURFACEFLINGER_DEPLIB angle_util)
-endif(ENABLE_ANGLE_TEST)
-
-
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/services/surfaceflinger )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/services/surfaceflinger )
 
 include_directories(AFTER ${HEADER_PATH})
 
 ###############################################################################
 #  Flinger
 ###############################################################################
-set( SF_FLINGER_SOURCE_FILES 
-${HEADER_PATH}/clz.h
-${HEADER_PATH}/Barrier.h
-${HEADER_PATH}/Transform.h
-${SOURCE_PATH}/Transform.cpp
-${HEADER_PATH}/Client.h
-${SOURCE_PATH}/Client.cpp
-${HEADER_PATH}/Layer.h
-${SOURCE_PATH}/Layer.cpp
-${SOURCE_PATH}/MessageQueue.cpp
-${SOURCE_PATH}/DisplayDevice.h
-${SOURCE_PATH}/DisplayDevice.cpp
-${SOURCE_PATH}/SurfaceFlinger.h
-${SOURCE_PATH}/SurfaceFlinger.cpp
-${SOURCE_PATH}/main_surfaceflinger.cpp
+file(GLOB ${PROJECT_NAME}_FLINGER
+${SOURCE_PATH}/*.h
 )
-source_group(Flinger FILES ${SF_FLINGER_SOURCE_FILES})
+list(APPEND ${PROJECT_NAME}_FLINGER
+${SOURCE_PATH}/Client.cpp 
+${SOURCE_PATH}/DisplayDevice.cpp 
+${SOURCE_PATH}/DispSync.cpp 
+${SOURCE_PATH}/EventControlThread.cpp 
+${SOURCE_PATH}/StartPropertySetThread.cpp 
+${SOURCE_PATH}/EventThread.cpp 
+${SOURCE_PATH}/FrameTracker.cpp 
+${SOURCE_PATH}/GpuService.cpp 
+${SOURCE_PATH}/Layer.cpp 
+${SOURCE_PATH}/LayerDim.cpp 
+${SOURCE_PATH}/LayerRejecter.cpp 
+${SOURCE_PATH}/LayerVector.cpp 
+${SOURCE_PATH}/MessageQueue.cpp 
+${SOURCE_PATH}/MonitoredProducer.cpp 
+${SOURCE_PATH}/SurfaceFlingerConsumer.cpp 
+${SOURCE_PATH}/Transform.cpp 
+${SOURCE_PATH}/SurfaceFlinger_hwc1.cpp
+#${SOURCE_PATH}/SurfaceInterceptor.cpp 
+#${SOURCE_PATH}/SurfaceFlinger.cpp
+)
+source_group(Flinger FILES ${${PROJECT_NAME}_FLINGER})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_FLINGER})
 
-list(APPEND SURFACEFLINGER_SOURCE_FILES
-${SF_FLINGER_SOURCE_FILES}
+###############################################################################
+#  Disaplay Hardware
+###############################################################################
+file(GLOB ${PROJECT_NAME}_DISPLAYHW
+${SOURCE_PATH}/DisplayHardware/*.h
 )
+list(APPEND ${PROJECT_NAME}_DISPLAYHW
+${SOURCE_PATH}/DisplayHardware/FramebufferSurface.cpp  
+${SOURCE_PATH}/DisplayHardware/HWComposerBufferCache.cpp 
+${SOURCE_PATH}/DisplayHardware/PowerHAL.cpp 
+${SOURCE_PATH}/DisplayHardware/VirtualDisplaySurface.cpp 
+${SOURCE_PATH}/DisplayHardware/HWComposer_hwc1.cpp
+#${SOURCE_PATH}/DisplayHardware/ComposerHal.cpp 
+#${SOURCE_PATH}/DisplayHardware/HWC2.cpp
+#${SOURCE_PATH}/DisplayHardware/HWComposer.cpp
+)
+source_group(DisplayHardware FILES ${${PROJECT_NAME}_DISPLAYHW})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_DISPLAYHW})
+
+###############################################################################
+#  Effects
+###############################################################################
+file(GLOB ${PROJECT_NAME}_EFFECTS
+${SOURCE_PATH}/Effects/*.h
+)
+list(APPEND ${PROJECT_NAME}_EFFECTS
+${SOURCE_PATH}/Effects/Daltonizer.cpp
+)
+source_group(effects FILES ${${PROJECT_NAME}_EFFECTS})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_EFFECTS})
+
+###############################################################################
+#  EventLog
+###############################################################################
+file(GLOB ${PROJECT_NAME}_EVENTLOG
+${SOURCE_PATH}/EventLog/*.h
+)
+list(APPEND ${PROJECT_NAME}_EVENTLOG
+${SOURCE_PATH}/EventLog/EventLog.cpp
+${SOURCE_PATH}/EventLog/EventLogTags.logtags
+)
+source_group(EventLog FILES ${${PROJECT_NAME}_EVENTLOG})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_EVENTLOG})
 
 ###############################################################################
 #  RenderEngine
 ###############################################################################
-set( SF_RENDERENGINE_SOURCE_FILES 
-${HEADER_PATH}/RenderEngine/Texture.h
-${HEADER_PATH}/RenderEngine/Description.h
-${HEADER_PATH}/RenderEngine/GLExtensions.h
-${HEADER_PATH}/RenderEngine/Mesh.h
-${HEADER_PATH}/RenderEngine/RenderEngine.h
-${SOURCE_PATH}/RenderEngine/Texture.cpp
-${SOURCE_PATH}/RenderEngine/Description.cpp
-${SOURCE_PATH}/RenderEngine/GLExtensions.cpp
-${SOURCE_PATH}/RenderEngine/Mesh.cpp
-${SOURCE_PATH}/RenderEngine/RenderEngine.cpp
+file(GLOB ${PROJECT_NAME}_RENDERENGINE
+${SOURCE_PATH}/RenderEngine/*.h
 )
-if (ENABLE_DESKTOP_GL)
-    list(APPEND SF_RENDERENGINE_SOURCE_FILES
-    ${HEADER_PATH}/RenderEngine/GLRenderEngine.h 
-    ${SOURCE_PATH}/RenderEngine/GLRenderEngine.cpp
-    )
-else ()
-    list(APPEND SF_RENDERENGINE_SOURCE_FILES
-    ${HEADER_PATH}/RenderEngine/Program.h
-    ${SOURCE_PATH}/RenderEngine/Program.cpp
-    ${HEADER_PATH}/RenderEngine/ProgramCache.h  
-    ${SOURCE_PATH}/RenderEngine/ProgramCache.cpp  
-    ${HEADER_PATH}/RenderEngine/GLES20RenderEngine.h
-    ${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp 
-    #${SOURCE_PATH}/RenderEngine/GLES11RenderEngine.cpp
-    #${HEADER_PATH}/RenderEngine/GLES11RenderEngine.h
-    #${HEADER_PATH}/RenderEngine/GLES10RenderEngine.h
-    #${SOURCE_PATH}/RenderEngine/GLES10RenderEngine.cpp 
-    )
-endif ()
-source_group(RenderEngine FILES ${SF_RENDERENGINE_SOURCE_FILES})
-
-list(APPEND SURFACEFLINGER_SOURCE_FILES
-${SF_RENDERENGINE_SOURCE_FILES}
+list(APPEND ${PROJECT_NAME}_RENDERENGINE
+${SOURCE_PATH}/RenderEngine/Description.cpp 
+${SOURCE_PATH}/RenderEngine/Mesh.cpp 
+${SOURCE_PATH}/RenderEngine/Program.cpp 
+${SOURCE_PATH}/RenderEngine/ProgramCache.cpp 
+${SOURCE_PATH}/RenderEngine/GLExtensions.cpp 
+${SOURCE_PATH}/RenderEngine/RenderEngine.cpp 
+${SOURCE_PATH}/RenderEngine/Texture.cpp 
+${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp 
 )
+source_group(RenderEngine FILES ${${PROJECT_NAME}_RENDERENGINE})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_RENDERENGINE})
 
 ###############################################################################
-#  NariveWindow
+#  Customized
 ###############################################################################
-set( NATIVE_WINDOW_SOURCE
-${SOURCE_PATH}/NativeWindow/NativeWindow.h
-${SOURCE_PATH}/NativeWindow/Event.h
-${SOURCE_PATH}/NativeWindow/keyboard.h
-${SOURCE_PATH}/NativeWindow/mouse.h
-${SOURCE_PATH}/NativeWindow/Timer.h
+file(GLOB ${PROJECT_NAME}_CUSTOMIZED
+${SOURCE_PATH}/customized/*.h
 )
-
-list( APPEND NATIVE_WINDOW_SOURCE
-${SOURCE_PATH}/NativeWindow/NativeWindow.cpp
+list(APPEND ${PROJECT_NAME}_CUSTOMIZED
+#${SOURCE_PATH}/customized/SurfaceHandler.cpp
+${SOURCE_PATH}/customized/main_surfaceflinger.cpp
 )
-
-if(APPLE)
-    find_library(APPKIT_LIBRARY AppKit)
-    list(APPEND SURFACEFLINGER_DEPLIB ${APPKIT_LIBRARY})
-
-    list(APPEND NATIVE_WINDOW_SOURCE 
-    ${SOURCE_PATH}/NativeWindow/osx/OSXtimer.h
-    ${SOURCE_PATH}/NativeWindow/osx/OSXWindow.h
-    )
-
-    list(APPEND NATIVE_WINDOW_SOURCE 
-    ${SOURCE_PATH}/NativeWindow/osx/OSXtimer.cpp
-    ${SOURCE_PATH}/NativeWindow/osx/OSXWindow.mm
-    )
-elseif(MSVC)
-    list(APPEND NATIVE_WINDOW_SOURCE 
-    ${SOURCE_PATH}/NativeWindow/win32/Win32Window.h
-    ${SOURCE_PATH}/NativeWindow/win32/Win32Timer.h
-    )
-
-    list(APPEND NATIVE_WINDOW_SOURCE 
-    ${SOURCE_PATH}/NativeWindow/win32/Win32Window.cpp
-    ${SOURCE_PATH}/NativeWindow/win32/Win32Timer.cpp 
-    )    
-endif()
-
-source_group(NativeWindow FILES ${NATIVE_WINDOW_SOURCE})
-
-list(APPEND SURFACEFLINGER_SOURCE_FILES
-${NATIVE_WINDOW_SOURCE}
-)
+source_group(customized FILES ${${PROJECT_NAME}_CUSTOMIZED})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_CUSTOMIZED})
 
 
 
@@ -170,7 +153,7 @@ set(LIB_NAME surfaceflinger_default)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(${LIB_NAME} SHARED ${SURFACEFLINGER_SOURCE_FILES})
+add_library(${LIB_NAME} SHARED ${${PROJECT_NAME}_SOURCE_FILES})
 target_link_libraries(${LIB_NAME} ${SURFACEFLINGER_DEPLIB})
 
 

@@ -24,7 +24,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class IResultReceiver : public IInterface
+class ANDROID_API_BINDER IResultReceiver : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ResultReceiver)

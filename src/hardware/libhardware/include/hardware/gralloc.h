@@ -28,7 +28,7 @@
 #include <cutils/native_handle.h>
 
 #include <hardware/hardware.h>
-//#include <hardware/fb.h>
+#include <hardware/fb.h>
 
 __BEGIN_DECLS
 

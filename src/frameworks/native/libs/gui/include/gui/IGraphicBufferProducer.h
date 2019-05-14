@@ -603,7 +603,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class BnGraphicBufferProducer : public BnInterface<IGraphicBufferProducer>
+class ANDROID_API_GUI BnGraphicBufferProducer : public BnInterface<IGraphicBufferProducer>
 {
 public:
     virtual status_t    onTransact( uint32_t code,

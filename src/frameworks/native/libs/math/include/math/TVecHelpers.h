@@ -131,11 +131,11 @@ public:
      * letting the compiler implicitly convert a scalar to a vector (assuming
      * the BASE<T> allows it).
      */
-    friend inline constexpr VECTOR<T> PURE operator +(VECTOR<T> lv, const VECTOR<T>& rv) {
+    friend inline /*constexpr*/ VECTOR<T> PURE operator +(VECTOR<T> lv, const VECTOR<T>& rv) {
         // don't pass lv by reference because we need a copy anyways
         return lv += rv;
     }
-    friend inline constexpr VECTOR<T> PURE operator -(VECTOR<T> lv, const VECTOR<T>& rv) {
+    friend inline /*constexpr*/ VECTOR<T> PURE operator -(VECTOR<T> lv, const VECTOR<T>& rv) {
         // don't pass lv by reference because we need a copy anyways
         return lv -= rv;
     }

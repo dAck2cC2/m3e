@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+typedef void*	timer_t;
+
 #ifndef sleep
 #define sleep(t) Sleep((t)*1000)
 #endif

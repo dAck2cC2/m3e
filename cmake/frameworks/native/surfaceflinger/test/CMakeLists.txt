@@ -14,7 +14,6 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/angle/include_util.cmake)
 
 set(DEMO_DEPLIBS
 cutils
@@ -30,5 +29,5 @@ if (ENABLE_ANGLE)
     list(APPEND DEMO_DEPLIBS angle_util)
 endif()
 
-ADD_DEMO(surfaceflinger_Triangle      ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger/test/test_Triangle.cpp)
-ADD_DEMO(surfaceflinger_DrawTexture   ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger/test/test_DrawTexture.cpp)
+ADD_DEMO(surfaceflinger_Triangle      ${M3E_SOURCE_DIR}/src/frameworks/native/services/surfaceflinger/tests/test_Triangle.cpp)
+ADD_DEMO(surfaceflinger_DrawTexture   ${M3E_SOURCE_DIR}/src/frameworks/native/services/surfaceflinger/tests/test_DrawTexture.cpp)

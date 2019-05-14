@@ -31,6 +31,7 @@ ${HEADER_PATH}/graphics/allocator/include/android/hardware/graphics/allocator/2.
 ${HEADER_PATH}/graphics/bufferqueue/include/android/hardware/graphics/bufferqueue/1.0/*.h
 ${HEADER_PATH}/graphics/common/include/android/hardware/graphics/common/1.0/*.h
 ${HEADER_PATH}/graphics/mapper/include/android/hardware/graphics/mapper/2.0/*.h
+${HEADER_PATH}/graphics/composer/2.1/default/*.h
 ${HEADER_PATH}/media/include/android/hardware/media/1.0/*.h
 ${HEADER_PATH}/media/omx/include/android/hardware/media/omx/1.0/*.h
 ${HEADER_PATH}/cas/include/android/hardware/cas/1.0/*.h

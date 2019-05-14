@@ -433,7 +433,7 @@ public:
     friend inline CONSTEXPR BASE<T> PURE inverse(const BASE<T>& matrix) {
         return matrix::inverse(matrix);
     }
-    friend inline constexpr BASE<T> PURE transpose(const BASE<T>& m) {
+    friend inline CONSTEXPR BASE<T> PURE transpose(const BASE<T>& m) {
         return matrix::transpose(m);
     }
     friend inline constexpr T PURE trace(const BASE<T>& m) {

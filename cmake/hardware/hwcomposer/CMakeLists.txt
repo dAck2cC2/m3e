@@ -1,0 +1,5 @@
+if(MSVC)
+    add_subdirectory(win)
+elseif(APPLE)
+    add_subdirectory(osx)
+endif()

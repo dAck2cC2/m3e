@@ -52,7 +52,7 @@ static inline constexpr uint32_t fourcc(char c1, char c2, char c3, char c4) {
 }
 
 // ----------------------------------------------------------------------------
-class DisplayEventReceiver {
+class ANDROID_API_GUI DisplayEventReceiver {
 public:
     enum {
         DISPLAY_EVENT_VSYNC = fourcc('v', 's', 'y', 'n'),

@@ -22,6 +22,7 @@
 namespace android {
 
 // Append the libgui configuration details to configStr.
+ANDROID_API_GUI
 void appendGuiConfigString(String8& configStr);
 
 }; // namespace android

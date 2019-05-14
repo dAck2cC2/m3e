@@ -51,7 +51,7 @@ class String8;
  *
  * This class was previously called SurfaceTexture.
  */
-class GLConsumer : public ConsumerBase {
+class ANDROID_API_GUI GLConsumer : public ConsumerBase {
 public:
     enum { TEXTURE_EXTERNAL = 0x8D65 }; // GL_TEXTURE_EXTERNAL_OES
     typedef ConsumerBase::FrameAvailableListener FrameAvailableListener;

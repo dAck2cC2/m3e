@@ -90,10 +90,12 @@ extern "C" {
  * The following should not be used directly.
  */
 
+ANDROID_API_LOG
 int __android_log_bwrite(int32_t tag, const void* payload, size_t len);
 ANDROID_API_LOG
 int __android_log_btwrite(int32_t tag, char type, const void* payload,
                           size_t len);
+ANDROID_API_LOG
 int __android_log_bswrite(int32_t tag, const char* payload);
 
 #define android_bWriteLog(tag, payload, len) \

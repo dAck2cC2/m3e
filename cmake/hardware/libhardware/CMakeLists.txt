@@ -35,3 +35,4 @@ target_link_libraries(hardware ${HW_DEPLIB})
 
 
 add_subdirectory(audio)  
+add_subdirectory(hwcomposer)

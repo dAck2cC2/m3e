@@ -293,7 +293,7 @@ status_t BootAnimation::readyToRun() {
     SurfaceComposerClient::closeGlobalTransaction();
 
     sp<Surface> s = control->getSurface();
-	sp<ISurfaceHandle> handle = interface_cast<ISurfaceHandle>(control->getHandle());
+	EGLNativeWindowType window = ISurfaceHandle_getNativeWindow(control->getHandle());
 
     // initialize opengl and egl
     const EGLint attribs[] = {
@@ -317,7 +317,7 @@ status_t BootAnimation::readyToRun() {
 
     eglInitialize(display, 0, 0);
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-	surface = eglCreateWindowSurface(display, config, handle->getNativeWindow(), NULL);
+	surface = eglCreateWindowSurface(display, config, window, NULL);
     context = eglCreateContext(display, config, NULL, NULL);
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
