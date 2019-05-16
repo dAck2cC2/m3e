@@ -26,10 +26,10 @@
 #include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/foundation/AMessage.h>
 #include <media/stagefright/MetaData.h>
-#include <android_runtime/AndroidRuntime.h>
-#include <android_util_Binder.h>
+//#include <android_runtime/AndroidRuntime.h>
+//#include <android_util_Binder.h>
 
-#include <jni.h>
+//#include <jni.h>
 
 using namespace android;
 

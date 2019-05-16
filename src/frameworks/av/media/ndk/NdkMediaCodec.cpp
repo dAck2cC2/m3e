@@ -37,6 +37,11 @@
 #include <media/MediaCodecBuffer.h>
 #include <android/native_window.h>
 
+#include <media/stagefright/foundation/ABuffer.h>
+#if defined(_MSC_VER)
+#include <safe-math/safe-math.h>
+#endif
+
 using namespace android;
 
 
@@ -405,7 +410,9 @@ media_status_t AMediaCodec_createInputSurface(AMediaCodec *mData, ANativeWindow 
     }
 
     *surface = new Surface(igbp);
+#if TODO
     ANativeWindow_acquire(*surface);
+#endif
     return AMEDIA_OK;
 }
 
@@ -427,7 +434,9 @@ media_status_t AMediaCodec_createPersistentInputSurface(ANativeWindow **surface)
     }
 
     *surface = new AMediaCodecPersistentSurface(igbp, ps);
+#if TODO
     ANativeWindow_acquire(*surface);
+#endif
 
     return AMEDIA_OK;
 }

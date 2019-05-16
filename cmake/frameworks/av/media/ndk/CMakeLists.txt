@@ -15,14 +15,27 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
 set( ${PROJECT_NAME}_DEPLIB
 log
 cutils
 utils
 binder
+gui
+stagefright_foundation
+stagefright
 )
+
+if (MSVC)
+    add_definitions( -DEXPORT= )
+else()
+    add_definitions( -DEXPORT=__attribute__\(\(visibility\(\"default\"\)\)\) )
+endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/ndk/include/media )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/ndk )
@@ -34,13 +47,13 @@ ${HEADER_PATH}/*.h
 
 set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/NdkMediaCodec.cpp
-${SOURCE_PATH}/NdkMediaCrypto.cpp
+#${SOURCE_PATH}/NdkMediaCrypto.cpp
 ${SOURCE_PATH}/NdkMediaExtractor.cpp
 ${SOURCE_PATH}/NdkMediaFormat.cpp
-${SOURCE_PATH}/NdkMediaMuxer.cpp
-${SOURCE_PATH}/NdkMediaDrm.cpp
-${SOURCE_PATH}/NdkImage.cpp
-${SOURCE_PATH}/NdkImageReader.cpp
+#${SOURCE_PATH}/NdkMediaMuxer.cpp
+#${SOURCE_PATH}/NdkMediaDrm.cpp
+#${SOURCE_PATH}/NdkImage.cpp
+#${SOURCE_PATH}/NdkImageReader.cpp
 )
 
 set(LIB_TYPE SHARED)

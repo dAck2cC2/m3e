@@ -32,10 +32,10 @@
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/NuMediaExtractor.h>
 #include <media/IMediaHTTPService.h>
-#include <android_runtime/AndroidRuntime.h>
-#include <android_util_Binder.h>
+//#include <android_runtime/AndroidRuntime.h>
+//#include <android_util_Binder.h>
 
-#include <jni.h>
+//#include <jni.h>
 
 using namespace android;
 
@@ -81,7 +81,7 @@ EXPORT
 media_status_t AMediaExtractor_setDataSource(AMediaExtractor *mData, const char *location) {
     ALOGV("setDataSource(%s)", location);
     // TODO: add header support
-
+#if ENABLE_ANDROID_RT
     JNIEnv *env = AndroidRuntime::getJNIEnv();
     jobject service = NULL;
     if (env == NULL) {
@@ -118,6 +118,9 @@ media_status_t AMediaExtractor_setDataSource(AMediaExtractor *mData, const char 
     status_t err = mData->mImpl->setDataSource(httpService, location, NULL);
     env->ExceptionClear();
     return translate_error(err);
+#else
+	return AMEDIA_ERROR_UNSUPPORTED;
+#endif
 }
 
 EXPORT
