@@ -18,18 +18,24 @@ hardware
 )
 
 if(MSVC)
+    add_definitions(-DINITRC_API=__declspec\(dllexport\))
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 endif()
 
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/initrc )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/initrc/include/initrc )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/initrc )
 
 # header files
-file(GLOB INITRC_HEADER_FILES  ${HEADER_PATH}/*.h)
+file(GLOB INITRC_HEADER_FILES  
+${HEADER_PATH}/*.h
+)
 
 # source files
-file(GLOB INITRC_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
+file(GLOB INITRC_SOURCE_FILES 
+${SOURCE_PATH}/*.h
+${SOURCE_PATH}/*.cpp
+)
 
 
 # target files

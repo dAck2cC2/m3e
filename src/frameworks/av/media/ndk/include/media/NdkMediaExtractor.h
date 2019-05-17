@@ -48,33 +48,39 @@ typedef struct AMediaExtractor AMediaExtractor;
 /**
  * Create new media extractor
  */
+MEDIANDK_API
 AMediaExtractor* AMediaExtractor_new();
 
 /**
  * Delete a previously created media extractor
  */
+MEDIANDK_API
 media_status_t AMediaExtractor_delete(AMediaExtractor*);
 
 /**
  *  Set the file descriptor from which the extractor will read.
  */
+MEDIANDK_API
 media_status_t AMediaExtractor_setDataSourceFd(AMediaExtractor*, int fd, off64_t offset,
         off64_t length);
 
 /**
  * Set the URI from which the extractor will read.
  */
+MEDIANDK_API
 media_status_t AMediaExtractor_setDataSource(AMediaExtractor*, const char *location);
         // TODO support headers
 
 /**
  * Return the number of tracks in the previously specified media file
  */
+MEDIANDK_API
 size_t AMediaExtractor_getTrackCount(AMediaExtractor*);
 
 /**
  * Return the format of the specified track. The caller must free the returned format
  */
+MEDIANDK_API
 AMediaFormat* AMediaExtractor_getTrackFormat(AMediaExtractor*, size_t idx);
 
 /**
@@ -83,40 +89,47 @@ AMediaFormat* AMediaExtractor_getTrackFormat(AMediaExtractor*, size_t idx);
  * Selecting the same track multiple times has no effect, the track is
  * only selected once.
  */
+MEDIANDK_API
 media_status_t AMediaExtractor_selectTrack(AMediaExtractor*, size_t idx);
 
 /**
  * Unselect the specified track. Subsequent calls to readSampleData, getSampleTrackIndex and
  * getSampleTime only retrieve information for the subset of tracks selected..
  */
+MEDIANDK_API
 media_status_t AMediaExtractor_unselectTrack(AMediaExtractor*, size_t idx);
 
 /**
  * Read the current sample.
  */
+MEDIANDK_API
 ssize_t AMediaExtractor_readSampleData(AMediaExtractor*, uint8_t *buffer, size_t capacity);
 
 /**
  * Read the current sample's flags.
  */
+MEDIANDK_API
 uint32_t AMediaExtractor_getSampleFlags(AMediaExtractor*); // see definitions below
 
 /**
  * Returns the track index the current sample originates from (or -1
  * if no more samples are available)
  */
+MEDIANDK_API
 int AMediaExtractor_getSampleTrackIndex(AMediaExtractor*);
 
 /**
  * Returns the current sample's presentation time in microseconds.
  * or -1 if no more samples are available.
  */
+MEDIANDK_API
 int64_t AMediaExtractor_getSampleTime(AMediaExtractor*);
 
 /**
  * Advance to the next sample. Returns false if no more sample data
  * is available (end of stream).
  */
+MEDIANDK_API
 bool AMediaExtractor_advance(AMediaExtractor*);
 
 typedef enum {
@@ -128,6 +141,7 @@ typedef enum {
 /**
  *
  */
+MEDIANDK_API
 media_status_t AMediaExtractor_seekTo(AMediaExtractor*, int64_t seekPosUs, SeekMode mode);
 
 /**
@@ -150,9 +164,11 @@ typedef struct PsshInfo {
 /**
  * Get the PSSH info if present.
  */
+MEDIANDK_API
 PsshInfo* AMediaExtractor_getPsshInfo(AMediaExtractor*);
 
 
+MEDIANDK_API
 AMediaCodecCryptoInfo *AMediaExtractor_getSampleCryptoInfo(AMediaExtractor *);
 
 

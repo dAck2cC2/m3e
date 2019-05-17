@@ -73,4 +73,12 @@ typedef enum {
 } // extern "C"
 #endif
 
+#ifndef MEDIANDK_API
+#ifdef __GNUC__
+#define MEDIANDK_API                 /* override per-platform */
+#else
+#define MEDIANDK_API __declspec(dllimport)
+#endif
+#endif
+
 #endif // _NDK_MEDIA_ERROR_H

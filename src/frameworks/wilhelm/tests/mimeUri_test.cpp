@@ -50,7 +50,7 @@
 #include <gtest/gtest.h>
 #include <SLES/OpenSLES.h>
 
-#include <initrc.h>
+#include <initrc/initrc.h>
 
 #define MAX_NUMBER_INTERFACES 3
 #define MAX_NUMBER_OUTPUT_DEVICES 6
@@ -318,7 +318,7 @@ TEST_F(MimeUri, testPlayfilePath){
 //-----------------------------------------------------------------
 int main(int argc, char **argv)
 {
-	android::InitRC::getInstance().Entry(argc, argv);
+	InitRC_entry(argc, argv);
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

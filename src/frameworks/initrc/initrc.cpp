@@ -1,32 +1,47 @@
 
 #include <cutils/properties.h>
+#include <utils/Mutex.h>
+#include <utils/RefBase.h>
 #include <hardware/hardware.h>
 
-#include "initrc.h"
+#include "initrc/initrc.h"
 #include "initrc_if.h"
 
 namespace android {
 
-ANDROID_SINGLETON_STATIC_INSTANCE(InitRC);
+class InitRCImpl : public RefBase
+{
+public:
+	enum {
+		SERVICE_SM = 0,
+		SERVICE_SF,
+		SERVICE_AF,
+		SERVICE_AP,
+		SERVICE_MEDIA_PLAYER,
+		SERVICE_MEDIA_RESOURCE,
+		SERVICE_MEDIA_CODEC,
+		SERVICE_MEDIA_EXTRACTOR,
+		SERVICE_BOOT_ANIM,
+		SERVICE_CNT
+	};
 
-enum {
-    SERVICE_SM = 0,
-    SERVICE_SF,
-	SERVICE_AF,
-	SERVICE_AP,
-    SERVICE_MEDIA_PLAYER,
-	SERVICE_MEDIA_RESOURCE,
-    SERVICE_MEDIA_CODEC,
-	SERVICE_MEDIA_EXTRACTOR,
-	SERVICE_BOOT_ANIM,
-    SERVICE_CNT
+	InitRCImpl();
+
+	virtual int  Entry(int argc, char** argv);
+	virtual void Run();
+
+private:
+	~InitRCImpl();
+
+	void ResetProperties();
+	void StartService(int index);
 };
     
 static struct {
     const char*          name;
     struct hw_device_t*  handler;
 }
-gServiceList[SERVICE_CNT] = {
+gServiceList[InitRCImpl::SERVICE_CNT] = {
     {"servicemanager",        NULL},
     {"surfaceflinger",        NULL},
 	{"audioflinger",          NULL},
@@ -38,17 +53,17 @@ gServiceList[SERVICE_CNT] = {
 	{"bootanimation",         NULL}
 };
 
-InitRC::InitRC()
+InitRCImpl::InitRCImpl()
 {
     ResetProperties();
     StartService(SERVICE_SM);
 }
 
-InitRC::~InitRC()
+InitRCImpl::~InitRCImpl()
 {
 }
 
-void InitRC::ResetProperties()
+void InitRCImpl::ResetProperties()
 {
     // OpenGL & EGL
     property_set("ro.kernel.qemu", "1");
@@ -88,7 +103,7 @@ void InitRC::ResetProperties()
 	//property_set("audio.device.buffer.ms", "100");
 }
 
-void InitRC::StartService(int index)
+void InitRCImpl::StartService(int index)
 {
     if (index < 0 || index >= SERVICE_CNT) {
         return;
@@ -104,7 +119,7 @@ void InitRC::StartService(int index)
     }
 }
  
-status_t InitRC::Entry(int argc, char** argv)
+int InitRCImpl::Entry(int argc, char** argv)
 {
     StartService(SERVICE_SF);
 	StartService(SERVICE_AF);
@@ -114,10 +129,10 @@ status_t InitRC::Entry(int argc, char** argv)
     StartService(SERVICE_MEDIA_CODEC);
 	StartService(SERVICE_MEDIA_EXTRACTOR);
     
-    return OK;
+    return 0;
 }
 
-void InitRC::Run()
+void InitRCImpl::Run()
 {
 	char prop[PROPERTY_VALUE_MAX];
 
@@ -139,3 +154,39 @@ void InitRC::Run()
 }
     
 }; // namespace android
+
+static android::Mutex                    s_lockInit("Init RC");
+static android::sp<android::InitRCImpl>  s_pInitRC;
+
+int InitRC_entry(int argc, char** argv)
+{
+	android::AutoMutex _l(s_lockInit);
+
+	int ret = -1;
+
+	if (s_pInitRC == NULL) {
+		s_pInitRC = new android::InitRCImpl();
+		ret = s_pInitRC->Entry(argc, argv);
+	}
+
+	return (ret);
+}
+
+void InitRC_run(void)
+{
+	android::sp<android::InitRCImpl> pInitRC;
+
+	{
+		android::AutoMutex _l(s_lockInit);
+		pInitRC = s_pInitRC;
+	}
+
+	if (pInitRC == NULL) {
+		return;
+	}
+
+	pInitRC->Run();
+
+	return;
+}
+

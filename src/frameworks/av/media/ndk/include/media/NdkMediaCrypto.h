@@ -32,6 +32,8 @@
 #include <sys/types.h>
 #include <stdbool.h>
 
+#include "NdkMediaError.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

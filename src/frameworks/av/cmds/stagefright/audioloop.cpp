@@ -35,7 +35,7 @@
 
 #include <cutils/threads.h>
 
-#include <initrc.h>
+#include <initrc/initrc.h>
 
 using namespace android;
 
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 	bool playSource = false;
     const char* fileOut = NULL;
 
-	InitRC::getInstance().Entry(argc, argv);
+	InitRC_entry(argc, argv);
 
     int ch;
     while ((ch = getopt(argc, argv, "d:mws")) != -1) {

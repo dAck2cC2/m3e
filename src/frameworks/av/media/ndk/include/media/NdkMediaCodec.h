@@ -67,27 +67,32 @@ enum {
  * When configuring, you will need to specify whether to use the codec as an
  * encoder or decoder.
  */
+MEDIANDK_API
 AMediaCodec* AMediaCodec_createCodecByName(const char *name);
 
 /**
  * Create codec by mime type. Most applications will use this, specifying a
  * mime type obtained from media extractor.
  */
+MEDIANDK_API
 AMediaCodec* AMediaCodec_createDecoderByType(const char *mime_type);
 
 /**
  * Create encoder by name.
  */
+MEDIANDK_API
 AMediaCodec* AMediaCodec_createEncoderByType(const char *mime_type);
 
 /**
  * delete the codec and free its resources
  */
+MEDIANDK_API
 media_status_t AMediaCodec_delete(AMediaCodec*);
 
 /**
  * Configure the codec. For decoding you would typically get the format from an extractor.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_configure(
         AMediaCodec*,
         const AMediaFormat* format,
@@ -99,29 +104,34 @@ media_status_t AMediaCodec_configure(
  * Start the codec. A codec must be configured before it can be started, and must be started
  * before buffers can be sent to it.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_start(AMediaCodec*);
 
 /**
  * Stop the codec.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_stop(AMediaCodec*);
 
 /*
  * Flush the codec's input and output. All indices previously returned from calls to
  * AMediaCodec_dequeueInputBuffer and AMediaCodec_dequeueOutputBuffer become invalid.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_flush(AMediaCodec*);
 
 /**
  * Get an input buffer. The specified buffer index must have been previously obtained from
  * dequeueInputBuffer, and not yet queued.
  */
+MEDIANDK_API
 uint8_t* AMediaCodec_getInputBuffer(AMediaCodec*, size_t idx, size_t *out_size);
 
 /**
  * Get an output buffer. The specified buffer index must have been previously obtained from
  * dequeueOutputBuffer, and not yet queued.
  */
+MEDIANDK_API
 uint8_t* AMediaCodec_getOutputBuffer(AMediaCodec*, size_t idx, size_t *out_size);
 
 /**
@@ -129,6 +139,7 @@ uint8_t* AMediaCodec_getOutputBuffer(AMediaCodec*, size_t idx, size_t *out_size)
  * getInputBuffer() to get a pointer to the buffer, then copy the data to be encoded or decoded
  * into the buffer before passing it to the codec.
  */
+MEDIANDK_API
 ssize_t AMediaCodec_dequeueInputBuffer(AMediaCodec*, int64_t timeoutUs);
 
 /*
@@ -157,6 +168,7 @@ static_assert(sizeof(_off_t_compat) == sizeof(long),
 /**
  * Send the specified buffer to the codec for processing.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_queueInputBuffer(AMediaCodec*, size_t idx,
                                             _off_t_compat offset, size_t size,
                                             uint64_t time, uint32_t flags);
@@ -164,6 +176,7 @@ media_status_t AMediaCodec_queueInputBuffer(AMediaCodec*, size_t idx,
 /**
  * Send the specified buffer to the codec for processing.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_queueSecureInputBuffer(AMediaCodec*, size_t idx,
                                                   _off_t_compat offset,
                                                   AMediaCodecCryptoInfo*,
@@ -174,8 +187,10 @@ media_status_t AMediaCodec_queueSecureInputBuffer(AMediaCodec*, size_t idx,
 /**
  * Get the index of the next available buffer of processed data.
  */
+MEDIANDK_API
 ssize_t AMediaCodec_dequeueOutputBuffer(AMediaCodec*, AMediaCodecBufferInfo *info,
         int64_t timeoutUs);
+MEDIANDK_API
 AMediaFormat* AMediaCodec_getOutputFormat(AMediaCodec*);
 
 /**
@@ -183,6 +198,7 @@ AMediaFormat* AMediaCodec_getOutputFormat(AMediaCodec*);
  * the codec. If you previously specified a surface when configuring this
  * video decoder you can optionally render the buffer.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_releaseOutputBuffer(AMediaCodec*, size_t idx, bool render);
 
 /**
@@ -195,6 +211,7 @@ media_status_t AMediaCodec_releaseOutputBuffer(AMediaCodec*, size_t idx, bool re
  *
  * For more details, see the Java documentation for MediaCodec.setOutputSurface.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_setOutputSurface(AMediaCodec*, ANativeWindow* surface);
 
 /**
@@ -205,6 +222,7 @@ media_status_t AMediaCodec_setOutputSurface(AMediaCodec*, ANativeWindow* surface
  *
  * For more details, see the Java documentation for MediaCodec.releaseOutputBuffer.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_releaseOutputBufferAtTime(
         AMediaCodec *mData, size_t idx, int64_t timestampNs);
 
@@ -219,6 +237,7 @@ media_status_t AMediaCodec_releaseOutputBufferAtTime(
  *
  * For more details, see the Java documentation for MediaCodec.createInputSurface.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_createInputSurface(
         AMediaCodec *mData, ANativeWindow **surface);
 
@@ -235,6 +254,7 @@ media_status_t AMediaCodec_createInputSurface(
  *
  * For more details, see the Java documentation for MediaCodec.createPersistentInputSurface.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_createPersistentInputSurface(
         ANativeWindow **surface);
 
@@ -248,6 +268,7 @@ media_status_t AMediaCodec_createPersistentInputSurface(
  *
  * For more details, see the Java documentation for MediaCodec.setInputSurface.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_setInputSurface(
         AMediaCodec *mData, ANativeWindow *surface);
 
@@ -259,6 +280,7 @@ media_status_t AMediaCodec_setInputSurface(
  *
  * NOTE: Some of these parameter changes may silently fail to apply.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_setParameters(
         AMediaCodec *mData, const AMediaFormat* params);
 
@@ -276,6 +298,7 @@ media_status_t AMediaCodec_setParameters(
  *
  * For more details, see the Java documentation for MediaCodec.signalEndOfInputStream.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_signalEndOfInputStream(AMediaCodec *mData);
 
 
@@ -306,6 +329,7 @@ typedef struct {
  * This information encapsulates per-sample metadata as outlined in
  * ISO/IEC FDIS 23001-7:2011 "Common encryption in ISO base media file format files".
  */
+MEDIANDK_API
 AMediaCodecCryptoInfo *AMediaCodecCryptoInfo_new(
         int numsubsamples,
         uint8_t key[16],
@@ -318,11 +342,13 @@ AMediaCodecCryptoInfo *AMediaCodecCryptoInfo_new(
  * delete an AMediaCodecCryptoInfo created previously with AMediaCodecCryptoInfo_new, or
  * obtained from AMediaExtractor
  */
+MEDIANDK_API
 media_status_t AMediaCodecCryptoInfo_delete(AMediaCodecCryptoInfo*);
 
 /**
  * Set the crypto pattern on an AMediaCryptoInfo object
  */
+MEDIANDK_API
 void AMediaCodecCryptoInfo_setPattern(
         AMediaCodecCryptoInfo *info,
         cryptoinfo_pattern_t *pattern);
@@ -330,32 +356,38 @@ void AMediaCodecCryptoInfo_setPattern(
 /**
  * The number of subsamples that make up the buffer's contents.
  */
+MEDIANDK_API
 size_t AMediaCodecCryptoInfo_getNumSubSamples(AMediaCodecCryptoInfo*);
 
 /**
  * A 16-byte opaque key
  */
+MEDIANDK_API
 media_status_t AMediaCodecCryptoInfo_getKey(AMediaCodecCryptoInfo*, uint8_t *dst);
 
 /**
  * A 16-byte initialization vector
  */
+MEDIANDK_API
 media_status_t AMediaCodecCryptoInfo_getIV(AMediaCodecCryptoInfo*, uint8_t *dst);
 
 /**
  * The type of encryption that has been applied,
  * one of AMEDIACODECRYPTOINFO_MODE_CLEAR or AMEDIACODECRYPTOINFO_MODE_AES_CTR.
  */
+MEDIANDK_API
 cryptoinfo_mode_t AMediaCodecCryptoInfo_getMode(AMediaCodecCryptoInfo*);
 
 /**
  * The number of leading unencrypted bytes in each subsample.
  */
+MEDIANDK_API
 media_status_t AMediaCodecCryptoInfo_getClearBytes(AMediaCodecCryptoInfo*, size_t *dst);
 
 /**
  * The number of trailing encrypted bytes in each subsample.
  */
+MEDIANDK_API
 media_status_t AMediaCodecCryptoInfo_getEncryptedBytes(AMediaCodecCryptoInfo*, size_t *dst);
 
 #endif /* __ANDROID_API__ >= 21 */

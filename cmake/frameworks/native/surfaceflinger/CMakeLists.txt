@@ -16,6 +16,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/initrc)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include)
 
 set( SURFACEFLINGER_DEPLIB

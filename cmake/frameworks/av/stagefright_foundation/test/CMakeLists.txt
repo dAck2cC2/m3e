@@ -23,8 +23,6 @@ gtest
 stagefright_foundation
 )
 
-set(TEST_FOUNDATION_DEP ${TEST_FOUNDATION_DEPLIB})
-
 # test file
 
 file(GLOB TEST_FOUNDATION_SOURCE_FILES 

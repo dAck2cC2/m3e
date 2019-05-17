@@ -43,7 +43,7 @@
 
 #include <media/AudioTrack.h>
 
-#include <initrc.h>
+#include <initrc/initrc.h>
 
 static void usage(const char *me) {
     fprintf(stderr, "usage: %s [-a] use audio\n"
@@ -351,7 +351,7 @@ int main(int argc, char **argv) {
 
     int res;
 
-	InitRC::getInstance().Entry(argc, argv);
+	InitRC_entry(argc, argv);
 
     while ((res = getopt(argc, argv, "havpSDRT")) >= 0) {
         switch (res) {

@@ -32,9 +32,10 @@ stagefright
 )
 
 if (MSVC)
-    add_definitions( -DEXPORT= )
+    add_definitions(-DEXPORT=__declspec\(dllexport\))
+    add_definitions(-DMEDIANDK_API=__declspec\(dllexport\))
 else()
-    add_definitions( -DEXPORT=__attribute__\(\(visibility\(\"default\"\)\)\) )
+    add_definitions(-DEXPORT=__attribute__\(\(visibility\(\"default\"\)\)\))
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/ndk/include/media )
@@ -58,3 +59,8 @@ ${SOURCE_PATH}/NdkMediaFormat.cpp
 
 set(LIB_TYPE SHARED)
 ADD_LIB(mediandk)
+
+set(ENABLE_TEST "TRUE")
+if (ENABLE_TEST)
+    add_subdirectory(test)
+endif(ENABLE_TEST)

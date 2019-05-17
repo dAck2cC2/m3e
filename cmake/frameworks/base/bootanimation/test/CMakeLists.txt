@@ -3,17 +3,9 @@
 project(TEST_BOOTANIMATION)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-
-# dependency
-
-include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
 
 set(DEMO_DEPLIBS
-cutils
-utils
 initrc
 )
 
