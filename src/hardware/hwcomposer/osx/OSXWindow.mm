@@ -1,5 +1,5 @@
 
-#include "NativeWindow/osx/OSXWindow.h"
+#include "osx/OSXWindow.h"
 
 #include <set>
 // Include Carbon to use the keycode names in Carbon's Event.h

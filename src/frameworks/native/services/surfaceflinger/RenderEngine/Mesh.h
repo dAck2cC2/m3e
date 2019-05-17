@@ -19,6 +19,10 @@
 
 #include <stdint.h>
 
+#if defined(__APPLE__)
+#include <sys/types.h>
+#endif
+
 namespace android {
 
 class Mesh {

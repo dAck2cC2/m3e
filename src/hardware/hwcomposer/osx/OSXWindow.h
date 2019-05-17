@@ -4,7 +4,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "NativeWindow/NativeWindow.h"
+#include "com/NativeWindow.h"
 
 class OSXWindow;
 

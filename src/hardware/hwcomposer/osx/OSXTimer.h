@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "NativeWindow/Timer.h"
+#include "com/Timer.h"
 
 namespace android {
 

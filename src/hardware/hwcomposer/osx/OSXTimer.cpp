@@ -6,7 +6,7 @@
 
 // OSXTimer.cpp: Implementation of a high precision timer class on OSX
 
-#include "NativeWindow/osx/OSXTimer.h"
+#include "osx/OSXTimer.h"
 
 #include <CoreServices/CoreServices.h>
 #include <mach/mach.h>

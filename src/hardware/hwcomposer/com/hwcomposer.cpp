@@ -1,6 +1,10 @@
 #include <errno.h>
 #include <fcntl.h>
+#if defined(__APPLE__)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include <string.h>
 
 #include <log/log.h>

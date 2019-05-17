@@ -38,6 +38,7 @@
 
 #include "Layer.h"
 #include <gui/BufferItem.h>
+#include <cutils/trace.h>
 
 using std::max;
 using std::min;

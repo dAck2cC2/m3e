@@ -85,7 +85,7 @@ void EventThread::setPhaseOffset(nsecs_t phaseOffset) {
 }
 
 void EventThread::sendVsyncHintOnLocked() {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
     struct itimerspec ts;
     if(!mVsyncHintSent) {
         mPowerHAL.vsyncHint(true);

@@ -35,6 +35,8 @@ if(MSVC)
     add_definitions(-DNOMINMAX=1)
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})    
+    add_definitions(-DPRId64= )
+    add_definitions(-Dtimer_t=void*)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/services/surfaceflinger )
