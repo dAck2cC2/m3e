@@ -4114,12 +4114,6 @@ void SurfaceFlinger::runExt()
 	bool mRunning = true;
 
 	while (mRunning) {
-		// message loop of sub window
-		const size_t count = mClients.size();
-		for (size_t i = 0; i < count; i++) {
-			mClients[i]->updateLayers();
-		}
-
 		// Clear events that the application did not process from this frame
 		if (mHwc == NULL) {
 			mRunning = false;
@@ -4140,6 +4134,13 @@ void SurfaceFlinger::runExt()
 
 		//IPCThreadState::self()->handlePolledCommands();
 
+        // message loop of sub window
+        const size_t count = mClients.size();
+        for (size_t i = 0; i < count; i++) {
+            mClients[i]->updateLayers();
+        }
+        
+        // message loop of main window
 		mHwc->nativeWindowMessageLoop(mEGLWindow);
 	} // while (mRunning)
 }

@@ -121,8 +121,13 @@ void MessageQueue::waitMessage(int timeoutMillis) {
                 ALOGE("Looper::POLL_ERROR");
                 continue;
             case Looper::POLL_TIMEOUT:
+#if TODO
                 // timeout (should not happen)
                 continue;
+#else
+                // We need timeout to break it for surfaceflinger
+                return;
+#endif
             default:
                 // should not happen
                 ALOGE("Looper::pollOnce() returned unknown status %d", ret);
