@@ -29,6 +29,17 @@
 #include <OMX_VideoExt.h>
 #include <inttypes.h>
 
+
+#if defined(__APPLE__) || defined(_MSC_VER)
+#include <stdlib.h>
+#include <stdint.h>
+static inline void * memalign(size_t align, size_t size) {
+	void* addr = NULL;
+	int ret = posix_memalign(&addr, align, size);
+	return addr;
+};
+#endif
+
 namespace android {
 
 #define componentName                   "video_decoder.avc"
@@ -105,7 +116,9 @@ static void ivd_aligned_free(void *ctxt, void *buf) {
 
 static size_t GetCPUCoreCount() {
     long cpuCoreCount = 1;
-#if defined(_SC_NPROCESSORS_ONLN)
+#if defined(_MSC_VER)
+	// use default value of 1;
+#elif defined(_SC_NPROCESSORS_ONLN)
     cpuCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
 #else
     // _SC_NPROC_ONLN must be defined...
@@ -723,3 +736,13 @@ android::SoftOMXComponent *createSoftOMXComponent(
         OMX_COMPONENTTYPE **component) {
     return new android::SoftAVC(name, callbacks, appData, component);
 }
+
+#if defined(_MSC_VER)
+#ifdef __cplusplus
+extern "C"
+#endif
+__declspec(dllexport)
+android::OMXComponent AndroidOMXCompnent = {
+	createSoftOMXComponent
+};
+#endif

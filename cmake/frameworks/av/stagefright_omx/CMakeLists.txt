@@ -77,6 +77,7 @@ ${SOURCE_PATH}/SimpleSoftOMXComponent.cpp
 ${SOURCE_PATH}/SoftVideoEncoderOMXComponent.cpp
 ${SOURCE_PATH}/BWGraphicBufferSource.cpp
 ${SOURCE_PATH}/OMXStore.cpp
+${SOURCE_PATH}/SoftVideoDecoderOMXComponent.cpp
 )
 
 # target files

@@ -30,7 +30,7 @@
 
 namespace android {
 
-struct SoftVideoDecoderOMXComponent : public SimpleSoftOMXComponent {
+struct ANDROID_API_STAGEFRIGHT_OMX SoftVideoDecoderOMXComponent : public SimpleSoftOMXComponent {
     SoftVideoDecoderOMXComponent(
             const char *name,
             const char *componentRole,

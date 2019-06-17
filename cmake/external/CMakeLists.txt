@@ -77,6 +77,7 @@ if(ENABLE_AV_CODEC)
     #add_subdirectory(boringssl)
     #add_subdirectory(hevc)
     #add_subdirectory(tinyxml2)
+    add_subdirectory(avc)
 endif(ENABLE_AV_CODEC)
 
 if(MSVC)
