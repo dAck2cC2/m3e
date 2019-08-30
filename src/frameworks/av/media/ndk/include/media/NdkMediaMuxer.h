@@ -52,11 +52,13 @@ typedef enum {
 /**
  * Create new media muxer
  */
+MEDIANDK_API
 AMediaMuxer* AMediaMuxer_new(int fd, OutputFormat format);
 
 /**
  * Delete a previously created media muxer
  */
+MEDIANDK_API
 media_status_t AMediaMuxer_delete(AMediaMuxer*);
 
 /**
@@ -70,6 +72,7 @@ media_status_t AMediaMuxer_delete(AMediaMuxer*);
  * Latitude must be in the range [-90, 90].
  * Longitude must be in the range [-180, 180].
  */
+MEDIANDK_API
 media_status_t AMediaMuxer_setLocation(AMediaMuxer*, float latitude, float longitude);
 
 /**
@@ -84,6 +87,7 @@ media_status_t AMediaMuxer_setLocation(AMediaMuxer*, float latitude, float longi
  * The angle is specified in degrees, clockwise.
  * The supported angles are 0, 90, 180, and 270 degrees.
  */
+MEDIANDK_API
 media_status_t AMediaMuxer_setOrientationHint(AMediaMuxer*, int degrees);
 
 /**
@@ -91,18 +95,21 @@ media_status_t AMediaMuxer_setOrientationHint(AMediaMuxer*, int degrees);
  * Returns the index of the new track or a negative value in case of failure,
  * which can be interpreted as a media_status_t.
  */
+MEDIANDK_API
 ssize_t AMediaMuxer_addTrack(AMediaMuxer*, const AMediaFormat* format);
 
 /**
  * Start the muxer. Should be called after AMediaMuxer_addTrack and
  * before AMediaMuxer_writeSampleData.
  */
+MEDIANDK_API
 media_status_t AMediaMuxer_start(AMediaMuxer*);
 
 /**
  * Stops the muxer.
  * Once the muxer stops, it can not be restarted.
  */
+MEDIANDK_API
 media_status_t AMediaMuxer_stop(AMediaMuxer*);
 
 /**
@@ -112,6 +119,7 @@ media_status_t AMediaMuxer_stop(AMediaMuxer*);
  * are written in chronological order (e.g. in the order they are provided
  * by the encoder.)
  */
+MEDIANDK_API
 media_status_t AMediaMuxer_writeSampleData(AMediaMuxer *muxer,
         size_t trackIdx, const uint8_t *data, const AMediaCodecBufferInfo *info);
 

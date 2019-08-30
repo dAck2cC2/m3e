@@ -11,10 +11,15 @@ mediandk
 
 if (MSVC)
     add_definitions(-UMEDIANDK_API)
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 endif()
 
 set(${PROJECT_NAME}_SOURCE_FILES 
 ${M3E_SOURCE_DIR}/src/frameworks/av/media/ndk/tests/nativecodec.cpp
+${M3E_SOURCE_DIR}/src/frameworks/av/media/ndk/tests/looper.cpp
+${M3E_SOURCE_DIR}/src/frameworks/av/media/ndk/tests/looper.h
 )
 
 

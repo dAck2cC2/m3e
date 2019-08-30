@@ -30,10 +30,12 @@
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/MediaMuxer.h>
 #include <media/IMediaHTTPService.h>
-#include <android_runtime/AndroidRuntime.h>
-#include <android_util_Binder.h>
+//#include <android_runtime/AndroidRuntime.h>
+//#include <android_util_Binder.h>
 
-#include <jni.h>
+//#include <jni.h>
+
+#include <media/stagefright/MediaAdapter.h>
 
 using namespace android;
 

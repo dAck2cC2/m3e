@@ -10,6 +10,14 @@
 #include "media/NdkMediaCodec.h"
 #include "media/NdkMediaExtractor.h"
 
+#include "looper.h"
+
+// for __android_log_print(ANDROID_LOG_INFO, "YourApp", "formatted message");
+#include <android/log.h>
+#define TAG "NativeCodec"
+#define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
+
 typedef struct {
 	int fd;
 	ANativeWindow* window;
@@ -23,6 +31,161 @@ typedef struct {
 } workerdata;
 
 workerdata data = { -1, NULL, NULL, NULL, 0, false, false, false, false };
+
+enum {
+	kMsgCodecBuffer,
+	kMsgPause,
+	kMsgResume,
+	kMsgPauseAck,
+	kMsgDecodeDone,
+	kMsgSeek,
+};
+
+class mylooper : public looper {
+	virtual void handle(int what, void* obj);
+};
+
+static mylooper *mlooper = NULL;
+
+int64_t systemnanotime() {
+	timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	return now.tv_sec * 1000000000LL + now.tv_nsec;
+}
+
+void doCodecWork(workerdata *d) {
+	ssize_t bufidx = -1;
+	if (!d->sawInputEOS) {
+		bufidx = AMediaCodec_dequeueInputBuffer(d->codec, 2000);
+		if (bufidx >= 0) {
+			size_t bufsize;
+			auto buf = AMediaCodec_getInputBuffer(d->codec, bufidx, &bufsize);
+			auto sampleSize = AMediaExtractor_readSampleData(d->ex, buf, bufsize);
+			if (sampleSize < 0) {
+				sampleSize = 0;
+				d->sawInputEOS = true;
+				LOGV("EOS");
+			}
+			auto presentationTimeUs = AMediaExtractor_getSampleTime(d->ex);
+
+			AMediaCodec_queueInputBuffer(d->codec, bufidx, 0, sampleSize, presentationTimeUs,
+				d->sawInputEOS ? AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM : 0);
+			AMediaExtractor_advance(d->ex);
+
+		}
+		else if (bufidx == AMEDIACODEC_INFO_TRY_AGAIN_LATER) {
+			LOGV("no input buffer right now");
+		}
+		else {
+			LOGV("unexpected input ");
+		}
+	}
+
+	if (!d->sawOutputEOS) {
+		AMediaCodecBufferInfo info;
+		auto status = AMediaCodec_dequeueOutputBuffer(d->codec, &info, 0);
+		if (status >= 0) {
+			if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
+				LOGV("output EOS");
+				d->sawOutputEOS = true;
+			}
+			int64_t presentationNano = info.presentationTimeUs * 1000;
+			if (d->renderstart < 0) {
+				d->renderstart = systemnanotime() - presentationNano;
+			}
+			static unsigned counter = 0;
+			++counter;
+			int64_t delay = (d->renderstart + presentationNano) - systemnanotime();
+			if (delay > 0) {
+				usleep(delay / 1000);
+			}
+			else {
+				LOGE("Delay frame number %u - %lld ns", counter, -delay);
+			}
+			AMediaCodec_releaseOutputBuffer(d->codec, status, info.size != 0);
+			if (d->renderonce) {
+				d->renderonce = false;
+				return;
+			}
+		}
+		else if (status == AMEDIACODEC_INFO_OUTPUT_BUFFERS_CHANGED) {
+			LOGV("output buffers changed");
+		}
+		else if (status == AMEDIACODEC_INFO_OUTPUT_FORMAT_CHANGED) {
+			auto format = AMediaCodec_getOutputFormat(d->codec);
+			LOGV("format changed to: %s", AMediaFormat_toString(format));
+			AMediaFormat_delete(format);
+		}
+		else if (status == AMEDIACODEC_INFO_TRY_AGAIN_LATER) {
+			LOGV("no output buffer right now");
+		}
+		else {
+			LOGV("unexpected info code: %zd", status);
+		}
+	}
+
+	if ( /*!d->sawInputEOS ||*/ !d->sawOutputEOS) {
+		mlooper->post(kMsgCodecBuffer, d);
+	}
+}
+
+void mylooper::handle(int what, void* obj) {
+	switch (what) {
+	case kMsgCodecBuffer:
+		doCodecWork((workerdata*)obj);
+		break;
+
+	case kMsgDecodeDone:
+	{
+		workerdata *d = (workerdata*)obj;
+		AMediaCodec_stop(d->codec);
+		AMediaCodec_delete(d->codec);
+		AMediaExtractor_delete(d->ex);
+		d->sawInputEOS = true;
+		d->sawOutputEOS = true;
+	}
+	break;
+
+	case kMsgSeek:
+	{
+		workerdata *d = (workerdata*)obj;
+		AMediaExtractor_seekTo(d->ex, 0, AMEDIAEXTRACTOR_SEEK_NEXT_SYNC);
+		AMediaCodec_flush(d->codec);
+		d->renderstart = -1;
+		d->sawInputEOS = false;
+		d->sawOutputEOS = false;
+		if (!d->isPlaying) {
+			d->renderonce = true;
+			post(kMsgCodecBuffer, d);
+		}
+		LOGV("seeked");
+	}
+	break;
+
+	case kMsgPause:
+	{
+		workerdata *d = (workerdata*)obj;
+		if (d->isPlaying) {
+			// flush all outstanding codecbuffer messages with a no-op message
+			d->isPlaying = false;
+			post(kMsgPauseAck, NULL, true);
+		}
+	}
+	break;
+
+	case kMsgResume:
+	{
+		workerdata *d = (workerdata*)obj;
+		if (!d->isPlaying) {
+			d->renderstart = -1;
+			d->isPlaying = true;
+			post(kMsgCodecBuffer, d);
+		}
+	}
+	break;
+	}
+}
+
 
 int main(int argc, char** argv)
 {
@@ -47,9 +210,8 @@ int main(int argc, char** argv)
 	(void)lseek(fd, 0, SEEK_SET);
 
 	outStart = 0;
-	
-	InitRC_entry(argc, argv);
 
+	InitRC_entry(argc, argv);
 
 	data.fd = fd;
 
@@ -97,63 +259,10 @@ int main(int argc, char** argv)
 		AMediaFormat_delete(format);
 	}
 
-	while (!d->sawInputEOS || !d->sawOutputEOS) {
-		ssize_t bufidx = -1;
-		if (!d->sawInputEOS) {
-			bufidx = AMediaCodec_dequeueInputBuffer(d->codec, 2000);
-			//printf("input buffer %zd", bufidx);
-			if (bufidx >= 0) {
-				size_t bufsize;
-				auto buf = AMediaCodec_getInputBuffer(d->codec, bufidx, &bufsize);
-				auto sampleSize = AMediaExtractor_readSampleData(d->ex, buf, bufsize);
-				if (sampleSize < 0) {
-					sampleSize = 0;
-					d->sawInputEOS = true;
-					printf("EOS");
-				}
-				auto presentationTimeUs = AMediaExtractor_getSampleTime(d->ex);
+	mlooper = new mylooper();
+	mlooper->post(kMsgCodecBuffer, d);
 
-				AMediaCodec_queueInputBuffer(d->codec, bufidx, 0, sampleSize, presentationTimeUs,
-					d->sawInputEOS ? AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM : 0);
-				AMediaExtractor_advance(d->ex);
-			}
-		}
-
-		if (!d->sawOutputEOS) {
-			AMediaCodecBufferInfo info;
-			auto status = AMediaCodec_dequeueOutputBuffer(d->codec, &info, 0);
-			if (status >= 0) {
-				if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
-					printf("output EOS");
-					d->sawOutputEOS = true;
-				}
-				int64_t presentationNano = info.presentationTimeUs * 1000;
-				if (d->renderstart < 0) {
-					//d->renderstart = systemnanotime() - presentationNano;
-				}
-				AMediaCodec_releaseOutputBuffer(d->codec, status, info.size != 0);
-				if (d->renderonce) {
-					d->renderonce = false;
-					break;
-				}
-			}
-			else if (status == AMEDIACODEC_INFO_OUTPUT_BUFFERS_CHANGED) {
-				printf("output buffers changed");
-			}
-			else if (status == AMEDIACODEC_INFO_OUTPUT_FORMAT_CHANGED) {
-				auto format = AMediaCodec_getOutputFormat(d->codec);
-				printf("format changed to: %s", AMediaFormat_toString(format));
-				AMediaFormat_delete(format);
-			}
-			else if (status == AMEDIACODEC_INFO_TRY_AGAIN_LATER) {
-				//printf("no output buffer right now");
-			}
-			else {
-				printf("unexpected info code: %zd", status);
-			}
-		}
-
-	}
+	InitRC_run();
 
 	return 0;
 }

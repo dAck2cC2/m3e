@@ -92,17 +92,20 @@ typedef void (*AMediaDrmEventListener)(AMediaDrm *, const AMediaDrmSessionId *se
  * mimeType is the MIME type of the media container, e.g. "video/mp4".  If mimeType
  * is not known or required, it can be provided as NULL.
  */
+MEDIANDK_API
 bool AMediaDrm_isCryptoSchemeSupported(const uint8_t *uuid, const char *mimeType);
 
 /**
  * Create a MediaDrm instance from a UUID
  * uuid identifies the universal unique ID of the crypto scheme. uuid must be 16 bytes.
  */
+MEDIANDK_API
 AMediaDrm* AMediaDrm_createByUUID(const uint8_t *uuid);
 
 /**
  * Release a MediaDrm object
  */
+MEDIANDK_API
 void AMediaDrm_release(AMediaDrm *);
 
 /**
@@ -110,6 +113,7 @@ void AMediaDrm_release(AMediaDrm *);
  *
  * listener is the callback that will be invoked on event
  */
+MEDIANDK_API
 media_status_t AMediaDrm_setOnEventListener(AMediaDrm *, AMediaDrmEventListener listener);
 
 /**
@@ -118,12 +122,14 @@ media_status_t AMediaDrm_setOnEventListener(AMediaDrm *, AMediaDrmEventListener 
  * returns MEDIADRM_NOT_PROVISIONED_ERROR if provisioning is needed
  * returns MEDIADRM_RESOURCE_BUSY_ERROR if required resources are in use
  */
+MEDIANDK_API
 media_status_t AMediaDrm_openSession(AMediaDrm *, AMediaDrmSessionId *sessionId);
 
 /**
  * Close a session on the MediaDrm object that was previously opened
  * with AMediaDrm_openSession.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_closeSession(AMediaDrm *, const AMediaDrmSessionId *sessionId);
 
 typedef enum AMediaDrmKeyType {
@@ -200,6 +206,7 @@ typedef struct AMediaDrmKeyValuePair {
  * returns MEDIADRM_NOT_PROVISIONED_ERROR if reprovisioning is needed, due to a
  * problem with the device certificate.
 */
+MEDIANDK_API
 media_status_t AMediaDrm_getKeyRequest(AMediaDrm *, const AMediaDrmScope *scope,
         const uint8_t *init, size_t initSize, const char *mimeType, AMediaDrmKeyType keyType,
         const AMediaDrmKeyValue *optionalParameters, size_t numOptionalParameters,
@@ -221,7 +228,7 @@ media_status_t AMediaDrm_getKeyRequest(AMediaDrm *, const AMediaDrmScope *scope,
  * response points to the opaque response from the server
  * responseSize should be set to the size of the response in bytes
  */
-
+MEDIANDK_API
 media_status_t AMediaDrm_provideKeyResponse(AMediaDrm *, const AMediaDrmScope *scope,
         const uint8_t *response, size_t responseSize, AMediaDrmKeySetId *keySetId);
 
@@ -232,6 +239,7 @@ media_status_t AMediaDrm_provideKeyResponse(AMediaDrm *, const AMediaDrmScope *s
  * sessionId is the session ID for the DRM session
  * keySetId identifies the saved key set to restore
  */
+MEDIANDK_API
 media_status_t AMediaDrm_restoreKeys(AMediaDrm *, const AMediaDrmSessionId *sessionId,
         const AMediaDrmKeySetId *keySetId);
 
@@ -240,6 +248,7 @@ media_status_t AMediaDrm_restoreKeys(AMediaDrm *, const AMediaDrmSessionId *sess
  *
  * keySetId identifies keys to remove
  */
+MEDIANDK_API
 media_status_t AMediaDrm_removeKeys(AMediaDrm *, const AMediaDrmSessionId *keySetId);
 
 /**
@@ -255,6 +264,7 @@ media_status_t AMediaDrm_removeKeys(AMediaDrm *, const AMediaDrmSessionId *keySe
  * to be returned is greater than *numPairs, MEDIADRM_SHORT_BUFFER will be returned
  * and numPairs will be set to the number of pairs available.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_queryKeyStatus(AMediaDrm *, const AMediaDrmSessionId *sessionId,
         AMediaDrmKeyValue *keyValuePairs, size_t *numPairs);
 
@@ -274,6 +284,7 @@ media_status_t AMediaDrm_queryKeyStatus(AMediaDrm *, const AMediaDrmSessionId *s
  *       the provisioning request should be sent to.  It will remain accessible until
  *       the next call to getProvisionRequest.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_getProvisionRequest(AMediaDrm *, const uint8_t **provisionRequest,
         size_t *provisionRequestSize, const char **serverUrl);
 
@@ -289,6 +300,7 @@ media_status_t AMediaDrm_getProvisionRequest(AMediaDrm *, const uint8_t **provis
  * returns MEDIADRM_DEVICE_REVOKED_ERROR if the response indicates that the
  * server rejected the request
  */
+MEDIANDK_API
 media_status_t AMediaDrm_provideProvisionResponse(AMediaDrm *,
         const uint8_t *response, size_t responseSize);
 
@@ -314,6 +326,7 @@ media_status_t AMediaDrm_provideProvisionResponse(AMediaDrm *,
  * MEDIADRM_SHORT_BUFFER will be returned and *numSecureStops will be set to the
  * number required.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_getSecureStops(AMediaDrm *,
         AMediaDrmSecureStop *secureStops, size_t *numSecureStops);
 
@@ -323,6 +336,7 @@ media_status_t AMediaDrm_getSecureStops(AMediaDrm *,
  *
  * ssRelease is the server response indicating which secure stops to release
  */
+MEDIANDK_API
 media_status_t AMediaDrm_releaseSecureStops(AMediaDrm *,
         const AMediaDrmSecureStop *ssRelease);
 
@@ -356,6 +370,7 @@ media_status_t AMediaDrm_releaseSecureStops(AMediaDrm *,
  * memory that the value resides in is owned by the NDK MediaDrm API and
  * will remain valid until the next call to AMediaDrm_getPropertyString.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_getPropertyString(AMediaDrm *, const char *propertyName,
         const char **propertyValue);
 
@@ -371,18 +386,21 @@ media_status_t AMediaDrm_getPropertyString(AMediaDrm *, const char *propertyName
  * memory that the value resides in is owned by the NDK MediaDrm API and
  * will remain valid until the next call to AMediaDrm_getPropertyByteArray.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_getPropertyByteArray(AMediaDrm *, const char *propertyName,
         AMediaDrmByteArray *propertyValue);
 
 /**
  * Set a DRM engine plugin String property value.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_setPropertyString(AMediaDrm *, const char *propertyName,
         const char *value);
 
 /**
  * Set a DRM engine plugin byte array property value.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_setPropertyByteArray(AMediaDrm *, const char *propertyName,
         const uint8_t *value, size_t valueSize);
 
@@ -411,6 +429,7 @@ media_status_t AMediaDrm_setPropertyByteArray(AMediaDrm *, const char *propertyN
  * to use is identified by the 16 byte keyId.  The key must have been loaded into
  * the session using provideKeyResponse.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_encrypt(AMediaDrm *, const AMediaDrmSessionId *sessionId,
         const char *cipherAlgorithm, uint8_t *keyId, uint8_t *iv,
         const uint8_t *input, uint8_t *output, size_t dataSize);
@@ -422,6 +441,7 @@ media_status_t AMediaDrm_encrypt(AMediaDrm *, const AMediaDrmSessionId *sessionI
  * to use is identified by the 16 byte keyId.  The key must have been loaded into
  * the session using provideKeyResponse.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_decrypt(AMediaDrm *, const AMediaDrmSessionId *sessionId,
         const char *cipherAlgorithm, uint8_t *keyId, uint8_t *iv,
         const uint8_t *input, uint8_t *output, size_t dataSize);
@@ -435,6 +455,7 @@ media_status_t AMediaDrm_decrypt(AMediaDrm *, const AMediaDrmSessionId *sessionI
  * by the 16 byte keyId.  The key must have been loaded into the session using
  * provideKeyResponse.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_sign(AMediaDrm *, const AMediaDrmSessionId *sessionId,
         const char *macAlgorithm, uint8_t *keyId, uint8_t *message, size_t messageSize,
         uint8_t *signature, size_t *signatureSize);
@@ -446,6 +467,7 @@ media_status_t AMediaDrm_sign(AMediaDrm *, const AMediaDrmSessionId *sessionId,
  * use is identified by the 16 byte keyId.  The key must have been loaded into the
  * session using provideKeyResponse.
  */
+MEDIANDK_API
 media_status_t AMediaDrm_verify(AMediaDrm *, const AMediaDrmSessionId *sessionId,
         const char *macAlgorithm, uint8_t *keyId, const uint8_t *message, size_t messageSize,
         const uint8_t *signature, size_t signatureSize);

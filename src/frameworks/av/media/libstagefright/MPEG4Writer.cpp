@@ -23,7 +23,9 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <pthread.h>
+#if defined(__linux__)
 #include <sys/prctl.h>
+#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -53,13 +55,15 @@
 #ifndef __predict_false
 #define __predict_false(exp) __builtin_expect((exp) != 0, 0)
 #endif
-
+#if !defined(_MSC_VER)
 #define WARN_UNLESS(condition, message, ...) \
 ( (__predict_false(condition)) ? false : ({ \
     ALOGW("Condition %s failed "  message, #condition, ##__VA_ARGS__); \
     true; \
 }))
-
+#else
+#define WARN_UNLESS(condition, message, ...)  (condition)
+#endif
 namespace android {
 
 static const int64_t kMinStreamableFileSizeInBytes = 5 * 1024 * 1024;
@@ -2025,9 +2029,9 @@ bool MPEG4Writer::findChunkToWrite(Chunk *chunk) {
 
 void MPEG4Writer::threadFunc() {
     ALOGV("threadFunc");
-
+#if defined(__linux__)
     prctl(PR_SET_NAME, (unsigned long)"MPEG4Writer", 0, 0, 0);
-
+#endif
     Mutex::Autolock autoLock(mLock);
     while (!mDone) {
         Chunk chunk;
@@ -2582,7 +2586,7 @@ status_t MPEG4Writer::Track::threadEntry() {
     int64_t lastCttsOffsetTimeTicks = -1;  // Timescale based ticks
     int32_t cttsSampleCount = 0;           // Sample count in the current ctts table entry
     uint32_t lastSamplesPerChunk = 0;
-
+#if defined(__linux__)
     if (mIsAudio) {
         prctl(PR_SET_NAME, (unsigned long)"AudioTrackEncoding", 0, 0, 0);
     } else if (mIsVideo) {
@@ -2590,11 +2594,12 @@ status_t MPEG4Writer::Track::threadEntry() {
     } else {
         prctl(PR_SET_NAME, (unsigned long)"MetadataTrackEncoding", 0, 0, 0);
     }
-
+#endif
+#if defined(__ANDROID__)
     if (mOwner->isRealTimeRecording()) {
         androidSetThreadPriority(0, ANDROID_PRIORITY_AUDIO);
     }
-
+#endif
     sp<MetaData> meta_data;
 
     status_t err = OK;

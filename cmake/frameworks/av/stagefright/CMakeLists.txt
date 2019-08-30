@@ -111,6 +111,7 @@ if(ENABLE_AV_CODEC)
     stagefright_color_conversion
     stagefright_id3
     stagefright_mpeg2ts
+    stagefright_webm
     FLAC 
     vorbisidec
     stagefright_matroska
@@ -123,6 +124,7 @@ if(ENABLE_AV_CODEC)
     include(${M3E_SOURCE_DIR}/cmake/external/tremolo/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
 
+    include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation/include/media/stagefright)
     include_directories(AFTER ${SOURCE_PATH}/mpeg2ts) 
     if(APPLE OR MSVC)
         include_directories(AFTER ${GENERIC_PATH}) 
@@ -162,6 +164,9 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/MediaClock.cpp
     ${SOURCE_PATH}/VideoFrameScheduler.cpp
     #${SOURCE_PATH}/StagefrightMetadataRetriever.cpp
+    ${SOURCE_PATH}/MediaMuxer.cpp
+    ${SOURCE_PATH}/MediaAdapter.cpp
+    ${SOURCE_PATH}/MPEG4Writer.cpp
     )
 
     list(REMOVE_ITEM STAGEFRIGHT_SOURCE_FILES
@@ -220,4 +225,5 @@ if(ENABLE_AV_CODEC)
     add_subdirectory(xmlparser)
     add_subdirectory(flac)
     add_subdirectory(timedtext)
+    add_subdirectory(webm)
 endif()

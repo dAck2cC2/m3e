@@ -29,10 +29,10 @@
 #include <binder/IServiceManager.h>
 #include <media/ICrypto.h>
 #include <media/IMediaDrmService.h>
-#include <android_runtime/AndroidRuntime.h>
-#include <android_util_Binder.h>
+//#include <android_runtime/AndroidRuntime.h>
+//#include <android_util_Binder.h>
 
-#include <jni.h>
+//#include <jni.h>
 
 using namespace android;
 
@@ -40,7 +40,7 @@ static sp<ICrypto> makeCrypto() {
     sp<IServiceManager> sm = defaultServiceManager();
     sp<IBinder> binder = sm->getService(String16("media.drm"));
 
-    sp<IMediaDrmService> service = interface_cast<IMediaDrmService>(binder);
+    sp<IMediaDrmService> service /* = interface_cast<IMediaDrmService>(binder) */;
     if (service == NULL) {
         return NULL;
     }

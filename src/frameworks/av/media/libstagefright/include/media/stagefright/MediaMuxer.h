@@ -40,7 +40,7 @@ struct MediaWriter;
 // Constructor -> addTrack+ -> start -> writeSampleData+ -> stop
 // If muxing operation need to be cancelled, the app is responsible for
 // deleting the output file after stop.
-struct MediaMuxer : public RefBase {
+struct ANDROID_API_STAGEFRIGHT MediaMuxer : public RefBase {
 public:
     // Please update media/java/android/media/MediaMuxer.java if the
     // OutputFormat is updated.

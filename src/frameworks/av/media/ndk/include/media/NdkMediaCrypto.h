@@ -45,12 +45,16 @@ typedef struct AMediaCrypto AMediaCrypto;
 
 typedef uint8_t AMediaUUID[16];
 
+MEDIANDK_API
 bool AMediaCrypto_isCryptoSchemeSupported(const AMediaUUID uuid);
 
+MEDIANDK_API
 bool AMediaCrypto_requiresSecureDecoderComponent(const char *mime);
 
+MEDIANDK_API
 AMediaCrypto* AMediaCrypto_new(const AMediaUUID uuid, const void *initData, size_t initDataSize);
 
+MEDIANDK_API
 void AMediaCrypto_delete(AMediaCrypto* crypto);
 
 #endif /* __ANDROID_API__ >= 21 */

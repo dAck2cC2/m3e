@@ -8,6 +8,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/ndk/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/grallocusage/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
@@ -21,6 +22,8 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation/include/media/stagefright)
+
 set( ${PROJECT_NAME}_DEPLIB
 log
 cutils
@@ -29,6 +32,8 @@ binder
 gui
 stagefright_foundation
 stagefright
+grallocusage
+media
 )
 
 if (MSVC)
@@ -48,10 +53,10 @@ ${HEADER_PATH}/*.h
 
 set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/NdkMediaCodec.cpp
-#${SOURCE_PATH}/NdkMediaCrypto.cpp
+${SOURCE_PATH}/NdkMediaCrypto.cpp
 ${SOURCE_PATH}/NdkMediaExtractor.cpp
 ${SOURCE_PATH}/NdkMediaFormat.cpp
-#${SOURCE_PATH}/NdkMediaMuxer.cpp
+${SOURCE_PATH}/NdkMediaMuxer.cpp
 #${SOURCE_PATH}/NdkMediaDrm.cpp
 #${SOURCE_PATH}/NdkImage.cpp
 #${SOURCE_PATH}/NdkImageReader.cpp
