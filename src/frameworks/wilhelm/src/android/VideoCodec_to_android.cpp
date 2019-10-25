@@ -79,6 +79,10 @@ bool android_videoCodec_expose() {
 
             sp<MediaCodecInfo> info = list->getCodecInfo(index);
             if (info == NULL || MediaCodecList::isSoftwareCodec(info->getCodecName())) {
+#if !TODO
+				// we only have SW codec currently
+				if (info == NULL)
+#endif
                 continue; // HW codec only
             }
 

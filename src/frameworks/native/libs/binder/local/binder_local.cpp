@@ -239,7 +239,7 @@ public:
     }
     
 private:
-    status_t Write(binder_write_read* pbwr, int& bNeedRead, int readTimeout)
+    status_t Write(binder_write_read* pbwr, int& bNeedRead, int& readTimeout)
     {
         status_t result = NO_ERROR;
         
