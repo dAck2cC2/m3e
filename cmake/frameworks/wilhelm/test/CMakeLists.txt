@@ -44,3 +44,4 @@ target_link_libraries(test_openslestests ${${PROJECT_NAME}_DEPLIB})
 # sub test cases
 #add_subdirectory(automated)
 add_subdirectory(examples)
+add_subdirectory(sandbox)

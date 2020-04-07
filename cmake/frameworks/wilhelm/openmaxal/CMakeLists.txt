@@ -9,6 +9,20 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/wilhelm/wilhelm/include.cmake)
 
+#add_definitions(-DANDROID)
+#include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+
+include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+
 set( ${PROJECT_NAME}_DEPLIB
 log
 wilhelm
@@ -30,6 +44,7 @@ set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/xa_entry.cpp
 ${SOURCE_PATH}/xa_iid.cpp
 ${SOURCE_PATH}/assert.cpp
+${M3E_SOURCE_DIR}/src/external/openmaxal/OpenMAXAL_Android.cpp
 )
 
 set(LIB_TYPE SHARED)

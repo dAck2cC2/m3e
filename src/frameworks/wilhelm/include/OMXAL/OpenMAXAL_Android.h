@@ -173,6 +173,14 @@ typedef struct XADataLocator_AndroidFD_ {
  */
 #define XA_ANDROID_MIME_MP2TS              ((XAchar *) "video/mp2ts")
 
+
+ /*---------------------------------------------------------------------------*/
+ /* Android Native Window System                                      */
+ /*---------------------------------------------------------------------------*/
+
+XA_API extern XANativeHandle xaAndroidCreateNativeWindow();
+XA_API extern void xaAndroidDisposeNativeWindow(XANativeHandle nativeWin);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

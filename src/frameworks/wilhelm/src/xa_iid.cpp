@@ -16,6 +16,11 @@
 
 #include "sles_allinclusive.h"
 
+#if !defined(ANDROID)
+// We need definition of Android specific uuid.
+#include <OMXAL/OpenMAXAL_Android.h>
+#endif // ANDROID
+
 #ifdef __cplusplus
 extern "C" {
 #endif
