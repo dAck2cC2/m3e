@@ -30,6 +30,8 @@ wilhelm
 
 if(MSVC)
     add_definitions(-DXA_API=__declspec\(dllexport\))
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/wilhelm/include/OMXAL/ )

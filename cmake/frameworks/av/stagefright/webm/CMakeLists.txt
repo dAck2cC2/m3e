@@ -15,6 +15,7 @@ add_definitions(-D__STDINT_LIMITS)
 set(${PROJECT_NAME}_DEPLIB
 log
 utils
+media
 stagefright_foundation
 )
 
