@@ -145,8 +145,10 @@ public:
 
     // mData should be 64-bit aligned to prevent additional padding
     uint8_t* mData;            // Actual binary data
+#if !defined(_WIN64)
     // pad structure so it's the same size on 64-bit and 32-bit
     char     mPadding[8 - sizeof(mData)];
+#endif
 
     // mIccData should be 64-bit aligned to prevent additional padding
     uint8_t* mIccData;            // Actual binary data

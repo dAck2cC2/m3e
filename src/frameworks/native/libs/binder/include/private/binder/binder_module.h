@@ -72,10 +72,10 @@ struct flat_binder_object {
 struct binder_write_read {
     signed long write_size;
     signed long write_consumed;
-    unsigned long write_buffer;
+    uintptr_t write_buffer;
     signed long read_size;
     signed long read_consumed;
-    unsigned long read_buffer;
+    uintptr_t read_buffer;
 };
 struct binder_transaction_data {
     union {

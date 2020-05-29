@@ -31,7 +31,7 @@
 
 #include <cutils/memory.h> // strlcpy
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(_MSC_VER)
 #include <memory>
 #endif
 

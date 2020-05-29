@@ -27,7 +27,7 @@
 #include <binder/IInterface.h>
 #include <gui/ISurfaceComposer.h>
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(_MSC_VER)
 #include <memory>
 #endif
 
