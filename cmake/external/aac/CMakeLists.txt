@@ -27,6 +27,10 @@ ${SOURCE_PATH}/libAACdec/include/*.h
 source_group(aacdec FILES ${AACDEC_SOURCES})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${AACDEC_SOURCES})
 
+if (MSVC)
+    add_definitions(-D__x86_64__)
+endif()
+
 ###############################################################################
 #  aacenc_sources
 ###############################################################################

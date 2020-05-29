@@ -94,14 +94,17 @@ because it may be included before winsock2.h.
 #include <stdint.h>
 
 #include "msvc_export.h"
+#include "m3e_config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#if !defined(CFG_NO_POPCNT)
 #define __builtin_popcount   __popcnt
 #define __builtin_popcountl  __popcnt
 #define __builtin_popcountll __popcnt
+#endif
 
 #define __builtin_ctzl  __builtin_ctz
 #define __builtin_ctzll __builtin_ctz

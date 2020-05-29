@@ -206,7 +206,7 @@ if(MSVC)
     add_definitions(-DANGLE_PLATFORM_WINDOWS=1)
     add_definitions(-D__STDC_CONSTANT_MACROS=1)
     #add_definitions(-Dstrcasecmp=strcmp)
-    include_directories(AFTER ${MSVC_PATH})
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     
     set(EGL_WGL_SOURCE_FILES
     ${ANGLE_SOURCE_PATH}/libANGLE/renderer/gl/wgl/DisplayWGL.h

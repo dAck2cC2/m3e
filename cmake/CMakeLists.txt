@@ -73,11 +73,18 @@ endif(ENABLE_ANGLE)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
-# create hte folder for building result
+# create the folder for building result
 if(NOT EXISTS ${BUILD_PATH})
   message(STATUS "Create\t${BUILD_PATH}")
   exec_program("mkdir ${BUILD_PATH}")
 endif()
+
+# create the configure header file
+if(NOT EXISTS ${M3E_CFG_PATH})
+  message(STATUS "Create\t${M3E_CFG_PATH}")
+  exec_program("mkdir ${M3E_CFG_PATH}")
+endif()
+configure_file(${M3E_SOURCE_DIR}/cmake/config/config.h.in ${M3E_CFG_PATH}/m3e_config.h)
 
 # the subdirectory
 add_subdirectory(external)

@@ -19,6 +19,11 @@ binder
 audioutils
 )
 
+if (MSVC)
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND UTILS_DEPLIB ${LIB_MSVC_WRAP})
+endif(MSVC)
+
 if (MSVC OR LINUX)
     add_definitions(-D__unused= )
 endif()
@@ -37,13 +42,6 @@ ${SOURCE_PATH}/ISoundTrigger.cpp
 ${SOURCE_PATH}/ISoundTriggerClient.cpp         
 ${SOURCE_PATH}/ISoundTriggerHwService.cpp                       
 )
-
-if(MSVC)
-    list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.h
-    ${MSVC_PATH}/sys/time.c
-    )
-endif(MSVC)
 
 # target files
 set(LIB_NAME soundtrigger)

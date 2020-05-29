@@ -140,22 +140,44 @@ status_t AudioProfile::checkCompatibleChannelMask(audio_channel_mask_t channelMa
             int match;
             if (isIndex && isSupportedIndex) {
                 // index equivalence
-                match = 100 + __builtin_popcount(
+                match = 100 +
+                    /* M3E Project */
+                    /* Use cutils/bitops.h instead */
+#if 0
+                    __builtin_popcount(
+#else
+                    popcount(
+#endif
                         audio_channel_mask_get_bits(channelMask)
                             & audio_channel_mask_get_bits(supported));
             } else if (isIndex && !isSupportedIndex) {
                 const uint32_t equivalentBits =
                         (1 << audio_channel_count_from_in_mask(supported)) - 1 ;
-                match = __builtin_popcount(
+                match = 
+#if 0
+                    __builtin_popcount(
+#else
+                    popcount(
+#endif
                         audio_channel_mask_get_bits(channelMask) & equivalentBits);
             } else if (!isIndex && isSupportedIndex) {
                 const uint32_t equivalentBits =
                         (1 << audio_channel_count_from_in_mask(channelMask)) - 1;
-                match = __builtin_popcount(
+                match = 
+#if 0
+                    __builtin_popcount(
+#else
+                    popcount(
+#endif
                         equivalentBits & audio_channel_mask_get_bits(supported));
             } else {
                 // positional equivalence
-                match = 100 + __builtin_popcount(
+                match = 100 + 
+#if 0
+                    __builtin_popcount(
+#else
+                    popcount(
+#endif
                         audio_channel_mask_get_bits(channelMask)
                             & audio_channel_mask_get_bits(supported));
                 switch (supported) {

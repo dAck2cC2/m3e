@@ -23,7 +23,7 @@ ${SOURCE_PATH}/quantize.c
 )
 
 if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     list(APPEND GIF_HEADER_FILES 
     ${MSVC_PATH}/unistd.h
     )

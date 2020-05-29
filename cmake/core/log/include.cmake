@@ -3,7 +3,7 @@
 DLL_PUBLIC(LOG)
 
 if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
 endif()
 
 # include

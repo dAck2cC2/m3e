@@ -4,6 +4,7 @@ set(BUILD_PATH    ${M3E_BINARY_DIR}/build)
 set(MSVC_PATH     ${M3E_SOURCE_DIR}/src/system/msvc)
 set(GENERIC_PATH  ${M3E_SOURCE_DIR}/src/system/generic)
 set(EXT_PATH      external)
+set(M3E_CFG_PATH  ${BUILD_PATH}/header)
 
 if (MSVC)
     set(LIB_TYPE STATIC)

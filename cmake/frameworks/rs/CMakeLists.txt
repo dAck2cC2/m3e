@@ -23,6 +23,11 @@ utils
 gui
 )
 
+if(MSVC)
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
+endif()
+
 add_definitions(-DRS_VERSION=19)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/rs )
@@ -44,12 +49,6 @@ ${SOURCE_PATH}/ScriptIntrinsics.cpp
 ${SOURCE_PATH}/Script.cpp
 )
 
-if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
-    list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-    ${MSVC_PATH}/sys/time.c
-    )
-endif()
 
 # target files
 set(LIB_TYPE SHARED)

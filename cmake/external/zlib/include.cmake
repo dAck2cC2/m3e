@@ -1,7 +1,7 @@
 
 # define
 if(MSVC)
-    include_directories(AFTER ${MSVC_PATH})
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     add_definitions(-DZLIB_DLL)
 endif(MSVC)
 

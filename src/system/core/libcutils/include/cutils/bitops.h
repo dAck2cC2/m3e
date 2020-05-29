@@ -22,8 +22,33 @@
 #include <strings.h>
 #include <sys/cdefs.h>
 
+/* M3E ADD */
+#include "m3e_config.h"
+
 __BEGIN_DECLS
 
+#if defined(CFG_NO_POPCNT)
+
+#define POPCNT(x) \
+int c = 0; \
+for (; x != 0; x >>= 1) {\
+if (x & 1) c++; \
+}\
+return c
+
+static inline int popcount(unsigned int v) {
+    POPCNT(v);
+}
+
+static inline int popcountl(unsigned long v) {
+    POPCNT(v);
+}
+
+static inline int popcountll(unsigned long long v) {
+    POPCNT(v);
+}
+
+#else // CFG_NO_POPCNT
 static inline int popcount(unsigned int x) {
     return __builtin_popcount(x);
 }
@@ -35,6 +60,8 @@ static inline int popcountl(unsigned long x) {
 static inline int popcountll(unsigned long long x) {
     return __builtin_popcountll(x);
 }
+
+#endif // CFG_NO_POPCNT
 
 __END_DECLS
 

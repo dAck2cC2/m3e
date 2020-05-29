@@ -48,7 +48,15 @@ struct BitSet32 {
     // Returns the number of marked bits in the set.
     inline uint32_t count() const { return count(value); }
 
-    static inline uint32_t count(uint32_t value) { return __builtin_popcountl(value); }
+    static inline uint32_t count(uint32_t value) { 
+        /* M3E Project */
+        /* Use cutils/bitops.h instead */
+#if 0
+        return __builtin_popcountl(value); 
+#else
+        return popcount(value);
+#endif
+    }
 
     // Returns true if the bit set does not contain any marked bits.
     inline bool isEmpty() const { return isEmpty(value); }
@@ -130,7 +138,15 @@ struct BitSet32 {
     }
 
     static inline uint32_t getIndexOfBit(uint32_t value, uint32_t n) {
-        return __builtin_popcountl(value & ~(0xffffffffUL >> n));
+        return 
+            /* M3E Project */
+            /* Use cutils/bitops.h instead */
+#if 0
+            __builtin_popcountl(
+#else
+            popcount(
+#endif
+                value & ~(0xffffffffUL >> n));
     }
 
     inline bool operator== (const BitSet32& other) const { return value == other.value; }
@@ -190,7 +206,15 @@ struct BitSet64 {
     // Returns the number of marked bits in the set.
     inline uint32_t count() const { return count(value); }
 
-    static inline uint32_t count(uint64_t value) { return __builtin_popcountll(value); }
+    static inline uint32_t count(uint64_t value) { 
+        /* M3E Project */
+        /* Use cutils/bitops.h instead */
+#if 0
+        return __builtin_popcountll(value); 
+#else
+        return popcount(value);
+#endif
+    }
 
     // Returns true if the bit set does not contain any marked bits.
     inline bool isEmpty() const { return isEmpty(value); }
@@ -270,7 +294,15 @@ struct BitSet64 {
     inline uint32_t getIndexOfBit(uint32_t n) const { return getIndexOfBit(value, n); }
 
     static inline uint32_t getIndexOfBit(uint64_t value, uint32_t n) {
-        return __builtin_popcountll(value & ~(0xffffffffffffffffULL >> n));
+        return 
+            /* M3E Project */
+            /* Use cutils/bitops.h instead */
+#if 0
+            __builtin_popcountll(
+#else
+            popcount(
+#endif
+                value & ~(0xffffffffffffffffULL >> n));
     }
 
     inline bool operator== (const BitSet64& other) const { return value == other.value; }
