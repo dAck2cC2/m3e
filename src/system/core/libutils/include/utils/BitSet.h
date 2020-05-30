@@ -20,9 +20,8 @@
 #include <stdint.h>
 #include <utils/TypeHelpers.h>
 
-#if defined(_MSC_VER)
+/* M3E: Add */
 #include <cutils/bitops.h>
-#endif // _MSC_VER
 
 /*
  * Contains some bit manipulation helpers.
