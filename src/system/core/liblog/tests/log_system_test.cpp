@@ -19,9 +19,9 @@
 #include <unistd.h>
 
 #include <string>
-#include <sys/time.h>
-//#include <android-base/file.h>
-//#include <android-base/stringprintf.h>
+#include <sys/time.h> /* M3E: usleep */
+//#include <android-base/file.h> /* M3E: */
+//#include <android-base/stringprintf.h> /* M3E: */
 #include <gtest/gtest.h>
 // Test the APIs in this standalone include file
 #include <log/log_system.h>

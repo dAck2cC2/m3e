@@ -17,7 +17,7 @@
 #ifndef _LIBLOG_LOGGER_H__
 #define _LIBLOG_LOGGER_H__
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: MSVC */
 #include <cutils/stdatomic.h>
 #else
 #include <stdatomic.h>

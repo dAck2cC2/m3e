@@ -20,7 +20,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <pthread.h>
-//#include <semaphore.h>
+//#include <semaphore.h> /* M3E: */
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,8 +29,8 @@
 
 #include <string>
 
-//#include <android-base/file.h>
-//#include <android-base/stringprintf.h>
+//#include <android-base/file.h> /* M3E: */
+//#include <android-base/stringprintf.h> /* M3E: */
 #ifdef __ANDROID__  // includes sys/properties.h which does not exist outside
 #include <cutils/properties.h>
 #endif
@@ -77,7 +77,7 @@
 // non-syscall libs. Since we are only using this in the emergency of
 // a signal to stuff a terminating code into the logs, we will spin rather
 // than try a usleep.
-#ifdef _MSC_VER
+#ifdef _MSC_VER /* M3E: */
 #define LOG_FAILURE_RETRY(exp)  exp
 #else
 #define LOG_FAILURE_RETRY(exp)                                           \
@@ -109,7 +109,7 @@ TEST(liblog, __android_log_btwrite) {
 }
 
 #if (defined(__ANDROID__) && defined(USING_LOGGER_DEFAULT))
-static std::string popenToString(std::string command) {
+static std::string popenToString(const std::string& command) {
   std::string ret;
 
   FILE* fp = popen(command.c_str(), "r");

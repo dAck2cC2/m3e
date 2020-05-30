@@ -66,10 +66,10 @@ typedef struct AndroidLogEntry_t {
   const char* message;
 } AndroidLogEntry;
 
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 AndroidLogFormat* android_log_format_new();
 
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 void android_log_format_free(AndroidLogFormat* p_format);
 
 /* currently returns 0 if format is a modifier, 1 if not */
@@ -90,7 +90,8 @@ AndroidLogPrintFormat android_log_formatFromString(const char* s);
  * Assumes single threaded execution
  *
  */
-ANDROID_API_LOG
+
+ANDROID_API_LOG /* M3E: MSVC export */
 int android_log_addFilterRule(AndroidLogFormat* p_format,
                               const char* filterExpression);
 
@@ -103,7 +104,8 @@ int android_log_addFilterRule(AndroidLogFormat* p_format,
  * Assumes single threaded execution
  *
  */
-ANDROID_API_LOG
+
+ANDROID_API_LOG /* M3E: MSVC export */
 int android_log_addFilterString(AndroidLogFormat* p_format,
                                 const char* filterString);
 
@@ -111,7 +113,7 @@ int android_log_addFilterString(AndroidLogFormat* p_format,
  * returns 1 if this log line should be printed based on its priority
  * and tag, and 0 if it should not
  */
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 int android_log_shouldPrintLine(AndroidLogFormat* p_format, const char* tag,
                                 android_LogPriority pri);
 

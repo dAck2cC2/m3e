@@ -17,6 +17,8 @@
 #ifndef _LIBS_LOG_LOG_MAIN_H
 #define _LIBS_LOG_LOG_MAIN_H
 
+#include <stdbool.h>
+
 #include <android/log.h>
 #include <sys/cdefs.h>
 
@@ -148,7 +150,7 @@ __BEGIN_DECLS
  * Stripped out of release builds.  Uses the current LOG_TAG.
  */
 #ifndef ALOG_ASSERT
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: MSVC */
 #define ALOG_ASSERT(cond) LOG_FATAL_IF(!(cond), "Assertion failed: " #cond)
 #else
 #define ALOG_ASSERT(cond, ...) LOG_FATAL_IF(!(cond), ##__VA_ARGS__)
@@ -179,10 +181,10 @@ __BEGIN_DECLS
 #if LOG_NDEBUG
 #define ALOGV(...)          \
   do {                      \
-    if (0) {                \
+    if (false) {            \
       __ALOGV(__VA_ARGS__); \
     }                       \
-  } while (0)
+  } while (false)
 #else
 #define ALOGV(...) __ALOGV(__VA_ARGS__)
 #endif
@@ -348,7 +350,7 @@ __BEGIN_DECLS
  * ANDROID_LOG_FATAL. default_prio if no property. Undefined behavior if
  * any other value.
  */
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_is_loggable(int prio, const char* tag, int default_prio);
 
 #if __ANDROID_USE_LIBLOG_LOGGABLE_INTERFACE > 1
@@ -359,11 +361,11 @@ int __android_log_is_loggable_len(int prio, const char* tag, size_t len,
 
 #if LOG_NDEBUG /* Production */
 #define android_testLog(prio, tag)                                           \
-  (__android_log_is_loggable_len(prio, tag, (tag && *tag) ? strlen(tag) : 0, \
+  (__android_log_is_loggable_len(prio, tag, ((tag) && *(tag)) ? strlen(tag) : 0, \
                                  ANDROID_LOG_DEBUG) != 0)
 #else
 #define android_testLog(prio, tag)                                           \
-  (__android_log_is_loggable_len(prio, tag, (tag && *tag) ? strlen(tag) : 0, \
+  (__android_log_is_loggable_len(prio, tag, ((tag) && *(tag)) ? strlen(tag) : 0, \
                                  ANDROID_LOG_VERBOSE) != 0)
 #endif
 

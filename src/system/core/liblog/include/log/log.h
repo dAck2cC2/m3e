@@ -90,13 +90,15 @@ extern "C" {
  * The following should not be used directly.
  */
 
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_bwrite(int32_t tag, const void* payload, size_t len);
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_btwrite(int32_t tag, char type, const void* payload,
                           size_t len);
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_bswrite(int32_t tag, const char* payload);
+
+int __android_log_stats_bwrite(int32_t tag, const void* payload, size_t len);
 
 #define android_bWriteLog(tag, payload, len) \
   __android_log_bwrite(tag, payload, len)
@@ -209,7 +211,7 @@ void __android_log_close(void);
  * Return -1 if we can not acquire a lock, which below will permit the logging,
  * error on allowing a log message through.
  */
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_ratelimit(time_t seconds, time_t* last);
 
 /*

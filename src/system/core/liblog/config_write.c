@@ -55,7 +55,7 @@ static void __android_log_add_transport(
 }
 
 LIBLOG_HIDDEN void __android_log_config_write() {
-#if (LOCAL_LOG_DEVICE == 1)
+#if (LOCAL_LOG_DEVICE == 1) /* M3E: */
   if (__android_log_transport & LOGGER_LOCAL) {
     extern struct android_log_transport_write localLoggerWrite;
 
@@ -63,6 +63,7 @@ LIBLOG_HIDDEN void __android_log_config_write() {
                                 &localLoggerWrite);
   }
 #endif
+
   if ((__android_log_transport == LOGGER_DEFAULT) ||
       (__android_log_transport & LOGGER_LOGD)) {
 #if (FAKE_LOG_DEVICE == 0)
@@ -73,7 +74,7 @@ LIBLOG_HIDDEN void __android_log_config_write() {
                                 &logdLoggerWrite);
     __android_log_add_transport(&__android_log_persist_write, &pmsgLoggerWrite);
 #else
-#if 0
+#if 0 /* M3E: we only have file logging currently */
     extern struct android_log_transport_write fakeLoggerWrite;
 
     __android_log_add_transport(&__android_log_transport_write,
@@ -87,7 +88,7 @@ LIBLOG_HIDDEN void __android_log_config_write() {
 #endif
   }
 
-#if (STDERR_LOG_DEVICE == 1)
+#if (STDERR_LOG_DEVICE == 1) /* M3E: */
   if (__android_log_transport & LOGGER_STDERR) {
     extern struct android_log_transport_write stderrLoggerWrite;
 

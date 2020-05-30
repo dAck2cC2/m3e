@@ -464,7 +464,7 @@ static void showLog(LogState* state, int logPrio, const char* tag,
    * Create an array of iovecs large enough to write all of
    * the lines with a prefix and a suffix.
    */
-#ifdef _MSC_VER
+#ifdef _MSC_VER /* M3E: MSVC */
   #define INLINE_VECS (64)
 #else
   const size_t INLINE_VECS = 64;

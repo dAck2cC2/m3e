@@ -55,13 +55,14 @@ static void __android_log_add_transport(
 }
 
 LIBLOG_HIDDEN void __android_log_config_read() {
-#if (LOCAL_LOG_DEVICE == 1)
+#if (LOCAL_LOG_DEVICE == 1) /* M3E: */
   if (__android_log_transport & LOGGER_LOCAL) {
     extern struct android_log_transport_read localLoggerRead;
 
     __android_log_add_transport(&__android_log_transport_read, &localLoggerRead);
   }
 #endif
+
 #if (FAKE_LOG_DEVICE == 0)
   if ((__android_log_transport == LOGGER_DEFAULT) ||
       (__android_log_transport & LOGGER_LOGD)) {

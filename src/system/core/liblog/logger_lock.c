@@ -18,18 +18,18 @@
  * Some OS specific dribs and drabs (locking etc).
  */
 
-#if !defined(_WIN32) || defined(_MSC_VER)
+#if !defined(_WIN32) || defined(_MSC_VER) /* M3E: it has pthread wrapping */
 #include <pthread.h>
 #endif
 
 #include "logger.h"
 
-#if !defined(_WIN32) || defined(_MSC_VER)
+#if !defined(_WIN32) || defined(_MSC_VER) /* M3E: it has pthread wrapping */
 static pthread_mutex_t log_init_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 LIBLOG_HIDDEN void __android_log_lock() {
-#if !defined(_WIN32) || defined(_MSC_VER)
+#if !defined(_WIN32) || defined(_MSC_VER) /* M3E: it has pthread wrapping */
   /*
    * If we trigger a signal handler in the middle of locked activity and the
    * signal handler logs a message, we could get into a deadlock state.
@@ -39,7 +39,7 @@ LIBLOG_HIDDEN void __android_log_lock() {
 }
 
 LIBLOG_HIDDEN int __android_log_trylock() {
-#if !defined(_WIN32) || defined(_MSC_VER)
+#if !defined(_WIN32) || defined(_MSC_VER) /* M3E: it has pthread wrapping */
   return pthread_mutex_trylock(&log_init_lock);
 #else
   return 0;
@@ -47,7 +47,7 @@ LIBLOG_HIDDEN int __android_log_trylock() {
 }
 
 LIBLOG_HIDDEN void __android_log_unlock() {
-#if !defined(_WIN32) || defined(_MSC_VER)
+#if !defined(_WIN32) || defined(_MSC_VER) /* M3E: it has pthread wrapping */
   pthread_mutex_unlock(&log_init_lock);
 #endif
 }

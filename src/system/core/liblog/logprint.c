@@ -14,7 +14,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-#ifdef _MSC_VER
+#ifdef _MSC_VER /* M3E: */
 #define __MINGW32__
 #endif 
 
@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <sys/param.h>
+//#include <sys/param.h> /* M3E: */
 #include <sys/types.h>
 
 #include <cutils/list.h>
@@ -44,7 +44,7 @@
 
 #include "log_portability.h"
 
-#if defined(__APPLE__) || defined(__linux__)
+#if defined(__APPLE__) || defined(__linux__) /* M3E: Add */
 #include <limits.h>
 #endif
 
@@ -257,6 +257,7 @@ LIBLOG_ABI_PUBLIC void android_log_format_free(AndroidLogFormat* p_format) {
   while (!list_empty(&convertHead)) {
     struct listnode* node = list_head(&convertHead);
     list_remove(node);
+    LOG_ALWAYS_FATAL_IF(node == list_head(&convertHead), "corrupted list");
     free(node);
   }
 }
@@ -932,12 +933,12 @@ static int android_log_printBinaryEvent(const unsigned char** pEventData,
           }
           break;
         case TYPE_MONOTONIC: {
-#ifdef _MSC_VER
+#ifdef _MSC_VER /* M3E: */
 		  #define minute (60)
 		  #define hour (60*minute)
 #else
           static const uint64_t minute = 60;
-		  static const uint64_t hour = 60 * minute;
+          static const uint64_t hour = 60 * minute;
 #endif
           static const uint64_t day = 24 * hour;
 

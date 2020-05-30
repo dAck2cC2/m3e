@@ -39,8 +39,7 @@ struct iovec {
 };
 
 extern int readv(int fd, struct iovec* vecs, int count);
-
-ANDROID_API_LOG
+ANDROID_API_LOG /* M3E: MSVC export */
 extern int writev(int fd, const struct iovec* vecs, int count);
 
 #ifdef __cplusplus

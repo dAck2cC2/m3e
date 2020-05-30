@@ -20,8 +20,8 @@
 
 #include <string>
 
-//#include <android-base/chrono_utils.h>
-//#include <android-base/stringprintf.h>
+//#include <android-base/chrono_utils.h> /* M3E: */
+//#include <android-base/stringprintf.h /* M3E: */>
 #include <android/log.h>  // minimal logging API
 #include <gtest/gtest.h>
 #include <log/log_properties.h>
