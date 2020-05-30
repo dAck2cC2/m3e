@@ -16,34 +16,37 @@ endif(MSVC)
 # external module from android
 set(EXT_LINK https://android.googlesource.com/platform)
 set(EXT_TAG android-8.1.0_r52)
-set(EXT_TAG_UPDATE android-8.1.0_r52)
+set(EXT_TAG_UPDATE android-9.0.0_r56)
 set(EXT_TAG_LEGACY android-7.1.2_r36)
 
 set(EXT_UPDATE 
-boringssl
-aac
-dng_sdk
-expat
-flac
-giflib
-libgsm
-libhevc
-jpeg
-jsoncpp
-piex
-libpng
-safe-iop
-skia
-sonic
-sonivox
-tremolo
-libvpx
-webp
-libyuv
-zlib
+
 )
 
-# modules which has been removed from latest android release
+# moudles which are going to be updated
+#boringssl
+#aac
+#dng_sdk
+#expat
+#flac
+#giflib
+#libgsm
+#libhevc
+#jpeg
+#jsoncpp
+#piex
+#libpng
+#safe-iop
+#skia
+#sonic
+#sonivox
+#tremolo
+#libvpx
+#webp
+#libyuv
+#zlib
+
+# modules which have been removed from latest android release
 set(EXT_LEGACY
 gtest
 )

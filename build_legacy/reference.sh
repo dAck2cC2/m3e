@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET_TAG="android-8.1.0_r52"
+TARGET_TAG="android-9.0.0_r56"
 
 TARGET_DIR="\
 frameworks/av \
