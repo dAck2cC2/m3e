@@ -23,6 +23,7 @@
 #include <pthread.h>
 #else
 #include <windows.h>
+/* M3E: Add */
 #ifndef __inline__
 #define __inline__  inline
 #endif // __inline__
@@ -42,7 +43,8 @@ extern "C" {
 /*****                                                             *****/
 /***********************************************************************/
 /***********************************************************************/
-ANDROID_API_CUTILS
+
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern pid_t gettid();
 
 #if !defined(_WIN32)
@@ -69,9 +71,11 @@ typedef struct {
 #endif // !defined(_WIN32)
 
 typedef void  (*thread_store_destruct_t)(void*  value);
-ANDROID_API_CUTILS
+
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern void*  thread_store_get(thread_store_t*  store);
-ANDROID_API_CUTILS
+
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern void   thread_store_set(thread_store_t*          store,
                                void*                    value,
                                thread_store_destruct_t  destroy);

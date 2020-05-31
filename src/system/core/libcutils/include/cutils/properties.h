@@ -19,7 +19,7 @@
 
 #include <sys/cdefs.h>
 #include <stddef.h>
-//#include <sys/system_properties.h>
+//#include <sys/system_properties.h> /* M3E: use value directly */
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -33,8 +33,8 @@ extern "C" {
 ** WARNING: system/bionic/include/sys/system_properties.h also defines
 **          these, but with different names.  (TODO: fix that)
 */
-#define PROPERTY_KEY_MAX    (32) //PROP_NAME_MAX
-#define PROPERTY_VALUE_MAX  (92) //PROP_VALUE_MAX
+#define PROPERTY_KEY_MAX    (32) //PROP_NAME_MAX  /* M3E: no sys/system_properties.h */
+#define PROPERTY_VALUE_MAX  (92) //PROP_VALUE_MAX /* M3E: no sys/system_properties.h */
 
 /* property_get: returns the length of the value which will never be
 ** greater than PROPERTY_VALUE_MAX - 1 and will always be zero terminated.
@@ -43,13 +43,8 @@ extern "C" {
 ** If the property read fails or returns an empty value, the default
 ** value is used (if nonnull).
 */
-ANDROID_API_CUTILS
-int property_get(const char *key, char *value, const char *default_value)
-/* Sometimes we use not-Bionic with this, so we need this check. */
-#if defined(__BIONIC_FORTIFY)
-        __overloadable __RENAME_CLANG(property_get)
-#endif
-        ;
+ANDROID_API_CUTILS /* M3E: MSCV export */
+int property_get(const char* key, char* value, const char* default_value);
 
 /* property_get_bool: returns the value of key coerced into a
 ** boolean. If the property is not set, then the default value is returned.
@@ -65,7 +60,7 @@ int property_get(const char *key, char *value, const char *default_value)
 ** If no property with this key is set (or the key is NULL) or the boolean
 ** conversion fails, the default value is returned.
 **/
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSCV export */
 int8_t property_get_bool(const char *key, int8_t default_value);
 
 /* property_get_int64: returns the value of key truncated and coerced into a
@@ -87,7 +82,7 @@ int8_t property_get_bool(const char *key, int8_t default_value);
 ** If no property with this key is set (or the key is NULL) or the numeric
 ** conversion fails, the default value is returned.
 **/
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSCV export */
 int64_t property_get_int64(const char *key, int64_t default_value);
 
 /* property_get_int32: returns the value of key truncated and coerced into an
@@ -109,12 +104,12 @@ int64_t property_get_int64(const char *key, int64_t default_value);
 ** If no property with this key is set (or the key is NULL) or the numeric
 ** conversion fails, the default value is returned.
 **/
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSCV export */
 int32_t property_get_int32(const char *key, int32_t default_value);
 
 /* property_set: returns 0 on success, < 0 on failure
 */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSCV export */
 int property_set(const char *key, const char *value);
 
 int property_list(void (*propfn)(const char *key, const char *value, void *cookie), void *cookie);
@@ -124,26 +119,14 @@ int property_list(void (*propfn)(const char *key, const char *value, void *cooki
 
 #if defined(__clang__)
 
-/* Some projects use -Weverything; enable_if is clang-specific.
-** FIXME: This is marked used because we'll otherwise get complaints about an
-** unused static function. This is more robust than marking it unused, since
-** -Wused-but-marked-unused is a thing that will complain if this function is
-** actually used, thus making FORTIFY noisier when an error happens. It's going
-** to go away anyway during our FORTIFY cleanup.
-**/
+/* Some projects use -Weverything; diagnose_if is clang-specific. */
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgcc-compat"
-__BIONIC_ERROR_FUNCTION_VISIBILITY
-int property_get(const char *key, char *value, const char *default_value)
-        __overloadable
-        __enable_if(__bos(value) != __BIONIC_FORTIFY_UNKNOWN_SIZE &&
-                    __bos(value) < PROPERTY_VALUE_MAX, __property_get_err_str)
-        __errorattr(__property_get_err_str)
-        __attribute__((used));
+int property_get(const char* key, char* value, const char* default_value)
+    __clang_error_if(__bos(value) != __BIONIC_FORTIFY_UNKNOWN_SIZE &&
+                         __bos(value) < PROPERTY_VALUE_MAX,
+                     __property_get_err_str);
 #pragma clang diagnostic pop
-
-/* No object size? No FORTIFY.
-*/
 
 #else /* defined(__clang__) */
 

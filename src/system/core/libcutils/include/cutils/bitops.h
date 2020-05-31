@@ -27,7 +27,7 @@
 
 __BEGIN_DECLS
 
-#if defined(CFG_NO_POPCNT)
+#if defined(CFG_NO_POPCNT) /* M3E: for CPU without popcnt support */
 
 #define POPCNT(x) \
 int c = 0; \

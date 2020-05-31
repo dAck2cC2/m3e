@@ -36,35 +36,39 @@ ${SOURCE_PATH}/sys/*.cpp
 )
 
 list(APPEND CUTILS_SOURCE_FILES
-${SOURCE_PATH}/ashmem-host.c
-${SOURCE_PATH}/config_utils.c
-${SOURCE_PATH}/hashmap.c
-${SOURCE_PATH}/iosched_policy.c
-${SOURCE_PATH}/load_file.c
-${SOURCE_PATH}/native_handle.c
+${SOURCE_PATH}/config_utils.cpp
+${SOURCE_PATH}/fs_config.cpp
+${SOURCE_PATH}/canned_fs_config.cpp
+${SOURCE_PATH}/hashmap.cpp
+${SOURCE_PATH}/iosched_policy.cpp
+${SOURCE_PATH}/load_file.cpp
+${SOURCE_PATH}/native_handle.cpp
 ${SOURCE_PATH}/open_memstream.c
-${SOURCE_PATH}/properties.cpp
-${SOURCE_PATH}/qtaguid.c
-${SOURCE_PATH}/record_stream.c
+${SOURCE_PATH}/record_stream.cpp
 ${SOURCE_PATH}/sched_policy.cpp
-${SOURCE_PATH}/strdup8to16.c
-${SOURCE_PATH}/strdup16to8.c
-${SOURCE_PATH}/strlcpy.c
-${SOURCE_PATH}/threads.c
-${SOURCE_PATH}/trace-host.c
 ${SOURCE_PATH}/sockets.cpp
+${SOURCE_PATH}/strdup16to8.cpp
+${SOURCE_PATH}/strdup8to16.cpp
+${SOURCE_PATH}/strlcpy.c
+${SOURCE_PATH}/threads.cpp
+
+${SOURCE_PATH}/ashmem-host.cpp
+${SOURCE_PATH}/trace-host.cpp
+
+${SOURCE_PATH}/qtaguid.cpp
+${SOURCE_PATH}/properties.cpp
 )
 
 if(MSVC)
     list(APPEND CUTILS_SOURCE_FILES
-    ${SOURCE_PATH}/socket_inaddr_any_server_windows.c
-    ${SOURCE_PATH}/socket_network_client_windows.c
+    ${SOURCE_PATH}/socket_inaddr_any_server_windows.cpp
+    ${SOURCE_PATH}/socket_network_client_windows.cpp
     ${SOURCE_PATH}/sockets_windows.cpp
     )
 else()
     list(APPEND CUTILS_SOURCE_FILES
-    ${SOURCE_PATH}/socket_inaddr_any_server_unix.c
-    ${SOURCE_PATH}/socket_network_client_unix.c
+    ${SOURCE_PATH}/socket_inaddr_any_server_unix.cpp
+    ${SOURCE_PATH}/socket_network_client_unix.cpp
     ${SOURCE_PATH}/sockets_unix.cpp
     )
 endif()

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
+#include <cutils/properties.h>
+
 #define LOG_TAG "properties"
 // #define LOG_NDEBUG 0
 
-#define __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS /* M3E: */
 
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include <cutils/properties.h>
-//#include <cutils/sockets.h>
+//#include <cutils/sockets.h> /* M3E: */
 #include <log/log.h>
 
 int8_t property_get_bool(const char *key, int8_t default_value) {

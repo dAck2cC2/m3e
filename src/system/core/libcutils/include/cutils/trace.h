@@ -18,10 +18,10 @@
 #define _LIBS_CUTILS_TRACE_H
 
 #include <inttypes.h>
-#if defined(_MSC_VER) || defined(__APPLE__) || defined(__linux__)
-#include <cutils/stdatomic.h>
-#else
+#if 0 /* M3E: We need a stdatomic.h, which is cross-platform instead of standard one. */
 #include <stdatomic.h>
+#else
+#include <cutils/stdatomic.h>
 #endif
 #include <stdbool.h>
 #include <stdint.h>
@@ -76,7 +76,9 @@ __BEGIN_DECLS
 #define ATRACE_TAG_DATABASE         (1<<20)
 #define ATRACE_TAG_NETWORK          (1<<21)
 #define ATRACE_TAG_ADB              (1<<22)
-#define ATRACE_TAG_LAST             ATRACE_TAG_ADB
+#define ATRACE_TAG_VIBRATOR         (1<<23)
+#define ATRACE_TAG_AIDL             (1<<24)
+#define ATRACE_TAG_LAST             ATRACE_TAG_AIDL
 
 // Reserved for initialization.
 #define ATRACE_TAG_NOT_READY        (1ULL<<63)
@@ -95,7 +97,7 @@ __BEGIN_DECLS
  * This function should not be explicitly called, the first call to any normal
  * trace function will cause it to be run safely.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 void atrace_setup();
 
 /**
@@ -123,7 +125,7 @@ void atrace_set_tracing_enabled(bool enabled);
  * Nonzero indicates setup has completed.
  * Note: This does NOT indicate whether or not setup was successful.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern atomic_bool atrace_is_ready;
 
 /**
@@ -131,14 +133,14 @@ extern atomic_bool atrace_is_ready;
  * A value of zero indicates setup has failed.
  * Any other nonzero value indicates setup has succeeded, and tracing is on.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern uint64_t atrace_enabled_tags;
 
 /**
  * Handle to the kernel's trace buffer, initialized to -1.
  * Any other value indicates setup has succeeded, and is a valid fd for tracing.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern int atrace_marker_fd;
 
 /**
@@ -185,7 +187,7 @@ static inline uint64_t atrace_is_tag_enabled(uint64_t tag)
 static inline void atrace_begin(uint64_t tag, const char* name)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
         void atrace_begin_body(const char*);
         atrace_begin_body(name);
 #endif
@@ -200,7 +202,7 @@ static inline void atrace_begin(uint64_t tag, const char* name)
 static inline void atrace_end(uint64_t tag)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
         void atrace_end_body();
         atrace_end_body();
 #endif
@@ -246,7 +248,7 @@ static inline void atrace_async_end(uint64_t tag, const char* name, int32_t cook
 static inline void atrace_int(uint64_t tag, const char* name, int32_t value)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
         void atrace_int_body(const char*, int32_t);
         atrace_int_body(name, value);
 #endif
@@ -261,7 +263,7 @@ static inline void atrace_int(uint64_t tag, const char* name, int32_t value)
 static inline void atrace_int64(uint64_t tag, const char* name, int64_t value)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
         void atrace_int64_body(const char*, int64_t);
         atrace_int64_body(name, value);
 #endif

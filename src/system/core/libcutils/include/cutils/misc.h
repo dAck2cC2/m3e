@@ -26,7 +26,7 @@ extern "C" {
          * sz is non-zero, return the size of the file via sz.
          * Returns 0 on failure.
          */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern void *load_file(const char *fn, unsigned *sz);
 
         /* This is the range of UIDs (and GIDs) that are reserved

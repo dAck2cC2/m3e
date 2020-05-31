@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <cutils/sockets.h>
+
 #define LOG_TAG "socket-unix"
 
 #include <stdio.h>
@@ -25,11 +27,10 @@
 #include <time.h>
 #include <unistd.h>
 
-//#include <cutils/android_get_control_file.h>
-#include <cutils/sockets.h>
+//#include <cutils/android_get_control_file.h> /* M3E: TODO android_get_control_socket */
 #include <log/log.h>
 
-//#include "android_get_control_env.h"
+//#include "android_get_control_env.h" /* M3E: TODO android_get_control_socket */
 
 #ifndef TEMP_FAILURE_RETRY
 #define TEMP_FAILURE_RETRY(exp) (exp) // KISS implementation
@@ -94,7 +95,7 @@ ssize_t socket_send_buffers(cutils_socket_t sock,
 }
 
 int android_get_control_socket(const char* name) {
-#if TODO
+#if TODO /* M3E: */
     int fd = __android_get_control_from_env(ANDROID_SOCKET_ENV_PREFIX, name);
 
     if (fd < 0) return fd;

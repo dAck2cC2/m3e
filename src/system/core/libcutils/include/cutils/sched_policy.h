@@ -40,16 +40,17 @@ extern bool schedboost_enabled();
 
 /* Keep in sync with THREAD_GROUP_* in frameworks/base/core/java/android/os/Process.java */
 typedef enum {
-    SP_DEFAULT    = -1,
+    SP_DEFAULT = -1,
     SP_BACKGROUND = 0,
     SP_FOREGROUND = 1,
-    SP_SYSTEM     = 2,  // can't be used with set_sched_policy()
-    SP_AUDIO_APP  = 3,
-    SP_AUDIO_SYS  = 4,
-    SP_TOP_APP    = 5,
-    SP_RT_APP     = 6,
+    SP_SYSTEM = 2,  // can't be used with set_sched_policy()
+    SP_AUDIO_APP = 3,
+    SP_AUDIO_SYS = 4,
+    SP_TOP_APP = 5,
+    SP_RT_APP = 6,
+    SP_RESTRICTED = 7,
     SP_CNT,
-    SP_MAX        = SP_CNT - 1,
+    SP_MAX = SP_CNT - 1,
     SP_SYSTEM_DEFAULT = SP_FOREGROUND,
 } SchedPolicy;
 
@@ -61,14 +62,14 @@ extern int set_cpuset_policy(int tid, SchedPolicy policy);
  * On platforms which support gettid(), zero tid means current thread.
  * Return value: 0 for success, or -errno for error.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern int set_sched_policy(int tid, SchedPolicy policy);
 
 /* Return the policy associated with the cgroup of thread tid via policy pointer.
  * On platforms which support gettid(), zero tid means current thread.
  * Return value: 0 for success, or -1 for error and set errno.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 extern int get_sched_policy(int tid, SchedPolicy *policy);
 
 /* Return a displayable string corresponding to policy.

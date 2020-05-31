@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <cutils/ashmem.h>
+
 /*
  * Implementation of the user-space ashmem API for the simulator, which lacks
  * an ashmem-enabled kernel. See ashmem-dev.c for the real ashmem-based version.
@@ -31,9 +33,11 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <cutils/ashmem.h>
+/* M3E: no utils in cutils */
+#if 0
+#include <utils/Compat.h>
 
-#ifdef _WIN32
+#elif defined(_WIN32)
 #include <dirent.h>
 int mkstemp(char* template_name) {
 	if (_mktemp(template_name) == NULL) {
@@ -69,30 +73,25 @@ do {                                   \
 _rc = (exp);                       \
 } while (_rc == -1 && errno == EINTR); \
 _rc; })
-#endif
+#endif /* TEMP_FAILURE_RETRY */
 
 #else
-//#include <utils/Compat.h>
+/* EMPTY */
 #endif
 
-#ifndef __unused
-#define __unused __attribute__((__unused__))
-#endif
-
-int ashmem_create_region(const char *ignored __unused, size_t size)
-{
-    char template[PATH_MAX];
-#if defined(_MSC_VER)
+int ashmem_create_region(const char* /*ignored*/, size_t size) {
+    char pattern[PATH_MAX];
+#if defined(_MSC_VER) /* M3E: get temp path of windows */
 	char tmp_dir[MAX_PATH];
 	DWORD result = GetTempPathA(sizeof(tmp_dir), tmp_dir);
-	snprintf(template, sizeof(template), "%s\\android-ashmem-%d-XXXXXXXXX", tmp_dir, getpid());
+	snprintf(pattern, sizeof(pattern), "%s\\android-ashmem-%d-XXXXXXXXX", tmp_dir, getpid());
 #else
-    snprintf(template, sizeof(template), "/tmp/android-ashmem-%d-XXXXXXXXX", getpid());
+    snprintf(pattern, sizeof(pattern), "/tmp/android-ashmem-%d-XXXXXXXXX", getpid());
 #endif
-    int fd = mkstemp(template);
+    int fd = mkstemp(pattern);
     if (fd == -1) return -1;
 
-    unlink(template);
+    unlink(pattern);
 
     if (TEMP_FAILURE_RETRY(ftruncate(fd, size)) == -1) {
       close(fd);
@@ -102,18 +101,15 @@ int ashmem_create_region(const char *ignored __unused, size_t size)
     return fd;
 }
 
-int ashmem_set_prot_region(int fd __unused, int prot __unused)
-{
+int ashmem_set_prot_region(int /*fd*/, int /*prot*/) {
     return 0;
 }
 
-int ashmem_pin_region(int fd __unused, size_t offset __unused, size_t len __unused)
-{
+int ashmem_pin_region(int /*fd*/, size_t /*offset*/, size_t /*len*/) {
     return 0 /*ASHMEM_NOT_PURGED*/;
 }
 
-int ashmem_unpin_region(int fd __unused, size_t offset __unused, size_t len __unused)
-{
+int ashmem_unpin_region(int /*fd*/, size_t /*offset*/, size_t /*len*/) {
     return 0 /*ASHMEM_IS_UNPINNED*/;
 }
 
@@ -136,9 +132,4 @@ int ashmem_get_size_region(int fd)
     }
 
     return buf.st_size;
-}
-
-int ashmem_valid(int fd)
-{
-	return 0;
 }

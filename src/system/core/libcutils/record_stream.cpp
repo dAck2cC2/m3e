@@ -15,16 +15,17 @@
 ** limitations under the License.
 */
 
+#include <cutils/record_stream.h>
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
-#include <cutils/record_stream.h>
 #include <string.h>
 #include <stdint.h>
 #if defined(_WIN32)
 #include <winsock2.h>   /* for ntohl */
-#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "ws2_32.lib") /* M3E: MSVC */
 #else
 #include <netinet/in.h>
 #endif

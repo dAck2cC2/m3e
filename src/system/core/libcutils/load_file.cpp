@@ -15,15 +15,11 @@
 ** limitations under the License.
 */
 
+#include <cutils/misc.h>
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <stdio.h>
-
-#if defined(_MSC_VER)
-// It musts declarate function to be DLL external for Visual Studio
-#include <cutils/misc.h>
-#endif
 
 void *load_file(const char *fn, unsigned *_sz)
 {

@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#if (__STDC_VERSION__ < 201112L && __cplusplus < 201103L) || defined(__APPLE__) || defined(__linux__)
+#if (__STDC_VERSION__ < 201112L && __cplusplus < 201103L) || defined(__linux__) /* M3E: */
   typedef uint16_t char16_t;
 #endif
   // otherwise char16_t is a keyword with the right semantics

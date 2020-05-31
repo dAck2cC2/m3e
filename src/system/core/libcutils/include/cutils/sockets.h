@@ -25,7 +25,8 @@
 #include <stdbool.h>
 
 #if defined(_WIN32)
-#include <stdint.h>
+
+#include <stdint.h> /* M3E: MSVC wrapper */
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -85,7 +86,7 @@ int android_get_control_socket(const char* name);
  *
  * These functions return INVALID_SOCKET (-1) on failure for all platforms.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 cutils_socket_t socket_network_client(const char* host, int port, int type);
 int socket_network_client_timeout(const char* host, int port, int type,
                                   int timeout, int* getaddrinfo_error);
@@ -94,7 +95,7 @@ int socket_local_server_bind(int s, const char* name, int namespaceId);
 int socket_local_client_connect(int fd, const char *name, int namespaceId,
                                 int type);
 int socket_local_client(const char* name, int namespaceId, int type);
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 cutils_socket_t socket_inaddr_any_server(int port, int type);
 
 /*
@@ -103,7 +104,7 @@ cutils_socket_t socket_inaddr_any_server(int port, int type);
  *
  * Returns 0 on success.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 int socket_close(cutils_socket_t sock);
 
 /*
@@ -112,13 +113,13 @@ int socket_close(cutils_socket_t sock);
  *
  * Return 0 on success.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 int socket_set_receive_timeout(cutils_socket_t sock, int timeout_ms);
 
 /*
  * Returns the local port the socket is bound to or -1 on error.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 int socket_get_local_port(cutils_socket_t sock);
 
 /*
@@ -141,7 +142,8 @@ typedef struct {
 } cutils_socket_buffer_t;
 
 #define SOCKET_SEND_BUFFERS_MAX_BUFFERS 16
-ANDROID_API_CUTILS
+
+ANDROID_API_CUTILS /* M3E: MSVC export */
 ssize_t socket_send_buffers(cutils_socket_t sock,
                             const cutils_socket_buffer_t* buffers,
                             size_t num_buffers);

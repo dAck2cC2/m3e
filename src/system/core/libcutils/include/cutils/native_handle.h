@@ -23,10 +23,13 @@
 extern "C" {
 #endif
 
+#define NATIVE_HANDLE_MAX_FDS 1024
+#define NATIVE_HANDLE_MAX_INTS 1024
+
 /* Declare a char array for use with native_handle_init */
 #define NATIVE_HANDLE_DECLARE_STORAGE(name, maxFds, maxInts) \
-    alignas(native_handle_t) char name[                            \
-      sizeof(native_handle_t) + sizeof(int) * (maxFds + maxInts)]
+    alignas(native_handle_t) char (name)[                            \
+      sizeof(native_handle_t) + sizeof(int) * ((maxFds) + (maxInts))]
 
 typedef struct native_handle
 {
@@ -53,7 +56,7 @@ typedef const native_handle_t* buffer_handle_t;
  * return 0 on success, or a negative error code on failure
  * 
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 int native_handle_close(const native_handle_t* h);
 
 /*
@@ -63,7 +66,7 @@ int native_handle_close(const native_handle_t* h);
  * NATIVE_HANDLE_DECLARE_STORAGE.  numFds and numInts must not respectively
  * exceed maxFds and maxInts used to declare the storage.
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 native_handle_t* native_handle_init(char* storage, int numFds, int numInts);
 
 /*
@@ -73,7 +76,7 @@ native_handle_t* native_handle_init(char* storage, int numFds, int numInts);
  * native_handle_delete().
  * 
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 native_handle_t* native_handle_create(int numFds, int numInts);
 
 /*
@@ -83,7 +86,7 @@ native_handle_t* native_handle_create(int numFds, int numInts);
  * Must be destroyed with native_handle_delete().
  *
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 native_handle_t* native_handle_clone(const native_handle_t* handle);
 
 /*
@@ -96,7 +99,7 @@ native_handle_t* native_handle_clone(const native_handle_t* handle);
  * return 0 on success, or a negative error code on failure
  * 
  */
-ANDROID_API_CUTILS
+ANDROID_API_CUTILS /* M3E: MSVC export */
 int native_handle_delete(native_handle_t* h);
 
 

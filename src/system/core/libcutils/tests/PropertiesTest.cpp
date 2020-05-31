@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "Properties_test"
-#ifdef __APPLE__
+#ifdef __APPLE__ /* M3E: */
 #include <atomic>
 #endif
 #define __STDC_CONSTANT_MACROS
@@ -26,11 +26,13 @@
 #include <string>
 
 #include <android/log.h>
+//#include <android-base/macros.h> /* M3E: */
 #include <cutils/properties.h>
 #include <gtest/gtest.h>
 
 namespace android {
 
+/* M3E: Add */
 // The arraysize(arr) macro returns the # of elements in an array arr.
 // The expression is a compile-time constant, and therefore can be
 // used in defining new arrays, for example.  If you use arraysize on
@@ -50,7 +52,6 @@ char(&ArraySizeHelper(T(&array)[N]))[N];  // NOLINT(readability/casting)
     
 #define arraysize(array) (sizeof(ArraySizeHelper(array)))
 
-    
 #define STRINGIFY_INNER(x) #x
 #define STRINGIFY(x) STRINGIFY_INNER(x)
 #define ASSERT_OK(x) ASSERT_EQ(0, (x))

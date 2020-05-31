@@ -19,10 +19,11 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   We need a stdatomic.h, which is cross-platform instead of standard one.   */
-/* #include <stdatomic.h> */
+#if 0 /* M3E: We need a stdatomic.h, which is cross-platform instead of standard one. */
+#include <stdatomic.h>
+#else
 #include <cutils/stdatomic.h>
+#endif
 
 #ifndef ANDROID_ATOMIC_INLINE
 #define ANDROID_ATOMIC_INLINE static inline
@@ -227,7 +228,7 @@ int android_atomic_release_cas(int32_t oldvalue, int32_t newvalue,
 ANDROID_ATOMIC_INLINE
 void android_compiler_barrier(void)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: */
 	_ReadWriteBarrier();
 #else
     __asm__ __volatile__ ("" : : : "memory");

@@ -39,7 +39,7 @@
  * class ANDROID_API Singleton { }
  */
 
-#ifndef ANDROID_API
+#ifndef ANDROID_API /* M3E: Add MSVC export */
     #if defined(_MSC_VER)
         #define ANDROID_API __declspec(dllexport)
     #elif defined(__GNUC__) && __GNUC__ >= 4
