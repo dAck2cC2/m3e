@@ -96,6 +96,7 @@ static netdHandler& getHandler() {
 }
 
 int qtaguid_tagSocket(int sockfd, int tag, uid_t uid) {
+#if !defined(_MSC_VER) /* M3E: MSVC */
     // Check the socket fd passed to us is still valid before we load the netd
     // client. Pass a already closed socket fd to netd client may let netd open
     // the unix socket with the same fd number and pass it to server for
@@ -103,18 +104,19 @@ int qtaguid_tagSocket(int sockfd, int tag, uid_t uid) {
     // TODO: move the check into netdTagSocket.
     int res = fcntl(sockfd, F_GETFD);
     if (res < 0) return res;
-
+#endif
     ALOGV("Tagging socket %d with tag %u for uid %d", sockfd, tag, uid);
     return getHandler().netdTagSocket(sockfd, tag, uid);
 }
 
 int qtaguid_untagSocket(int sockfd) {
+#if !defined(_MSC_VER) /* M3E: MSVC */
     // Similiar to tag socket. We need a check before untag to make sure untag a closed socket fail
     // as expected.
     // TODO: move the check into netdTagSocket.
     int res = fcntl(sockfd, F_GETFD);
     if (res < 0) return res;
-
+#endif
     ALOGV("Untagging socket %d", sockfd);
     return getHandler().netdUntagSocket(sockfd);
 }

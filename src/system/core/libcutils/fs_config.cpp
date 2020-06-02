@@ -49,6 +49,10 @@ _rc; })
 
 #endif
 
+#if defined(_MSC_VER) /* M3E: MSVC wrapper */
+#include <vasprintf.h>
+#endif // _MSC_VER
+
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif

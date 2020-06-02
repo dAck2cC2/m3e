@@ -22,9 +22,6 @@
 #include <strings.h>
 #include <sys/cdefs.h>
 
-/* M3E ADD */
-#include "m3e_config.h"
-
 __BEGIN_DECLS
 
 #if defined(CFG_NO_POPCNT) /* M3E: for CPU without popcnt support */

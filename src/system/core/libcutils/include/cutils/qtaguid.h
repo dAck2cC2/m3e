@@ -17,9 +17,11 @@
 #ifndef __CUTILS_QTAGUID_H
 #define __CUTILS_QTAGUID_H
 
-//#include <stdint.h>
 #include <sys/types.h>
-//#include <unistd.h>
+
+#if defined(_MSC_VER) /* M3E: MSVC wrapper */
+#include <unistd.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

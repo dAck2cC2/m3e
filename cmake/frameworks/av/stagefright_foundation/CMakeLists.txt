@@ -27,6 +27,8 @@ elseif(MSVC)
     add_definitions(-Dstrcasestr=strstr)
     add_definitions(-Dstrncasecmp=_strnicmp)
     add_definitions(-Dstrcasecmp=_stricmp)
+
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation/include/media/stagefright/foundation )
@@ -65,12 +67,6 @@ ${SOURCE_PATH}/hexdump.cpp
 ${SOURCE_PATH}/AWakeLock.cpp
 
 )
-
-if(MSVC)
-    set(STAGEFRIGHT_FOUNDATION_SOURCE_FILES ${STAGEFRIGHT_FOUNDATION_SOURCE_FILES}
-    ${MSVC_PATH}/vasprintf.c
-    )
-endif(MSVC)
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

@@ -19,8 +19,6 @@
 #define LOG_TAG "properties"
 // #define LOG_NDEBUG 0
 
-#define __STDC_LIMIT_MACROS /* M3E: */
-
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>

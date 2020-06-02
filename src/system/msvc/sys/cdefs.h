@@ -94,7 +94,6 @@ because it may be included before winsock2.h.
 #include <stdint.h>
 
 #include "msvc_export.h"
-#include "m3e_config.h"
 
 #ifdef __cplusplus
 extern "C" {

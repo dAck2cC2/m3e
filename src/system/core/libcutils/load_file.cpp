@@ -21,6 +21,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#if defined(_MSC_VER) /* M3E: SEEK_END SEEK_SET */
+#include <stdio.h>
+#endif
+
 void *load_file(const char *fn, unsigned *_sz)
 {
     char *data;

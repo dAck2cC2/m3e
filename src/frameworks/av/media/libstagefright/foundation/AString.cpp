@@ -28,9 +28,9 @@
 #include "ADebug.h"
 #include "AString.h"
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: MSVC */
 #define INT32_MAX    _I32_MAX
-extern "C" int vasprintf(char **strp, const char *fmt, va_list ap);
+#include <vasprintf.h>
 #endif // _MSC_VER
 
 namespace android {

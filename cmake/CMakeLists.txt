@@ -80,11 +80,11 @@ if(NOT EXISTS ${BUILD_PATH})
 endif()
 
 # create the configure header file
-if(NOT EXISTS ${M3E_CFG_PATH})
-  message(STATUS "Create\t${M3E_CFG_PATH}")
-  exec_program("mkdir ${M3E_CFG_PATH}")
-endif()
-configure_file(${M3E_SOURCE_DIR}/cmake/config/config.h.in ${M3E_CFG_PATH}/m3e_config.h)
+#if(NOT EXISTS ${M3E_CFG_PATH})
+#  message(STATUS "Create\t${M3E_CFG_PATH}")
+#  exec_program("mkdir ${M3E_CFG_PATH}")
+#endif()
+#configure_file(${M3E_SOURCE_DIR}/cmake/config/config.h.in ${M3E_CFG_PATH}/m3e_config.h)
 
 # the subdirectory
 add_subdirectory(external)

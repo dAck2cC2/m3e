@@ -26,6 +26,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(_MSC_VER) /* M3E: MAX_PATH */
+#include <dirent.h>
+#endif
+
 typedef struct {
     const char* path;
     unsigned uid;

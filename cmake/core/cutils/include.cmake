@@ -18,6 +18,10 @@ elseif(UNIX)
     add_definitions(-D_USING_LIBCXX=1)
 endif()
 
+if (CFG_NO_POPCNT)
+    add_definitions(-DCFG_NO_POPCNT=1)
+endif (CFG_NO_POPCNT)
+
 # include
 include_directories(AFTER ${M3E_CFG_PATH})
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/core/libcutils/include)
