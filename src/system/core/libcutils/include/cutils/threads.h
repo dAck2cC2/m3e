@@ -44,8 +44,10 @@ extern "C" {
 /***********************************************************************/
 /***********************************************************************/
 
+#if !defined(__linux__) /* M3E: use original one of linux */
 ANDROID_API_CUTILS /* M3E: MSVC export */
 extern pid_t gettid();
+#endif
 
 #if !defined(_WIN32)
 

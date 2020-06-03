@@ -17,6 +17,8 @@ cutils
 
 if(MSVC)
     add_definitions(-D__STDC_LIMIT_MACROS)
+else(LINUX)
+    list(APPEND TEST_CUTILS_DEPLIB dl)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils/tests )
