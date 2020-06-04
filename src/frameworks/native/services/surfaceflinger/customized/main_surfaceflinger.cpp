@@ -39,7 +39,7 @@ namespace android {
 				if (!Thread::isRunning()) {
 					mStartedMutex.lock();
 
-					Thread::run();
+					Thread::run("SurfaceFlinger");
 
 					mStartedCondition.wait(mStartedMutex);
 					mStartedMutex.unlock();

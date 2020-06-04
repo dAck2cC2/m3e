@@ -18,7 +18,7 @@ public:
 		if (!Thread::isRunning()) {
 			mThreadStartedMutex.lock();
 
-			Thread::run();
+			Thread::run("binder_service");
 
 			mThreadStartedCondition.wait(mThreadStartedMutex);
 			mThreadStartedMutex.unlock();

@@ -31,11 +31,14 @@
 namespace android {
 
 class String16;
-class TextOutput;
+
+//class TextOutput;
+
+// DO NOT USE: please use std::string
 
 //! This is a string holding UTF-8 characters. Does not allow the value more
 // than 0x10FFFF, which is not valid unicode codepoint.
-class ANDROID_API_UTILS String8
+class ANDROID_API_UTILS String8 /* M3E: MSVC export */
 {
 public:
     /* use String8(StaticLinkage) if you're statically linking against
@@ -67,7 +70,6 @@ public:
     inline  const char*         c_str() const;
     inline  const char*         string() const;
 
-// TODO(b/35363681): remove
 private:
     static inline std::string   std_string(const String8& str);
 public:

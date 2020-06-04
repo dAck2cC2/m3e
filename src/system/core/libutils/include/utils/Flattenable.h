@@ -17,7 +17,7 @@
 #ifndef ANDROID_UTILS_FLATTENABLE_H
 #define ANDROID_UTILS_FLATTENABLE_H
 
-#include <cutils/compiler.h>
+
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
@@ -26,6 +26,8 @@
 
 #include <type_traits>
 
+#include <cutils/compiler.h> /* M3E: ANDROID_API */
+
 namespace android {
 
 
@@ -33,13 +35,13 @@ class FlattenableUtils {
 public:
     template<size_t N>
     static size_t align(size_t size) {
-        COMPILE_TIME_ASSERT_FUNCTION_SCOPE( !(N & (N-1)) );
+        static_assert(!(N & (N - 1)), "Can only align to a power of 2.");
         return (size + (N-1)) & ~(N-1);
     }
 
     template<size_t N>
     static size_t align(void const*& buffer) {
-        COMPILE_TIME_ASSERT_FUNCTION_SCOPE( !(N & (N-1)) );
+        static_assert(!(N & (N - 1)), "Can only align to a power of 2.");
         uintptr_t b = uintptr_t(buffer);
         buffer = reinterpret_cast<void*>((uintptr_t(buffer) + (N-1)) & ~(N-1));
         return size_t(uintptr_t(buffer) - b);
@@ -47,7 +49,12 @@ public:
 
     template<size_t N>
     static size_t align(void*& buffer) {
-        return align<N>( const_cast<void const*&>(buffer) );
+        static_assert(!(N & (N - 1)), "Can only align to a power of 2.");
+        void* b = buffer;
+        buffer = reinterpret_cast<void*>((uintptr_t(buffer) + (N-1)) & ~(N-1));
+        size_t delta = size_t(uintptr_t(buffer) - uintptr_t(b));
+        memset(b, 0, delta);
+        return delta;
     }
 
     static void advance(void*& buffer, size_t& size, size_t offset) {
@@ -87,7 +94,7 @@ public:
  */
 
 template <typename T>
-class ANDROID_API Flattenable {
+class ANDROID_API Flattenable { /* M3E: MSVC export */
 public:
     // size in bytes of the flattened object
     inline size_t getFlattenedSize() const;

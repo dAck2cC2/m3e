@@ -22,7 +22,7 @@
 #include <utils/KeyedVector.h>
 #include <utils/Timers.h>
 
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: */
 #include <sys/epoll.h>
 #endif // _LINUX
 
@@ -66,7 +66,7 @@ struct Message {
  * to remove any pending messages destined for the handler so that the handler
  * can be destroyed.
  */
-class ANDROID_API_UTILS MessageHandler : public virtual RefBase {
+class ANDROID_API_UTILS MessageHandler : public virtual RefBase { /* M3E: MSVC export */
 protected:
     virtual ~MessageHandler();
 
@@ -135,7 +135,7 @@ private:
  *
  * A looper can be associated with a thread although there is no requirement that it must be.
  */
-class ANDROID_API_UTILS Looper : public RefBase {
+class ANDROID_API_UTILS Looper : public RefBase { /* M3E: MSVC export */
 protected:
     virtual ~Looper();
 
@@ -426,7 +426,7 @@ private:
         int seq;
         sp<LooperCallback> callback;
         void* data;
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: */
         void initEventItem(struct epoll_event* eventItem) const;
 #endif // _LINUX
     };
@@ -449,7 +449,7 @@ private:
     };
 
     const bool mAllowNonCallbacks; // immutable
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: */
     int mWakeEventFd;  // immutable
 #else  // _LINUX
     Condition mWaitMessage;

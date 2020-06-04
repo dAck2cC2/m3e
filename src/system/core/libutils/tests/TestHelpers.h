@@ -20,7 +20,7 @@
 #include <utils/threads.h>
 
 namespace android {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
 class Pipe {
 public:
     int sendFd;
@@ -68,7 +68,7 @@ protected:
     virtual void doTask() = 0;
 
     virtual bool threadLoop() {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: */
 		Sleep(mDelayMillis);
 #else  // _MSC_VER
         usleep(mDelayMillis * 1000);

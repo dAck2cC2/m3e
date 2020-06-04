@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#if defined(HAVE_PTHREADS) || defined(_MSC_VER)
+#if defined(HAVE_PTHREADS) || defined(_MSC_VER) /* M3E: MSVC wrapper */
 # include <pthread.h>
 #endif
 
@@ -34,11 +34,11 @@ extern "C" {
 #endif
 
 // Create and run a new thread.
-ANDROID_API_UTILS
+ANDROID_API_UTILS /* M3E: MSVC export */
 extern int androidCreateThread(android_thread_func_t, void *);
 
 // Create thread with lots of parameters
-ANDROID_API_UTILS
+ANDROID_API_UTILS /* M3E: MSVC export */
 extern int androidCreateThreadEtc(android_thread_func_t entryFunction,
                                   void *userData,
                                   const char* threadName,
@@ -47,7 +47,7 @@ extern int androidCreateThreadEtc(android_thread_func_t entryFunction,
                                   android_thread_id_t *threadId);
 
 // Get some sort of unique identifier for the current thread.
-ANDROID_API_UTILS
+ANDROID_API_UTILS /* M3E: MSVC export */
 extern android_thread_id_t androidGetThreadId();
 
 // Low-level thread creation -- never creates threads that can
@@ -60,7 +60,7 @@ extern int androidCreateRawThreadEtc(android_thread_func_t entryFunction,
                                      android_thread_id_t *threadId);
 
 // set the same of the running thread
-ANDROID_API_UTILS
+ANDROID_API_UTILS /* M3E: MSVC export */
 extern void androidSetThreadName(const char* name);
 
 // Used by the Java Runtime to control how threads are created, so that
@@ -74,6 +74,7 @@ typedef int (*android_create_thread_fn)(android_thread_func_t entryFunction,
 
 extern void androidSetCreateThreadFunc(android_create_thread_fn func);
 
+/* M3E: Add */
 ANDROID_API_UTILS
 extern void androidJoinThread(android_thread_id_t id);
 
@@ -124,6 +125,7 @@ inline thread_id_t getThreadId() {
     return androidGetThreadId();
 }
 
+/* M3E: Add */
 inline void joinThread(thread_id_t id) {
 	return androidJoinThread(id);
 }

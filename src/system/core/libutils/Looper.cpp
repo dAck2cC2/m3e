@@ -14,7 +14,7 @@
 #define DEBUG_CALLBACKS 0
 
 #include <utils/Looper.h>
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: */
 #include <sys/eventfd.h>
 #else
 #include <cutils/threads.h>
@@ -60,7 +60,7 @@ static const int EPOLL_SIZE_HINT = 8;
 
 // Maximum number of file descriptors for which to retrieve poll events each iteration.
 static const int EPOLL_MAX_EVENTS = 16;
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
 static pthread_once_t gTLSOnce = PTHREAD_ONCE_INIT;
 static pthread_key_t gTLSKey = 0;
 #else  // _LINUX
@@ -70,7 +70,7 @@ Looper::Looper(bool allowNonCallbacks) :
         mAllowNonCallbacks(allowNonCallbacks), mSendingMessage(false),
         mPolling(false), mEpollFd(-1), mEpollRebuildRequired(false),
         mNextRequestSeq(0), mResponseIndex(0), mNextMessageUptime(LLONG_MAX) {
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     mWakeEventFd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     LOG_ALWAYS_FATAL_IF(mWakeEventFd < 0, "Could not make wake event fd: %s",
                         strerror(errno));
@@ -80,7 +80,7 @@ Looper::Looper(bool allowNonCallbacks) :
 }
 
 Looper::~Looper() {
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     close(mWakeEventFd);
     mWakeEventFd = -1;
     if (mEpollFd >= 0) {
@@ -90,7 +90,7 @@ Looper::~Looper() {
 }
 
 void Looper::initTLSKey() {
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     int result = pthread_key_create(& gTLSKey, threadDestructor);
     LOG_ALWAYS_FATAL_IF(result != 0, "Could not allocate TLS key.");
 #endif // _LINUX
@@ -109,7 +109,7 @@ void Looper::setForThread(const sp<Looper>& looper) {
     if (looper != NULL) {
         looper->incStrong((void*)threadDestructor);
     }
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     pthread_setspecific(gTLSKey, looper.get());
 #else
     thread_store_set(&gTLS, looper.get(), threadDestructor);
@@ -120,7 +120,7 @@ void Looper::setForThread(const sp<Looper>& looper) {
 }
 
 sp<Looper> Looper::getForThread() {
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     int result = pthread_once(& gTLSOnce, initTLSKey);
     LOG_ALWAYS_FATAL_IF(result != 0, "pthread_once failed");
 
@@ -149,7 +149,7 @@ bool Looper::getAllowNonCallbacks() const {
 }
 
 void Looper::rebuildEpollLocked() {
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     // Close old epoll instance if we have one.
     if (mEpollFd >= 0) {
 #if DEBUG_CALLBACKS
@@ -253,7 +253,7 @@ int Looper::pollInner(int timeoutMillis) {
     int result = POLL_WAKE;
     mResponses.clear();
     mResponseIndex = 0;
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     // We are about to idle.
     mPolling = true;
 
@@ -442,7 +442,7 @@ void Looper::wake() {
 #if DEBUG_POLL_AND_WAKE
     ALOGD("%p ~ wake", this);
 #endif
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     uint64_t inc = 1;
     ssize_t nWrite = TEMP_FAILURE_RETRY(write(mWakeEventFd, &inc, sizeof(uint64_t)));
     if (nWrite != sizeof(uint64_t)) {
@@ -460,7 +460,7 @@ void Looper::awoken() {
 #if DEBUG_POLL_AND_WAKE
     ALOGD("%p ~ awoken", this);
 #endif
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     uint64_t counter;
     TEMP_FAILURE_RETRY(read(mWakeEventFd, &counter, sizeof(uint64_t)));
 #endif // _LINUX
@@ -482,7 +482,7 @@ int Looper::addFd(int fd, int ident, int events, const sp<LooperCallback>& callb
     ALOGD("%p ~ addFd - fd=%d, ident=%d, events=0x%x, callback=%p, data=%p", this, fd, ident,
             events, callback.get(), data);
 #endif
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     if (!callback.get()) {
         if (! mAllowNonCallbacks) {
             ALOGE("Invalid attempt to set NULL callback but not allowed for this looper.");
@@ -569,7 +569,7 @@ int Looper::removeFd(int fd, int seq) {
 #if DEBUG_CALLBACKS
     ALOGD("%p ~ removeFd - fd=%d, seq=%d", this, fd, seq);
 #endif
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
     { // acquire lock
         AutoMutex _l(mLock);
         ssize_t requestIndex = mRequests.indexOfKey(fd);
@@ -707,7 +707,7 @@ void Looper::removeMessages(const sp<MessageHandler>& handler, int what) {
 bool Looper::isPolling() const {
     return mPolling;
 }
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: use cutils/threads.h */
 void Looper::Request::initEventItem(struct epoll_event* eventItem) const {
     int epollEvents = 0;
     if (events & EVENT_INPUT) epollEvents |= EPOLLIN;

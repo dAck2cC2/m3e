@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if defined(HAVE_PTHREADS)
+#if defined(HAVE_PTHREADS) /* M3E: */
 # include <pthread.h>
 #endif
 
@@ -36,20 +36,22 @@
 namespace android {
 // ---------------------------------------------------------------------------
 
-class ANDROID_API_UTILS Thread : virtual public RefBase
+// DO NOT USE: please use std::thread
+
+class ANDROID_API_UTILS Thread : virtual public RefBase /* M3E: MSVC export */
 {
 public:
     // Create a Thread object, but doesn't create or start the associated
     // thread. See the run() method.
     explicit Thread(bool canCallJava = true
-#ifdef ENABLE_AFFINITY
+#ifdef ENABLE_AFFINITY /* M3E: affinity */
                               , int32_t iAffinity = 0x00000000
 #endif // ENABLE_AFFINITY
           );
     virtual             ~Thread();
 
     // Start the thread in threadLoop() which needs to be implemented.
-    virtual status_t    run(    const char* name = 0,
+    virtual status_t    run(    const char* name,
                                 int32_t priority = PRIORITY_DEFAULT,
                                 size_t stack = 0);
     
@@ -74,9 +76,11 @@ public:
     // Indicates whether this thread is running or not.
             bool        isRunning() const;
 
+#if 1 //defined(__ANDROID__) /* M3E: AudioRecord.cpp is using it */
     // Return the thread's kernel ID, same as the thread itself calling gettid(),
     // or -1 if the thread is not running.
             pid_t       getTid() const;
+#endif
 
 protected:
     // exitPending() returns true if requestExit() has been called.
@@ -109,7 +113,7 @@ private:
             pid_t           mTid;
 #endif
 
-#ifdef ENABLE_AFFINITY
+#ifdef ENABLE_AFFINITY /* M3E: affinity */
     int32_t         mAffinity;
 #endif // ENABLE_AFFINITY
 };

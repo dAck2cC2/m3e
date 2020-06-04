@@ -21,14 +21,13 @@
 #include <utils/Thread.h>
 #include <utils/AndroidThreads.h>
 
-#if defined(HAVE_PTHREADS)
+#if defined(HAVE_PTHREADS) /* M3E: */
 # include <sys/resource.h>
 #elif defined(HAVE_WIN32_THREADS)
 # include <windows.h>
 # include <stdint.h>
 # include <process.h>
-# define HAVE__BEGINTHREADEX
-//# define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
+# define HAVE_CREATETHREAD  // Cygwin, vs. HAVE__BEGINTHREADEX for MinGW
 #endif
 
 #if defined(__linux__)
@@ -39,7 +38,7 @@
 
 #include <cutils/sched_policy.h>
 
-#include <cutils/threads.h> // gettid()
+#include <cutils/threads.h> /* M3E: gettid() */
 
 #if defined(__ANDROID__)
 # define __android_unused
@@ -56,7 +55,7 @@
 using namespace android;
 
 // ----------------------------------------------------------------------------
-#if defined(HAVE_PTHREADS)
+#if defined(HAVE_PTHREADS) /* M3E: */
 // ----------------------------------------------------------------------------
 
 /*
@@ -184,6 +183,7 @@ android_thread_id_t androidGetThreadId()
     return (android_thread_id_t)pthread_self();
 }
 
+/* M3E: Add */
 void androidJoinThread(android_thread_id_t id)
 {
 	void *dummy;
@@ -193,12 +193,8 @@ void androidJoinThread(android_thread_id_t id)
 }
 
 // ----------------------------------------------------------------------------
-#elif defined(HAVE_WIN32_THREADS)
+#elif defined(HAVE_WIN32_THREADS) /* M3E: */
 // ----------------------------------------------------------------------------
-
-void androidSetThreadName(const char* name) {
-	// EMPTY
-}
 
 /*
  * Trampoline to make us __stdcall-compliant.
@@ -209,7 +205,7 @@ struct threadDetails {
     int (*func)(void*);
     void* arg;
 };
-static unsigned int threadIntermediary(void* vDetails)
+static __stdcall unsigned int threadIntermediary(void* vDetails)
 {
     struct threadDetails* pDetails = (struct threadDetails*) vDetails;
     int result;
@@ -235,7 +231,7 @@ static bool doCreateThread(android_thread_func_t fn, void* arg, android_thread_i
     pDetails->arg = arg;
 
 #if defined(HAVE__BEGINTHREADEX)
-    hThread = (HANDLE) _beginthreadex(NULL, 0, (_beginthreadex_proc_type)threadIntermediary, pDetails, 0,
+    hThread = (HANDLE) _beginthreadex(NULL, 0, threadIntermediary, pDetails, 0,
                     &thrdaddr);
     if (hThread == 0)
 #elif defined(HAVE_CREATETHREAD)
@@ -276,6 +272,7 @@ android_thread_id_t androidGetThreadId()
     return (android_thread_id_t)GetCurrentThreadId();
 }
 
+/* M3E: Add */
 void androidJoinThread(android_thread_id_t id)
 {
 	HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, true, id);
@@ -289,7 +286,7 @@ void androidJoinThread(android_thread_id_t id)
 
 
 // ----------------------------------------------------------------------------
-#else
+#else /* M3E: */
 #error "Threads not supported"
 #endif
 
@@ -350,7 +347,7 @@ int androidSetThreadPriority(pid_t tid, int pri)
 }
 
 int androidGetThreadPriority(pid_t tid) {
-#if defined(HAVE_PTHREADS)
+#if defined(HAVE_PTHREADS) /* M3E: */
     return getpriority(PRIO_PROCESS, tid);
 #else
     return ANDROID_PRIORITY_NORMAL;
@@ -367,7 +364,7 @@ namespace android {
  * ===========================================================================
  */
 
-#if defined(HAVE_PTHREADS)
+#if defined(HAVE_PTHREADS) /* M3E: */
 // implemented as inlines in threads.h
 #elif defined(HAVE_WIN32_THREADS)
 
@@ -381,7 +378,7 @@ Mutex::Mutex()
     mState = (void*) hMutex;
 }
 
-Mutex::Mutex(const char* name)
+Mutex::Mutex(const char* /*name*/)
 {
     // XXX: name not used for now
     HANDLE hMutex;
@@ -392,7 +389,7 @@ Mutex::Mutex(const char* name)
     mState = (void*) hMutex;
 }
 
-Mutex::Mutex(int type, const char* name)
+Mutex::Mutex(int /*type*/, const char* /*name*/)
 {
     // XXX: type and name not used for now
     HANDLE hMutex;
@@ -431,7 +428,7 @@ status_t Mutex::tryLock()
     return (dwWaitResult == WAIT_OBJECT_0) ? 0 : -1;
 }
 
-#else
+#else /* M3E: */
 #error "Somebody forgot to implement threads for this platform."
 #endif
 
@@ -442,7 +439,7 @@ status_t Mutex::tryLock()
  * ===========================================================================
  */
 
-#if defined(HAVE_PTHREADS)
+#if defined(HAVE_PTHREADS) /* M3E: */
 // implemented as inlines in threads.h
 #elif defined(HAVE_WIN32_THREADS)
 
@@ -665,7 +662,7 @@ void Condition::broadcast()
     ReleaseMutex(condState->internalMutex);
 }
 
-#else
+#else /* M3E: */
 #error "condition variables not supported on this platform"
 #endif
 
@@ -676,7 +673,7 @@ void Condition::broadcast()
  */
 
 Thread::Thread(bool canCallJava
-#ifdef ENABLE_AFFINITY
+#ifdef ENABLE_AFFINITY /* M3E: affinity */
                , int32_t iAffinity
 #endif // ENABLE_AFFINITY
               )
@@ -688,7 +685,7 @@ Thread::Thread(bool canCallJava
 #if defined(__ANDROID__)
         , mTid(-1)
 #endif
-#ifdef ENABLE_AFFINITY
+#ifdef ENABLE_AFFINITY /* M3E: affinity */
         , mAffinity(iAffinity)
 #endif // ENABLE_AFFINITY
 {
@@ -705,6 +702,7 @@ status_t Thread::readyToRun()
 
 status_t Thread::run(const char* name, int32_t priority, size_t stack)
 {
+    /* M3E: */
     //LOG_ALWAYS_FATAL_IF(name == nullptr, "thread name not provided to Thread::run");
 
     Mutex::Autolock _l(mLock);
@@ -760,7 +758,7 @@ int Thread::_threadLoop(void* user)
     wp<Thread> weak(strong);
     self->mHoldSelf.clear();
 
-#if defined(ENABLE_AFFINITY)
+#if defined(ENABLE_AFFINITY) /* M3E: affinity */
 #if defined(HAVE_PTHREADS) && !defined(_CYGWIN) && !defined(_MACOSX)
     {
         int iCoreCnt = sysconf(_SC_NPROCESSORS_ONLN);
@@ -916,7 +914,7 @@ pid_t Thread::getTid() const
     }
     return tid;
 }
-#else
+#else /* M3E: */
 pid_t Thread::getTid() const
 {
 	Mutex::Autolock _l(mLock);

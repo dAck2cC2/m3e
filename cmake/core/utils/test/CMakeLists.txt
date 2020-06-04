@@ -40,6 +40,7 @@ ${SOURCE_PATH}/StrongPointer_test.cpp
 ${SOURCE_PATH}/SystemClock_test.cpp
 ${SOURCE_PATH}/Unicode_test.cpp
 ${SOURCE_PATH}/Vector_test.cpp
+${SOURCE_PATH}/Mutex_test.cpp
 )
 
 if(MSVC)

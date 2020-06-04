@@ -19,7 +19,7 @@
 
 #include <android/log.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: MSVC */
 #include <stdint.h>
 #endif // _MSC_VER
 

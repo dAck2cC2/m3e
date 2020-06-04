@@ -24,7 +24,7 @@ typedef struct native_handle native_handle_t;
 
 namespace android {
 
-class ANDROID_API_UTILS NativeHandle : public LightRefBase<NativeHandle> {
+class ANDROID_API_UTILS NativeHandle : public LightRefBase<NativeHandle> { /* M3E: MSVC export */
 public:
     // Create a refcounted wrapper around a native_handle_t, and declare
     // whether the wrapper owns the handle (so that it should clean up the

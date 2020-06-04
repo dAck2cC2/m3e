@@ -41,7 +41,7 @@ static inline int ftruncate64(int fd, off64_t length) {
     return ftruncate(fd, length);
 }
 
-#elif defined(_WIN32)
+#elif defined(_WIN32) /* M3E: MSVC */
 
 #define lseek64 _lseeki64
 
@@ -53,7 +53,7 @@ static inline int ftruncate64(int fd, off64_t length) {
 #define DEFFILEMODE 0666
 #endif /* _WIN32 */
 
-#if defined(_WIN32)
+#if defined(_WIN32) /* M3E: MSVC */
 #define ZD "%ld"
 #define ZD_TYPE long
 #else
@@ -66,7 +66,7 @@ static inline int ftruncate64(int fd, off64_t length) {
  * being constexpr is fine if in pre-C++11 code (such as a const static float
  * member variable).
  */
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#if __cplusplus >= 201103L || defined(_MSC_VER) /* M3E: MSVC */
 #define CONSTEXPR constexpr
 #else
 #define CONSTEXPR
@@ -80,7 +80,7 @@ static inline int ftruncate64(int fd, off64_t length) {
 #ifndef TEMP_FAILURE_RETRY
 /* Used to retry syscalls that can return EINTR. */
 #define TEMP_FAILURE_RETRY(exp) ({         \
-    __typeof__ (exp) _rc;                      \
+    __typeof__ (exp) _rc; /* M3E: __typeof__*/ \
     do {                                   \
         _rc = (exp);                       \
     } while (_rc == -1 && errno == EINTR); \

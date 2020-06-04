@@ -17,7 +17,8 @@
 #define LOG_TAG "sp"
 
 #include <log/log.h>
-#include <utils/StrongPointer.h>
+
+#include <utils/StrongPointer.h> /* M3E: MSVC export */
 
 namespace android {
 

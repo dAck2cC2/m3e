@@ -16,7 +16,7 @@ namespace android {
 			if (!Thread::isRunning()) {
 				mStartedMutex.lock();
 
-				Thread::run();
+				Thread::run("MediaExtractorService");
 
 				mStartedCondition.wait(mStartedMutex);
 				mStartedMutex.unlock();

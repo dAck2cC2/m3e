@@ -25,6 +25,8 @@
 
 /*
  * Contains some bit manipulation helpers.
+ *
+ * DO NOT USE: std::bitset<32> or std::bitset<64> preferred
  */
 
 namespace android {
@@ -48,12 +50,10 @@ struct BitSet32 {
     inline uint32_t count() const { return count(value); }
 
     static inline uint32_t count(uint32_t value) { 
-        /* M3E Project */
-        /* Use cutils/bitops.h instead */
-#if 0
-        return __builtin_popcountl(value); 
+#if 0 /* M3E: Use cutils/bitops.h instead */
+        return __builtin_popcountl(value);
 #else
-        return popcount(value);
+        return popcountl(value);
 #endif
     }
 
@@ -138,12 +138,10 @@ struct BitSet32 {
 
     static inline uint32_t getIndexOfBit(uint32_t value, uint32_t n) {
         return 
-            /* M3E Project */
-            /* Use cutils/bitops.h instead */
-#if 0
+#if 0 /* M3E: Use cutils/bitops.h instead */
             __builtin_popcountl(
 #else
-            popcount(
+            popcountl(
 #endif
                 value & ~(0xffffffffUL >> n));
     }
@@ -206,12 +204,10 @@ struct BitSet64 {
     inline uint32_t count() const { return count(value); }
 
     static inline uint32_t count(uint64_t value) { 
-        /* M3E Project */
-        /* Use cutils/bitops.h instead */
-#if 0
-        return __builtin_popcountll(value); 
+#if 0 /* M3E: Use cutils/bitops.h instead */
+        return __builtin_popcountll(value);
 #else
-        return popcount(value);
+        return popcountll(value);
 #endif
     }
 
@@ -294,12 +290,10 @@ struct BitSet64 {
 
     static inline uint32_t getIndexOfBit(uint64_t value, uint32_t n) {
         return 
-            /* M3E Project */
-            /* Use cutils/bitops.h instead */
-#if 0
+#if 0 /* M3E: Use cutils/bitops.h instead */
             __builtin_popcountll(
 #else
-            popcount(
+            popcountll(
 #endif
                 value & ~(0xffffffffffffffffULL >> n));
     }

@@ -24,13 +24,13 @@
 
 #include <utils/Compat.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: MSVC */
 // Ensure that we always pull in winsock2.h before windows.h
 #if defined(_WIN32)
 #include <winsock2.h>
 #endif
 #include <windows.h>
-#include <stdint.h>
+#include <stdint.h> /* M3E: MSVC */
 #endif
 
 namespace android {
@@ -49,7 +49,7 @@ namespace android {
  * completing the refcounting stuff and possibly introducing the notion
  * of a FileMap hierarchy.
  */
-class ANDROID_API_UTILS FileMap {
+class ANDROID_API_UTILS FileMap { /* M3E: MSVC export */
 public:
     FileMap(void);
 

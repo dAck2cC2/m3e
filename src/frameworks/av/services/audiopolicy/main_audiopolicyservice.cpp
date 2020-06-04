@@ -13,7 +13,7 @@ namespace android {
 			if (!Thread::isRunning()) {
 				mStartedMutex.lock();
 
-				Thread::run();
+				Thread::run("AudioPolicyService");
 
 				mStartedCondition.wait(mStartedMutex);
 				mStartedMutex.unlock();

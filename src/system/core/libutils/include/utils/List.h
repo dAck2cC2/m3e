@@ -37,6 +37,8 @@ namespace android {
  *
  * Objects added to the list are copied using the assignment operator,
  * so this must be defined.
+ *
+ * DO NOT USE: please use std::list<T>
  */
 template<typename T> 
 class List 
@@ -58,7 +60,7 @@ protected:
         inline void setNext(_Node* ptr) { mpNext = ptr; }
     private:
         friend class List;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: MSVC */
         friend class _ListIterator;
 #endif // _MSC_VER
         T           mVal;

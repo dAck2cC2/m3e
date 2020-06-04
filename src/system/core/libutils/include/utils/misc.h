@@ -22,7 +22,9 @@
 
 #include <utils/Endian.h>
 
-/* get #of elements in a static array */
+/* get #of elements in a static array
+ * DO NOT USE: please use std::vector/std::array instead
+ */
 #ifndef NELEM
 # define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))
 #endif
@@ -31,8 +33,7 @@ namespace android {
 
 typedef void (*sysprop_change_callback)(void);
 void add_sysprop_change_callback(sysprop_change_callback cb, int priority);
-
-ANDROID_API_UTILS 
+ANDROID_API_UTILS  /* M3E: MSVC export */
 void report_sysprop_change();
 
 }; // namespace android

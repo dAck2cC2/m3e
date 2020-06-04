@@ -35,12 +35,15 @@ namespace android {
 
 // ---------------------------------------------------------------------------
 
-class SharedBuffer;
 class String8;
-class TextOutput;
+
+//class SharedBuffer;
+//class TextOutput;
+
+// DO NOT USE: please use std::u16string
 
 //! This is a string holding UTF-16 characters.
-class ANDROID_API_UTILS String16
+class ANDROID_API_UTILS String16 /* M3E: MSVC export */
 {
 public:
     /* use String16(StaticLinkage) if you're statically linking against
@@ -67,7 +70,6 @@ public:
 
     inline  const char16_t*     string() const;
 
-//TODO(b/35363681): remove
 private:
     static inline std::string   std_string(const String16& str);
 public:

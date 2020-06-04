@@ -56,6 +56,8 @@ private:
 #define ATRACE_NAME(...)
 #define ATRACE_CALL()
 
+/* M3E: Add */
+
 namespace android {
     
     class ScopedTrace {

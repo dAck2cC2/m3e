@@ -37,7 +37,7 @@ namespace android {
  *
  */
 
-class ANDROID_API_UTILS VectorImpl
+class ANDROID_API_UTILS VectorImpl  /* M3E: MSVC export */
 {
 public:
     enum { // flags passed to the ctor
@@ -128,7 +128,7 @@ private:
 
 
 
-class ANDROID_API_UTILS SortedVectorImpl : public VectorImpl
+class ANDROID_API_UTILS SortedVectorImpl : public VectorImpl  /* M3E: MSVC export */
 {
 public:
                             SortedVectorImpl(size_t itemSize, uint32_t flags);

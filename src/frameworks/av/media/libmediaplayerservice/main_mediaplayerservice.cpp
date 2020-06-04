@@ -17,7 +17,7 @@ namespace android {
             if (!Thread::isRunning()) {
                 mStartedMutex.lock();
                 
-                Thread::run();
+                Thread::run("MediaPlayerService");
                 
                 mStartedCondition.wait(mStartedMutex);
                 mStartedMutex.unlock();

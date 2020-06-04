@@ -49,6 +49,8 @@ class SortedVector;
  * The main templated vector class ensuring type safety
  * while making use of VectorImpl.
  * This is the class users want to use.
+ *
+ * DO NOT USE: please use std::vector
  */
 
 template <class TYPE>
@@ -250,7 +252,7 @@ Vector<TYPE>::~Vector() {
 
 template<class TYPE> inline
 Vector<TYPE>& Vector<TYPE>::operator = (const Vector<TYPE>& rhs) {
-#if defined(__linux__)
+#if defined(__linux__)  /* M3E: */
     VectorImpl::operator = (static_cast<const VectorImpl&>(rhs));
 #else
     VectorImpl::operator = (rhs);
@@ -260,7 +262,7 @@ Vector<TYPE>& Vector<TYPE>::operator = (const Vector<TYPE>& rhs) {
 
 template<class TYPE> inline
 const Vector<TYPE>& Vector<TYPE>::operator = (const Vector<TYPE>& rhs) const {
-#if defined(__linux__)
+#if defined(__linux__)  /* M3E: */
     VectorImpl::operator = (rhs);
 #else
     VectorImpl::operator = (static_cast<const VectorImpl&>(rhs));

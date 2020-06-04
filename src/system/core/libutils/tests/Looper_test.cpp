@@ -36,7 +36,7 @@ protected:
         mLooper->wake();
     }
 };
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: */
 class DelayedWriteSignal : public DelayedTask {
     Pipe* mPipe;
 
@@ -111,7 +111,7 @@ protected:
     }
 };
 
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: */
 TEST_F(LooperTest, PollOnce_WhenNonZeroTimeoutAndNotAwoken_WaitsForTimeout) {
     StopWatch stopWatch("pollOnce");
     int result = mLooper->pollOnce(100);

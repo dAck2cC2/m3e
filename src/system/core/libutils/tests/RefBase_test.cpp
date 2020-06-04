@@ -21,7 +21,7 @@
 
 #include <thread>
 #include <atomic>
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
 #include <sched.h>
 #endif // _MSC_VER
 #include <errno.h>
@@ -92,7 +92,7 @@ TEST(RefBase, WeakCopies) {
     ASSERT_FALSE(isDeleted) << "Deletion on wp destruction should no longer occur";
 }
 
-#if defined(_LINUX)
+#if defined(_LINUX) /* M3E: */
 // Set up a situation in which we race with visit2AndRremove() to delete
 // 2 strong references.  Bar destructor checks that there are no early
 // deletions and prior updates are visible to destructor.

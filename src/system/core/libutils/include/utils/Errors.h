@@ -25,8 +25,6 @@ namespace android {
 // use this type to return error codes
 #ifdef _WIN32
 typedef int         status_t;
-#elif defined(_MACOSX)
-typedef int32_t     status_t;
 #else
 typedef int32_t     status_t;
 #endif
@@ -80,7 +78,7 @@ enum {
 // Restore define; enumeration is in "android" namespace, so the value defined
 // there won't work for Win32 code in a different namespace.
 #ifdef _WIN32
-//# define NO_ERROR 0L
+//# define NO_ERROR 0L /* M3E: MSVC */
 #endif
 
 }; // namespace android

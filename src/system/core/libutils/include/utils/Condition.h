@@ -34,6 +34,8 @@
 namespace android {
 // ---------------------------------------------------------------------------
 
+// DO NOT USE: please use std::condition_variable instead.
+
 /*
  * Condition variable class.  The implementation is system-dependent.
  *
@@ -47,7 +49,7 @@ namespace android {
  * the pthreads semantics, in particular, a boolean predicate must
  * be re-evaluated after a wake-up, as spurious wake-ups may happen.
  */
-class ANDROID_API_UTILS Condition {
+class ANDROID_API_UTILS Condition { /* M3E: MSVC export */
 public:
     enum {
         PRIVATE = 0,

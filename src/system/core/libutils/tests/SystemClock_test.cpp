@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: */
 #include <windows.h>
 #elif defined(__APPLE__)
 #include <utils/Compat.h>
@@ -50,7 +50,7 @@ TEST(SystemClock, SystemClock) {
     ASSERT_LT(startRealtimeNs, (startRealtimeMs + SLACK_MS) * MS_IN_NS)
             << "elapsedRealtime() and elapsedRealtimeNano() are inconsistent";
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: */
 	Sleep(SLEEP_MS);
 #else // _MSC_VER
     timespec ts;

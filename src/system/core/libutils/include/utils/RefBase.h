@@ -234,7 +234,7 @@ public:
 
 // ---------------------------------------------------------------------------
 
-class ANDROID_API_UTILS RefBase
+class ANDROID_API_UTILS RefBase /* M3E: MSVC export */
 {
 public:
             void            incStrong(const void* id) const;
@@ -245,7 +245,7 @@ public:
             //! DEBUGGING ONLY: Get current strong ref count.
             int32_t         getStrongCount() const;
 
-    class ANDROID_API_UTILS weakref_type
+    class ANDROID_API_UTILS weakref_type /* M3E: MSVC export */
     {
     public:
         RefBase*            refBase() const;

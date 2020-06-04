@@ -82,9 +82,10 @@ public:
 
     // Accessors
 
-    inline  T&      operator* () const  { return *m_ptr; }
-    inline  T*      operator-> () const { return m_ptr;  }
-    inline  T*      get() const         { return m_ptr; }
+    inline T&       operator* () const     { return *m_ptr; }
+    inline T*       operator-> () const    { return m_ptr;  }
+    inline T*       get() const            { return m_ptr; }
+    inline explicit operator bool () const { return m_ptr != nullptr; }
 
     // Operators
 
@@ -103,7 +104,7 @@ private:
 };
 
 // For code size reasons, we do not want this inlined or templated.
-ANDROID_API_UTILS
+ANDROID_API_UTILS /* M3E: MSVC export */
 void sp_report_race();
 
 #undef COMPARE

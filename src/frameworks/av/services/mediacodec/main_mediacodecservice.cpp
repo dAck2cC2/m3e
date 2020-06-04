@@ -18,7 +18,7 @@ namespace android {
             if (!Thread::isRunning()) {
                 mStartedMutex.lock();
                 
-                Thread::run();
+                Thread::run("MediaCodecService");
                 
                 mStartedCondition.wait(mStartedMutex);
                 mStartedMutex.unlock();
