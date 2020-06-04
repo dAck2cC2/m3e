@@ -320,14 +320,9 @@ void* VectorImpl::editItemLocation(size_t index)
 
 const void* VectorImpl::itemLocation(size_t index) const
 {
-#if 0 /* M3E : */
-      /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         It will cause problem when an empty vector.
-      */
-    ALOG_ASSERT(index<capacity(),
-#else
+    /* M3E: It will cause problem when an empty vector */
+    //ALOG_ASSERT(index<capacity(),
 	ALOG_ASSERT(index <= capacity(),
-#endif
         "[%p] itemLocation: index=%d, capacity=%d, count=%d",
         this, (int)index, (int)capacity(), (int)mCount);
 

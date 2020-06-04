@@ -50,6 +50,22 @@ uint32_t __builtin_ctz(uint32_t value)
 	}
 }
 
+uint32_t __builtin_ctz64(uint64_t value)
+{
+	DWORD trailing_zero = 0;
+
+	if (_BitScanForward64(&trailing_zero, value))
+	{
+		return trailing_zero;
+	}
+	else
+	{
+		// This is undefined, I better choose 32 than 0
+		return 64;
+	}
+}
+
+
 uint32_t __builtin_clz(uint32_t value)
 {
 	DWORD leading_zero = 0;
@@ -62,5 +78,20 @@ uint32_t __builtin_clz(uint32_t value)
 	{
 		// Same remarks as above
 		return 32;
+	}
+}
+
+uint32_t __builtin_clz64(uint64_t value)
+{
+	DWORD leading_zero = 0;
+
+	if (_BitScanReverse64(&leading_zero, value))
+	{
+		return 63 - leading_zero;
+	}
+	else
+	{
+		// Same remarks as above
+		return 64;
 	}
 }

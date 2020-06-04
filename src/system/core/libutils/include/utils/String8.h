@@ -32,8 +32,6 @@ namespace android {
 
 class String16;
 
-//class TextOutput;
-
 // DO NOT USE: please use std::string
 
 //! This is a string holding UTF-8 characters. Does not allow the value more

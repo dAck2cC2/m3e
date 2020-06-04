@@ -284,6 +284,9 @@ void androidJoinThread(android_thread_id_t id)
 	return;
 }
 
+void androidSetThreadName(const char* name) {
+    /* EMPTY */
+}
 
 // ----------------------------------------------------------------------------
 #else /* M3E: */
@@ -702,8 +705,7 @@ status_t Thread::readyToRun()
 
 status_t Thread::run(const char* name, int32_t priority, size_t stack)
 {
-    /* M3E: */
-    //LOG_ALWAYS_FATAL_IF(name == nullptr, "thread name not provided to Thread::run");
+    LOG_ALWAYS_FATAL_IF(name == nullptr, "thread name not provided to Thread::run");
 
     Mutex::Autolock _l(mLock);
 

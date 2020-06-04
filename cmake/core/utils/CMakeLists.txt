@@ -19,6 +19,7 @@ cutils
 if (MSVC)
     add_definitions(-D__MINGW32__=1)
     add_definitions(-DNOMINMAX=1)
+    add_definitions(-D__stdcall= )
 
     include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     list(APPEND UTILS_DEPLIB ${LIB_MSVC_WRAP})

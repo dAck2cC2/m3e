@@ -20,7 +20,7 @@ set(EXT_TAG_UPDATE android-9.0.0_r56)
 set(EXT_TAG_LEGACY android-7.1.2_r36)
 
 set(EXT_UPDATE 
-
+safe-iop
 )
 
 # moudles which are going to be updated
@@ -36,7 +36,6 @@ set(EXT_UPDATE
 #jsoncpp
 #piex
 #libpng
-#safe-iop
 #skia
 #sonic
 #sonivox

@@ -124,7 +124,7 @@ TEST_F(UnicodeTest, strstr16EmptyTarget) {
     EXPECT_EQ(strstr16(kSearchString, u""), kSearchString)
             << "should return the original pointer";
 }
-
+#if !defined(_MSC_VER)
 TEST_F(UnicodeTest, strstr16EmptyTarget_bug) {
     // In the original code when target is an empty string strlen16() would
     // start reading the memory until a "terminating null" (that is, zero)
@@ -149,7 +149,7 @@ TEST_F(UnicodeTest, strstr16EmptyTarget_bug) {
     // Free allocated memory.
     free(memptr);
 }
-
+#endif
 TEST_F(UnicodeTest, strstr16SameString) {
     const char16_t* result = strstr16(kSearchString, kSearchString);
     EXPECT_EQ(kSearchString, result)
