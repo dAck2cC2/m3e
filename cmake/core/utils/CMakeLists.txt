@@ -8,12 +8,10 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-#include(${M3E_SOURCE_DIR}/cmake/external/safe-iop/include.cmake)
 
 set(UTILS_DEPLIB
 log
 cutils
-#safeiop
 )
 
 if (MSVC)
@@ -23,8 +21,13 @@ if (MSVC)
 
     include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     list(APPEND UTILS_DEPLIB ${LIB_MSVC_WRAP})
-endif(MSVC)
-
+elseif (APPLE)
+    # use safe-iop
+    include(${M3E_SOURCE_DIR}/cmake/external/safe-iop/include.cmake)
+    add_definitions(-DENABLE_SAFE_IOP=1)
+    add_definitions(-Dtypeof=__typeof__)
+    list(APPEND UTILS_DEPLIB safeiop)
+endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/include/utils )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/ )
