@@ -23,6 +23,23 @@
 # define NULL ((void*)0)
 #endif
 
+char* strrchr64(char* source, int c)
+{
+	if (!source) return NULL;
+
+	char* last_find = NULL;
+
+	// move to end
+	while (*source) {
+		if (*source == c) {
+			last_find = source;
+		}
+		source++;
+	}
+
+	return last_find;
+}
+
 char *
 basename(char *name)
 {
@@ -56,10 +73,10 @@ char *
 dirname(char *path)
 {
 	static const char dot[] = ".";
-	char *last_slash;
+	char *last_slash = NULL;
 _FIND:
 	/* Find last '/'.  */
-	last_slash = path != NULL ? strrchr(path, SLASH) : NULL;
+	last_slash = path != NULL ? strrchr64(path, SLASH) : NULL;
 
 	if (last_slash == path) {
 		/* The last slash is the first character in the string.  We have to

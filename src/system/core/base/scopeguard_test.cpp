@@ -21,6 +21,8 @@
 
 #include <gtest/gtest.h>
 
+#include <functional> /* M3E: std::function */
+
 TEST(scopeguard, normal) {
   bool guarded_var = true;
   {
