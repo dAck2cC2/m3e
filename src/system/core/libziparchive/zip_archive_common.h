@@ -57,7 +57,7 @@ struct EocdRecord {
   uint32_t cd_start_offset;
   // Length of the central directory comment.
   uint16_t comment_length;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
  private:
 #endif // _MSC_VER
   EocdRecord() = default;
@@ -113,7 +113,7 @@ struct CentralDirectoryRecord {
   // The offset to the local file header for this entry, from the
   // beginning of this archive.
   uint32_t local_file_header_offset;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
  private:
 #endif // _MSC_VER
   CentralDirectoryRecord() = default;
@@ -153,7 +153,7 @@ struct LocalFileHeader {
   // The length of the extra field info (in bytes). This data
   // will appear immediately after the entry file name.
   uint16_t extra_field_length;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
  private:
 #endif // _MSC_VER
   LocalFileHeader() = default;
@@ -170,7 +170,7 @@ struct DataDescriptor {
   uint32_t compressed_size;
   // Uncompressed size of the entry.
   uint32_t uncompressed_size;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
  private:
 #endif // _MSC_VER
   DataDescriptor() = default;

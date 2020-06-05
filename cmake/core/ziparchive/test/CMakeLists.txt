@@ -17,6 +17,7 @@ log
 cutils
 utils
 base
+zlib
 )
 
 if (MSVC)

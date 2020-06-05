@@ -19,7 +19,7 @@
 #ifndef __SYS_CORE_SYNC_H
 #define __SYS_CORE_SYNC_H
 
-#include <sys/cdefs.h>
+#include <sys/cdefs.h> /* M3E: MSVC */
 
 /* This file contains the legacy sync interface used by Android platform and
  * device code. The direct contents will be removed over time as code
@@ -60,14 +60,14 @@ struct sync_pt_info {
 };
 
 /* timeout in msecs */
-ANDROID_API_SYNC 
+ANDROID_API_SYNC /* M3E: export */
 int sync_wait(int fd, int timeout);
-ANDROID_API_SYNC 
+ANDROID_API_SYNC /* M3E: export */
 struct sync_fence_info_data *sync_fence_info(int fd);
-ANDROID_API_SYNC 
+ANDROID_API_SYNC /* M3E: export */
 struct sync_pt_info *sync_pt_info(struct sync_fence_info_data *info,
                                   struct sync_pt_info *itr);
-ANDROID_API_SYNC 
+ANDROID_API_SYNC /* M3E: export */
 void sync_fence_info_free(struct sync_fence_info_data *info);
 
 __END_DECLS

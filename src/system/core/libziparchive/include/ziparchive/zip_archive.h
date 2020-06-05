@@ -26,11 +26,11 @@
 #include <sys/types.h>
 #include <utils/Compat.h>
 
-#ifdef _MSC_VER
+#ifdef _MSC_VER /* M3E: MSVC */
 typedef int mode_t;
 #endif
 
-__BEGIN_DECLS
+__BEGIN_DECLS /* M3E: C calling */
 
 /* Zip compression methods we support */
 enum {
@@ -38,7 +38,7 @@ enum {
   kCompressDeflated = 8,  // standard deflate
 };
 
-struct ANDROID_API_ZIPARCHIVE ZipString {
+struct ANDROID_API_ZIPARCHIVE ZipString { /* M3E: MSVC export */
   const uint8_t* name;
   uint16_t name_length;
 
@@ -118,7 +118,7 @@ typedef void* ZipArchiveHandle;
  *
  * Returns 0 on success, and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t OpenArchive(const char* fileName, ZipArchiveHandle* handle);
 
 /*
@@ -139,7 +139,7 @@ int32_t OpenArchive(const char* fileName, ZipArchiveHandle* handle);
  *
  * Returns 0 on success, and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t OpenArchiveFd(const int fd, const char* debugFileName, ZipArchiveHandle* handle,
                       bool assume_ownership = true);
 
@@ -152,7 +152,7 @@ int32_t OpenArchiveFromMemory(void* address, size_t length, const char* debugFil
  * this handle for any further operations without an intervening
  * call to one of the OpenArchive variants.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 void CloseArchive(ZipArchiveHandle handle);
 
 /*
@@ -171,7 +171,7 @@ void CloseArchive(ZipArchiveHandle handle);
  * On non-Windows platforms this method does not modify internal state and
  * can be called concurrently.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t FindEntry(const ZipArchiveHandle handle, const ZipString& entryName, ZipEntry* data);
 
 /*
@@ -187,7 +187,7 @@ int32_t FindEntry(const ZipArchiveHandle handle, const ZipString& entryName, Zip
  *
  * Returns 0 on success and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t StartIteration(ZipArchiveHandle handle, void** cookie_ptr, const ZipString* optional_prefix,
                        const ZipString* optional_suffix);
 
@@ -197,14 +197,14 @@ int32_t StartIteration(ZipArchiveHandle handle, void** cookie_ptr, const ZipStri
  * Returns 0 on success, -1 if there are no more elements in this
  * archive and lower negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t Next(void* cookie, ZipEntry* data, ZipString* name);
 
 /*
  * End iteration over all entries of a zip file and frees the memory allocated
  * in StartIteration.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 void EndIteration(void* cookie);
 
 /*
@@ -216,7 +216,7 @@ void EndIteration(void* cookie);
  *
  * Returns 0 on success and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t ExtractEntryToFile(ZipArchiveHandle handle, ZipEntry* entry, int fd);
 
 /**
@@ -227,13 +227,13 @@ int32_t ExtractEntryToFile(ZipArchiveHandle handle, ZipEntry* entry, int fd);
  *
  * Returns 0 on success and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t ExtractToMemory(ZipArchiveHandle handle, ZipEntry* entry, uint8_t* begin, uint32_t size);
 
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int GetFileDescriptor(const ZipArchiveHandle handle);
 
-ANDROID_API_ZIPARCHIVE
+ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 const char* ErrorCodeString(int32_t error_code);
 
 #if !defined(_WIN32)
@@ -247,6 +247,49 @@ int32_t ProcessZipEntryContents(ZipArchiveHandle handle, ZipEntry* entry,
                                 ProcessZipEntryFunction func, void* cookie);
 #endif
 
-__END_DECLS
+namespace zip_archive {
+
+class Writer {
+ public:
+  virtual bool Append(uint8_t* buf, size_t buf_size) = 0;
+  virtual ~Writer();
+
+ protected:
+  Writer() = default;
+
+ private:
+  Writer(const Writer&) = delete;
+  void operator=(const Writer&) = delete;
+};
+
+class Reader {
+ public:
+  virtual bool ReadAtOffset(uint8_t* buf, size_t len, uint32_t offset) const = 0;
+  virtual ~Reader();
+
+ protected:
+  Reader() = default;
+
+ private:
+  Reader(const Reader&) = delete;
+  void operator=(const Reader&) = delete;
+};
+
+/*
+ * Inflates the first |compressed_length| bytes of |reader| to a given |writer|.
+ * |crc_out| is set to the CRC32 checksum of the uncompressed data.
+ *
+ * Returns 0 on success and negative values on failure, for example if |reader|
+ * cannot supply the right amount of data, or if the number of bytes written to
+ * data does not match |uncompressed_length|.
+ *
+ * If |crc_out| is not nullptr, it is set to the crc32 checksum of the
+ * uncompressed data.
+ */
+int32_t Inflate(const Reader& reader, const uint32_t compressed_length,
+                const uint32_t uncompressed_length, Writer* writer, uint64_t* crc_out);
+}  // namespace zip_archive
+
+__END_DECLS /* M3E: C calling */
 
 #endif  // LIBZIPARCHIVE_ZIPARCHIVE_H_

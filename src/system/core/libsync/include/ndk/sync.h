@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-//#include <linux/sync_file.h>
+//#include <linux/sync_file.h> /* M3E: */
 
 __BEGIN_DECLS
 
@@ -54,7 +54,7 @@ __BEGIN_DECLS
  * The original fences remain valid, and the caller is responsible for closing
  * them.
  */
-ANDROID_API_SYNC
+ANDROID_API_SYNC /* M3E: export */
 int32_t sync_merge(const char *name, int32_t fd1, int32_t fd2);
 
 /**
@@ -64,7 +64,7 @@ int32_t sync_merge(const char *name, int32_t fd1, int32_t fd2);
  */
 struct sync_file_info *sync_file_info(int32_t fd);
 
-#if TODO
+#if TODO /* M3E: */
 /**
  * Get the array of fence infos from the sync file's info.
  *

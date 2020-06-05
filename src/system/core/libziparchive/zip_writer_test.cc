@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-#ifdef _MSC_VER
+#ifdef _MSC_VER /* M3E: */
 #define ftello ftell
 #endif
 
