@@ -22,7 +22,7 @@
 
 // bionic and glibc both have TEMP_FAILURE_RETRY, but eg Mac OS' libc doesn't.
 #ifndef TEMP_FAILURE_RETRY
-#ifdef _MSC_VER
+#ifdef _MSC_VER /* M3E: */
 #define TEMP_FAILURE_RETRY(exp)  exp
 #else // _MSC_VER
 #define TEMP_FAILURE_RETRY(exp)            \
@@ -181,6 +181,21 @@ void UNUSED(const T&...) {
 #define FALLTHROUGH_INTENDED \
   do {                       \
   } while (0)
+#endif
+
+// Current ABI string
+#if defined(__arm__)
+#define ABI_STRING "arm"
+#elif defined(__aarch64__)
+#define ABI_STRING "arm64"
+#elif defined(__i386__)
+#define ABI_STRING "x86"
+#elif defined(__x86_64__)
+#define ABI_STRING "x86_64"
+#elif defined(__mips__) && !defined(__LP64__)
+#define ABI_STRING "mips"
+#elif defined(__mips__) && defined(__LP64__)
+#define ABI_STRING "mips64"
 #endif
 
 #endif  // ANDROID_BASE_MACROS_H

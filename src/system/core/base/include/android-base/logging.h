@@ -42,6 +42,10 @@
 // By default, output goes to logcat on Android and stderr on the host.
 // A process can use `SetLogger` to decide where all logging goes.
 // Implementations are provided for logcat, stderr, and dmesg.
+//
+// By default, the process' name is used as the log tag.
+// Code can choose a specific log tag by defining LOG_TAG
+// before including this header.
 
 // This header also provides assertions:
 //
@@ -57,7 +61,7 @@
 #endif
 #endif
 
-#ifdef __APPLE__
+#ifdef __APPLE__ /* M3E: */
 #include <atomic>
 #endif
 
@@ -66,6 +70,16 @@
 #include <ostream>
 
 #include "android-base/macros.h"
+
+// Note: DO NOT USE DIRECTLY. Use LOG_TAG instead.
+#ifdef _LOG_TAG_INTERNAL
+#error "_LOG_TAG_INTERNAL must not be defined"
+#endif
+#ifdef LOG_TAG
+#define _LOG_TAG_INTERNAL LOG_TAG
+#else
+#define _LOG_TAG_INTERNAL nullptr
+#endif
 
 namespace android {
 namespace base {
@@ -94,6 +108,9 @@ void KernelLogger(LogId, LogSeverity, const char*, const char*, unsigned int, co
 void StderrLogger(LogId, LogSeverity, const char*, const char*, unsigned int, const char*);
 
 void DefaultAborter(const char* abort_message);
+
+std::string GetDefaultTag();
+void SetDefaultTag(const std::string& tag);
 
 #ifdef __ANDROID__
 // We expose this even though it is the default because a user that wants to
@@ -205,10 +222,10 @@ struct LogAbortAfterFullExpr {
 
 // Get an ostream that can be used for logging at the given severity and to the
 // given destination. The same notes as for LOG_STREAM apply.
-#define LOG_STREAM_TO(dest, severity)                                   \
-  ::android::base::LogMessage(__FILE__, __LINE__,                       \
-                              ::android::base::dest,                    \
-                              SEVERITY_LAMBDA(severity), -1).stream()
+#define LOG_STREAM_TO(dest, severity)                                           \
+  ::android::base::LogMessage(__FILE__, __LINE__, ::android::base::dest,        \
+                              SEVERITY_LAMBDA(severity), _LOG_TAG_INTERNAL, -1) \
+      .stream()
 
 // Logs a message to logcat on Android otherwise to stderr. If the severity is
 // FATAL it also causes an abort. For example:
@@ -235,10 +252,10 @@ struct LogAbortAfterFullExpr {
 #define PLOG(severity) PLOG_TO(DEFAULT, severity)
 
 // Behaves like PLOG, but logs to the specified log ID.
-#define PLOG_TO(dest, severity)                                              \
-  LOGGING_PREAMBLE(severity) &&                                              \
-      ::android::base::LogMessage(__FILE__, __LINE__, ::android::base::dest, \
-                                  SEVERITY_LAMBDA(severity), errno)          \
+#define PLOG_TO(dest, severity)                                                        \
+  LOGGING_PREAMBLE(severity) &&                                                        \
+      ::android::base::LogMessage(__FILE__, __LINE__, ::android::base::dest,           \
+                                  SEVERITY_LAMBDA(severity), _LOG_TAG_INTERNAL, errno) \
           .stream()
 
 // Marker that code is yet to be implemented.
@@ -251,23 +268,26 @@ struct LogAbortAfterFullExpr {
 //
 //     CHECK(false == true) results in a log message of
 //       "Check failed: false == true".
-#define CHECK(x)                                                                \
-  LIKELY((x)) || ABORT_AFTER_LOG_FATAL_EXPR(false) ||                           \
-      ::android::base::LogMessage(                                              \
-          __FILE__, __LINE__, ::android::base::DEFAULT, ::android::base::FATAL, \
-          -1).stream()                                                          \
+#define CHECK(x)                                                                 \
+  LIKELY((x)) || ABORT_AFTER_LOG_FATAL_EXPR(false) ||                            \
+      ::android::base::LogMessage(__FILE__, __LINE__, ::android::base::DEFAULT,  \
+                                  ::android::base::FATAL, _LOG_TAG_INTERNAL, -1) \
+              .stream()                                                          \
           << "Check failed: " #x << " "
 
+// clang-format off
 // Helper for CHECK_xx(x,y) macros.
-#define CHECK_OP(LHS, RHS, OP)                                              \
-  for (auto _values = ::android::base::MakeEagerEvaluator(LHS, RHS);        \
-       UNLIKELY(!(_values.lhs OP _values.rhs));                             \
-       /* empty */)                                                         \
-  ABORT_AFTER_LOG_FATAL                                                     \
-  ::android::base::LogMessage(__FILE__, __LINE__, ::android::base::DEFAULT, \
-                              ::android::base::FATAL, -1).stream()          \
-      << "Check failed: " << #LHS << " " << #OP << " " << #RHS              \
-      << " (" #LHS "=" << _values.lhs << ", " #RHS "=" << _values.rhs << ") "
+#define CHECK_OP(LHS, RHS, OP)                                                                 \
+  for (auto _values = ::android::base::MakeEagerEvaluator(LHS, RHS);                           \
+       UNLIKELY(!(_values.lhs OP _values.rhs));                                                \
+       /* empty */)                                                                            \
+  ABORT_AFTER_LOG_FATAL                                                                        \
+  ::android::base::LogMessage(__FILE__, __LINE__, ::android::base::DEFAULT,                    \
+                              ::android::base::FATAL, _LOG_TAG_INTERNAL, -1)                   \
+          .stream()                                                                            \
+      << "Check failed: " << #LHS << " " << #OP << " " << #RHS << " (" #LHS "=" << _values.lhs \
+      << ", " #RHS "=" << _values.rhs << ") "
+// clang-format on
 
 // Check whether a condition holds between x and y, LOG(FATAL) if not. The value
 // of the expressions x and y is evaluated once. Extra logging can be appended
@@ -282,14 +302,17 @@ struct LogAbortAfterFullExpr {
 #define CHECK_GE(x, y) CHECK_OP(x, y, >= )
 #define CHECK_GT(x, y) CHECK_OP(x, y, > )
 
+// clang-format off
 // Helper for CHECK_STRxx(s1,s2) macros.
 #define CHECK_STROP(s1, s2, sense)                                             \
   while (UNLIKELY((strcmp(s1, s2) == 0) != (sense)))                           \
     ABORT_AFTER_LOG_FATAL                                                      \
     ::android::base::LogMessage(__FILE__, __LINE__, ::android::base::DEFAULT,  \
-                                ::android::base::FATAL, -1).stream()           \
+                                ::android::base::FATAL, _LOG_TAG_INTERNAL, -1) \
+        .stream()                                                              \
         << "Check failed: " << "\"" << (s1) << "\""                            \
         << ((sense) ? " == " : " != ") << "\"" << (s2) << "\""
+// clang-format on
 
 // Check for string (const char*) equality between s1 and s2, LOG(FATAL) if not.
 #define CHECK_STREQ(s1, s2) CHECK_STROP(s1, s2, true)
@@ -326,7 +349,7 @@ struct LogAbortAfterFullExpr {
 #if defined(NDEBUG) && !defined(__clang_analyzer__)
 static constexpr bool kEnableDChecks = false;
 #else
-#if defined(__APPLE__)
+#if defined(__APPLE__) /* M3E: */
 static bool kEnableDChecks = true;
 #else  // __APPLE__
 static constexpr bool kEnableDChecks = true;
@@ -406,10 +429,10 @@ class LogMessageData;
 
 // A LogMessage is a temporarily scoped object used by LOG and the unlikely part
 // of a CHECK. The destructor will abort if the severity is FATAL.
-class ANDROID_API_BASE LogMessage {
+class ANDROID_API_BASE LogMessage { /* M3E: MSVC export */
  public:
-  LogMessage(const char* file, unsigned int line, LogId id,
-             LogSeverity severity, int error);
+  LogMessage(const char* file, unsigned int line, LogId id, LogSeverity severity, const char* tag,
+             int error);
 
   ~LogMessage();
 
@@ -418,17 +441,22 @@ class ANDROID_API_BASE LogMessage {
   std::ostream& stream();
 
   // The routine that performs the actual logging.
-  static void LogLine(const char* file, unsigned int line, LogId id,
-                      LogSeverity severity, const char* msg);
+  static void LogLine(const char* file, unsigned int line, LogId id, LogSeverity severity,
+                      const char* tag, const char* msg);
 
  private:
   const std::unique_ptr<LogMessageData> data_;
+
+  // TODO(b/35361699): remove these symbols once all prebuilds stop using it.
+  LogMessage(const char* file, unsigned int line, LogId id, LogSeverity severity, int error);
+  static void LogLine(const char* file, unsigned int line, LogId id, LogSeverity severity,
+                      const char* msg);
 
   DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
 // Get the minimum severity level for logging.
-ANDROID_API_BASE
+ANDROID_API_BASE /* M3E: MSVC export */
 LogSeverity GetMinimumLogSeverity();
 
 // Set the minimum severity level for logging, returning the old severity.
@@ -446,5 +474,37 @@ class ScopedLogSeverity {
 
 }  // namespace base
 }  // namespace android
+
+namespace std {
+
+// Emit a warning of ostream<< with std::string*. The intention was most likely to print *string.
+//
+// Note: for this to work, we need to have this in a namespace.
+// Note: lots of ifdef magic to make this work with Clang (platform) vs GCC (windows tools)
+// Note: using diagnose_if(true) under Clang and nothing under GCC/mingw as there is no common
+//       attribute support.
+// Note: using a pragma because "-Wgcc-compat" (included in "-Weverything") complains about
+//       diagnose_if.
+// Note: to print the pointer, use "<< static_cast<const void*>(string_pointer)" instead.
+// Note: a not-recommended alternative is to let Clang ignore the warning by adding
+//       -Wno-user-defined-warnings to CPPFLAGS.
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgcc-compat"
+#define OSTREAM_STRING_POINTER_USAGE_WARNING \
+    __attribute__((diagnose_if(true, "Unexpected logging of string pointer", "warning")))
+#else
+#define OSTREAM_STRING_POINTER_USAGE_WARNING /* empty */
+#endif
+inline std::ostream& operator<<(std::ostream& stream, const std::string* string_pointer)
+    OSTREAM_STRING_POINTER_USAGE_WARNING {
+  return stream << static_cast<const void*>(string_pointer);
+}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#undef OSTREAM_STRING_POINTER_USAGE_WARNING
+
+}  // namespace std
 
 #endif  // ANDROID_BASE_LOGGING_H

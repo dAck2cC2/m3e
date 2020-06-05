@@ -36,13 +36,13 @@
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
 
-#elif defined(_WIN32)
+#elif defined(_WIN32) /* M3E: MSVC */
 #include <windows.h>
 #define O_CLOEXEC O_NOINHERIT
 #define O_NOFOLLOW 0
-#include <dirent.h> // PATH_MAX
+#include <dirent.h> /* M3E: PATH_MAX */
 
-#elif defined(__linux__)
+#elif defined(__linux__) /* M3E: linux */
 #include <string.h> // strerror()
 #endif
 
@@ -153,6 +153,37 @@ bool ReadFully(int fd, void* data, size_t byte_count) {
     if (n <= 0) return false;
     p += n;
     remaining -= n;
+  }
+  return true;
+}
+
+#if defined(_WIN32)
+// Windows implementation of pread. Note that this DOES move the file descriptors read position,
+// but it does so atomically.
+static ssize_t pread(int fd, void* data, size_t byte_count, off64_t offset) {
+  DWORD bytes_read;
+  OVERLAPPED overlapped;
+  memset(&overlapped, 0, sizeof(OVERLAPPED));
+  overlapped.Offset = static_cast<DWORD>(offset);
+  overlapped.OffsetHigh = static_cast<DWORD>(offset >> 32);
+  if (!ReadFile(reinterpret_cast<HANDLE>(_get_osfhandle(fd)), data, static_cast<DWORD>(byte_count),
+                &bytes_read, &overlapped)) {
+    // In case someone tries to read errno (since this is masquerading as a POSIX call)
+    errno = EIO;
+    return -1;
+  }
+  return static_cast<ssize_t>(bytes_read);
+}
+#endif
+
+bool ReadFullyAtOffset(int fd, void* data, size_t byte_count, off64_t offset) {
+  uint8_t* p = reinterpret_cast<uint8_t*>(data);
+  while (byte_count > 0) {
+    ssize_t n = TEMP_FAILURE_RETRY(pread(fd, p, byte_count, offset));
+    if (n <= 0) return false;
+    p += n;
+    byte_count -= n;
+    offset += n;
   }
   return true;
 }

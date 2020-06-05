@@ -218,7 +218,7 @@ TEST(UTFStringConversionsTest, ConvertUTF16ToUTF8) {
     // The first character is a truncated UTF-16 character.
     // Note that for whatever reason, this test fails on Windows XP.
     {L"\xd800\x597d", "\xef\xbf\xbd\xe5\xa5\xbd",
-#if (WINVER >= 0x0600) || defined(_WIN32)
+#if (WINVER >= 0x0600) || defined(_WIN32) /* M3E: */
     // Only Vista and later has a new API/flag that correctly returns false.
     false
 #else
@@ -228,7 +228,7 @@ TEST(UTFStringConversionsTest, ConvertUTF16ToUTF8) {
     // Truncated at the end.
     // Note that for whatever reason, this test fails on Windows XP.
     {L"\x597d\xd800", "\xe5\xa5\xbd\xef\xbf\xbd",
-#if (WINVER >= 0x0600) || defined(_WIN32)
+#if (WINVER >= 0x0600) || defined(_WIN32) /* M3E: */
     // Only Vista and later has a new API/flag that correctly returns false.
     false
 #else
@@ -480,7 +480,7 @@ TEST(Utf8FilesTest, CanCreateOpenAndDeleteFileWithLongPath) {
   }
 
   // Delete file
-#ifdef _MSC_VER
+#ifdef _MSC_VER /* M3E: */
   unlink(utf8.c_str());
 #else
   EXPECT_EQ(0, unlink(utf8.c_str()));

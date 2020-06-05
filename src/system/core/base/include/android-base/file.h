@@ -18,40 +18,57 @@
 #define ANDROID_BASE_FILE_H
 
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <string>
 
 #if !defined(_WIN32) && !defined(O_BINARY)
 #define O_BINARY 0
 #endif
 
+#if defined(__APPLE__)
+/* Mac OS has always had a 64-bit off_t, so it doesn't have off64_t. */
+typedef off_t off64_t;
+#endif
+
 namespace android {
 namespace base {
 
-ANDROID_API_BASE 
+ANDROID_API_BASE /* M3E: MSVC export */
 bool ReadFdToString(int fd, std::string* content);
-ANDROID_API_BASE 
+ANDROID_API_BASE /* M3E: MSVC export */
 bool ReadFileToString(const std::string& path, std::string* content,
                       bool follow_symlinks = false);
 
-ANDROID_API_BASE 
+ANDROID_API_BASE /* M3E: MSVC export */
 bool WriteStringToFile(const std::string& content, const std::string& path,
                        bool follow_symlinks = false);
-ANDROID_API_BASE 
+ANDROID_API_BASE /* M3E: MSVC export */ 
 bool WriteStringToFd(const std::string& content, int fd);
 
 #if !defined(_WIN32)
-ANDROID_API_BASE 
+ANDROID_API_BASE /* M3E: MSVC export */ 
 bool WriteStringToFile(const std::string& content, const std::string& path,
                        mode_t mode, uid_t owner, gid_t group,
                        bool follow_symlinks = false);
 #endif
 
-ANDROID_API_BASE 
+ANDROID_API_BASE /* M3E: MSVC export */ 
 bool ReadFully(int fd, void* data, size_t byte_count);
-ANDROID_API_BASE 
+
+// Reads `byte_count` bytes from the file descriptor at the specified offset.
+// Returns false if there was an IO error or EOF was reached before reading `byte_count` bytes.
+//
+// NOTE: On Linux/Mac, this function wraps pread, which provides atomic read support without
+// modifying the read pointer of the file descriptor. On Windows, however, the read pointer does
+// get modified. This means that ReadFullyAtOffset can be used concurrently with other calls to the
+// same function, but concurrently seeking or reading incrementally can lead to unexpected
+// behavior.
+bool ReadFullyAtOffset(int fd, void* data, size_t byte_count, off64_t offset);
+
+ANDROID_API_BASE /* M3E: MSVC export */ 
 bool WriteFully(int fd, const void* data, size_t byte_count);
 
-ANDROID_API_BASE 
+ANDROID_API_BASE /* M3E: MSVC export */ 
 bool RemoveFileIfExists(const std::string& path, std::string* err = nullptr);
 
 #if !defined(_WIN32)
