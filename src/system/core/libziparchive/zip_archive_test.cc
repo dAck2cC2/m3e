@@ -783,7 +783,7 @@ TEST(ziparchive, Inflate) {
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
-
+#if !defined(_MSC_VER)
   static struct option options[] = {{"test_data_dir", required_argument, nullptr, 't'},
                                     {nullptr, 0, nullptr, 0}};
 
@@ -798,7 +798,12 @@ int main(int argc, char** argv) {
       test_data_dir = optarg;
     }
   }
-
+#else
+  if (argc < 1) {
+      return -1;
+  }
+  test_data_dir = argv[1];
+#endif
   if (test_data_dir.size() == 0) {
     printf("Test data flag (--test_data_dir) required\n\n");
     return -1;

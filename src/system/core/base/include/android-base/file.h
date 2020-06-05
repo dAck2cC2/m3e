@@ -63,6 +63,7 @@ bool ReadFully(int fd, void* data, size_t byte_count);
 // get modified. This means that ReadFullyAtOffset can be used concurrently with other calls to the
 // same function, but concurrently seeking or reading incrementally can lead to unexpected
 // behavior.
+ANDROID_API_BASE /* M3E: MSVC export */
 bool ReadFullyAtOffset(int fd, void* data, size_t byte_count, off64_t offset);
 
 ANDROID_API_BASE /* M3E: MSVC export */ 

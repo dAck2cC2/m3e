@@ -22,7 +22,7 @@
 
 #include <android-base/macros.h>
 
-class TemporaryFile {
+class ANDROID_API_BASE TemporaryFile { /* M3E: MSVC export */
  public:
   TemporaryFile();
   explicit TemporaryFile(const std::string& tmp_dir);

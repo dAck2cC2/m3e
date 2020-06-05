@@ -21,6 +21,10 @@
 
 #include <inttypes.h>
 
+#if defined(_MSC_VER) /* M3E: MSVC mem align */
+#pragma pack(push)
+#pragma pack(1)
+#endif
 // The "end of central directory" (EOCD) record. Each archive
 // contains exactly once such record which appears at the end of
 // the archive. It contains archive wide information like the
@@ -57,9 +61,8 @@ struct EocdRecord {
   uint32_t cd_start_offset;
   // Length of the central directory comment.
   uint16_t comment_length;
-#if !defined(_MSC_VER) /* M3E: */
+
  private:
-#endif // _MSC_VER
   EocdRecord() = default;
   DISALLOW_COPY_AND_ASSIGN(EocdRecord);
 } __attribute__((packed));
@@ -113,9 +116,8 @@ struct CentralDirectoryRecord {
   // The offset to the local file header for this entry, from the
   // beginning of this archive.
   uint32_t local_file_header_offset;
-#if !defined(_MSC_VER) /* M3E: */
+
  private:
-#endif // _MSC_VER
   CentralDirectoryRecord() = default;
   DISALLOW_COPY_AND_ASSIGN(CentralDirectoryRecord);
 } __attribute__((packed));
@@ -153,9 +155,8 @@ struct LocalFileHeader {
   // The length of the extra field info (in bytes). This data
   // will appear immediately after the entry file name.
   uint16_t extra_field_length;
-#if !defined(_MSC_VER) /* M3E: */
+
  private:
-#endif // _MSC_VER
   LocalFileHeader() = default;
   DISALLOW_COPY_AND_ASSIGN(LocalFileHeader);
 } __attribute__((packed));
@@ -170,12 +171,16 @@ struct DataDescriptor {
   uint32_t compressed_size;
   // Uncompressed size of the entry.
   uint32_t uncompressed_size;
-#if !defined(_MSC_VER) /* M3E: */
+
  private:
-#endif // _MSC_VER
   DataDescriptor() = default;
   DISALLOW_COPY_AND_ASSIGN(DataDescriptor);
 } __attribute__((packed));
+
+#if defined(_MSC_VER) /* M3E: MSVC mem align */
+#pragma pack(show)
+#pragma pack(pop)
+#endif
 
 // mask value that signifies that the entry has a DD
 static const uint32_t kGPBDDFlagMask = 0x0008;
