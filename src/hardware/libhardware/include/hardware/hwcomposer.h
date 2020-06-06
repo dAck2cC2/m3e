@@ -779,7 +779,7 @@ typedef struct hwc_composer_device_1 {
 
 
 	/*****************************************************************************
-	* customized
+	* M3E: customized
 	*****************************************************************************/
 	hwc_display_t (*nativeWindowMain)(void);
 	int (*nativeWindowPopEvent)(void);

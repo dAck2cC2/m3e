@@ -18,7 +18,7 @@
 
 #include <cutils/properties.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: */
 #include <windows.h>
 #ifndef PATH_MAX
 #define PATH_MAX MAX_PATH
@@ -37,6 +37,8 @@
 #define LOG_TAG "HAL"
 #include <log/log.h>
 
+//#include <vndksupport/linker.h> /* M3E: */
+
 #if !defined(OS_PATH_SEPARATOR_STR)
 	#if defined(USE_MINGW) || defined(_MSC_VER)
 		#define OS_PATH_SEPARATOR_STR "\\"
@@ -46,6 +48,7 @@
 #endif // OS_PATH_SEPARATOR_STR
 
 /** Base path of the hal modules */
+/* M3E: Add */
 #define HAL_LIBRARY_PATH1 "."
 #define HAL_LIBRARY_PATH2 "sw"
 #define HAL_LIBRARY_PATH3 "hw"

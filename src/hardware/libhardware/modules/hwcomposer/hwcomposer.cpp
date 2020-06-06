@@ -16,7 +16,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#if defined(__APPLE__)
+#if defined(__APPLE__) /* M3E: */
 #include <stdlib.h>
 #else
 #include <malloc.h>
@@ -42,9 +42,10 @@ static int hwc_device_open(const struct hw_module_t* module, const char* name,
         struct hw_device_t** device);
 
 static struct hw_module_methods_t hwc_module_methods = {
-    /*.open =*/ hwc_device_open
+    /*.open =*/ hwc_device_open /* M3E: */
 };
 
+/* M3E: Add */
 #ifdef __cplusplus
 extern "C"
 #endif
@@ -52,7 +53,7 @@ extern "C"
 __declspec(dllexport)
 #endif
 hwc_module_t HAL_MODULE_INFO_SYM = {
-    /*.common =*/ {
+    /*.common =*/ { /* M3E: */
         /*.tag =*/ HARDWARE_MODULE_TAG,
         /*.version_major =*/ 1,
         /*.version_minor =*/ 0,
@@ -65,6 +66,7 @@ hwc_module_t HAL_MODULE_INFO_SYM = {
 
 /*****************************************************************************/
 
+#if 0
 static void dump_layer(hwc_layer_1_t const* l) {
     ALOGD("\ttype=%d, flags=%08x, handle=%p, tr=%02x, blend=%04x, {%d,%d,%d,%d}, {%d,%d,%d,%d}",
             l->compositionType, l->flags, l->handle, l->transform, l->blending,
@@ -77,6 +79,7 @@ static void dump_layer(hwc_layer_1_t const* l) {
             l->displayFrame.right,
             l->displayFrame.bottom);
 }
+#endif
 
 static int hwc_prepare(hwc_composer_device_1_t * /*dev*/,
         size_t /*numDisplays*/, hwc_display_contents_1_t** displays) {
