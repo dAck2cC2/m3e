@@ -230,7 +230,7 @@ ssize_t SPDIFEncoder::write( const void *buffer, size_t numBytes )
     size_t bytesLeft = numBytes;
     const uint8_t *data = (const uint8_t *)buffer;
     ALOGV("SPDIFEncoder: mScanning = %d, write(buffer[0] = 0x%02X, numBytes = %zu)",
-        mScanning, (unsigned int) *data, numBytes);
+        mScanning, (uint) *data, numBytes);
     while (bytesLeft > 0) {
         if (mScanning) {
         // Look for beginning of next encoded frame.

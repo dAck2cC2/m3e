@@ -28,7 +28,7 @@
 #include <audio_utils/clock.h>
 #include <utils/Errors.h>
 
-#include <algorithm>
+#include <algorithm> /* M3E: */
 
 namespace android {
 

@@ -136,7 +136,7 @@ protected:
  * Same as audio_utils_fifo_base, but understands frame sizes and knows about the buffer but does
  * not own it.
  */
-class ANDROID_API_AUDIO_UTILS audio_utils_fifo : public audio_utils_fifo_base {
+class ANDROID_API_AUDIO_UTILS audio_utils_fifo : public audio_utils_fifo_base { /* M3E: MSVC export */
 
     friend class audio_utils_fifo_reader;
     friend class audio_utils_fifo_writer;
@@ -338,7 +338,7 @@ protected:
  * The writer is multi-thread safe with respect to reader(s),
  * but not with respect to multiple threads calling the writer API.
  */
-class ANDROID_API_AUDIO_UTILS audio_utils_fifo_writer : public audio_utils_fifo_provider {
+class ANDROID_API_AUDIO_UTILS audio_utils_fifo_writer : public audio_utils_fifo_provider {  /* M3E: MSVC export */
 
 public:
     /**
@@ -454,7 +454,7 @@ private:
  * Each reader is multi-thread safe with respect to the writer and any other readers,
  * but not with respect to multiple threads calling the reader API.
  */
-class ANDROID_API_AUDIO_UTILS audio_utils_fifo_reader : public audio_utils_fifo_provider {
+class ANDROID_API_AUDIO_UTILS audio_utils_fifo_reader : public audio_utils_fifo_provider { /* M3E: MSVC export */
 
 public:
     /**

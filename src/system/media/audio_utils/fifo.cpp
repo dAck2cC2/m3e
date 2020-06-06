@@ -29,7 +29,7 @@
 #include <cutils/log.h>
 #include <utils/Errors.h>
 
-#if defined(__linux__)
+#if defined(__linux__)  /* M3E: */
 #  define __attribute__(A)  /* do nothing */  
 #endif
 
@@ -44,7 +44,7 @@ audio_utils_fifo_base::audio_utils_fifo_base(uint32_t frameCount,
     mIsShutdown(false)
 {
     // actual upper bound on frameCount will depend on the frame size
-    LOG_ALWAYS_FATAL_IF(frameCount == 0 || frameCount > ((uint32_t) INT32_MAX), "");
+    LOG_ALWAYS_FATAL_IF(frameCount == 0 || frameCount > ((uint32_t) INT32_MAX), "");  /* M3E: MSVC */
 }
 
 audio_utils_fifo_base::~audio_utils_fifo_base()
@@ -139,7 +139,7 @@ audio_utils_fifo::audio_utils_fifo(uint32_t frameCount, uint32_t frameSize, void
     // maximum value of frameCount * frameSize is INT32_MAX (2^31 - 1), not 2^31, because we need to
     // be able to distinguish successful and error return values from read and write.
     LOG_ALWAYS_FATAL_IF(frameCount == 0 || frameSize == 0 || buffer == NULL ||
-            frameCount > ((uint32_t) INT32_MAX) / frameSize, "");
+            frameCount > ((uint32_t) INT32_MAX) / frameSize, "");  /* M3E: MSVC */
 }
 
 audio_utils_fifo::audio_utils_fifo(uint32_t frameCount, uint32_t frameSize, void *buffer,

@@ -17,7 +17,7 @@
 #ifndef ANDROID_AUDIO_CHANNELS_H
 #define ANDROID_AUDIO_CHANNELS_H
 
-#include <sys/cdefs.h>
+#include <sys/cdefs.h>  /* M3E: MSVC */
 
 /** \cond */
 __BEGIN_DECLS
@@ -44,6 +44,30 @@ __BEGIN_DECLS
  *   they must both start at the same address. Partially overlapping buffers are not supported.
  */
 size_t adjust_channels(const void* in_buff, size_t in_buff_chans,
+                       void* out_buff, size_t out_buff_chans,
+                       unsigned sample_size_in_bytes, size_t num_in_bytes);
+
+/**
+ * Expands or contracts sample data from one interleaved channel format to another.
+ * Extra expanded channels are left alone in the output buffer.
+ * Contracted channels are omitted from the end of each audio frame.
+ *
+ *   \param in_buff              points to the buffer of samples
+ *   \param in_buff_chans        Specifies the number of channels in the input buffer.
+ *   \param out_buff             points to the buffer to receive converted samples.
+ *   \param out_buff_chans       Specifies the number of channels in the output buffer.
+ *   \param sample_size_in_bytes Specifies the number of bytes per sample. 1, 2, 3, 4 are
+ *     currently valid.
+ *   \param num_in_bytes         size of input buffer in BYTES
+ *
+ * \return
+ *   the number of BYTES of output data or 0 if an error occurs.
+ *
+ * \note
+ *   The out and in buffers must either be completely separate (non-overlapping), or
+ *   they must both start at the same address. Partially overlapping buffers are not supported.
+ */
+size_t adjust_selected_channels(const void* in_buff, size_t in_buff_chans,
                        void* out_buff, size_t out_buff_chans,
                        unsigned sample_size_in_bytes, size_t num_in_bytes);
 

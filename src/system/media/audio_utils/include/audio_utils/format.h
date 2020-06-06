@@ -54,13 +54,13 @@ __BEGIN_DECLS
  * 2) Both dst_format and src_format are identical and of the list given
  * in (1). This is a straight copy.
  *
- * The destination and source buffers must be completely separate if the destination
- * format size is larger than the source format size. These routines call functions
+ * The destination and source buffers must be completely separate
+ * or point to the same starting buffer address. These routines call functions
  * in primitives.h, so descriptions of detailed behavior can be reviewed there.
  *
  * Logs a fatal error if dst or src format is not allowed by the conversion rules above.
  */
-ANDROID_API_AUDIO_UTILS
+ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 void memcpy_by_audio_format(void *dst, audio_format_t dst_format,
         const void *src, audio_format_t src_format, size_t count);
 
@@ -82,7 +82,7 @@ void memcpy_by_audio_format(void *dst, audio_format_t dst_format,
  * This may be greater than idxcount, so the return value should be checked
  * if idxary size is less than 32. Returns zero if the input masks are unrecognized.
  */
-ANDROID_API_AUDIO_UTILS
+ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 size_t memcpy_by_index_array_initialization_from_channel_mask(int8_t *idxary, size_t arysize,
         audio_channel_mask_t dst_channel_mask, audio_channel_mask_t src_channel_mask);
 

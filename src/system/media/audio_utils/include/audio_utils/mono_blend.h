@@ -39,7 +39,8 @@ __BEGIN_DECLS
  *   none
  *
  */
-ANDROID_API_AUDIO_UTILS
+
+ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 void mono_blend(void *buf, audio_format_t format, size_t channelCount, size_t frames,
         bool limit = false);
 

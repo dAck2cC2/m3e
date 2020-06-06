@@ -16,7 +16,7 @@
 
 #include <audio_utils/roundup.h>
 
-#include <sys/cdefs.h>
+#include <sys/cdefs.h> /* M3E: MSVC wrapper */
 
 unsigned roundup(unsigned v)
 {

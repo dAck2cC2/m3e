@@ -31,7 +31,7 @@ namespace android {
 #define SPDIF_MAX_CHANNELS          8
 #define SPDIF_ENCODED_CHANNEL_COUNT 2
 
-class ANDROID_API_AUDIO_UTILS SPDIFEncoder {
+class ANDROID_API_AUDIO_UTILS SPDIFEncoder { /* M3E: MSVC export */
 public:
 
     explicit SPDIFEncoder(audio_format_t format);
