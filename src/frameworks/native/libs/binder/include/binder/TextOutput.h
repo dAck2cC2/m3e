@@ -27,7 +27,7 @@
 // ---------------------------------------------------------------------------
 namespace android {
 
-class ANDROID_API_BINDER TextOutput
+class ANDROID_API_BINDER TextOutput /* M3E: MSVC export */
 {
 public:
                         TextOutput();
@@ -57,7 +57,7 @@ extern TextOutput& alog;
 extern TextOutput& aout;
 
 // Text output stream for printing to stderr.
-ANDROID_API_BINDER
+ANDROID_API_BINDER /* M3E: MSVC export */
 extern TextOutput& aerr;
 
 typedef TextOutput& (*TextOutputManipFunc)(TextOutput&);
@@ -90,10 +90,10 @@ private:
     uint32_t mCode;
 };
 
-ANDROID_API_BINDER
+ANDROID_API_BINDER /* M3E: MSVC export */
 TextOutput& operator<<(TextOutput& to, const TypeCode& val);
 
-class ANDROID_API_BINDER HexDump
+class ANDROID_API_BINDER HexDump /* M3E: MSVC export */
 {
 public:
     HexDump(const void *buf, size_t size, size_t bytesPerLine=16);
@@ -120,7 +120,7 @@ private:
     bool mCArrayStyle;
 };
 
-ANDROID_API_BINDER
+ANDROID_API_BINDER /* M3E: MSVC export */
 TextOutput& operator<<(TextOutput& to, const HexDump& val);
 inline TextOutput& operator<<(TextOutput& to,
                               decltype(std::endl<char,

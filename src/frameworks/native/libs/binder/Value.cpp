@@ -29,7 +29,7 @@
 
 using android::BAD_TYPE;
 using android::BAD_VALUE;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: */
 using android::NO_ERROR;
 #endif
 using android::UNEXPECTED_NULL;
@@ -184,10 +184,12 @@ Value& Value::swap(Value &rhs)
 
 Value& Value::operator=(const Value& rhs)
 {
-    delete mContent;
-    mContent = rhs.mContent
-        ? rhs.mContent->clone()
-        : NULL;
+    if (this != &rhs) {
+        delete mContent;
+        mContent = rhs.mContent
+            ? rhs.mContent->clone()
+            : NULL;
+    }
     return *this;
 }
 

@@ -53,7 +53,7 @@ namespace binder {
  * When reading or writing this class to a Parcel, use the `writeValue()`
  * and `readValue()` methods.
  */
-class ANDROID_API_BINDER Value {
+class ANDROID_API_BINDER Value { /* M3E: MSVC export */
 public:
     Value();
     virtual ~Value();

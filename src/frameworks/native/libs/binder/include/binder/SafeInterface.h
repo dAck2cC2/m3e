@@ -138,7 +138,7 @@ public:
     }
     template <typename T>
     typename std::enable_if<std::is_base_of<IInterface, T>::value, status_t>::type write(
-            Parcel* parcel, const sp<T>& _interface) const {
+            Parcel* parcel, const sp<T>& _interface) const {   /* M3E: MSVC */
         return write(parcel, IInterface::asBinder(_interface));
     }
     template <typename T>
@@ -414,8 +414,8 @@ private:
         return SafeInterface::ParcelHandler{mLogTag}.read(reply, std::forward<T>(t));
     }
     template <typename T>
-    /*static*/ typename std::enable_if<!IsPointerIfDecayed<T>::value, status_t>::type readIfOutput(
-            const Parcel& /*reply*/, T&& /*t*/) const {
+    static typename std::enable_if<!IsPointerIfDecayed<T>::value, status_t>::type readIfOutput(
+            const Parcel& /*reply*/, T&& /*t*/) {
         return NO_ERROR;
     }
 

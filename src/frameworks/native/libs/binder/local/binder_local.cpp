@@ -159,7 +159,7 @@ public:
             
             // release the reference of native binder
             flat_binder_object obj = mBnList.editValueAt(i);
-            if (obj.type == BINDER_TYPE_BINDER  && obj.binder && obj.cookie) {
+            if (obj.hdr.type == BINDER_TYPE_BINDER  && obj.binder && obj.cookie) {
 				//reinterpret_cast<IBinder*>(obj.cookie)->decStrong((void *)0);
                 reinterpret_cast<RefBase::weakref_type*>(obj.binder)->decWeak((void *)0);
                 obj.binder = 0;
@@ -288,8 +288,8 @@ private:
                     void* copyData = malloc(tr->data_size);
                     LOG_ALWAYS_FATAL_IF((copyData == NULL), "Handler[%d] No memory when creating data copy. %s:%d", mHandler, __FILE__, __LINE__);
                     if (copyData == NULL) return NO_MEMORY;
-                    memcpy(copyData, tr->data.ptr.buffer, tr->data_size);
-                    tr->data.ptr.buffer = copyData;
+                    memcpy(copyData, (void *)tr->data.ptr.buffer, tr->data_size);
+                    tr->data.ptr.buffer = (binder_uintptr_t)copyData;
                     
                     // map the native binder to proxy
                     if (tr->data.ptr.offsets && tr->offsets_size) {
@@ -298,8 +298,8 @@ private:
 						void* copyOffsets = malloc(tr->offsets_size);
 						LOG_ALWAYS_FATAL_IF((copyData == NULL), "Handler[%d] No memory when creating offsets copy. %s:%d", mHandler, __FILE__, __LINE__);
 						if (copyOffsets == NULL) return NO_MEMORY;
-						memcpy(copyOffsets, tr->data.ptr.offsets, tr->offsets_size);
-						tr->data.ptr.offsets = copyOffsets;
+						memcpy(copyOffsets, (void *)tr->data.ptr.offsets, tr->offsets_size);
+						tr->data.ptr.offsets = (binder_uintptr_t)copyOffsets;
                         result = RegisterBn(*tr, *cmd);
                         if (result) return result;
 
@@ -534,8 +534,8 @@ private:
 					// the message is not for the current native server, but for the children.
                     if (mBnList.indexOfKey(tr->target.handle) >= 0) {
                         flat_binder_object& obj = mBnList.editValueFor(tr->target.handle);
-                        tr->target.ptr = (void *)(obj.binder);
-                        tr->cookie = (void *)(obj.cookie);
+                        tr->target.ptr = (obj.binder);
+                        tr->cookie = (obj.cookie);
                     }
                     
                     // map the proxy to native binder
@@ -614,7 +614,7 @@ private:
         for (int i = 0; i < ((tr.offsets_size)/sizeof(binder_size_t)); ++i) {
             binder_size_t objOffset = ((binder_size_t *)(tr.data.ptr.offsets))[i];
             flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
-            if (obj->type == BINDER_TYPE_BINDER) {
+            if (obj->hdr.type == BINDER_TYPE_BINDER) {
 				LOG_ALWAYS_FATAL_IF(((cmd != BC_TRANSACTION) && (mBnList.isEmpty())), "Something strange. %s:%d", __FILE__, __LINE__);
 
                 // the first should be the one which is registered to Service Manager (handler of 0)
@@ -690,7 +690,7 @@ private:
                 } // if (mBnList.isEmpty() && (tr.target.handle == 0))
                 
                 // return the proxy for this native binder
-                obj->type = BINDER_TYPE_HANDLE;
+                obj->hdr.type = BINDER_TYPE_HANDLE;
                 //obj->binder = 0;
                 obj->handle = hProxy;
                 obj->cookie = 0;
@@ -708,7 +708,7 @@ private:
             flat_binder_object* obj = (flat_binder_object*)((uint8_t *)(tr.data.ptr.buffer) + objOffset);
             
             // binder proxy
-            if (obj->type == BINDER_TYPE_HANDLE) {
+            if (obj->hdr.type == BINDER_TYPE_HANDLE) {
                 for (int i = 0; i < mBnList.size(); ++i) {
                     if (obj->handle == mBnList.keyAt(i)) {
                         (*obj) = mBnList[i];

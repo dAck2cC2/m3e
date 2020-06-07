@@ -16,30 +16,37 @@
 
 #define LOG_TAG "IMemory"
 
+#if 0
+#include <atomic>
+#include <stdatomic.h>
+#else
+#include <utils/Atomic.h>
+#endif
+
+//#include <fcntl.h> /* M3E: */
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <fcntl.h>
+//#include <sys/types.h> /* M3E: */
+//#include <sys/mman.h>  /* M3E: */
 #include <unistd.h>
 
-//#include <sys/types.h>
-//#include <sys/mman.h>
-
 #include <binder/IMemory.h>
-#include <cutils/log.h>
+#include <binder/Parcel.h>
+#include <log/log.h>
+
+//#include <utils/CallStack.h> /* M3E: */
 #include <utils/KeyedVector.h>
 #include <utils/threads.h>
-#include <utils/Atomic.h>
-#include <binder/Parcel.h>
-//#include <utils/CallStack.h>
 
+#define VERBOSE   0
+
+/* M3E: Add */
 #include <private/binder/binder_module.h>
 
 #if !defined(MAP_FAILED)
 #define MAP_FAILED ((void *)(-1))
 #endif // MAP_FAILED
-
-#define VERBOSE   0
 
 namespace android {
 // ---------------------------------------------------------------------------
@@ -388,7 +395,7 @@ status_t BnMemoryHeap::onTransact(
         case HEAP_BASE: {
             CHECK_INTERFACE(IMemoryHeap, data, reply);
             flat_binder_object obj;
-            obj.type = BINDER_TYPE_FD;
+            obj.hdr.type = BINDER_TYPE_FD;
             obj.flags = 0x7f | FLAT_BINDER_FLAG_ACCEPTS_FDS;
             obj.binder = 0; /* Don't pass uninitialized stack data to a remote process */
             obj.handle = getHeapID();

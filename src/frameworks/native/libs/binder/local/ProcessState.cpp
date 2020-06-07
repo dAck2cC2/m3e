@@ -18,12 +18,12 @@
 
 #include <binder/ProcessState.h>
 
-#include <utils/Atomic.h>
 #include <binder/BpBinder.h>
 #include <binder/IPCThreadState.h>
+#include <binder/IServiceManager.h>
+#include <cutils/atomic.h>
 #include <utils/Log.h>
 #include <utils/String8.h>
-#include <binder/IServiceManager.h>
 #include <utils/String8.h>
 #include <utils/threads.h>
 
@@ -35,24 +35,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-//#include <sys/ioctl.h>
+//#include <sys/ioctl.h> /* M3E: */
 #include <sys/mman.h>
-//#include <sys/stat.h>
-//#include <sys/types.h>
+//#include <sys/stat.h>  /* M3E: */
+//#include <sys/types.h> /* M3E: */
 
+/* M3E: Add */
 #include <cutils/threads.h>
 
-#define BINDER_VM_SIZE ((1*1024*1024) - (4096 *2))
+#define BINDER_VM_SIZE ((1 * 1024 * 1024) - (4096 *2))
 #define DEFAULT_MAX_BINDER_THREADS 15
 
 // -------------------------------------------------------------------------
 
 namespace android {
 
+/* M3E: local binder ioctl */
 extern int      binder_open_local(const char* name);
 extern status_t binder_close_local(int handler);
 extern status_t binder_ioctl_local(int handler, int cmd, void* data);
 
+/* M3E: used cutils/threads instead of pthread */
 static thread_store_t gTLS = THREAD_STORE_INITIALIZER;
 static  void  threadDestructor(void *st) {
     ProcessState* const self = static_cast<ProcessState*>(st);
@@ -195,6 +198,7 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
 {
     if (!mManagesContexts) {
         AutoMutex _l(mLock);
+		/* M3E: save to global */
 		if (gProcess != NULL) {
 			gProcess->mBinderContextCheckFunc = checkFunc;
 			gProcess->mBinderContextUserData = userData;
@@ -205,6 +209,7 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
         if (result == 0) {
             mManagesContexts = true;
         } else if (result == -1) {
+			/* M3E: save to global */
 			if (gProcess != NULL) {
 				gProcess->mBinderContextCheckFunc = NULL;
 				gProcess->mBinderContextUserData = NULL;
@@ -223,7 +228,7 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
 // already be invalid.
 ssize_t ProcessState::getKernelReferences(size_t buf_count, uintptr_t* buf)
 {
-#if TODO
+#if TODO /* M3E: */
     // TODO: remove these when they are defined by bionic's binder.h
     struct binder_node_debug_info {
         binder_uintptr_t ptr;
@@ -313,7 +318,7 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
                    return NULL;
             }
 
-            b = new BpBinder(handle); 
+            b = BpBinder::create(handle);
             e->binder = b;
             if (b) e->refs = b->getWeakRefs();
             result = b;
@@ -347,7 +352,7 @@ wp<IBinder> ProcessState::getWeakProxyForHandle(int32_t handle)
         // arriving from the driver.
         IBinder* b = e->binder;
         if (b == NULL || !e->refs->attemptIncWeak(this)) {
-            b = new BpBinder(handle);
+            b = BpBinder::create(handle);
             result = b;
             e->binder = b;
             if (b) e->refs = b->getWeakRefs();
@@ -382,7 +387,8 @@ String8 ProcessState::makeBinderThreadName() {
 
 void ProcessState::spawnPooledThread(bool isMain)
 {
-    // The process is the same as thread. It has no thread pool.
+    // M3E: The process is the same as thread. It has no thread pool.
+    /* EMPTY */
 }
 
 status_t ProcessState::setThreadPoolMaxThreadCount(size_t maxThreads) {
@@ -411,6 +417,7 @@ static int open_driver(const char *driver)
         int vers = 0;
         status_t result = binder_ioctl_local(fd, BINDER_VERSION, &vers);
         if (result == -1) {
+            ALOGE("Binder ioctl to obtain version failed: %d", result);
 			binder_close_local(fd);
             fd = -1;
         }

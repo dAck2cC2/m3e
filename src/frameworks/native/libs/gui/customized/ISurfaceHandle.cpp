@@ -30,7 +30,7 @@ public:
         data.writeInterfaceToken(ISurfaceHandle::getInterfaceDescriptor());
         remote()->transact(GET_NATIVE_WINDOW, data, &reply);
         const flat_binder_object* obj = reply.readObject(true);
-        if ((obj) && (obj->type == BINDER_TYPE_POINTER)) {
+        if ((obj) && (obj->hdr.type == BINDER_TYPE_PTR)) {
             win = (EGLNativeWindowType)(obj->cookie);
         }
         return (win);
@@ -52,7 +52,7 @@ status_t BnSurfaceHandle::onTransact(
         case GET_NATIVE_WINDOW: {
             CHECK_INTERFACE(ISurfaceHandle, data, reply);
             flat_binder_object obj = {};
-            obj.type   = BINDER_TYPE_POINTER;
+            obj.hdr.type   = BINDER_TYPE_PTR;
             obj.cookie = (uintptr_t)(getNativeWindow());
             reply->writeObject(obj, true);
             return NO_ERROR;
@@ -71,7 +71,7 @@ EGLNativeWindowType ISurfaceHandle_getNativeWindow(sp<IBinder> handler)
 	data.writeInterfaceToken(String16(ISURFACE_HANDLE_NAME));
 	handler->transact(GET_NATIVE_WINDOW, data, &reply);
 	const flat_binder_object* obj = reply.readObject(true);
-	if ((obj) && (obj->type == BINDER_TYPE_POINTER)) {
+    if ((obj) && (obj->hdr.type == BINDER_TYPE_PTR)) {
 		win = (EGLNativeWindowType)(obj->cookie);
 	}
 	return (win);

@@ -17,13 +17,15 @@
 #ifndef ANDROID_IBATTERYSTATS_H
 #define ANDROID_IBATTERYSTATS_H
 
+#ifndef __ANDROID_VNDK__
+
 #include <binder/IInterface.h>
 
 namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IBatteryStats : public IInterface
+class ANDROID_API_BINDER IBatteryStats : public IInterface /* M3E: MSVC export */
 {
 public:
     DECLARE_META_INTERFACE(BatteryStats)
@@ -75,5 +77,9 @@ public:
 // ----------------------------------------------------------------------
 
 }; // namespace android
+
+#else // __ANDROID_VNDK__
+#error "This header is not visible to vendors"
+#endif // __ANDROID_VNDK__
 
 #endif // ANDROID_IBATTERYSTATS_H

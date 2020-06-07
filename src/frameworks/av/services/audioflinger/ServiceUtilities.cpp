@@ -18,6 +18,7 @@
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
 #include <binder/PermissionCache.h>
+#include <binder/IPermissionController.h>
 #include <private/android_filesystem_config.h>
 #include "ServiceUtilities.h"
 

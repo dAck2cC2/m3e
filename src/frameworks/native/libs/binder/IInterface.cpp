@@ -47,7 +47,7 @@ sp<IBinder> IInterface::asBinder(const sp<IInterface>& iface)
 // ---------------------------------------------------------------------------
 
 }; // namespace android
-#if 0
+#if 0 /* M3E: */
 extern "C" {
 
 void _ZN7android10IInterface8asBinderEv(void *retval, void* self) {

@@ -31,7 +31,7 @@ namespace android {
 
 class IPCThreadState;
 
-class ANDROID_API_BINDER ProcessState : public virtual RefBase
+class ANDROID_API_BINDER ProcessState : public virtual RefBase /* M3E: MSVC export */
 {
 public:
     static  sp<ProcessState>    self();
@@ -96,10 +96,13 @@ private:
             void*               mVMStart;
 
             // Protects thread count variable below.
-            //pthread_mutex_t     mThreadCountLock;
-            //pthread_cond_t      mThreadCountDecrement;
+#if 0 /* M3E: use utils instead of pthread */
+            pthread_mutex_t     mThreadCountLock;
+            pthread_cond_t      mThreadCountDecrement;
+#else
             Mutex               mThreadCountLock;
             Condition           mThreadCountDecrement;
+#endif
             // Number of binder threads current executing a command.
             size_t              mExecutingThreadsCount;
             // Maximum number for binder threads allowed for this process.

@@ -33,11 +33,10 @@
 #include <errno.h>
 #include <string.h>
 
-//#include <sys/stat.h>
-//#include <sys/types.h>
+//#include <sys/stat.h>  /* M3E: */
+//#include <sys/types.h> /* M3E: */
 #include <sys/mman.h>
-//#include <sys/file.h>
-
+//#include <sys/file.h>  /* M3E: */
 
 namespace android {
 // ----------------------------------------------------------------------------
@@ -290,7 +289,15 @@ SimpleBestFitAllocator::SimpleBestFitAllocator(size_t size)
 SimpleBestFitAllocator::~SimpleBestFitAllocator()
 {
     while(!mList.isEmpty()) {
-        delete mList.remove(mList.head());
+        chunk_t* removed = mList.remove(mList.head());
+#ifdef __clang_analyzer__
+        // Clang static analyzer gets confused in this loop
+        // and generates a false positive warning about accessing
+        // memory that is already freed.
+        // Add an "assert" to avoid the confusion.
+        LOG_ALWAYS_FATAL_IF(mList.head() == removed);
+#endif
+        delete removed;
     }
 }
 

@@ -76,13 +76,23 @@ status_t Status::readFromParcel(const Parcel& parcel) {
     // Skip over fat response headers.  Not used (or propagated) in native code.
     if (mException == EX_HAS_REPLY_HEADER) {
         // Note that the header size includes the 4 byte size field.
-        const int32_t header_start = parcel.dataPosition();
+        const size_t header_start = parcel.dataPosition();
+        // Get available size before reading more
+        const size_t header_avail = parcel.dataAvail();
+
         int32_t header_size;
         status = parcel.readInt32(&header_size);
         if (status != OK) {
             setFromStatusT(status);
             return status;
         }
+
+        if (header_size < 0 || static_cast<size_t>(header_size) > header_avail) {
+            android_errorWriteLog(0x534e4554, "132650049");
+            setFromStatusT(UNKNOWN_ERROR);
+            return UNKNOWN_ERROR;
+        }
+
         parcel.setDataPosition(header_start + header_size);
         // And fat response headers are currently only used when there are no
         // exceptions, so act like there was no error.
@@ -102,17 +112,43 @@ status_t Status::readFromParcel(const Parcel& parcel) {
     }
     mMessage = String8(message);
 
+    // Skip over the remote stack trace data
+    int32_t remote_stack_trace_header_size;
+    status = parcel.readInt32(&remote_stack_trace_header_size);
+    if (status != OK) {
+        setFromStatusT(status);
+        return status;
+    }
+    if (remote_stack_trace_header_size < 0 ||
+        static_cast<size_t>(remote_stack_trace_header_size) > parcel.dataAvail()) {
+
+        android_errorWriteLog(0x534e4554, "132650049");
+        setFromStatusT(UNKNOWN_ERROR);
+        return UNKNOWN_ERROR;
+    }
+    parcel.setDataPosition(parcel.dataPosition() + remote_stack_trace_header_size);
+
     if (mException == EX_SERVICE_SPECIFIC) {
         status = parcel.readInt32(&mErrorCode);
     } else if (mException == EX_PARCELABLE) {
         // Skip over the blob of Parcelable data
-        const int32_t header_start = parcel.dataPosition();
+        const size_t header_start = parcel.dataPosition();
+        // Get available size before reading more
+        const size_t header_avail = parcel.dataAvail();
+
         int32_t header_size;
         status = parcel.readInt32(&header_size);
         if (status != OK) {
             setFromStatusT(status);
             return status;
         }
+
+        if (header_size < 0 || static_cast<size_t>(header_size) > header_avail) {
+            android_errorWriteLog(0x534e4554, "132650049");
+            setFromStatusT(UNKNOWN_ERROR);
+            return UNKNOWN_ERROR;
+        }
+
         parcel.setDataPosition(header_start + header_size);
     }
     if (status != OK) {
@@ -137,6 +173,7 @@ status_t Status::writeToParcel(Parcel* parcel) const {
         return status;
     }
     status = parcel->writeString16(String16(mMessage));
+    status = parcel->writeInt32(0); // Empty remote stack trace header
     if (mException == EX_SERVICE_SPECIFIC) {
         status = parcel->writeInt32(mErrorCode);
     } else if (mException == EX_PARCELABLE) {

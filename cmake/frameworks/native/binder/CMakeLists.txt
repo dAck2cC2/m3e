@@ -36,7 +36,42 @@ ${HEADER_PATH}/binder/local/*.h
 )
 
 # source files
-file(GLOB BINDER_SOURCE_FILES ${SOURCE_PATH}/*.cpp)
+file(GLOB BINDER_SOURCE_FILES 
+#${SOURCE_PATH}/ActivityManager.cpp 
+${SOURCE_PATH}/AppOpsManager.cpp 
+${SOURCE_PATH}/Binder.cpp 
+${SOURCE_PATH}/BpBinder.cpp 
+${SOURCE_PATH}/BufferedTextOutput.cpp 
+${SOURCE_PATH}/Debug.cpp 
+${SOURCE_PATH}/IActivityManager.cpp 
+${SOURCE_PATH}/IAppOpsCallback.cpp 
+${SOURCE_PATH}/IAppOpsService.cpp 
+${SOURCE_PATH}/IBatteryStats.cpp 
+${SOURCE_PATH}/IInterface.cpp 
+${SOURCE_PATH}/IMediaResourceMonitor.cpp 
+#{SOURCE_PATH}/IMemory.cpp 
+${SOURCE_PATH}/IPCThreadState.cpp 
+${SOURCE_PATH}/IPermissionController.cpp 
+#${SOURCE_PATH}/IProcessInfoService.cpp 
+${SOURCE_PATH}/IResultReceiver.cpp 
+${SOURCE_PATH}/IServiceManager.cpp 
+${SOURCE_PATH}/IShellCallback.cpp 
+#${SOURCE_PATH}/IUidObserver.cpp 
+${SOURCE_PATH}/MemoryBase.cpp 
+${SOURCE_PATH}/MemoryDealer.cpp 
+#${SOURCE_PATH}/MemoryHeapBase.cpp 
+${SOURCE_PATH}/Parcel.cpp 
+${SOURCE_PATH}/PermissionCache.cpp 
+#${SOURCE_PATH}/PermissionController.cpp 
+${SOURCE_PATH}/PersistableBundle.cpp 
+#${SOURCE_PATH}/ProcessInfoService.cpp 
+#${SOURCE_PATH}/ProcessState.cpp 
+${SOURCE_PATH}/Static.cpp 
+${SOURCE_PATH}/Status.cpp 
+${SOURCE_PATH}/TextOutput.cpp 
+#${SOURCE_PATH}/IpPrefix.cpp 
+${SOURCE_PATH}/Value.cpp 
+)
 
 if (BINDER_ENABLE_LOCAL)
     add_definitions(-DBINDER_LOCAL=1)

@@ -27,12 +27,13 @@
 #include <utils/String16.h>
 #include <utils/Vector.h>
 #include <utils/Flattenable.h>
-//#include <linux/binder.h>
+//#include <linux/android/binder.h> /* M3E: */
 
 #include <binder/IInterface.h>
 #include <binder/Parcelable.h>
 #include <binder/Map.h>
 
+/* M3E: Add */
 #include <memory>
 #include <limits>
 
@@ -41,7 +42,12 @@
 // because we don't have binder driver.
 
 struct flat_binder_object;
-typedef size_t binder_size_t;
+#ifdef BINDER_IPC_32BIT
+typedef uint32_t binder_size_t;
+#else
+typedef uint64_t binder_size_t;
+#endif
+
 
 // ---------------------------------------------------------------------------
 namespace android {
@@ -58,7 +64,7 @@ namespace binder {
 class Value;
 };
 
-class ANDROID_API_BINDER Parcel {
+class ANDROID_API_BINDER Parcel { /* M3E: MSVC export */
     friend class IPCThreadState;
 public:
     class ReadableBlob;
@@ -91,7 +97,7 @@ public:
     bool                hasFileDescriptors() const;
 
     // Writes the RPC header.
-    status_t            writeInterfaceToken(const String16& _interface);
+    status_t            writeInterfaceToken(const String16& _interface); /* M3E: MSVC */
 
     // Parses the RPC header, returning true if the interface name
     // in the header matches the expected interface from the caller.
@@ -100,7 +106,7 @@ public:
     // propagating the StrictMode policy mask, populating the current
     // IPCThreadState, which as an optimization may optionally be
     // passed in.
-    bool                enforceInterface(const String16& _interface,
+    bool                enforceInterface(const String16& _interface, /* M3E: MSVC */
                                          IPCThreadState* threadState = NULL) const;
     bool                checkInterface(IBinder*) const;
 
@@ -214,7 +220,7 @@ public:
     // valid for the lifetime of the parcel.
     // The Parcel does not take ownership of the given fd unless you ask it to.
     status_t            writeParcelFileDescriptor(int fd, bool takeOwnership = false);
-#if TODO
+#if TODO /* M3E: */
     // Place a file descriptor into the parcel.  This will not affect the
     // semantics of the smart file descriptor. A new descriptor will be
     // created, and will be closed when the parcel is destroyed.
@@ -369,7 +375,7 @@ public:
     // Retrieve a Java "parcel file descriptor" from the parcel.  This returns the raw fd
     // in the parcel, which you do not own -- use dup() to get your own copy.
     int                 readParcelFileDescriptor() const;
-#if TODO
+#if TODO /* M3E: */
     // Retrieve a smart file descriptor from the parcel.
     status_t            readUniqueFileDescriptor(
                             base::unique_fd* val) const;
@@ -412,7 +418,7 @@ public:
     void                print(TextOutput& to, uint32_t flags = 0) const;
 
 private:
-						Parcel(const Parcel& o) {};
+			 Parcel(const Parcel& o) {}; /* M3E: */
     Parcel&             operator=(const Parcel& o);
     
     status_t            finishWrite(size_t len);
@@ -483,7 +489,7 @@ private:
     release_func        mOwner;
     void*               mOwnerCookie;
 
-    class ANDROID_API_BINDER Blob {
+    class ANDROID_API_BINDER Blob { /* M3E: MSVC export */
     public:
         Blob();
         ~Blob();

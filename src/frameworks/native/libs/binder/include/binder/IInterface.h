@@ -24,7 +24,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IInterface : public virtual RefBase
+class ANDROID_API_BINDER IInterface : public virtual RefBase /* M3E: MSVC export */
 {
 public:
             IInterface();

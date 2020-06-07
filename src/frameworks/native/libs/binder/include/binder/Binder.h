@@ -24,7 +24,7 @@
 // ---------------------------------------------------------------------------
 namespace android {
 
-class ANDROID_API_BINDER BBinder : public IBinder
+class ANDROID_API_BINDER BBinder : public IBinder /* M3E: MSVC export */
 {
 public:
                         BBinder();
@@ -77,7 +77,7 @@ private:
 
 // ---------------------------------------------------------------------------
 
-class ANDROID_API_BINDER BpRefBase : public virtual RefBase
+class ANDROID_API_BINDER BpRefBase : public virtual RefBase /* M3E: MSVC export */
 {
 protected:
     explicit                BpRefBase(const sp<IBinder>& o);

@@ -33,7 +33,7 @@ namespace os {
  * C++ implementation of PersistableBundle, a mapping from String values to
  * various types that can be saved to persistent and later restored.
  */
-class ANDROID_API_BINDER PersistableBundle : public Parcelable {
+class ANDROID_API_BINDER PersistableBundle : public Parcelable { /* M3E: MSVC export */
 public:
     PersistableBundle() = default;
     virtual ~PersistableBundle() = default;

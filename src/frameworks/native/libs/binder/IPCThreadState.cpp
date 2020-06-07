@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "IPCThreadState"
-#define LOG_NDEBUG 1
+#define LOG_NDEBUG 1 /* M3E: No log by default */
 
 #include <binder/IPCThreadState.h>
 
@@ -33,19 +33,23 @@
 
 #include <errno.h>
 #include <inttypes.h>
+#if 0 /* M3E: uss cutils/threads instead of pthread */
+#include <pthread.h>
+#else
 #include <cutils/threads.h>
-#if !defined(_MSC_VER)
+#endif
+#if !defined(_MSC_VER) /* M3E: MSVC */
 #include <sched.h>
 #endif // _MSC_VER
 #include <signal.h>
 #include <stdio.h>
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: MSVC */
 #include <sys/ioctl.h>
 #include <sys/resource.h>
 #endif // _MSC_VER
 #include <unistd.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: MSVC */
     #if defined IN
         #undef IN
     #endif
@@ -80,7 +84,7 @@
 
 namespace android {
 
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) /* M3E: use local binder */
 #define __ANDROID__
 #define ioctl   binder_ioctl_local
 extern status_t binder_ioctl_local(int handler, int cmd, void* data);
@@ -418,6 +422,15 @@ void IPCThreadState::flushCommands()
     if (mProcess->mDriverFD <= 0)
         return;
     talkWithDriver(false);
+    // The flush could have caused post-write refcount decrements to have
+    // been executed, which in turn could result in BC_RELEASE/BC_DECREFS
+    // being queued in mOut. So flush again, if we need to.
+    if (mOut.dataSize() > 0) {
+        talkWithDriver(false);
+    }
+    if (mOut.dataSize() > 0) {
+        ALOGW("mOut.dataSize() > 0 after flushCommands()");
+    }
 }
 
 void IPCThreadState::blockUntilThreadAvailable()
@@ -479,24 +492,50 @@ status_t IPCThreadState::getAndExecuteCommand()
 void IPCThreadState::processPendingDerefs()
 {
     if (mIn.dataPosition() >= mIn.dataSize()) {
-        size_t numPending = mPendingWeakDerefs.size();
-        if (numPending > 0) {
-            for (size_t i = 0; i < numPending; i++) {
-                RefBase::weakref_type* refs = mPendingWeakDerefs[i];
+        /*
+         * The decWeak()/decStrong() calls may cause a destructor to run,
+         * which in turn could have initiated an outgoing transaction,
+         * which in turn could cause us to add to the pending refs
+         * vectors; so instead of simply iterating, loop until they're empty.
+         *
+         * We do this in an outer loop, because calling decStrong()
+         * may result in something being added to mPendingWeakDerefs,
+         * which could be delayed until the next incoming command
+         * from the driver if we don't process it now.
+         */
+        while (mPendingWeakDerefs.size() > 0 || mPendingStrongDerefs.size() > 0) {
+            while (mPendingWeakDerefs.size() > 0) {
+                RefBase::weakref_type* refs = mPendingWeakDerefs[0];
+                mPendingWeakDerefs.removeAt(0);
                 refs->decWeak(mProcess.get());
             }
-            mPendingWeakDerefs.clear();
-        }
 
-        numPending = mPendingStrongDerefs.size();
-        if (numPending > 0) {
-            for (size_t i = 0; i < numPending; i++) {
-                BBinder* obj = mPendingStrongDerefs[i];
+            if (mPendingStrongDerefs.size() > 0) {
+                // We don't use while() here because we don't want to re-order
+                // strong and weak decs at all; if this decStrong() causes both a
+                // decWeak() and a decStrong() to be queued, we want to process
+                // the decWeak() first.
+                BBinder* obj = mPendingStrongDerefs[0];
+                mPendingStrongDerefs.removeAt(0);
                 obj->decStrong(mProcess.get());
             }
-            mPendingStrongDerefs.clear();
         }
     }
+}
+
+void IPCThreadState::processPostWriteDerefs()
+{
+    for (size_t i = 0; i < mPostWriteWeakDerefs.size(); i++) {
+        RefBase::weakref_type* refs = mPostWriteWeakDerefs[i];
+        refs->decWeak(mProcess.get());
+    }
+    mPostWriteWeakDerefs.clear();
+
+    for (size_t i = 0; i < mPostWriteStrongDerefs.size(); i++) {
+        RefBase* obj = mPostWriteStrongDerefs[i];
+        obj->decStrong(mProcess.get());
+    }
+    mPostWriteStrongDerefs.clear();
 }
 
 void IPCThreadState::joinThreadPool(bool isMain)
@@ -513,7 +552,7 @@ void IPCThreadState::joinThreadPool(bool isMain)
 
         if (result < NO_ERROR && result != TIMED_OUT && result != -ECONNREFUSED && result != -EBADF) {
             ALOGE("getAndExecuteCommand(fd=%d) returned unexpected error %d, aborting",
-                  mProcess->mDriverFD, (int)result);
+                  mProcess->mDriverFD, result);
             abort();
         }
 
@@ -569,7 +608,7 @@ status_t IPCThreadState::transact(int32_t handle,
                                   uint32_t code, const Parcel& data,
                                   Parcel* reply, uint32_t flags)
 {
-    status_t err = data.errorCheck();
+    status_t err;
 
     flags |= TF_ACCEPT_FDS;
 
@@ -580,11 +619,9 @@ status_t IPCThreadState::transact(int32_t handle,
             << indent << data << dedent << endl;
     }
 
-    if (err == NO_ERROR) {
-        LOG_ONEWAY(">>>> SEND from pid %d uid %d %s", getpid(), getuid(),
-            (flags & TF_ONE_WAY) == 0 ? "READ REPLY" : "ONE WAY");
-        err = writeTransactionData(BC_TRANSACTION, flags, handle, code, data, NULL);
-    }
+    LOG_ONEWAY(">>>> SEND from pid %d uid %d %s", getpid(), getuid(),
+        (flags & TF_ONE_WAY) == 0 ? "READ REPLY" : "ONE WAY");
+    err = writeTransactionData(BC_TRANSACTION, flags, handle, code, data, NULL);
 
     if (err != NO_ERROR) {
         if (reply) reply->setError(err);
@@ -627,11 +664,14 @@ status_t IPCThreadState::transact(int32_t handle,
     return err;
 }
 
-void IPCThreadState::incStrongHandle(int32_t handle)
+void IPCThreadState::incStrongHandle(int32_t handle, BpBinder *proxy)
 {
     LOG_REMOTEREFS("IPCThreadState::incStrongHandle(%d)\n", handle);
     mOut.writeInt32(BC_ACQUIRE);
     mOut.writeInt32(handle);
+    // Create a temp reference until the driver has handled this command.
+    proxy->incStrong(mProcess.get());
+    mPostWriteStrongDerefs.push(proxy);
 }
 
 void IPCThreadState::decStrongHandle(int32_t handle)
@@ -641,11 +681,14 @@ void IPCThreadState::decStrongHandle(int32_t handle)
     mOut.writeInt32(handle);
 }
 
-void IPCThreadState::incWeakHandle(int32_t handle)
+void IPCThreadState::incWeakHandle(int32_t handle, BpBinder *proxy)
 {
     LOG_REMOTEREFS("IPCThreadState::incWeakHandle(%d)\n", handle);
     mOut.writeInt32(BC_INCREFS);
     mOut.writeInt32(handle);
+    // Create a temp reference until the driver has handled this command.
+    proxy->getWeakRefs()->incWeak(mProcess.get());
+    mPostWriteWeakDerefs.push(proxy->getWeakRefs());
 }
 
 void IPCThreadState::decWeakHandle(int32_t handle)
@@ -684,7 +727,7 @@ void IPCThreadState::expungeHandle(int32_t handle, IBinder* binder)
 #if LOG_REFCOUNTS
     ALOGV("IPCThreadState::expungeHandle(%ld)\n", handle);
 #endif
-    self()->mProcess->expungeHandle(handle, binder);
+    self()->mProcess->expungeHandle(handle, binder); // NOLINT
 }
 
 status_t IPCThreadState::requestDeathNotification(int32_t handle, BpBinder* proxy)
@@ -897,8 +940,10 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
         if (bwr.write_consumed > 0) {
             if (bwr.write_consumed < mOut.dataSize())
                 mOut.remove(0, bwr.write_consumed);
-            else
+            else {
                 mOut.setDataSize(0);
+                processPostWriteDerefs();
+            }
         }
         if (bwr.read_consumed > 0) {
             mIn.setDataSize(bwr.read_consumed);
@@ -936,14 +981,14 @@ status_t IPCThreadState::writeTransactionData(int32_t cmd, uint32_t binderFlags,
     const status_t err = data.errorCheck();
     if (err == NO_ERROR) {
         tr.data_size = data.ipcDataSize();
-        tr.data.ptr.buffer = (void *)data.ipcData();
+        tr.data.ptr.buffer = data.ipcData();
         tr.offsets_size = data.ipcObjectsCount()*sizeof(binder_size_t);
-        tr.data.ptr.offsets = (void *)data.ipcObjects();
+        tr.data.ptr.offsets = data.ipcObjects();
     } else if (statusBuffer) {
         tr.flags |= TF_STATUS_CODE;
         *statusBuffer = err;
         tr.data_size = sizeof(status_t);
-        tr.data.ptr.buffer = reinterpret_cast<void *>(statusBuffer);
+        tr.data.ptr.buffer = reinterpret_cast<binder_uintptr_t>(statusBuffer);
         tr.offsets_size = 0;
         tr.data.ptr.offsets = 0;
     } else {
@@ -1177,7 +1222,7 @@ void IPCThreadState::threadDestructor(void *st)
 
 void IPCThreadState::freeBuffer(Parcel* parcel, const uint8_t* data,
                                 size_t /*dataSize*/,
-                                const binder_size_t* objects,
+                                const binder_size_t* objects, /* M3E: pass to binder driver to destroy */
                                 size_t /*objectsSize*/, void* /*cookie*/)
 {
     //ALOGI("Freeing parcel %p", &parcel);
@@ -1189,7 +1234,7 @@ void IPCThreadState::freeBuffer(Parcel* parcel, const uint8_t* data,
     IPCThreadState* state = self();
     state->mOut.writeInt32(BC_FREE_BUFFER);
     state->mOut.writePointer((uintptr_t)data);
-	state->mOut.writePointer((uintptr_t)objects);
+	state->mOut.writePointer((uintptr_t)objects); /* M3E: pass to binder driver to destroy */
 }
 
 }; // namespace android

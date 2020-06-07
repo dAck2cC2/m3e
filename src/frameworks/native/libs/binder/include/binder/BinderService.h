@@ -34,20 +34,25 @@ template<typename SERVICE>
 class BinderService
 {
 public:
-    static status_t publish(bool allowIsolated = false) {
+    static status_t publish(bool allowIsolated = false,
+                            int dumpFlags = IServiceManager::DUMP_FLAG_PRIORITY_DEFAULT) {
         sp<IServiceManager> sm(defaultServiceManager());
-        return sm->addService(
-                String16(SERVICE::getServiceName()),
-                new SERVICE(), allowIsolated);
+        return sm->addService(String16(SERVICE::getServiceName()), new SERVICE(), allowIsolated,
+                              dumpFlags);
     }
 
-    static void publishAndJoinThreadPool(bool allowIsolated = false) {
-        publish(allowIsolated);
+    static void publishAndJoinThreadPool(
+            bool allowIsolated = false,
+            int dumpFlags = IServiceManager::DUMP_FLAG_PRIORITY_DEFAULT) {
+        publish(allowIsolated, dumpFlags);
         joinThreadPool();
     }
 
     static void instantiate() { publish(); }
 
+    static status_t shutdown() { return NO_ERROR; }
+
+    /* M3E: add */
 	static sp<SERVICE> create() {
 		sp<IServiceManager> sm(defaultServiceManager());
 		sp<SERVICE> instance = new SERVICE();
@@ -57,7 +62,6 @@ public:
 		return instance;
 	}
 
-    static status_t shutdown() { return NO_ERROR; }
 
 private:
     static void joinThreadPool() {

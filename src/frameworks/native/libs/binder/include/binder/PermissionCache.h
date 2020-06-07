@@ -17,6 +17,8 @@
 #ifndef BINDER_PERMISSION_H
 #define BINDER_PERMISSION_H
 
+#ifndef __ANDROID_VNDK__
+
 #include <stdint.h>
 #include <unistd.h>
 
@@ -38,7 +40,7 @@ namespace android {
  *
  */
 
-class ANDROID_API_BINDER PermissionCache : Singleton<PermissionCache> {
+class ANDROID_API_BINDER PermissionCache : Singleton<PermissionCache> { /* M3E: MSVC export */
     struct Entry {
         String16    name;
         uid_t       uid;
@@ -76,5 +78,9 @@ public:
 
 // ---------------------------------------------------------------------------
 }; // namespace android
+
+#else // __ANDROID_VNDK__
+#error "This header is not visible to vendors"
+#endif // __ANDROID_VNDK__
 
 #endif /* BINDER_PERMISSION_H */

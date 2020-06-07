@@ -49,7 +49,7 @@ namespace binder {
 //         // exception during handling.
 //     }
 //
-class ANDROID_API_BINDER Status final {
+class ANDROID_API_BINDER Status final { /* M3E: MSVC export */
 public:
     // Keep the exception codes in sync with android/os/Parcel.java.
     enum Exception {

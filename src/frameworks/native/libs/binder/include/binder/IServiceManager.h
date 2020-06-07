@@ -19,7 +19,6 @@
 #define ANDROID_ISERVICE_MANAGER_H
 
 #include <binder/IInterface.h>
-#include <binder/IPermissionController.h>
 #include <utils/Vector.h>
 #include <utils/String16.h>
 
@@ -27,10 +26,26 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IServiceManager : public IInterface
+class ANDROID_API_BINDER IServiceManager : public IInterface /* M3E: MSVC export */
 {
 public:
     DECLARE_META_INTERFACE(ServiceManager)
+    /**
+     * Must match values in IServiceManager.java
+     */
+    /* Allows services to dump sections according to priorities. */
+    static const int DUMP_FLAG_PRIORITY_CRITICAL = 1 << 0;
+    static const int DUMP_FLAG_PRIORITY_HIGH = 1 << 1;
+    static const int DUMP_FLAG_PRIORITY_NORMAL = 1 << 2;
+    /**
+     * Services are by default registered with a DEFAULT dump priority. DEFAULT priority has the
+     * same priority as NORMAL priority but the services are not called with dump priority
+     * arguments.
+     */
+    static const int DUMP_FLAG_PRIORITY_DEFAULT = 1 << 3;
+    static const int DUMP_FLAG_PRIORITY_ALL = DUMP_FLAG_PRIORITY_CRITICAL |
+            DUMP_FLAG_PRIORITY_HIGH | DUMP_FLAG_PRIORITY_NORMAL | DUMP_FLAG_PRIORITY_DEFAULT;
+    static const int DUMP_FLAG_PROTO = 1 << 4;
 
     /**
      * Retrieve an existing service, blocking for a few seconds
@@ -46,14 +61,14 @@ public:
     /**
      * Register a service.
      */
-    virtual status_t            addService( const String16& name,
-                                            const sp<IBinder>& service,
-                                            bool allowIsolated = false) = 0;
+    virtual status_t addService(const String16& name, const sp<IBinder>& service,
+                                bool allowIsolated = false,
+                                int dumpsysFlags = DUMP_FLAG_PRIORITY_DEFAULT) = 0;
 
     /**
      * Return list of all existing services.
      */
-    virtual Vector<String16>    listServices() = 0;
+    virtual Vector<String16> listServices(int dumpsysFlags = DUMP_FLAG_PRIORITY_ALL) = 0;
 
     enum {
         GET_SERVICE_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION,
@@ -63,7 +78,7 @@ public:
     };
 };
 
-ANDROID_API_BINDER 
+ANDROID_API_BINDER /* M3E: MSVC export */
 sp<IServiceManager> defaultServiceManager();
 
 template<typename INTERFACE>
@@ -77,12 +92,12 @@ status_t getService(const String16& name, sp<INTERFACE>* outService)
     return NAME_NOT_FOUND;
 }
 
-ANDROID_API_BINDER
+ANDROID_API_BINDER /* M3E: MSVC export */
 bool checkCallingPermission(const String16& permission);
-ANDROID_API_BINDER
+ANDROID_API_BINDER /* M3E: MSVC export */
 bool checkCallingPermission(const String16& permission,
                             int32_t* outPid, int32_t* outUid);
-ANDROID_API_BINDER 
+ANDROID_API_BINDER /* M3E: MSVC export */
 bool checkPermission(const String16& permission, pid_t pid, uid_t uid);
 
 }; // namespace android

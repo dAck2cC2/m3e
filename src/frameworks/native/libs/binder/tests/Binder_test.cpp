@@ -9,7 +9,7 @@
 #include <utils/Vector.h>
 #include <string.h>
 
-#include <initrc.h>
+#include <initrc/initrc.h>
 
 #include <binder/local/ThreadService.h>
 
@@ -328,7 +328,7 @@ private:
 class BinderTestService : public ThreadService
 {
 public:
-    BinderTestService()  {};
+    BinderTestService()  { InitRC_entry(0, NULL); };
     ~BinderTestService() {};
 
 private:
@@ -343,7 +343,6 @@ private:
 	sp<IBinderTest> mTest;
 };
     
-static InitRC& inirc = InitRC::getInstance();
 static sp<BinderTestService> service = new BinderTestService();
 
 class ServiceTest : public testing::Test {

@@ -32,7 +32,7 @@ public:
 			if (!data.enforceInterface(String16(ISURFACE_HANDLE_NAME))) return PERMISSION_DENIED;
 
 			flat_binder_object obj = {};
-			obj.type = BINDER_TYPE_POINTER;
+            obj.hdr.type = BINDER_TYPE_PTR;
 
 			sp<Layer> layer = owner.promote();
 			if (layer == NULL) {

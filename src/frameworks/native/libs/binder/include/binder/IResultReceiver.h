@@ -24,7 +24,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IResultReceiver : public IInterface
+class ANDROID_API_BINDER IResultReceiver : public IInterface /* M3E: MSVC export */
 {
 public:
     DECLARE_META_INTERFACE(ResultReceiver)

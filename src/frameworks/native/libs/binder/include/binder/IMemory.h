@@ -29,7 +29,7 @@ namespace android {
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_BINDER IMemoryHeap : public IInterface
+class ANDROID_API_BINDER IMemoryHeap : public IInterface /* M3E: MSVC export */
 {
 public:
     DECLARE_META_INTERFACE(MemoryHeap)

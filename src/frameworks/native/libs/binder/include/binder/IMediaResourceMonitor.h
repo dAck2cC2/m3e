@@ -17,13 +17,15 @@
 #ifndef ANDROID_I_MEDIA_RESOURCE_MONITOR_H
 #define ANDROID_I_MEDIA_RESOURCE_MONITOR_H
 
+#ifndef __ANDROID_VNDK__
+
 #include <binder/IInterface.h>
 
 namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IMediaResourceMonitor : public IInterface {
+class ANDROID_API_BINDER IMediaResourceMonitor : public IInterface { /* M3E: MSVC export */
 public:
     DECLARE_META_INTERFACE(MediaResourceMonitor)
 
@@ -42,7 +44,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER BnMediaResourceMonitor : public BnInterface<IMediaResourceMonitor> {
+class ANDROID_API_BINDER BnMediaResourceMonitor : public BnInterface<IMediaResourceMonitor> { /* M3E: MSVC export */
 public:
     virtual status_t onTransact(uint32_t code, const Parcel& data, Parcel* reply,
             uint32_t flags = 0);
@@ -51,5 +53,9 @@ public:
 // ----------------------------------------------------------------------
 
 }; // namespace android
+
+#else // __ANDROID_VNDK__
+#error "This header is not visible to vendors"
+#endif // __ANDROID_VNDK__
 
 #endif // ANDROID_I_MEDIA_RESOURCE_MONITOR_H

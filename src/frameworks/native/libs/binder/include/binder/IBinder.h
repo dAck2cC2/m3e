@@ -47,7 +47,7 @@ class IShellCallback;
  * (method calls, property get and set) is down through a low-level
  * protocol implemented on top of the transact() API.
  */
-class ANDROID_API_BINDER IBinder : public virtual RefBase
+class ANDROID_API_BINDER IBinder : public virtual RefBase /* M3E: MSVC export */
 {
 public:
     enum {

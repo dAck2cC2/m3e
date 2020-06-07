@@ -31,7 +31,7 @@ class SimpleBestFitAllocator;
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_BINDER MemoryDealer : public RefBase
+class ANDROID_API_BINDER MemoryDealer : public RefBase /* M3E: MSVC export */
 {
 public:
     MemoryDealer(size_t size, const char* name = 0,
