@@ -85,8 +85,9 @@ TEST(libbinder, Parcel_value)
     #define TEST_CHAR16 (0x7788)
 	#define TEST_BYTE   (0x66)
 
-	int32_t  writeint[8]  = {10, 11, 12, 13, 14, 15, 16, 17};
-	uint8_t  writebyte[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+	#define TEST_CNT    (8)
+	int32_t  writeint[TEST_CNT]  = {10, 11, 12, 13, 14, 15, 16, 17};
+	uint8_t  writebyte[TEST_CNT] = {0, 1, 2, 3, 4, 5, 6, 7};
 
 	// write
 	Parcel parcel;
@@ -117,8 +118,8 @@ TEST(libbinder, Parcel_value)
 	EXPECT_EQ(NO_ERROR, parcel.writeByte(TEST_BYTE));
 	EXPECT_EQ(NO_ERROR, parcel.writeByte(TEST_BYTE));
 
-	EXPECT_EQ(NO_ERROR, parcel.writeInt32Array(sizeof(writeint), writeint));
-	EXPECT_EQ(NO_ERROR, parcel.writeByteArray(sizeof(writebyte), writebyte));
+	EXPECT_EQ(NO_ERROR, parcel.writeInt32Array(TEST_CNT, writeint));
+	EXPECT_EQ(NO_ERROR, parcel.writeByteArray(TEST_CNT, writebyte));
 
 	// read
 	parcel.setDataPosition(0);
@@ -167,15 +168,15 @@ TEST(libbinder, Parcel_value)
 	EXPECT_EQ(NO_ERROR, parcel.readByte(&read_byte));
 	EXPECT_EQ(TEST_BYTE, read_byte);
 
-	EXPECT_EQ(sizeof(writeint), parcel.readInt32());
-	for (int i = 0; i < sizeof(writeint); ++i) {
+	EXPECT_EQ(TEST_CNT, parcel.readInt32());
+	for (int i = 0; i < TEST_CNT; ++i) {
 		EXPECT_EQ(writeint[i], parcel.readInt32()) << i;
 	}
 
-	EXPECT_EQ(sizeof(writebyte), parcel.readInt32());
-	uint8_t readdata[8] = {};
+	EXPECT_EQ(TEST_CNT, parcel.readInt32());
+	uint8_t readdata[TEST_CNT] = {};
 	EXPECT_EQ(NO_ERROR, parcel.read((void*)(&readdata[0]), sizeof(readdata)));
-	for (int i = 0; i < sizeof(readdata); ++i) {
+	for (int i = 0; i < TEST_CNT; ++i) {
 		EXPECT_EQ(writebyte[i], readdata[i]);
 	}
 }

@@ -21,7 +21,9 @@ if (MSVC)
     #list(APPEND ZIPARCHIVE_DEPLIB ${LIB_MSVC_WRAP})
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
-endif(MSVC)
+elseif(LINUX)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17")
+endif()
 
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libziparchive/include/ziparchive )

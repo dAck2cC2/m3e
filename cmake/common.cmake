@@ -21,6 +21,7 @@ set(EXT_TAG_LEGACY android-7.1.2_r36)
 
 set(EXT_UPDATE 
 safe-iop
+zlib
 )
 
 # moudles which are going to be updated
@@ -43,7 +44,6 @@ safe-iop
 #libvpx
 #webp
 #libyuv
-#zlib
 
 # modules which have been removed from latest android release
 set(EXT_LEGACY

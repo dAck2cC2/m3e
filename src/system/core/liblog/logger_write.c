@@ -545,6 +545,7 @@ LIBLOG_ABI_PUBLIC void __android_log_assert(const char* cond, const char* tag,
   TEMP_FAILURE_RETRY(writev(2, iov, 2));
 #endif
   __android_log_write(ANDROID_LOG_FATAL, tag, buf);
+  __android_log_close(); /* M3E: close log file before terminating */
   abort(); /* abort so we have a chance to debug the situation */
            /* NOTREACHED */
 }

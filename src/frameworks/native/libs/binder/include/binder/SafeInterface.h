@@ -414,8 +414,15 @@ private:
         return SafeInterface::ParcelHandler{mLogTag}.read(reply, std::forward<T>(t));
     }
     template <typename T>
-    static typename std::enable_if<!IsPointerIfDecayed<T>::value, status_t>::type readIfOutput(
-            const Parcel& /*reply*/, T&& /*t*/) {
+#if !defined(_MSC_VER) /* M3E: MSVC */
+    static
+#endif
+    typename std::enable_if<!IsPointerIfDecayed<T>::value, status_t>::type readIfOutput(
+            const Parcel& /*reply*/, T&& /*t*/)
+#if defined(_MSC_VER) /* M3E: MSVC */
+    const
+#endif
+    {
         return NO_ERROR;
     }
 

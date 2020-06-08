@@ -27,6 +27,8 @@ elseif (APPLE)
     add_definitions(-DENABLE_SAFE_IOP=1)
     add_definitions(-Dtypeof=__typeof__)
     list(APPEND UTILS_DEPLIB safeiop)
+elseif(LINUX)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-g")
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libutils/include/utils )
