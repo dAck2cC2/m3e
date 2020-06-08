@@ -444,7 +444,7 @@ CONSTEXPR TMat44<T>::TMat44(const TMat33<U>& m, const TVec4<V>& v) {
 // ----------------------------------------------------------------------------------------
 
 template <typename T>
-CONSTEXPR TMat44<T> TMat44<T>::ortho(T left, T right, T bottom, T top, T _near, T _far) {
+CONSTEXPR TMat44<T> TMat44<T>::ortho(T left, T right, T bottom, T top, T _near, T _far) { /* M3E: */
     TMat44<T> m;
     m[0][0] =  2 / (right - left);
     m[1][1] =  2 / (top   - bottom);
@@ -456,7 +456,7 @@ CONSTEXPR TMat44<T> TMat44<T>::ortho(T left, T right, T bottom, T top, T _near, 
 }
 
 template <typename T>
-CONSTEXPR TMat44<T> TMat44<T>::frustum(T left, T right, T bottom, T top, T _near, T _far) {
+CONSTEXPR TMat44<T> TMat44<T>::frustum(T left, T right, T bottom, T top, T _near, T _far) { /* M3E: */
     TMat44<T> m;
     m[0][0] =  (2 * _near) / (right - left);
     m[1][1] =  (2 * _near) / (top   - bottom);
@@ -470,7 +470,7 @@ CONSTEXPR TMat44<T> TMat44<T>::frustum(T left, T right, T bottom, T top, T _near
 }
 
 template <typename T>
-CONSTEXPR TMat44<T> TMat44<T>::perspective(T fov, T aspect, T _near, T _far, TMat44::Fov direction) {
+CONSTEXPR TMat44<T> TMat44<T>::perspective(T fov, T aspect, T _near, T _far, TMat44::Fov direction) { /* M3E: */
     T h;
     T w;
 

@@ -32,7 +32,7 @@
 #endif
 #endif
 
-#if __cplusplus >= 201402L && !defined(__linux__)
+#if __cplusplus >= 201402L && !defined(__linux__) /* M3E: */
 #define CONSTEXPR constexpr
 #else
 #define CONSTEXPR

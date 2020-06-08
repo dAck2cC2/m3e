@@ -30,7 +30,7 @@
 
 #include  <utils/String8.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: MSVC */
 #include <algorithm>
 #endif
 
@@ -433,7 +433,7 @@ public:
     friend inline CONSTEXPR BASE<T> PURE inverse(const BASE<T>& matrix) {
         return matrix::inverse(matrix);
     }
-    friend inline CONSTEXPR BASE<T> PURE transpose(const BASE<T>& m) {
+    friend inline CONSTEXPR BASE<T> PURE transpose(const BASE<T>& m) { /* M3E: */
         return matrix::transpose(m);
     }
     friend inline constexpr T PURE trace(const BASE<T>& m) {

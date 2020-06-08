@@ -25,6 +25,7 @@
 #include <limits>
 #include <iostream>
 
+/* M3E: Add */
 #if defined(_MSC_VER) || defined(__linux__)
 #include <functional>
 #endif
@@ -131,11 +132,11 @@ public:
      * letting the compiler implicitly convert a scalar to a vector (assuming
      * the BASE<T> allows it).
      */
-    friend inline /*constexpr*/ VECTOR<T> PURE operator +(VECTOR<T> lv, const VECTOR<T>& rv) {
+    friend inline /*constexpr*/ VECTOR<T> PURE operator +(VECTOR<T> lv, const VECTOR<T>& rv) { /* M3E: */
         // don't pass lv by reference because we need a copy anyways
         return lv += rv;
     }
-    friend inline /*constexpr*/ VECTOR<T> PURE operator -(VECTOR<T> lv, const VECTOR<T>& rv) {
+    friend inline /*constexpr*/ VECTOR<T> PURE operator -(VECTOR<T> lv, const VECTOR<T>& rv) { /* M3E: */
         // don't pass lv by reference because we need a copy anyways
         return lv -= rv;
     }
@@ -212,7 +213,7 @@ public:
      * letting the compiler implicitly convert a scalar to a vector (assuming
      * the BASE<T> allows it).
      */
-    friend inline CONSTEXPR VECTOR<T> PURE operator *(VECTOR<T> lv, const VECTOR<T>& rv) {
+    friend inline CONSTEXPR VECTOR<T> PURE operator *(VECTOR<T> lv, const VECTOR<T>& rv) { /* M3E: */
         // don't pass lv by reference because we need a copy anyways
         return lv *= rv;
     }
@@ -417,11 +418,11 @@ public:
         return r;
     }
 
-    friend inline CONSTEXPR T PURE norm(const VECTOR<T>& lv) {
+    friend inline CONSTEXPR T PURE norm(const VECTOR<T>& lv) { /* M3E: */
         return std::sqrt(dot(lv, lv));
     }
 
-    friend inline CONSTEXPR T PURE length(const VECTOR<T>& lv) {
+    friend inline CONSTEXPR T PURE length(const VECTOR<T>& lv) { /* M3E: */
         return norm(lv);
     }
 
@@ -443,7 +444,7 @@ public:
         return length2(rv - lv);
     }
 
-    friend inline CONSTEXPR VECTOR<T> PURE normalize(const VECTOR<T>& lv) {
+    friend inline CONSTEXPR VECTOR<T> PURE normalize(const VECTOR<T>& lv) { /* M3E: */
         return lv * (T(1) / length(lv));
     }
 
