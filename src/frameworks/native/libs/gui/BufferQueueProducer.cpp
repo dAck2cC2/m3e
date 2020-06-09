@@ -26,7 +26,7 @@
 #define VALIDATE_CONSISTENCY()
 #endif
 
-#if !defined(__linux__)
+#if !defined(__linux__)  /* M3E: */
 #define EGL_EGLEXT_PROTOTYPES
 #endif
 
@@ -541,7 +541,7 @@ status_t BufferQueueProducer::dequeueBuffer(int* outSlot, sp<android::Fence>* ou
     }
 
     if (eglFence != EGL_NO_SYNC_KHR) {
-#if defined(EGL_EGLEXT_PROTOTYPES)
+#if defined(EGL_EGLEXT_PROTOTYPES)  /* M3E: */
         EGLint result = eglClientWaitSyncKHR(eglDisplay, eglFence, 0,
                 1000000000);
         // If something goes wrong, log the error, but return the buffer without
@@ -768,7 +768,8 @@ status_t BufferQueueProducer::queueBuffer(int slot,
     input.deflate(&requestedPresentTimestamp, &isAutoTimestamp, &dataSpace,
             &crop, &scalingMode, &transform, &acquireFence, &stickyTransform,
             &getFrameTimestamps);
-    Region surfaceDamage = input.getSurfaceDamage();
+    const Region& surfaceDamage = input.getSurfaceDamage();
+    const HdrMetadata& hdrMetadata = input.getHdrMetadata();
 
     if (acquireFence == NULL) {
         BQ_LOGE("queueBuffer: fence is NULL");
@@ -829,9 +830,9 @@ status_t BufferQueueProducer::queueBuffer(int slot,
         }
 
         BQ_LOGV("queueBuffer: slot=%d/%" PRIu64 " time=%" PRIu64 " dataSpace=%d"
-                " crop=[%d,%d,%d,%d] transform=%#x scale=%s",
-                slot, mCore->mFrameCounter + 1, requestedPresentTimestamp,
-                dataSpace, crop.left, crop.top, crop.right, crop.bottom,
+                " validHdrMetadataTypes=0x%x crop=[%d,%d,%d,%d] transform=%#x scale=%s",
+                slot, mCore->mFrameCounter + 1, requestedPresentTimestamp, dataSpace,
+                hdrMetadata.validTypes, crop.left, crop.top, crop.right, crop.bottom,
                 transform,
                 BufferItem::scalingModeName(static_cast<uint32_t>(scalingMode)));
 
@@ -870,6 +871,7 @@ status_t BufferQueueProducer::queueBuffer(int slot,
         item.mTimestamp = requestedPresentTimestamp;
         item.mIsAutoTimestamp = isAutoTimestamp;
         item.mDataSpace = dataSpace;
+        item.mHdrMetadata = hdrMetadata;
         item.mFrameNumber = currentFrameNumber;
         item.mSlot = slot;
         item.mFence = acquireFence;
@@ -880,6 +882,7 @@ status_t BufferQueueProducer::queueBuffer(int slot,
         item.mSurfaceDamage = surfaceDamage;
         item.mQueuedBuffer = true;
         item.mAutoRefresh = mCore->mSharedBufferMode && mCore->mAutoRefresh;
+        item.mApi = mCore->mConnectedApi;
 
         mStickyTransform = stickyTransform;
 
@@ -1122,6 +1125,9 @@ int BufferQueueProducer::query(int what, int *outValue) {
         case NATIVE_WINDOW_CONSUMER_IS_PROTECTED:
             value = static_cast<int32_t>(mCore->mConsumerIsProtected);
             break;
+        case NATIVE_WINDOW_MAX_BUFFER_COUNT:
+            value = static_cast<int32_t>(mCore->mMaxBufferCount);
+            break;
         default:
             return BAD_VALUE;
     }
@@ -1332,6 +1338,7 @@ void BufferQueueProducer::allocateBuffers(uint32_t width, uint32_t height,
         uint32_t allocHeight = 0;
         PixelFormat allocFormat = PIXEL_FORMAT_UNKNOWN;
         uint64_t allocUsage = 0;
+        std::string allocName;
         { // Autolock scope
             Mutex::Autolock lock(mCore->mMutex);
             mCore->waitWhileAllocatingLocked();
@@ -1351,6 +1358,7 @@ void BufferQueueProducer::allocateBuffers(uint32_t width, uint32_t height,
             allocHeight = height > 0 ? height : mCore->mDefaultHeight;
             allocFormat = format != 0 ? format : mCore->mDefaultBufferFormat;
             allocUsage = usage | mCore->mConsumerUsageBits;
+            allocName.assign(mCore->mConsumerName.string(), mCore->mConsumerName.size());
 
             mCore->mIsAllocating = true;
         } // Autolock scope
@@ -1359,7 +1367,7 @@ void BufferQueueProducer::allocateBuffers(uint32_t width, uint32_t height,
         for (size_t i = 0; i <  newBufferCount; ++i) {
             sp<GraphicBuffer> graphicBuffer = new GraphicBuffer(
                     allocWidth, allocHeight, allocFormat, BQ_LAYER_COUNT,
-                    allocUsage, {mConsumerName.string(), mConsumerName.size()});
+                    allocUsage, allocName);
 
             status_t result = graphicBuffer->initCheck();
 

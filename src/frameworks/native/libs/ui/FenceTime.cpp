@@ -25,7 +25,7 @@
 
 #include <memory>
 
-#if defined(__linux__)
+#if defined(__linux__) /* M3E: add */
 #include <algorithm>
 #endif
 
@@ -35,7 +35,7 @@ namespace android {
 // ============================================================================
 // FenceTime
 // ============================================================================
-#if defined(_MSC_VER) || defined(__linux__)
+#if defined(_MSC_VER) || defined(__linux__) /* M3E: add */
 const std::shared_ptr<FenceTime> FenceTime::NO_FENCE = std::make_shared<FenceTime>(Fence::NO_FENCE);
 #else
 const auto FenceTime::NO_FENCE = std::make_shared<FenceTime>(Fence::NO_FENCE);

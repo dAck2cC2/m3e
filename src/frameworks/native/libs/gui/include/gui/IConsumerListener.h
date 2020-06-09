@@ -35,7 +35,7 @@ struct NewFrameEventsEntry;
 // locked during calls from the consumer to the BufferQueue, these calls from the BufferQueue to the
 // consumer *MUST* be called only when the BufferQueue mutex is NOT locked.
 
-class ANDROID_API_GUI ConsumerListener : public virtual RefBase {
+class ANDROID_API_GUI ConsumerListener : public virtual RefBase { /* M3E: MSVC export */
 public:
     ConsumerListener() {}
     virtual ~ConsumerListener();
@@ -81,12 +81,12 @@ public:
                                           FrameEventHistoryDelta* /*outDelta*/) {}
 };
 
-class ANDROID_API_GUI IConsumerListener : public ConsumerListener, public IInterface {
+class ANDROID_API_GUI IConsumerListener : public ConsumerListener, public IInterface { /* M3E: MSVC export */
 public:
     DECLARE_META_INTERFACE(ConsumerListener)
 };
 
-class ANDROID_API_GUI BnConsumerListener : public SafeBnInterface<IConsumerListener> {
+class ANDROID_API_GUI BnConsumerListener : public SafeBnInterface<IConsumerListener> { /* M3E: MSVC export */
 public:
     BnConsumerListener() : SafeBnInterface<IConsumerListener>("BnConsumerListener") {}
 

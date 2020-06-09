@@ -60,7 +60,6 @@ ${SOURCE_PATH}/EventThread.cpp
 ${SOURCE_PATH}/FrameTracker.cpp 
 ${SOURCE_PATH}/GpuService.cpp 
 ${SOURCE_PATH}/Layer.cpp 
-${SOURCE_PATH}/LayerDim.cpp 
 ${SOURCE_PATH}/LayerRejecter.cpp 
 ${SOURCE_PATH}/LayerVector.cpp 
 ${SOURCE_PATH}/MessageQueue.cpp 
@@ -83,7 +82,6 @@ ${SOURCE_PATH}/DisplayHardware/*.h
 list(APPEND ${PROJECT_NAME}_DISPLAYHW
 ${SOURCE_PATH}/DisplayHardware/FramebufferSurface.cpp  
 ${SOURCE_PATH}/DisplayHardware/HWComposerBufferCache.cpp 
-${SOURCE_PATH}/DisplayHardware/PowerHAL.cpp 
 ${SOURCE_PATH}/DisplayHardware/VirtualDisplaySurface.cpp 
 ${SOURCE_PATH}/DisplayHardware/HWComposer_hwc1.cpp
 #${SOURCE_PATH}/DisplayHardware/ComposerHal.cpp 

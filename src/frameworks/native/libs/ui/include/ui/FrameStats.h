@@ -23,7 +23,7 @@
 
 namespace android {
 
-class ANDROID_API_UI FrameStats : public LightFlattenable<FrameStats> {
+class ANDROID_API_UI FrameStats : public LightFlattenable<FrameStats> { /* M3E: MSVC export */
 public:
     FrameStats() : refreshPeriodNano(0) {}
 

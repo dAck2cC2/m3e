@@ -27,7 +27,7 @@
 #include <binder/IInterface.h>
 #include <gui/ISurfaceComposer.h>
 
-#if defined(__linux__) || defined(_MSC_VER)
+#if defined(__linux__) || defined(_MSC_VER) /* M3E: */
 #include <memory>
 #endif
 
@@ -52,7 +52,7 @@ static inline constexpr uint32_t fourcc(char c1, char c2, char c3, char c4) {
 }
 
 // ----------------------------------------------------------------------------
-class ANDROID_API_GUI DisplayEventReceiver {
+class ANDROID_API_GUI DisplayEventReceiver { /* M3E: export */
 public:
     enum {
         DISPLAY_EVENT_VSYNC = fourcc('v', 's', 'y', 'n'),

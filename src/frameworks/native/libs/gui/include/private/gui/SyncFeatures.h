@@ -24,7 +24,7 @@
 namespace android {
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_GUI SyncFeatures : public Singleton<SyncFeatures> {
+class ANDROID_API_GUI SyncFeatures : public Singleton<SyncFeatures> {  /* M3E: MSVC export */
     friend class Singleton<SyncFeatures>;
     bool mHasNativeFenceSync;
     bool mHasFenceSync;

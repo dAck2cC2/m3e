@@ -34,7 +34,7 @@
 #include <list>
 #include <set>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: */
 #define BQ_LOGV(x, ...) 
 #define BQ_LOGD(x, ...) 
 #define BQ_LOGI(x, ...) 

@@ -37,7 +37,7 @@ SyncFeatures::SyncFeatures() : Singleton<SyncFeatures>(),
         mHasNativeFenceSync(false),
         mHasFenceSync(false),
         mHasWaitSync(false) {
-#if ANDROID
+#if ANDROID  /* M3E: */
     EGLDisplay dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     // This can only be called after EGL has been initialized; otherwise the
     // check below will abort.

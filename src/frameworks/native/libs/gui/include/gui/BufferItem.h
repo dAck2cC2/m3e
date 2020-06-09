@@ -17,6 +17,8 @@
 #ifndef ANDROID_GUI_BUFFERITEM_H
 #define ANDROID_GUI_BUFFERITEM_H
 
+#include <gui/HdrMetadata.h>
+
 #include <ui/FenceTime.h>
 #include <ui/Rect.h>
 #include <ui/Region.h>
@@ -31,7 +33,7 @@ namespace android {
 class Fence;
 class GraphicBuffer;
 
-class ANDROID_API_GUI BufferItem : public Flattenable<BufferItem> {
+class ANDROID_API_GUI BufferItem : public Flattenable<BufferItem> {  /* M3E: MSVC export */
     friend class Flattenable<BufferItem>;
     size_t getPodSize() const;
     size_t getFlattenedSize() const;
@@ -86,6 +88,9 @@ class ANDROID_API_GUI BufferItem : public Flattenable<BufferItem> {
     // dataSpace is format-dependent.
     android_dataspace mDataSpace;
 
+    // mHdrMetadata is the HDR metadata associated with this buffer slot.
+    HdrMetadata mHdrMetadata;
+
     // mFrameNumber is the number of the queued frame for this slot.
     uint64_t mFrameNumber;
 
@@ -122,6 +127,9 @@ class ANDROID_API_GUI BufferItem : public Flattenable<BufferItem> {
     // Indicates that this BufferItem contains a stale buffer which has already
     // been released by the BufferQueue.
     bool mIsStale;
+
+    // Indicates the API (NATIVE_WINDOW_API_xxx) that queues the buffer.
+    int mApi;
 };
 
 } // namespace android

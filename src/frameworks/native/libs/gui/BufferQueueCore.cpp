@@ -18,7 +18,7 @@
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 //#define LOG_NDEBUG 0
 
-#if !defined(__linux__)
+#if !defined(__linux__)  /* M3E: */
 #define EGL_EGLEXT_PROTOTYPES
 #endif
 
@@ -28,7 +28,7 @@
 #define VALIDATE_CONSISTENCY()
 #endif
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER)  /* M3E: MSVC */
 #include <algorithm>
 #endif // _MSC_VER
 
@@ -219,7 +219,7 @@ void BufferQueueCore::clearBufferSlotLocked(int slot) {
 
     // Destroy fence as BufferQueue now takes ownership
     if (mSlots[slot].mEglFence != EGL_NO_SYNC_KHR) {
-#if defined(EGL_EGLEXT_PROTOTYPES)
+#if defined(EGL_EGLEXT_PROTOTYPES)  /* M3E: */
         eglDestroySyncKHR(mSlots[slot].mEglDisplay, mSlots[slot].mEglFence);
 #endif
         mSlots[slot].mEglFence = EGL_NO_SYNC_KHR;

@@ -11,8 +11,12 @@ if(ENABLE_AV_BASE)
 endif(ENABLE_AV_BASE)
 
 if(ENABLE_AV_CODEC)
-    add_subdirectory(cmds) 
     add_subdirectory(camera)
     add_subdirectory(stagefright_omx)
     add_subdirectory(soundtrigger)
 endif(ENABLE_AV_CODEC)
+
+if(ENABLE_SURFACE_FLINGER)
+    add_subdirectory(cmds) 
+endif(ENABLE_SURFACE_FLINGER)    
+

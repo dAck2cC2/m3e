@@ -29,7 +29,7 @@ namespace gui {
 class BitTube;
 } // namespace gui
 
-class ANDROID_API_GUI IDisplayEventConnection : public IInterface {
+class ANDROID_API_GUI IDisplayEventConnection : public IInterface { /* M3E: MSVC export */
 public:
     DECLARE_META_INTERFACE(DisplayEventConnection)
 
@@ -53,7 +53,7 @@ public:
     virtual void requestNextVsync() = 0; // Asynchronous
 };
 
-class ANDROID_API_GUI BnDisplayEventConnection : public SafeBnInterface<IDisplayEventConnection> {
+class ANDROID_API_GUI BnDisplayEventConnection : public SafeBnInterface<IDisplayEventConnection> { /* M3E: MSVC export */
 public:
     BnDisplayEventConnection()
           : SafeBnInterface<IDisplayEventConnection>("BnDisplayEventConnection") {}

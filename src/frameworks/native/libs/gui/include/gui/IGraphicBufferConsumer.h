@@ -36,7 +36,7 @@ class GraphicBuffer;
 class IConsumerListener;
 class NativeHandle;
 
-class ANDROID_API_GUI IGraphicBufferConsumer : public IInterface {
+class ANDROID_API_GUI IGraphicBufferConsumer : public IInterface { /* M3E: MSVC export */
 public:
     DECLARE_META_INTERFACE(GraphicBufferConsumer)
 

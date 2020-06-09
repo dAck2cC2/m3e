@@ -34,14 +34,14 @@ namespace android {
 		if ((control != NULL) || (control->isValid())) {
 			return NULL;
 		}
-
+#if TODO
 		SurfaceComposerClient::openGlobalTransaction();
 		if ((control->setLayer(30000) != (status_t)OK)
 		|| (control->show() != (status_t)OK)) {
 			return NULL;
 		}
 		SurfaceComposerClient::closeGlobalTransaction();
-
+#endif
 		sp<Surface> surface = control->getSurface();
 		if (surface == NULL) {
 			return NULL;

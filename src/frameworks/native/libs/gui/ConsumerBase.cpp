@@ -40,7 +40,7 @@
 #include <utils/String8.h>
 #include <utils/Trace.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER)  /* M3E: */
 #define CB_LOGV(x, ...) 
 #define CB_LOGE(x, ...) 
 #else  // _MSC_VER
@@ -187,6 +187,16 @@ bool ConsumerBase::isAbandoned() {
     return mAbandoned;
 }
 
+void ConsumerBase::setName(const String8& name) {
+    Mutex::Autolock _l(mMutex);
+    if (mAbandoned) {
+        CB_LOGE("setName: ConsumerBase is abandoned!");
+        return;
+    }
+    mName = name;
+    mConsumer->setConsumerName(name);
+}
+
 void ConsumerBase::setFrameAvailableListener(
         const wp<FrameAvailableListener>& listener) {
     CB_LOGV("setFrameAvailableListener");
@@ -240,6 +250,50 @@ status_t ConsumerBase::setDefaultBufferDataSpace(
         return NO_INIT;
     }
     return mConsumer->setDefaultBufferDataSpace(defaultDataSpace);
+}
+
+status_t ConsumerBase::setConsumerUsageBits(uint64_t usage) {
+    Mutex::Autolock lock(mMutex);
+    if (mAbandoned) {
+        CB_LOGE("setConsumerUsageBits: ConsumerBase is abandoned!");
+        return NO_INIT;
+    }
+    return mConsumer->setConsumerUsageBits(usage);
+}
+
+status_t ConsumerBase::setTransformHint(uint32_t hint) {
+    Mutex::Autolock lock(mMutex);
+    if (mAbandoned) {
+        CB_LOGE("setTransformHint: ConsumerBase is abandoned!");
+        return NO_INIT;
+    }
+    return mConsumer->setTransformHint(hint);
+}
+
+status_t ConsumerBase::setMaxAcquiredBufferCount(int maxAcquiredBuffers) {
+    Mutex::Autolock lock(mMutex);
+    if (mAbandoned) {
+        CB_LOGE("setMaxAcquiredBufferCount: ConsumerBase is abandoned!");
+        return NO_INIT;
+    }
+    return mConsumer->setMaxAcquiredBufferCount(maxAcquiredBuffers);
+}
+
+sp<NativeHandle> ConsumerBase::getSidebandStream() const {
+    Mutex::Autolock _l(mMutex);
+    if (mAbandoned) {
+        CB_LOGE("getSidebandStream: ConsumerBase is abandoned!");
+        return nullptr;
+    }
+
+    sp<NativeHandle> stream;
+    status_t err = mConsumer->getSidebandStream(&stream);
+    if (err != NO_ERROR) {
+        CB_LOGE("failed to get sideband stream: %d", err);
+        return nullptr;
+    }
+
+    return stream;
 }
 
 status_t ConsumerBase::getOccupancyHistory(bool forceFlush,

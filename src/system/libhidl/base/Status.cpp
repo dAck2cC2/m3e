@@ -21,7 +21,7 @@
 
 #include <unordered_map>
 
-#if defined(__linux__)
+#if defined(__linux__)  /* M3E: */
 #include <string.h> // strerror()
 #endif 
 
@@ -57,7 +57,7 @@ static std::string statusToString(status_t s) {
     }
     std::string str = std::to_string(s);
     char *err = strerror(-s);
-    if (err != NULL) {
+    if (err != nullptr) {
         str.append(1, ' ').append(err);
     }
     return str;
@@ -143,20 +143,20 @@ std::ostream& operator<< (std::ostream& stream, const Status& s) {
 namespace details {
     void return_status::assertOk() const {
         if (!isOk()) {
-            //LOG(FATAL) << "Attempted to retrieve value from failed HIDL call: " << description();
+            //LOG(FATAL) << "Attempted to retrieve value from failed HIDL call: " << description();  /* M3E: */
         }
     }
 
     return_status::~return_status() {
         // mCheckedStatus must be checked before isOk since isOk modifies mCheckedStatus
         if (!mCheckedStatus && !isOk()) {
-            //LOG(FATAL) << "Failed HIDL return status not checked: " << description();
+            //LOG(FATAL) << "Failed HIDL return status not checked: " << description();  /* M3E: */
         }
     }
 
     return_status &return_status::operator=(return_status &&other) {
         if (!mCheckedStatus && !isOk()) {
-            //LOG(FATAL) << "Failed HIDL return status not checked: " << description();
+            //LOG(FATAL) << "Failed HIDL return status not checked: " << description();  /* M3E: */
         }
         std::swap(mStatus, other.mStatus);
         std::swap(mCheckedStatus, other.mCheckedStatus);

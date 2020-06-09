@@ -24,7 +24,7 @@ namespace hardware {
 namespace details {
 
 bool wouldLogInfo() {
-#if TODO
+#if TODO /* M3E: */
     return WOULD_LOG(INFO);
 #else
 	return false;
@@ -32,13 +32,13 @@ bool wouldLogInfo() {
 }
 
 void logAlwaysInfo(const std::string& message) {
-#if TODO
+#if TODO /* M3E: */
     LOG(INFO) << message;
 #endif
 }
 
 void logAlwaysError(const std::string& message) {
-#if TODO
+#if TODO /* M3E: */
     LOG(ERROR) << message;
 #endif
 }

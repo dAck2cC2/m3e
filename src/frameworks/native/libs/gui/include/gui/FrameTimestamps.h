@@ -105,7 +105,7 @@ struct CompositorTiming {
 
 // A short history of frames that are synchronized between the consumer and
 // producer via deltas.
-class ANDROID_API_GUI FrameEventHistory {
+class ANDROID_API_GUI FrameEventHistory { /* M3E: MSVC export */
 public:
     virtual ~FrameEventHistory();
 
@@ -203,7 +203,7 @@ private:
 
 
 // The consumer's interface to FrameEventHistory
-class ANDROID_API_GUI ConsumerFrameEventHistory : public FrameEventHistory {
+class ANDROID_API_GUI ConsumerFrameEventHistory : public FrameEventHistory { /* M3E: MSVC export */
 public:
     ~ConsumerFrameEventHistory() override;
 
@@ -300,7 +300,7 @@ private:
 
 // A collection of updates from consumer to producer that can be sent
 // through Binder.
-class ANDROID_API_GUI FrameEventHistoryDelta
+class ANDROID_API_GUI FrameEventHistoryDelta /* M3E: MSVC export */
         : public Flattenable<FrameEventHistoryDelta> {
 
 friend class ConsumerFrameEventHistory;

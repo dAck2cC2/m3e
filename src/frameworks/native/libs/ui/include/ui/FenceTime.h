@@ -26,7 +26,7 @@
 #include <queue>
 #include <unordered_map>
 
-#if defined(__linux__)
+#if defined(__linux__) /* M3E: Add */
 #include <memory>
 #endif
 
@@ -37,7 +37,7 @@ class FenceToFenceTimeMap;
 // A wrapper around fence that only implements isValid and getSignalTime.
 // It automatically closes the fence in a thread-safe manner once the signal
 // time is known.
-class ANDROID_API_UI FenceTime {
+class ANDROID_API_UI FenceTime { /* M3E: MSVC export */
 friend class FenceToFenceTimeMap;
 public:
     // An atomic snapshot of the FenceTime that is flattenable.
@@ -46,7 +46,7 @@ public:
     // consistent for all steps of the flattening process.
     //
     // Not thread safe.
-    struct ANDROID_API_UI Snapshot : public Flattenable<Snapshot> {
+    struct ANDROID_API_UI Snapshot : public Flattenable<Snapshot> { /* M3E: MSVC export */
         enum class State {
             EMPTY,
             FENCE,
@@ -60,7 +60,7 @@ public:
         // Movable.
         Snapshot(Snapshot&& src) = default;
         Snapshot& operator=(Snapshot&& src) = default;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: MSVC */
         // Not copyable.
         Snapshot(const Snapshot& src) = delete;
         Snapshot& operator=(const Snapshot&& src) = delete;
@@ -160,7 +160,7 @@ private:
 //
 // push() and updateSignalTimes() are safe to call simultaneously from
 // different threads.
-class ANDROID_API_UI FenceTimeline {
+class ANDROID_API_UI FenceTimeline { /* M3E: MSVC export */
 public:
     static constexpr size_t MAX_ENTRIES = 64;
 

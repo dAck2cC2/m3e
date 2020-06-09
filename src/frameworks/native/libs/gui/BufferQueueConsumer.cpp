@@ -15,7 +15,7 @@
  */
 
 #include <inttypes.h>
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) /* M3E: MSVC */
 #include <pwd.h>
 #endif
 #include <sys/types.h>
@@ -37,7 +37,9 @@
 #include <gui/IProducerListener.h>
 
 #include <binder/IPCThreadState.h>
+#ifndef __ANDROID_VNDK__
 #include <binder/PermissionCache.h>
+#endif
 
 #include <system/window.h>
 
@@ -750,7 +752,7 @@ status_t BufferQueueConsumer::discardFreeBuffers() {
 }
 
 status_t BufferQueueConsumer::dumpState(const String8& prefix, String8* outResult) const {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER)  /* M3E: MSVC */
     struct passwd* pwd = getpwnam("shell");
     uid_t shellUid = pwd ? pwd->pw_uid : 0;
 #else
@@ -763,12 +765,18 @@ status_t BufferQueueConsumer::dumpState(const String8& prefix, String8* outResul
     }
 
     const IPCThreadState* ipc = IPCThreadState::self();
-    const pid_t pid = ipc->getCallingPid();
     const uid_t uid = ipc->getCallingUid();
+#ifndef __ANDROID_VNDK__
+    // permission check can't be done for vendors as vendors have no access to
+    // the PermissionController
+    const pid_t pid = ipc->getCallingPid();
     if ((uid != shellUid) &&
         !PermissionCache::checkPermission(String16("android.permission.DUMP"), pid, uid)) {
         outResult->appendFormat("Permission Denial: can't dump BufferQueueConsumer "
                 "from pid=%d, uid=%d\n", pid, uid);
+#else
+    if (uid != shellUid) {
+#endif
         android_errorWriteWithInfoLog(0x534e4554, "27046057",
                 static_cast<int32_t>(uid), NULL, 0);
         return PERMISSION_DENIED;

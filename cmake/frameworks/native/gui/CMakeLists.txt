@@ -17,6 +17,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/math/include.cmake)
 
 #include_directories(AFTER ${M3E_SOURCE_DIR}/src/native/include/private)
 
@@ -44,6 +45,8 @@ elseif(LINUX)
     set(CMAKE_CXX_FLAGS "-std=c++14" ${CMAKE_CXX_FLAGS})    
 endif()
 
+add_definitions(-DNO_BUFFERHUB=1)
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/gui/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/gui )
 
@@ -60,6 +63,8 @@ ${HEADER_PATH}/gui/customized/*.h
 # source files
 set(GUI_SOURCE_FILES 
 ${SOURCE_PATH}/BitTube.cpp
+#${SOURCE_PATH}/BufferHubConsumer.cpp
+#${SOURCE_PATH}/BufferHubProducer.cpp
 ${SOURCE_PATH}/BufferItem.cpp
 ${SOURCE_PATH}/BufferItemConsumer.cpp
 ${SOURCE_PATH}/BufferQueue.cpp
@@ -73,6 +78,7 @@ ${SOURCE_PATH}/DisplayEventReceiver.cpp
 ${SOURCE_PATH}/FrameTimestamps.cpp
 ${SOURCE_PATH}/GLConsumer.cpp
 ${SOURCE_PATH}/GuiConfig.cpp
+${SOURCE_PATH}/HdrMetadata.cpp
 ${SOURCE_PATH}/IDisplayEventConnection.cpp
 ${SOURCE_PATH}/IConsumerListener.cpp
 ${SOURCE_PATH}/IGraphicBufferConsumer.cpp
@@ -80,6 +86,7 @@ ${SOURCE_PATH}/IGraphicBufferProducer.cpp
 ${SOURCE_PATH}/IProducerListener.cpp
 ${SOURCE_PATH}/ISurfaceComposer.cpp
 ${SOURCE_PATH}/ISurfaceComposerClient.cpp
+${SOURCE_PATH}/LayerDebugInfo.cpp
 ${SOURCE_PATH}/LayerState.cpp
 ${SOURCE_PATH}/OccupancyTracker.cpp
 ${SOURCE_PATH}/StreamSplitter.cpp

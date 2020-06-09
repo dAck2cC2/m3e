@@ -24,7 +24,7 @@
 #include <gui/BufferItem.h>
 #include <gui/BufferItemConsumer.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) /* M3E: */
 #define BI_LOGV(x, ...) 
 #define BI_LOGE(x, ...) 
 #else  // _MSC_VER
@@ -53,16 +53,6 @@ BufferItemConsumer::BufferItemConsumer(
 }
 
 BufferItemConsumer::~BufferItemConsumer() {}
-
-void BufferItemConsumer::setName(const String8& name) {
-    Mutex::Autolock _l(mMutex);
-    if (mAbandoned) {
-        BI_LOGE("setName: BufferItemConsumer is abandoned!");
-        return;
-    }
-    mName = name;
-    mConsumer->setConsumerName(name);
-}
 
 void BufferItemConsumer::setBufferFreedListener(
         const wp<BufferFreedListener>& listener) {
@@ -107,10 +97,13 @@ status_t BufferItemConsumer::releaseBuffer(const BufferItem &item,
     Mutex::Autolock _l(mMutex);
 
     err = addReleaseFenceLocked(item.mSlot, item.mGraphicBuffer, releaseFence);
+    if (err != OK) {
+        BI_LOGE("Failed to addReleaseFenceLocked");
+    }
 
     err = releaseBufferLocked(item.mSlot, item.mGraphicBuffer, EGL_NO_DISPLAY,
             EGL_NO_SYNC_KHR);
-    if (err != OK) {
+    if (err != OK && err != IGraphicBufferConsumer::STALE_BUFFER_SLOT) {
         BI_LOGE("Failed to release buffer: %s (%d)",
                 strerror(-err), err);
     }

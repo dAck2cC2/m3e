@@ -18,8 +18,6 @@
 
 #include <gui/BufferItem.h>
 
-#include <ui/GraphicBuffer.h>
-
 namespace android {
 
 namespace { // Anonymous

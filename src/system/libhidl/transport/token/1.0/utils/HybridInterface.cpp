@@ -44,7 +44,7 @@ bool isBadTokenManager() {
     if (gTokenManager != nullptr) {
         return false;
     }
-#if TODO
+#if TODO /* M3E: */
     gTokenManager = ITokenManager::getService();
 #endif
     if (gTokenManager == nullptr) {

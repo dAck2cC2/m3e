@@ -25,7 +25,7 @@ namespace android {
 class FrameStats;
 class IGraphicBufferProducer;
 
-class ANDROID_API_GUI ISurfaceComposerClient : public IInterface {
+class ANDROID_API_GUI ISurfaceComposerClient : public IInterface { /* M3E: MSVC export */
 public:
     DECLARE_META_INTERFACE(SurfaceComposerClient)
 
@@ -41,7 +41,7 @@ public:
         eCursorWindow = 0x00002000,
 
         eFXSurfaceNormal = 0x00000000,
-        eFXSurfaceDim = 0x00020000,
+        eFXSurfaceColor = 0x00020000,
         eFXSurfaceMask = 0x000F0000,
     };
 
@@ -49,8 +49,8 @@ public:
      * Requires ACCESS_SURFACE_FLINGER permission
      */
     virtual status_t createSurface(const String8& name, uint32_t w, uint32_t h, PixelFormat format,
-                                   uint32_t flags, const sp<IBinder>& parent, uint32_t windowType,
-                                   uint32_t ownerUid, sp<IBinder>* handle,
+                                   uint32_t flags, const sp<IBinder>& parent, int32_t windowType,
+                                   int32_t ownerUid, sp<IBinder>* handle,
                                    sp<IGraphicBufferProducer>* gbp) = 0;
 
     /*
@@ -69,7 +69,7 @@ public:
     virtual status_t getLayerFrameStats(const sp<IBinder>& handle, FrameStats* outStats) const = 0;
 };
 
-class ANDROID_API_GUI BnSurfaceComposerClient : public SafeBnInterface<ISurfaceComposerClient> {
+class ANDROID_API_GUI BnSurfaceComposerClient : public SafeBnInterface<ISurfaceComposerClient> { /* M3E: MSVC export */
 public:
     BnSurfaceComposerClient()
           : SafeBnInterface<ISurfaceComposerClient>("BnSurfaceComposerClient") {}

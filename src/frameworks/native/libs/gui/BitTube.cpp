@@ -17,7 +17,7 @@
 #include <private/gui/BitTube.h>
 
 #include <stdint.h>
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER)  /* M3E: MSVC */
 #include <sys/socket.h>
 #endif
 #include <sys/types.h>
@@ -47,7 +47,7 @@ BitTube::BitTube(const Parcel& data) {
 }
 
 void BitTube::init(size_t rcvbuf, size_t sndbuf) {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER)  /* M3E: MSVC */
     int sockets[2];
     if (socketpair(AF_UNIX, SOCK_SEQPACKET, 0, sockets) == 0) {
         size_t size = DEFAULT_SOCKET_BUFFER_SIZE;
@@ -92,7 +92,7 @@ void BitTube::setReceiveFd(base::unique_fd&& receiveFd) {
 
 ssize_t BitTube::write(void const* vaddr, size_t size) {
     ssize_t err, len;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER)  /* M3E: MSVC */
     do {
         len = ::send(mSendFd, vaddr, size, MSG_DONTWAIT | MSG_NOSIGNAL);
         // cannot return less than size, since we're using SOCK_SEQPACKET
@@ -104,7 +104,7 @@ ssize_t BitTube::write(void const* vaddr, size_t size) {
 
 ssize_t BitTube::read(void* vaddr, size_t size) {
     ssize_t err, len;
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER)  /* M3E: MSVC */
     do {
         len = ::recv(mReceiveFd, vaddr, size, MSG_DONTWAIT);
         err = len < 0 ? errno : 0;

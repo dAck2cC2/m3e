@@ -31,7 +31,7 @@ namespace android {
 class String8;
 
 // ---------------------------------------------------------------------------
-class ANDROID_API_UI Region : public LightFlattenable<Region>
+class ANDROID_API_UI Region : public LightFlattenable<Region>  /* M3E: MSVC export */
 {
 public:
     static const Region INVALID_REGION;

@@ -10,6 +10,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 
 set(BASE_DEPLIB
 log
+cutils
 )
 
 if (MSVC)
@@ -40,6 +41,7 @@ ${SOURCE_PATH}/quick_exit.cpp
 ${SOURCE_PATH}/stringprintf.cpp
 ${SOURCE_PATH}/strings.cpp
 ${SOURCE_PATH}/test_utils.cpp
+${SOURCE_PATH}/properties.cpp
 )
 
 if(MSVC)

@@ -17,11 +17,12 @@
 #define LOG_TAG "Gralloc2"
 
 #include <hidl/ServiceManagement.h>
-#if TODO
+#if TODO /* M3E: */
 #include <hwbinder/IPCThreadState.h>
 #endif
 #include <ui/Gralloc2.h>
 
+#include <inttypes.h>
 #include <log/log.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
@@ -32,39 +33,109 @@ namespace android {
 
 namespace Gralloc2 {
 
+namespace {
+
 static constexpr Error kTransactionError = Error::NO_RESOURCES;
 
+uint64_t getValid10UsageBits() {
+    static const uint64_t valid10UsageBits = []() -> uint64_t {
+        using hardware::graphics::common::V1_0::BufferUsage;
+        uint64_t bits = 0;
+        for (const auto bit : hardware::hidl_enum_iterator<BufferUsage>()) {
+            bits = bits | bit;
+        }
+        // TODO(b/72323293, b/72703005): Remove these additional bits
+        bits = bits | (1 << 10) | (1 << 13);
+
+        return bits;
+    }();
+    return valid10UsageBits;
+}
+
+uint64_t getValid11UsageBits() {
+    static const uint64_t valid11UsageBits = []() -> uint64_t {
+        using hardware::graphics::common::V1_1::BufferUsage;
+        uint64_t bits = 0;
+        for (const auto bit : hardware::hidl_enum_iterator<BufferUsage>()) {
+            bits = bits | bit;
+        }
+        return bits;
+    }();
+    return valid11UsageBits;
+}
+
+}  // anonymous namespace
+
 void Mapper::preload() {
-#if TODO
+#if TODO /* M3E: */
     android::hardware::preloadPassthroughService<hardware::graphics::mapper::V2_0::IMapper>();
 #endif
 }
 
 Mapper::Mapper()
 {
-#if TODO
-    mMapper = IMapper::getService();
+#if TODO /* M3E: */
+    mMapper = hardware::graphics::mapper::V2_0::IMapper::getService();
 #endif
-    if (mMapper == nullptr || mMapper->isRemote()) {
+    if (mMapper == nullptr) {
+        LOG_ALWAYS_FATAL("gralloc-mapper is missing");
+    }
+    if (mMapper->isRemote()) {
         LOG_ALWAYS_FATAL("gralloc-mapper must be in passthrough mode");
     }
+#if TODO /* M3E: */
+    // IMapper 2.1 is optional
+    mMapperV2_1 = IMapper::castFrom(mMapper);
+#endif
+}
+
+Gralloc2::Error Mapper::validateBufferDescriptorInfo(
+        const IMapper::BufferDescriptorInfo& descriptorInfo) const {
+    uint64_t validUsageBits = getValid10UsageBits();
+    if (mMapperV2_1 != nullptr) {
+        validUsageBits = validUsageBits | getValid11UsageBits();
+    }
+
+    if (descriptorInfo.usage & ~validUsageBits) {
+        ALOGE("buffer descriptor contains invalid usage bits 0x%" PRIx64,
+              descriptorInfo.usage & ~validUsageBits);
+        return Error::BAD_VALUE;
+    }
+    return Error::NONE;
 }
 
 Error Mapper::createDescriptor(
         const IMapper::BufferDescriptorInfo& descriptorInfo,
         BufferDescriptor* outDescriptor) const
 {
-    Error error;
-    auto ret = mMapper->createDescriptor(descriptorInfo,
-            [&](const auto& tmpError, const auto& tmpDescriptor)
-            {
-                error = tmpError;
-                if (error != Error::NONE) {
-                    return;
-                }
+    Error error = validateBufferDescriptorInfo(descriptorInfo);
+    if (error != Error::NONE) {
+        return error;
+    }
 
-                *outDescriptor = tmpDescriptor;
-            });
+    auto hidl_cb = [&](const auto& tmpError, const auto& tmpDescriptor)
+                   {
+                       error = tmpError;
+                       if (error != Error::NONE) {
+                           return;
+                       }
+
+                       *outDescriptor = tmpDescriptor;
+                   };
+
+    hardware::Return<void> ret;
+    if (mMapperV2_1 != nullptr) {
+        ret = mMapperV2_1->createDescriptor_2_1(descriptorInfo, hidl_cb);
+    } else {
+        const hardware::graphics::mapper::V2_0::IMapper::BufferDescriptorInfo info = {
+            descriptorInfo.width,
+            descriptorInfo.height,
+            descriptorInfo.layerCount,
+            static_cast<hardware::graphics::common::V1_0::PixelFormat>(descriptorInfo.format),
+            descriptorInfo.usage,
+        };
+        ret = mMapper->createDescriptor(info, hidl_cb);
+    }
 
     return (ret.isOk()) ? error : kTransactionError;
 }
@@ -94,6 +165,50 @@ void Mapper::freeBuffer(buffer_handle_t bufferHandle) const
 
     auto error = (ret.isOk()) ? static_cast<Error>(ret) : kTransactionError;
     ALOGE_IF(error != Error::NONE, "freeBuffer(%p) failed with %d",
+            buffer, error);
+}
+
+Error Mapper::validateBufferSize(buffer_handle_t bufferHandle,
+        const IMapper::BufferDescriptorInfo& descriptorInfo,
+        uint32_t stride) const
+{
+    if (mMapperV2_1 == nullptr) {
+        return Error::NONE;
+    }
+
+    auto buffer = const_cast<native_handle_t*>(bufferHandle);
+    auto ret = mMapperV2_1->validateBufferSize(buffer, descriptorInfo, stride);
+
+    return (ret.isOk()) ? static_cast<Error>(ret) : kTransactionError;
+}
+
+void Mapper::getTransportSize(buffer_handle_t bufferHandle,
+        uint32_t* outNumFds, uint32_t* outNumInts) const
+{
+    *outNumFds = uint32_t(bufferHandle->numFds);
+    *outNumInts = uint32_t(bufferHandle->numInts);
+
+    if (mMapperV2_1 == nullptr) {
+        return;
+    }
+
+    Error error;
+    auto buffer = const_cast<native_handle_t*>(bufferHandle);
+    auto ret = mMapperV2_1->getTransportSize(buffer,
+            [&](const auto& tmpError, const auto& tmpNumFds, const auto& tmpNumInts) {
+                error = tmpError;
+                if (error != Error::NONE) {
+                    return;
+                }
+
+                *outNumFds = tmpNumFds;
+                *outNumInts = tmpNumInts;
+            });
+
+    if (!ret.isOk()) {
+        error = kTransactionError;
+    }
+    ALOGE_IF(error != Error::NONE, "getTransportSize(%p) failed with %d",
             buffer, error);
 }
 
@@ -208,7 +323,7 @@ int Mapper::unlock(buffer_handle_t bufferHandle) const
 Allocator::Allocator(const Mapper& mapper)
     : mMapper(mapper)
 {
-#if TODO
+#if TODO /* M3E: */
     mAllocator = IAllocator::getService();
 #endif
     if (mAllocator == nullptr) {
@@ -256,9 +371,10 @@ Error Allocator::allocate(BufferDescriptor descriptor, uint32_t count,
             });
 
     // make sure the kernel driver sees BC_FREE_BUFFER and closes the fds now
-#if TODO
+#if TODO /* M3E: */
     hardware::IPCThreadState::self()->flushCommands();
 #endif
+
     return (ret.isOk()) ? error : kTransactionError;
 }
 

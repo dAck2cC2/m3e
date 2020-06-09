@@ -41,7 +41,7 @@ class Allocator;
 class GraphicBufferMapper;
 class String8;
 
-class ANDROID_API_UI GraphicBufferAllocator : public Singleton<GraphicBufferAllocator>
+class ANDROID_API_UI GraphicBufferAllocator : public Singleton<GraphicBufferAllocator>  /* M3E: MSVC export */
 {
 public:
     static inline GraphicBufferAllocator& get() { return getInstance(); }

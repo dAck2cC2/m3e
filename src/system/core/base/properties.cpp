@@ -18,8 +18,12 @@
 
 #include "android-base/properties.h"
 
+#if 0
 #include <sys/system_properties.h>
 #include <sys/_system_properties.h>
+#else
+#include <cutils/properties.h>
+#endif
 
 #include <algorithm>
 #include <chrono>
@@ -32,6 +36,7 @@ namespace android {
 namespace base {
 
 std::string GetProperty(const std::string& key, const std::string& default_value) {
+#if 0 /* M3E: use cutils/properties.h */
   const prop_info* pi = __system_property_find(key.c_str());
   if (pi == nullptr) return default_value;
 
@@ -42,11 +47,20 @@ std::string GetProperty(const std::string& key, const std::string& default_value
                                     *property_value = value;
                                   },
                                   &property_value);
-
-  // If the property exists but is empty, also return the default value.
-  // Since we can't remove system properties, "empty" is traditionally
-  // the same as "missing" (this was true for cutils' property_get).
-  return property_value.empty() ? default_value : property_value;
+    
+#else
+    std::string property_value;
+    char value[PROPERTY_VALUE_MAX];
+    int len = property_get(key.c_str(), value, NULL);
+    if (len > 0) {
+        property_value = value;
+    }
+#endif
+    
+    // If the property exists but is empty, also return the default value.
+    // Since we can't remove system properties, "empty" is traditionally
+    // the same as "missing" (this was true for cutils' property_get).
+    return property_value.empty() ? default_value : property_value;
 }
 
 bool GetBoolProperty(const std::string& key, bool default_value) {
@@ -86,7 +100,11 @@ template uint32_t GetUintProperty(const std::string&, uint32_t, uint32_t);
 template uint64_t GetUintProperty(const std::string&, uint64_t, uint64_t);
 
 bool SetProperty(const std::string& key, const std::string& value) {
+#if 0 /* M3E: use cutils/properties.h */
   return (__system_property_set(key.c_str(), value.c_str()) == 0);
+#else
+    return (property_set(key.c_str(), value.c_str()) == 0);
+#endif
 }
 
 struct WaitForPropertyData {
@@ -127,6 +145,7 @@ static void UpdateTimeSpec(timespec& ts, std::chrono::milliseconds relative_time
   }
 }
 
+#if 0 /* M3E: no async property */
 // Waits for the system property `key` to be created.
 // Times out after `relative_timeout`.
 // Sets absolute_timeout which represents absolute time for the timeout.
@@ -174,6 +193,7 @@ bool WaitForPropertyCreation(const std::string& key,
   auto start_time = std::chrono::steady_clock::now();
   return (WaitForPropertyCreation(key, relative_timeout, start_time) != nullptr);
 }
+#endif
 
 }  // namespace base
 }  // namespace android

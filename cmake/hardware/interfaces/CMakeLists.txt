@@ -22,27 +22,35 @@ endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/interfaces/ )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/interfaces/ )
+set( INTERMEDIATE_PATH ${M3E_SOURCE_DIR}/src/intermediate/hardware/interfaces/ )
+
 
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES
-${HEADER_PATH}/configstore/include/android/hardware/configstore/1.0/*.h
 ${HEADER_PATH}/configstore/utils/include/configstore/*.h
-${HEADER_PATH}/graphics/allocator/include/android/hardware/graphics/allocator/2.0/*.h
-${HEADER_PATH}/graphics/bufferqueue/include/android/hardware/graphics/bufferqueue/1.0/*.h
-${HEADER_PATH}/graphics/common/include/android/hardware/graphics/common/1.0/*.h
-${HEADER_PATH}/graphics/mapper/include/android/hardware/graphics/mapper/2.0/*.h
-${HEADER_PATH}/graphics/composer/2.1/default/*.h
-${HEADER_PATH}/media/include/android/hardware/media/1.0/*.h
-${HEADER_PATH}/media/omx/include/android/hardware/media/omx/1.0/*.h
-${HEADER_PATH}/cas/include/android/hardware/cas/1.0/*.h
-${HEADER_PATH}/cas/native/include/android/hardware/cas/native/1.0/*.h
+${INTERMEDIATE_PATH}/cas/1.0/android.hardware.cas@1.0_genc++_headers/gen/android/hardware/cas/1.0/*.h
+${INTERMEDIATE_PATH}/cas/native/1.0/android.hardware.cas.native@1.0_genc++_headers/gen/android/hardware/cas/native/1.0/*.h
+${INTERMEDIATE_PATH}/configstore/1.0/android.hardware.configstore@1.0_genc++_headers/gen/android/hardware/configstore/1.0/*.h
+${INTERMEDIATE_PATH}/configstore/1.1/android.hardware.configstore@1.1_genc++_headers/gen/android/hardware/configstore/1.1/*.h
+${INTERMEDIATE_PATH}/graphics/allocator/2.0/android.hardware.graphics.allocator@2.0_genc++_headers/gen/android/hardware/graphics/allocator/2.0/*.h
+${INTERMEDIATE_PATH}/graphics/mapper/2.0/android.hardware.graphics.mapper@2.0_genc++_headers/gen/android/hardware/graphics/mapper/2.0/*.h
+${INTERMEDIATE_PATH}/graphics/mapper/2.1/android.hardware.graphics.mapper@2.1_genc++_headers/gen/android/hardware/graphics/mapper/2.1/*.h
+${INTERMEDIATE_PATH}/graphics/common/1.0/android.hardware.graphics.common@1.0_genc++_headers/gen/android/hardware/graphics/common/1.0/*.h
+${INTERMEDIATE_PATH}/graphics/common/1.1/android.hardware.graphics.common@1.1_genc++_headers/gen/android/hardware/graphics/common/1.1/*.h
+${INTERMEDIATE_PATH}/graphics/bufferqueue/1.0/android.hardware.graphics.bufferqueue@1.0_genc++_headers/gen/android/hardware/graphics/bufferqueue/1.0/*.h
+${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++_headers/gen/android/hardware/graphics/composer/2.1/*.h
+${INTERMEDIATE_PATH}/graphics/composer/2.2/android.hardware.graphics.composer@2.2_genc++_headers/gen/android/hardware/graphics/composer/2.2/*.h
+${INTERMEDIATE_PATH}/media/1.0/android.hardware.media@1.0_genc++_headers/gen/android/hardware/media/1.0/*.h
+${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++_headers/gen/android/hardware/media/omx/1.0/*.h
 )
 
 # source files
 set(${PROJECT_NAME}_SOURCE_FILES 
 ${SOURCE_PATH}/configstore/utils/ConfigStoreUtils.cpp
-${SOURCE_PATH}/media/omx/OmxNodeAll.cpp
-${SOURCE_PATH}/media/omx/OmxBufferSourceAll.cpp
+${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++/gen/android/hardware/media/omx/1.0/OmxNodeAll.cpp
+${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++/gen/android/hardware/media/omx/1.0/OmxBufferSourceAll.cpp
+${INTERMEDIATE_PATH}/graphics/bufferqueue/1.0/android.hardware.graphics.bufferqueue@1.0_genc++/gen/android/hardware/graphics/bufferqueue/1.0/ProducerListenerAll.cpp
+${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerCallbackAll.cpp
 )
 
 ADD_LIB(interfaces)
