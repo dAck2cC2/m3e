@@ -140,7 +140,9 @@ template<typename T> class Return;
 namespace details {
     class return_status {
     private:
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
         Status mStatus {};
+#endif
         mutable bool mCheckedStatus = false;
 
         template <typename T, typename U>
@@ -149,8 +151,12 @@ namespace details {
         void assertOk() const;
     public:
         return_status() {}
-        return_status(const Status& s) : mStatus(s) {}
-
+        return_status(const Status& s)
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
+        : mStatus(s)
+#endif
+        {}
+        
         return_status(const return_status &) = delete;
         return_status &operator=(const return_status &) = delete;
 
@@ -162,20 +168,31 @@ namespace details {
         ~return_status();
 
         bool isOkUnchecked() const {
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
             // someone else will have to check
             return mStatus.isOk();
+#else
+            return true;
+#endif
         }
 
         bool isOk() const {
             mCheckedStatus = true;
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
             return mStatus.isOk();
+#else
+            return true;
+#endif
         }
 
         // Check if underlying error is DEAD_OBJECT.
         // Check mCheckedStatus only if this method returns true.
         bool isDeadObject() const {
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
             bool dead = mStatus.transactionError() == DEAD_OBJECT;
-
+#else
+            bool dead = false;
+#endif
             // This way, if you only check isDeadObject your process will
             // only be killed for more serious unchecked errors
             if (dead) {
@@ -187,8 +204,12 @@ namespace details {
 
         // For debugging purposes only
         std::string description() const {
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
             // Doesn't consider checked.
             return mStatus.description();
+#else
+            return "No return check";
+#endif
         }
     };
 }  // namespace details

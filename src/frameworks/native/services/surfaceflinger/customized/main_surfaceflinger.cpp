@@ -7,6 +7,8 @@
 #include <hardware/hardware.h>
 
 #include "SurfaceFlinger.h"
+#include "customized/NSurfaceFlinger.h"
+
 #include "Layer.h"
 #include <gui/BufferItem.h>
 
@@ -61,7 +63,7 @@ namespace android {
 			virtual bool threadLoop() {
 				mStartedMutex.lock();
 
-				sp<ProcessState>  proc = ProcessState::self();
+				sp<ProcessState> proc = ProcessState::initWithDriver(SurfaceFlinger::getServiceName());
 
 				defaultServiceManager()->addService(String16(SurfaceFlinger::getServiceName()), mFlinger);
 
@@ -100,16 +102,16 @@ namespace android {
 
 	class SurfaceFlingerMainWindow : public InitRCMainWindow {
 	public:
-		SurfaceFlingerMainWindow(sp<SurfaceFlinger> sf) : mSF(sf) {};
+		SurfaceFlingerMainWindow(sp<NATIVE::SurfaceFlinger> sf) : mSF(sf) {};
 
 		virtual void run() {
 			if (mSF != NULL) {
-				mSF->runExt();
+				mSF->runLoop();
 			}
 		};
 		
 	private:
-		sp<SurfaceFlinger> mSF;
+		sp<NATIVE::SurfaceFlinger> mSF;
 
 	protected:
 		virtual ~SurfaceFlingerMainWindow() {};
@@ -125,8 +127,8 @@ namespace android {
 #define SURFACE_FLINGER_NAME    "android.SurfaceFlinger"
 #define SURFACE_FLINGER_AUTHOR  "yuki.kokoto"
 
-static android::sp<android::SurfaceFlinger> gSurfaceFlinger;
-static android::sp<android::SurfaceFlingerService> gService;
+static android::sp<android::NATIVE::SurfaceFlinger>   gSurfaceFlinger;
+static android::sp<android::SurfaceFlingerService>    gService;
 static android::sp<android::SurfaceFlingerMainWindow> gMainWindow;
 
 static int open_surfaceflinger(const struct hw_module_t* module, const char* id,
@@ -165,18 +167,11 @@ int open_surfaceflinger(const struct hw_module_t* module, const char* id,
                         struct hw_device_t** device)
 {
     if (gSurfaceFlinger == NULL) {
-        gSurfaceFlinger = new android::SurfaceFlinger();
+        gSurfaceFlinger = new android::NATIVE::SurfaceFlinger();
         gSurfaceFlinger->init();
 
-#if 0     
-		// publish surface flinger
-		android::sp<android::ProcessState> ps(android::ProcessState::self());
-        android::sp<android::IServiceManager> sm(android::defaultServiceManager());
-        sm->addService(android::String16(android::SurfaceFlinger::getServiceName()), gSurfaceFlinger, false);
-#else
 		gService = new android::SurfaceFlingerService(gSurfaceFlinger);
 		gService->Start();
-#endif
 
 		gMainWindow = new android::SurfaceFlingerMainWindow(gSurfaceFlinger);
 

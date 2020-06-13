@@ -33,11 +33,13 @@
 #include <utils/Thread.h>
 #include <utils/Timers.h>
 #include <utils/Vector.h>
-#if !defined(_MSC_VER)
+
+#if !defined(_MSC_VER) /* M3E: */
 extern "C" int clock_nanosleep(clockid_t clock_id, int flags,
                            const struct timespec *request,
                            struct timespec *remain);
 #endif
+
 struct hwc_composer_device_1;
 struct hwc_display_contents_1;
 struct hwc_layer_1;
@@ -190,7 +192,7 @@ public:
         virtual status_t setLayer(size_t index) = 0;
         virtual HWCLayer* dup() = 0;
         static HWCLayer* copy(HWCLayer *rhs) {
-            return rhs ? rhs->dup() : NULL;
+            return rhs ? rhs->dup() : nullptr;
         }
     protected:
         virtual ~HWCLayer() { }
@@ -205,7 +207,7 @@ public:
         HWCLayer* const mLayerList;
         size_t mIndex;
 
-        LayerListIterator() : mLayerList(NULL), mIndex(0) { }
+        LayerListIterator() : mLayerList(nullptr), mIndex(0) { }
 
         LayerListIterator(HWCLayer* layer, size_t index)
             : mLayerList(layer), mIndex(index) { }
@@ -371,8 +373,8 @@ private:
     sp<SurfaceFlinger>              mFlinger;
     framebuffer_device_t*           mFbDev;
     struct hwc_composer_device_1*   mHwc;
-    // invariant: mLists[0] != NULL iff mHwc != NULL
-    // mLists[i>0] can be NULL. that display is to be ignored
+    // invariant: mLists[0] != nullptr iff mHwc != nullptr
+    // mLists[i>0] can be nullptr. that display is to be ignored
     struct hwc_display_contents_1*  mLists[MAX_HWC_DISPLAYS];
     DisplayData                     mDisplayData[MAX_HWC_DISPLAYS];
     // protect mDisplayData from races between prepare and dump
@@ -392,17 +394,6 @@ private:
 
     // thread-safe
     mutable Mutex mEventControlLock;
-
-	/*****************************************************************************
-	* customized
-	*****************************************************************************/
-public:
-	void* nativeWindowMain();
-	int   nativeWindowPopEvent();
-
-	void* nativeWindowCreate(const char* name);
-	void  nativeWindowDelete(void* hWin);
-	void  nativeWindowMessageLoop(void* hWin);
 };
 
 // ---------------------------------------------------------------------------

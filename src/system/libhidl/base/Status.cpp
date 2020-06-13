@@ -142,23 +142,29 @@ std::ostream& operator<< (std::ostream& stream, const Status& s) {
 
 namespace details {
     void return_status::assertOk() const {
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
         if (!isOk()) {
             //LOG(FATAL) << "Attempted to retrieve value from failed HIDL call: " << description();  /* M3E: */
         }
+#endif
     }
 
     return_status::~return_status() {
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
         // mCheckedStatus must be checked before isOk since isOk modifies mCheckedStatus
         if (!mCheckedStatus && !isOk()) {
             //LOG(FATAL) << "Failed HIDL return status not checked: " << description();  /* M3E: */
         }
+#endif
     }
 
     return_status &return_status::operator=(return_status &&other) {
+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
         if (!mCheckedStatus && !isOk()) {
             //LOG(FATAL) << "Failed HIDL return status not checked: " << description();  /* M3E: */
         }
         std::swap(mStatus, other.mStatus);
+#endif
         std::swap(mCheckedStatus, other.mCheckedStatus);
         return *this;
     }

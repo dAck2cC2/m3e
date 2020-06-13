@@ -51,6 +51,8 @@ ${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++/gen/and
 ${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++/gen/android/hardware/media/omx/1.0/OmxBufferSourceAll.cpp
 ${INTERMEDIATE_PATH}/graphics/bufferqueue/1.0/android.hardware.graphics.bufferqueue@1.0_genc++/gen/android/hardware/graphics/bufferqueue/1.0/ProducerListenerAll.cpp
 ${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerCallbackAll.cpp
+${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerAll.cpp
+${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerClientAll.cpp
 )
 
 ADD_LIB(interfaces)

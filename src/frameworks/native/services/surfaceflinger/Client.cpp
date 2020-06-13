@@ -26,6 +26,7 @@
 #include "Layer.h"
 #include "SurfaceFlinger.h"
 
+/* M3E: */
 #include <gui/BufferItem.h>
 
 namespace android {
@@ -49,22 +50,36 @@ Client::Client(const sp<SurfaceFlinger>& flinger, const sp<Layer>& parentLayer)
 
 Client::~Client()
 {
+    // We need to post a message to remove our remaining layers rather than
+    // do so directly by acquiring the SurfaceFlinger lock. If we were to
+    // attempt to directly call the lock it becomes effectively impossible
+    // to use sp<Client> while holding the SF lock as descoping it could
+    // then trigger a dead-lock.
+
     const size_t count = mLayers.size();
     for (size_t i=0 ; i<count ; i++) {
-#if TODO
+#if TODO /* M3E: Keep strong pointer, otherwise it will be released before reaching binder driver */
         sp<Layer> l = mLayers.valueAt(i).promote();
 #else
-		sp<Layer> l = mLayers.valueAt(i);
+	sp<Layer> l = mLayers.valueAt(i);
 #endif
-        if (l != nullptr) {
-            mFlinger->removeLayer(l);
+        if (l == nullptr) {
+            continue;
         }
+        mFlinger->postMessageAsync(new LambdaMessage([flinger = mFlinger, l]() {
+            flinger->removeLayer(l);
+        }));
     }
 }
 
-void Client::setParentLayer(const sp<Layer>& parentLayer) {
+void Client::updateParent(const sp<Layer>& parentLayer) {
     Mutex::Autolock _l(mLock);
-    mParentLayer = parentLayer;
+
+    // If we didn't ever have a parent, then we must instead be
+    // relying on permissions and we never need a parent.
+    if (mParentLayer != nullptr) {
+        mParentLayer = parentLayer;
+    }
 }
 
 sp<Layer> Client::getParentLayer(bool* outParentDied) const {
@@ -98,18 +113,17 @@ void Client::detachLayer(const Layer* layer)
         }
     }
 }
-sp<Layer> Client::getLayerUser(const sp<IBinder>& handle) const
+
+bool Client::isAttached(const sp<IBinder>& handle) const
 {
     Mutex::Autolock _l(mLock);
     sp<Layer> lbc;
     wp<Layer> layer(mLayers.valueFor(handle));
     if (layer != 0) {
-        lbc = layer.promote();
-        ALOGE_IF(lbc==0, "getLayerUser(name=%p) is dead", handle.get());
+        return true;
     }
-    return lbc;
+    return false;
 }
-
 
 status_t Client::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
@@ -136,29 +150,18 @@ status_t Client::onTransact(
      return BnSurfaceComposerClient::onTransact(code, data, reply, flags);
 }
 
-
 status_t Client::createSurface(
         const String8& name,
         uint32_t w, uint32_t h, PixelFormat format, uint32_t flags,
-        const sp<IBinder>& parentHandle, uint32_t windowType, uint32_t ownerUid,
+        const sp<IBinder>& parentHandle, int32_t windowType, int32_t ownerUid,
         sp<IBinder>* handle,
         sp<IGraphicBufferProducer>* gbp)
 {
-    sp<Layer> parent = nullptr;
-    if (parentHandle != nullptr) {
-        parent = getLayerUser(parentHandle);
-        if (parent == nullptr) {
-            return NAME_NOT_FOUND;
-        }
-    }
-    if (parent == nullptr) {
-        bool parentDied;
-        parent = getParentLayer(&parentDied);
-        // If we had a parent, but it died, we've lost all
-        // our capabilities.
-        if (parentDied) {
-            return NAME_NOT_FOUND;
-        }
+    bool parentDied;
+    sp<Layer> parentLayer;
+    if (!parentHandle) parentLayer = getParentLayer(&parentDied);
+    if (parentHandle == nullptr && parentDied) {
+        return NAME_NOT_FOUND;
     }
 
     /*
@@ -175,32 +178,35 @@ status_t Client::createSurface(
         uint32_t w, h;
         PixelFormat format;
         uint32_t flags;
-        sp<Layer>* parent;
-        uint32_t windowType;
-        uint32_t ownerUid;
+        const sp<IBinder>& parentHandle;
+        const sp<Layer>& parentLayer;
+        int32_t windowType;
+        int32_t ownerUid;
     public:
         MessageCreateLayer(SurfaceFlinger* flinger,
                 const String8& name, Client* client,
                 uint32_t w, uint32_t h, PixelFormat format, uint32_t flags,
-                sp<IBinder>* handle, uint32_t windowType, uint32_t ownerUid,
+                sp<IBinder>* handle, int32_t windowType, int32_t ownerUid,
                 sp<IGraphicBufferProducer>* gbp,
-                sp<Layer>* parent)
+                const sp<IBinder>& parentHandle,
+                const sp<Layer>& parentLayer)
             : flinger(flinger), client(client),
               handle(handle), gbp(gbp), result(NO_ERROR),
               name(name), w(w), h(h), format(format), flags(flags),
-              parent(parent), windowType(windowType), ownerUid(ownerUid) {
+              parentHandle(parentHandle), parentLayer(parentLayer),
+              windowType(windowType), ownerUid(ownerUid) {
         }
         status_t getResult() const { return result; }
         virtual bool handler() {
             result = flinger->createLayer(name, client, w, h, format, flags,
-                    windowType, ownerUid, handle, gbp, parent);
+                    windowType, ownerUid, handle, gbp, parentHandle, parentLayer);
             return true;
         }
     };
 
     sp<MessageBase> msg = new MessageCreateLayer(mFlinger.get(),
             name, this, w, h, format, flags, handle,
-            windowType, ownerUid, gbp, &parent);
+            windowType, ownerUid, gbp, parentHandle, parentLayer);
     mFlinger->postMessageSync(msg);
     return static_cast<MessageCreateLayer*>( msg.get() )->getResult();
 }
@@ -210,37 +216,11 @@ status_t Client::destroySurface(const sp<IBinder>& handle) {
 }
 
 status_t Client::clearLayerFrameStats(const sp<IBinder>& handle) const {
-    sp<Layer> layer = getLayerUser(handle);
-    if (layer == NULL) {
-        return NAME_NOT_FOUND;
-    }
-    layer->clearFrameStats();
-    return NO_ERROR;
+    return mFlinger->clearLayerFrameStats(this, handle);
 }
 
 status_t Client::getLayerFrameStats(const sp<IBinder>& handle, FrameStats* outStats) const {
-    sp<Layer> layer = getLayerUser(handle);
-    if (layer == NULL) {
-        return NAME_NOT_FOUND;
-    }
-    layer->getFrameStats(outStats);
-    return NO_ERROR;
-}
-
-/*****************************************************************************
-* customized
-*****************************************************************************/
-void Client::updateLayers()
-{
-	Mutex::Autolock _l(mLock);
-
-	const size_t count = mLayers.size();
-	for (size_t i = 0; i < count; i++) {
-		sp<Layer> l = mLayers.valueAt(i);
-		if (l != nullptr) {
-			l->updateEGLNativeWindow();
-		}
-	}
+    return mFlinger->getLayerFrameStats(this, handle, outStats);
 }
 
 // ---------------------------------------------------------------------------

@@ -73,7 +73,7 @@ ${SOURCE_PATH}/UiConfig.cpp
 
 if(MSVC)
 else()
-    list(APPEND ${SOURCE_PATH}/ColorSpace.cpp)
+    list(APPEND UI_SOURCE_FILES ${SOURCE_PATH}/ColorSpace.cpp)
 endif()
 
 # target files

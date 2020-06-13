@@ -25,12 +25,14 @@ include_directories(AFTER ${HEADER_PATH})
 
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES  
+${HEADER_PATH}/hwc/*.h
 ${HEADER_PATH}/com/*.h
 ${HEADER_PATH}/win/*.h
 )
 
 file(GLOB ${PROJECT_NAME}_SOURCE_FILES
-${SOURCE_PATH}/com/*.cpp
+${SOURCE_PATH}/hwc/*.cpp
+${HEADER_PATH}/com/*.cpp
 ${SOURCE_PATH}/win/*.cpp
 )
 

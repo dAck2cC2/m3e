@@ -19,7 +19,7 @@
 #include <binder/IResultReceiver.h>
 #include <binder/Parcel.h>
 #include <utils/String8.h>
-#if ENABLE_VKJSON
+#if ENABLE_VKJSON /* M3E: */
 #include <vkjson.h>
 #endif
 
@@ -114,7 +114,7 @@ status_t cmd_help(int out) {
 }
 
 void vkjsonPrint(FILE* out) {
-#if ENABLE_VKJSON
+#if ENABLE_VKJSON /* M3E: */
     std::string json = VkJsonInstanceToJson(VkJsonGetInstance());
     fwrite(json.data(), 1, json.size(), out);
     fputc('\n', out);

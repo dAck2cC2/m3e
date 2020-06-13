@@ -26,6 +26,7 @@ utils
 binder
 gui
 ${OPENGL_DEPLIB}
+hwcomposer2
 )
 
 if(MSVC)
@@ -51,24 +52,36 @@ file(GLOB ${PROJECT_NAME}_FLINGER
 ${SOURCE_PATH}/*.h
 )
 list(APPEND ${PROJECT_NAME}_FLINGER
+${SOURCE_PATH}/BufferLayer.cpp 
+${SOURCE_PATH}/BufferLayerConsumer.cpp 
 ${SOURCE_PATH}/Client.cpp 
+${SOURCE_PATH}/ColorLayer.cpp 
+${SOURCE_PATH}/ContainerLayer.cpp 
 ${SOURCE_PATH}/DisplayDevice.cpp 
+#DisplayHardware
 ${SOURCE_PATH}/DispSync.cpp 
+#Effects
 ${SOURCE_PATH}/EventControlThread.cpp 
-${SOURCE_PATH}/StartPropertySetThread.cpp 
+#EventLog
 ${SOURCE_PATH}/EventThread.cpp 
 ${SOURCE_PATH}/FrameTracker.cpp 
 ${SOURCE_PATH}/GpuService.cpp 
 ${SOURCE_PATH}/Layer.cpp 
+${SOURCE_PATH}/LayerProtoHelper.cpp 
 ${SOURCE_PATH}/LayerRejecter.cpp 
+${SOURCE_PATH}/LayerStats.cpp 
 ${SOURCE_PATH}/LayerVector.cpp 
 ${SOURCE_PATH}/MessageQueue.cpp 
 ${SOURCE_PATH}/MonitoredProducer.cpp 
-${SOURCE_PATH}/SurfaceFlingerConsumer.cpp 
-${SOURCE_PATH}/Transform.cpp 
-${SOURCE_PATH}/SurfaceFlinger_hwc1.cpp
+${SOURCE_PATH}/RenderArea.cpp 
+#RenderEngine
+${SOURCE_PATH}/StartPropertySetThread.cpp 
+${SOURCE_PATH}/SurfaceFlinger.cpp
 #${SOURCE_PATH}/SurfaceInterceptor.cpp 
-#${SOURCE_PATH}/SurfaceFlinger.cpp
+${SOURCE_PATH}/SurfaceTracing.cpp 
+#TimeStats
+${SOURCE_PATH}/Transform.cpp 
+#${SOURCE_PATH}/SurfaceFlinger_hwc1.cpp
 )
 source_group(Flinger FILES ${${PROJECT_NAME}_FLINGER})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_FLINGER})
@@ -80,13 +93,12 @@ file(GLOB ${PROJECT_NAME}_DISPLAYHW
 ${SOURCE_PATH}/DisplayHardware/*.h
 )
 list(APPEND ${PROJECT_NAME}_DISPLAYHW
+${SOURCE_PATH}/DisplayHardware/ComposerHal.cpp 
 ${SOURCE_PATH}/DisplayHardware/FramebufferSurface.cpp  
+${SOURCE_PATH}/DisplayHardware/HWC2.cpp
+${SOURCE_PATH}/DisplayHardware/HWComposer.cpp
 ${SOURCE_PATH}/DisplayHardware/HWComposerBufferCache.cpp 
 ${SOURCE_PATH}/DisplayHardware/VirtualDisplaySurface.cpp 
-${SOURCE_PATH}/DisplayHardware/HWComposer_hwc1.cpp
-#${SOURCE_PATH}/DisplayHardware/ComposerHal.cpp 
-#${SOURCE_PATH}/DisplayHardware/HWC2.cpp
-#${SOURCE_PATH}/DisplayHardware/HWComposer.cpp
 )
 source_group(DisplayHardware FILES ${${PROJECT_NAME}_DISPLAYHW})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_DISPLAYHW})
@@ -124,16 +136,37 @@ ${SOURCE_PATH}/RenderEngine/*.h
 )
 list(APPEND ${PROJECT_NAME}_RENDERENGINE
 ${SOURCE_PATH}/RenderEngine/Description.cpp 
+${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp 
+${SOURCE_PATH}/RenderEngine/GLExtensions.cpp 
+${SOURCE_PATH}/RenderEngine/Image.cpp 
 ${SOURCE_PATH}/RenderEngine/Mesh.cpp 
 ${SOURCE_PATH}/RenderEngine/Program.cpp 
 ${SOURCE_PATH}/RenderEngine/ProgramCache.cpp 
-${SOURCE_PATH}/RenderEngine/GLExtensions.cpp 
 ${SOURCE_PATH}/RenderEngine/RenderEngine.cpp 
+${SOURCE_PATH}/RenderEngine/Surface.cpp 
 ${SOURCE_PATH}/RenderEngine/Texture.cpp 
-${SOURCE_PATH}/RenderEngine/GLES20RenderEngine.cpp 
 )
 source_group(RenderEngine FILES ${${PROJECT_NAME}_RENDERENGINE})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_RENDERENGINE})
+
+###############################################################################
+#  TimeStats
+###############################################################################
+file(GLOB ${PROJECT_NAME}_TIMESTATS
+${SOURCE_PATH}/TimeStats/*.h
+)
+list(APPEND ${PROJECT_NAME}_TIMESTATS
+${SOURCE_PATH}/TimeStats/TimeStats.cpp
+)
+source_group(TimeStats FILES ${${PROJECT_NAME}_TIMESTATS})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_TIMESTATS})
+
+###############################################################################
+#  LayerProto
+###############################################################################
+
+#include_directories(AFTER ${SOURCE_PATH}/layerproto/include)
+
 
 ###############################################################################
 #  Customized

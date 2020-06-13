@@ -19,6 +19,7 @@
 #include "SurfaceFlinger.h"
 #include "Layer.h"
 
+/* M3E: */
 #include <gui/BufferItem.h>
 
 namespace android {
@@ -35,26 +36,13 @@ MonitoredProducer::~MonitoredProducer() {
     // because we don't know where this destructor is called from. It could be
     // called with the mStateLock held, leading to a dead-lock (it actually
     // happens).
-    class MessageCleanUpList : public MessageBase {
-    public:
-        MessageCleanUpList(const sp<SurfaceFlinger>& flinger,
-                const wp<IBinder>& producer)
-            : mFlinger(flinger), mProducer(producer) {}
+    sp<LambdaMessage> cleanUpListMessage =
+            new LambdaMessage([flinger = mFlinger, asBinder = wp<IBinder>(onAsBinder())]() {
+                Mutex::Autolock lock(flinger->mStateLock);
+                flinger->mGraphicBufferProducerList.erase(asBinder);
+            });
 
-        virtual ~MessageCleanUpList() {}
-
-        virtual bool handler() {
-            Mutex::Autolock _l(mFlinger->mStateLock);
-            mFlinger->mGraphicBufferProducerList.remove(mProducer);
-            return true;
-        }
-
-    private:
-        sp<SurfaceFlinger> mFlinger;
-        wp<IBinder> mProducer;
-    };
-
-    mFlinger->postMessageAsync(new MessageCleanUpList(mFlinger, asBinder(mProducer)));
+    mFlinger->postMessageAsync(cleanUpListMessage);
 }
 
 status_t MonitoredProducer::requestBuffer(int slot, sp<GraphicBuffer>* buf) {

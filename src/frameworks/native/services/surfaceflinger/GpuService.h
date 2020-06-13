@@ -43,9 +43,9 @@ protected:
 class GpuService : public BnGpuService
 {
 public:
-    static const char* const SERVICE_NAME /*ANDROID_API*/;
+    static const char* const SERVICE_NAME /*ANDROID_API*/; /* M3E: */
 
-    GpuService() /*ANDROID_API*/;
+    GpuService() /*ANDROID_API*/; /* M3E: */
 
 protected:
     virtual status_t shellCommand(int in, int out, int err,

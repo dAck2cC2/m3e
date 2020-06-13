@@ -42,6 +42,7 @@
 
 /* M3E: Add */
 #include <cutils/threads.h>
+#define DEFAULT_DRV_NAME  "M3E::Default"
 
 #define BINDER_VM_SIZE ((1 * 1024 * 1024) - (4096 *2))
 #define DEFAULT_MAX_BINDER_THREADS 15
@@ -84,7 +85,7 @@ protected:
 
 sp<ProcessState> ProcessState::self()
 {
-	return initWithDriver("default");
+	return initWithDriver(DEFAULT_DRV_NAME);
 }
 
 sp<ProcessState> ProcessState::initWithDriver(const char* driver)
@@ -439,7 +440,7 @@ static int open_driver(const char *driver)
 }
 
 ProcessState::ProcessState(const char *driver)
-    : mDriverName(String8(driver))
+    : mDriverName(String8(DEFAULT_DRV_NAME))
     , mDriverFD(open_driver(driver))
     , mVMStart(MAP_FAILED)
     //, mThreadCountLock(PTHREAD_MUTEX_INITIALIZER)
