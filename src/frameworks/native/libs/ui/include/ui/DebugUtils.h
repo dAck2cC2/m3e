@@ -35,4 +35,5 @@ std::string decodeColorTransform(android_color_transform colorTransform);
 ANDROID_API_UI /* M3E: */
 std::string decodePixelFormat(android::PixelFormat format);
 std::string decodeRenderIntent(android::ui::RenderIntent renderIntent);
+ANDROID_API_UI /* M3E: */
 std::string to_string(const android::Rect& rect);

@@ -31,6 +31,8 @@ wilhelm
 
 if(MSVC)
     add_definitions(-DXA_API=__declspec\(dllexport\))
+    add_definitions(-DNOMINMAX=1)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()

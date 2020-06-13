@@ -66,10 +66,12 @@ static inline int ftruncate64(int fd, off64_t length) {
  * being constexpr is fine if in pre-C++11 code (such as a const static float
  * member variable).
  */
+#if !defined(CONSTEXPR)
 #if __cplusplus >= 201103L || defined(_MSC_VER) /* M3E: MSVC */
 #define CONSTEXPR constexpr
 #else
 #define CONSTEXPR
+#endif
 #endif
 
 /*

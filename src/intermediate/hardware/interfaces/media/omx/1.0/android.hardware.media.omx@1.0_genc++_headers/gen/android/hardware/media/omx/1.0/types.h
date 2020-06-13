@@ -8,6 +8,12 @@
 #include <utils/NativeHandle.h>
 #include <utils/misc.h>
 
+#if defined(_MSC_VER) /* M3E: */
+#if defined(NO_ERROR)
+#undef NO_ERROR
+#endif
+#endif
+
 namespace android {
 namespace hardware {
 namespace media {

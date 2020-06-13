@@ -55,7 +55,7 @@ ${M3E_SOURCE_DIR}/src/frameworks/native/include/private/ui/*.h
 
 # source files
 set(UI_SOURCE_FILES 
-${SOURCE_PATH}/ColorSpace.cpp
+#${SOURCE_PATH}/ColorSpace.cpp
 ${SOURCE_PATH}/DebugUtils.cpp
 ${SOURCE_PATH}/Fence.cpp
 ${SOURCE_PATH}/FenceTime.cpp
@@ -71,6 +71,10 @@ ${SOURCE_PATH}/Region.cpp
 ${SOURCE_PATH}/UiConfig.cpp
 )
 
+if(MSVC)
+else()
+    list(APPEND ${SOURCE_PATH}/ColorSpace.cpp)
+endif()
 
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

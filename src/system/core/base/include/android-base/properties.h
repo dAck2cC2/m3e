@@ -32,6 +32,7 @@ namespace base {
 
 // Returns the current value of the system property `key`,
 // or `default_value` if the property is empty or doesn't exist.
+ANDROID_API_BASE /* M3E: MSVC export */
 std::string GetProperty(const std::string& key, const std::string& default_value);
 
 // Returns true if the system property `key` has the value "1", "y", "yes", "on", or "true",

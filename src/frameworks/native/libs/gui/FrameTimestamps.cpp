@@ -27,6 +27,9 @@
 #include <limits>
 #include <numeric>
 
+/* M3E: add */
+#include <ui/GraphicBuffer.h>
+
 namespace android {
 
 

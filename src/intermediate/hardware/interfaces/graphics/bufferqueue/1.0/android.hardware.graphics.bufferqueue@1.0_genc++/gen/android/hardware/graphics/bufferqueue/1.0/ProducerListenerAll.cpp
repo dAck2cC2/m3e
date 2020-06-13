@@ -61,9 +61,11 @@ __attribute__((destructor))static void static_destructor() {
     return ::android::hardware::Void();}
 
 ::android::hardware::Return<void> IProducerListener::getHashChain(getHashChain_cb _hidl_cb){
+#if 0
     _hidl_cb({
         (uint8_t[32]){184,167,86,23,185,236,18,190,166,65,243,167,61,64,37,163,62,139,154,47,145,105,221,70,9,74,245,106,223,146,73,197} /* b8a75617b9ec12bea641f3a73d4025a33e8b9a2f9169dd46094af56adf9249c5 */,
         (uint8_t[32]){189,218,182,24,77,122,52,109,166,160,125,192,130,140,241,154,105,111,76,170,54,17,197,31,46,20,86,90,20,180,15,217} /* bddab6184d7a346da6a07dc0828cf19a696f4caa3611c51f2e14565a14b40fd9 */});
+#endif
     return ::android::hardware::Void();
 }
 

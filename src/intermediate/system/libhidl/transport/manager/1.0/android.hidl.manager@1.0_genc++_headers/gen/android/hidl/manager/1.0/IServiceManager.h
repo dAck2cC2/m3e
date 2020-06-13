@@ -13,6 +13,12 @@
 #include <utils/NativeHandle.h>
 #include <utils/misc.h>
 
+#if defined(_MSC_VER) /* M3E: */
+#if defined(PASSTHROUGH)
+#undef PASSTHROUGH
+#endif
+#endif
+
 namespace android {
 namespace hidl {
 namespace manager {

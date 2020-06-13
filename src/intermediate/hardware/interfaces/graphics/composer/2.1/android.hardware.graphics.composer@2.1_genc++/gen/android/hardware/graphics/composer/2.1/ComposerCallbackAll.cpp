@@ -62,9 +62,11 @@ __attribute__((destructor))static void static_destructor() {
     return ::android::hardware::Void();}
 
 ::android::hardware::Return<void> IComposerCallback::getHashChain(getHashChain_cb _hidl_cb){
+#if 0
     _hidl_cb({
         (uint8_t[32]){177,157,0,235,138,139,59,0,52,160,50,31,34,232,243,33,98,191,76,42,235,188,230,218,34,192,37,245,110,69,158,162} /* b19d00eb8a8b3b0034a0321f22e8f32162bf4c2aebbce6da22c025f56e459ea2 */,
         (uint8_t[32]){189,218,182,24,77,122,52,109,166,160,125,192,130,140,241,154,105,111,76,170,54,17,197,31,46,20,86,90,20,180,15,217} /* bddab6184d7a346da6a07dc0828cf19a696f4caa3611c51f2e14565a14b40fd9 */});
+#endif
     return ::android::hardware::Void();
 }
 

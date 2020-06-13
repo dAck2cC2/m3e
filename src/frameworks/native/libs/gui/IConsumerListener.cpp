@@ -18,6 +18,9 @@
 
 #include <gui/BufferItem.h>
 
+/* M3E: add */
+#include <ui/GraphicBuffer.h>
+
 namespace android {
 
 namespace { // Anonymous

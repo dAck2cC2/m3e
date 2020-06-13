@@ -323,7 +323,9 @@ protected:
 template<typename T>
 struct hidl_vec {
     hidl_vec() {
+#if !defined(_MSC_VER) /* M3E: */
         static_assert(hidl_vec<T>::kOffsetOfBuffer == 0, "wrong offset");
+#endif
 
         memset(this, 0, sizeof(*this));
         // mSize is 0

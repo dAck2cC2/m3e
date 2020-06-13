@@ -36,10 +36,12 @@
 
 #define PURE __attribute__((pure))
 
-#if __cplusplus >= 201402L
+#if !defined(CONSTEXPR)
+#if __cplusplus >= 201402L || defined(_MSC_VER) 
 #define CONSTEXPR constexpr
 #else
 #define CONSTEXPR
+#endif
 #endif
 
 namespace android {
