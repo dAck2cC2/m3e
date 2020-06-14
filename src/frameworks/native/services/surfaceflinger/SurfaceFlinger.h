@@ -301,7 +301,7 @@ public:
     }
 
     struct SkipInitializationTag {};
-    static constexpr SkipInitializationTag SkipInitialization;
+    static /* constexpr */ SkipInitializationTag SkipInitialization; /* M3E: MSVC */
     explicit SurfaceFlinger(SkipInitializationTag) /*ANDROID_API*/;
     SurfaceFlinger() /*ANDROID_API*/;
 

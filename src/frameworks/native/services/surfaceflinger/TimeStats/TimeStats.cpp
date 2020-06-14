@@ -268,9 +268,17 @@ void TimeStats::setPostTime(const std::string& layerName, uint64_t frameNumber, 
     // ready at the queueBuffer stage. In this case, acquireTime should be given
     // a default value as postTime.
     TimeRecord timeRecord = {
-            .frameNumber = frameNumber,
+#if defined(_MSC_VER) /* M3E: MSVC */
+        false, // ready
+        frameNumber, // frameNumber
+        postTime, // postTime
+        0, // latchTime
+        postTime, // acquireTime
+#else
+            .frameNumber = frameNumber, 
             .postTime = postTime,
             .acquireTime = postTime,
+#endif
     };
     layerRecord.timeRecords.push_back(timeRecord);
     if (layerRecord.waitData < 0 ||

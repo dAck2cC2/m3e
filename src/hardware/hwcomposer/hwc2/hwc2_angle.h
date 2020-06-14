@@ -99,7 +99,7 @@ struct ComposerClientAngle : public ComposerClientDefault {
         // return attributes
         else if (attribute == Attribute::WIDTH) {
             _hidl_cb(Error::NONE, mAttrWidth);
-            return;
+            return ::android::hardware::Void();
         } else if (attribute == Attribute::HEIGHT) {
             _hidl_cb(Error::NONE, mAttrHeight);
         } else if (attribute == Attribute::VSYNC_PERIOD) {

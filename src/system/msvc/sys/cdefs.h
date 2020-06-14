@@ -107,12 +107,16 @@ extern "C" {
 
 #define __builtin_ctzl  __builtin_ctz
 #define __builtin_ctzll __builtin_ctz64
+#if 0 //__cplusplus < 201703L
 MSVC_EXPORT uint32_t __builtin_ctz(uint32_t value);
+#endif
 MSVC_EXPORT uint32_t __builtin_ctz64(uint64_t value);
 
 #  define __builtin_clzl  __builtin_clz
 #  define __builtin_clzll __builtin_clz64
+#if 0 //__cplusplus < 201703L
 MSVC_EXPORT uint32_t __builtin_clz(uint32_t value);
+#endif
 MSVC_EXPORT uint32_t __builtin_clz64(uint64_t value);
 
 MSVC_EXPORT extern int ffs(int valu);

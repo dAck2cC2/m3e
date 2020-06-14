@@ -24,6 +24,8 @@ if(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
     find_library(APPKIT_LIBRARY AppKit)
     list(APPEND DNG_DEPLIB ${APPKIT_LIBRARY})
+elseif(MSVC)
+    add_definitions(-D_HAS_AUTO_PTR_ETC=1)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/dng_sdk/source )

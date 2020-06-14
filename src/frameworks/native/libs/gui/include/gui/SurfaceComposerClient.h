@@ -148,7 +148,7 @@ public:
         }
     };
 
-    class Transaction {
+    class ANDROID_API_GUI Transaction { /* M3E: MSVC export */
         std::unordered_map<sp<SurfaceControl>, ComposerState, SCHash> mComposerStates;
         SortedVector<DisplayState > mDisplayStates;
         uint32_t                    mForceSynchronous = 0;

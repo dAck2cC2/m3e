@@ -14,9 +14,7 @@ utils
 )
 
 if(LINUX)
-    list(APPEND HW_DEPLIB
-    dl
-    )
+    list(APPEND HW_DEPLIB dl)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/libhardware/include )
@@ -35,4 +33,6 @@ target_link_libraries(hardware ${HW_DEPLIB})
 
 
 add_subdirectory(audio)  
-add_subdirectory(hwcomposer)
+
+# we are using hwcomposer2 since Android 9
+#add_subdirectory(hwcomposer)

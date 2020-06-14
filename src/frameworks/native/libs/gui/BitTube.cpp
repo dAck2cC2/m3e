@@ -98,6 +98,9 @@ ssize_t BitTube::write(void const* vaddr, size_t size) {
         // cannot return less than size, since we're using SOCK_SEQPACKET
         err = len < 0 ? errno : 0;
     } while (err == EINTR);
+#else
+    len = 0;
+    err = EINTR;
 #endif
     return err == 0 ? len : -err;
 }

@@ -31,6 +31,11 @@ interfaces
 ${OPENGL_DEPLIB}
 )
 
+if(MSVC)
+    add_definitions(-DNOMINMAX)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
 

@@ -137,7 +137,13 @@ status_t Transform::set(uint32_t flags, float w, float h)
     Transform H, V, R;
     if (flags & ROT_90) {
         // w & h are inverted when rotating by 90 degrees
+#if defined(_MSC_VER) /* M3E: MSVC */
+        float t = w;
+        w = h;
+        h = t;
+#else
         swap(w, h);
+#endif
     }
 
     if (flags & FLIP_H) {

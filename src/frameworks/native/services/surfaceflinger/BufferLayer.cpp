@@ -137,7 +137,7 @@ status_t BufferLayer::setBuffers(uint32_t w, uint32_t h, PixelFormat format, uin
     return NO_ERROR;
 }
 
-static constexpr mat4 inverseOrientation(uint32_t transform) {
+static /* constexpr */ mat4 inverseOrientation(uint32_t transform) { /* M3E: MSVC */
     const mat4 flipH(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1);
     const mat4 flipV(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1);
     const mat4 rot90(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1);

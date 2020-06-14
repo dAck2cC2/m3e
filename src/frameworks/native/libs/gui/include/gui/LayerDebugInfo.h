@@ -30,7 +30,7 @@ namespace android {
  * recipients.  The class is intended to be a data container. There are
  * no getters or setters.
  */
-class LayerDebugInfo : public Parcelable {
+class ANDROID_API_GUI LayerDebugInfo : public Parcelable { /* M3E: MSVC export */
 public:
     LayerDebugInfo() = default;
     LayerDebugInfo(const LayerDebugInfo&) = default;

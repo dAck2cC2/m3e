@@ -701,8 +701,8 @@ Error Composer::setLayerBuffer(Display display, Layer layer,
     }
 
     mWriter.setLayerBuffer(slot, handle, acquireFence);
-    return Error::NONE;
 #endif
+    return Error::NONE;
 }
 
 Error Composer::setLayerSurfaceDamage(Display display, Layer layer,

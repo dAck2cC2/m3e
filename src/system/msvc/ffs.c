@@ -35,6 +35,7 @@ register int valu;
 	return bit;
 }
 
+#if 0 //__cplusplus < 201703L
 uint32_t __builtin_ctz(uint32_t value)
 {
 	DWORD trailing_zero = 0;
@@ -49,6 +50,7 @@ uint32_t __builtin_ctz(uint32_t value)
 		return 32;
 	}
 }
+#endif
 
 uint32_t __builtin_ctz64(uint64_t value)
 {
@@ -65,7 +67,7 @@ uint32_t __builtin_ctz64(uint64_t value)
 	}
 }
 
-
+#if 0 //__cplusplus < 201703L
 uint32_t __builtin_clz(uint32_t value)
 {
 	DWORD leading_zero = 0;
@@ -80,6 +82,7 @@ uint32_t __builtin_clz(uint32_t value)
 		return 32;
 	}
 }
+#endif
 
 uint32_t __builtin_clz64(uint64_t value)
 {

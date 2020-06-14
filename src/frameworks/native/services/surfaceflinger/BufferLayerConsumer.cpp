@@ -48,12 +48,20 @@
 
 namespace android {
 
+#if defined(_MSC_VER) /* M3E: */
+#define BLC_LOGV(x, ...)  
+#define BLC_LOGD(x, ...) 
+#define BLC_LOGW(x, ...) 
+#define BLC_LOGE(x, ...) 
+
+#else
 // Macros for including the BufferLayerConsumer name in log messages
 #define BLC_LOGV(x, ...) ALOGV("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define BLC_LOGD(x, ...) ALOGD("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define BLC_LOGI(x, ...) ALOGI("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define BLC_LOGW(x, ...) ALOGW("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define BLC_LOGE(x, ...) ALOGE("[%s] " x, mName.string(), ##__VA_ARGS__)
+#endif
 
 static const mat4 mtxIdentity;
 

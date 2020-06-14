@@ -127,7 +127,7 @@ struct ComposerState {
     status_t    read(const Parcel& input);
 };
 
-struct DisplayState {
+struct ANDROID_API_GUI DisplayState { /* M3E: MSVC export */
 
     enum {
         eOrientationDefault     = 0,

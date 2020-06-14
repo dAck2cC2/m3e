@@ -6,6 +6,12 @@
 
 #include <functional>
 
+#if defined(_MSC_VER)
+#if defined(OPAQUE)
+#undef OPAQUE
+#endif
+#endif
+
 namespace android {
 
 class RenderArea {

@@ -114,6 +114,9 @@ ${SOURCE_PATH}/common/x86/ih264_ihadamard_scaling_sse42.c
 source_group(x86 FILES ${AVCDEC_X86_SOURCES})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${AVCDEC_X86_SOURCES})
 
+#set_source_files_properties(${${PROJECT_NAME}_SOURCE_FILES} PROPERTIES LANGUAGE CXX)
+
+#set(LIB_TYPE SHARED)
 ADD_LIB(avcdec)
 
 ###############################################################################

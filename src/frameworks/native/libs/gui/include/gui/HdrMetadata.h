@@ -23,7 +23,7 @@
 
 namespace android {
 
-struct HdrMetadata : public LightFlattenable<HdrMetadata> {
+struct ANDROID_API_GUI HdrMetadata : public LightFlattenable<HdrMetadata> { /* M3E: MSVC export */
     enum Type : uint32_t {
         SMPTE2086 = 1 << 0,
         CTA861_3  = 1 << 1,

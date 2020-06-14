@@ -681,7 +681,7 @@ status_t HWComposer::setColorTransform(int32_t displayId,
 }
 
 void HWComposer::disconnectDisplay(int displayId) {
-    LOG_ALWAYS_FATAL_IF(displayId < 0);
+    LOG_ALWAYS_FATAL_IF(displayId < 0, "bad displayId"); /* M3E: MSVC */
     auto& displayData = mDisplayData[displayId];
 
     auto displayType = HWC2::DisplayType::Invalid;

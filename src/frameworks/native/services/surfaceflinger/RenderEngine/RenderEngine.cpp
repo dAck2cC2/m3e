@@ -733,7 +733,7 @@ EGLConfig RenderEngine::chooseEglConfig(EGLDisplay display, int format, bool log
         ALOGI("vendor    : %s", eglQueryString(display, EGL_VENDOR));
         ALOGI("version   : %s", eglQueryString(display, EGL_VERSION));
         ALOGI("extensions: %s", eglQueryString(display, EGL_EXTENSIONS));
-        ALOGI("Client API: %s", eglQueryString(display, EGL_CLIENT_APIS) ?: "Not Supported");
+        ALOGI("Client API: %s", eglQueryString(display, EGL_CLIENT_APIS) ? eglQueryString(display, EGL_CLIENT_APIS) : "Not Supported"); /* M3E: MSVC */
         ALOGI("EGLSurface: %d-%d-%d-%d, config=%p", r, g, b, a, config);
     }
 

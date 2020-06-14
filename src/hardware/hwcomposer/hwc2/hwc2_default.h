@@ -54,13 +54,14 @@ struct ComposerClientDefault : public IComposerClient {
 
     virtual ::android::hardware::Return<void> getOutputCommandQueue(getOutputCommandQueue_cb _hidl_cb) override { /* EMPTY */ return ::android::hardware::Void(); };
     
-    virtual ::android::hardware::Return<void> executeCommands(uint32_t inLength, const ::android::hardware::hidl_vec<::android::hardware::hidl_handle>& inHandles, executeCommands_cb _hidl_cb) override { /* EMPTY */ return; };
+    virtual ::android::hardware::Return<void> executeCommands(uint32_t inLength, const ::android::hardware::hidl_vec<::android::hardware::hidl_handle>& inHandles, executeCommands_cb _hidl_cb) override { /* EMPTY */ return ::android::hardware::Void();
+    };
     
     virtual ::android::hardware::Return<void> interfaceChain(interfaceChain_cb _hidl_cb) override { /* EMPTY */ return ::android::hardware::Void(); };
 
     virtual ::android::hardware::Return<void> debug(const ::android::hardware::hidl_handle& fd, const ::android::hardware::hidl_vec<::android::hardware::hidl_string>& options) override { /* EMPTY */ return ::android::hardware::Void(); };
 
-    virtual ::android::hardware::Return<void> interfaceDescriptor(interfaceDescriptor_cb _hidl_cb) override { /* EMPTY */ return; };
+    virtual ::android::hardware::Return<void> interfaceDescriptor(interfaceDescriptor_cb _hidl_cb) override { /* EMPTY */ return ::android::hardware::Void(); };
 
     virtual ::android::hardware::Return<void> getHashChain(getHashChain_cb _hidl_cb) override { /* EMPTY */ return ::android::hardware::Void(); };
 

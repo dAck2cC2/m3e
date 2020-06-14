@@ -31,7 +31,7 @@ ${OPENGL_DEPLIB}
 )
 
 if(MSVC)
-    #add_definitions(-DNOMINMAX=1)
+    add_definitions(-DNOMINMAX=1)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     add_definitions(-Dstrcasecmp=strcmp)
 

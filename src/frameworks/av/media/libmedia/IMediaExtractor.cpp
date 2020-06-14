@@ -235,7 +235,7 @@ status_t BnMediaExtractor::onTransact(
     }
 }
 
-typedef struct {
+typedef struct ExtractorInstance { /* M3E: MSVC */
     String8 mime;
     String8 name;
     String8 sourceDescription;

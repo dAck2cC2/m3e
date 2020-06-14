@@ -50,6 +50,7 @@ static inline T max(T a, T b, T c, T d) {
     return max(a, b, max(c, d));
 }
 
+#if !defined(_MSC_VER) /* M3E: */
 template <typename T>
 static inline
 void swap(T& a, T& b) {
@@ -57,7 +58,7 @@ void swap(T& a, T& b) {
     a = b;
     b = t;
 }
-
+#endif
 
 }; // namespace android
 

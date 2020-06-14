@@ -106,6 +106,9 @@
 
 // M3E: Add
 #include "customized/NSurface.h"
+#if defined(_MSC_VER)
+android::SurfaceFlinger::SkipInitializationTag android::SurfaceFlinger::SkipInitialization;
+#endif
 
 #define DISPLAY_COUNT       1
 
@@ -356,6 +359,7 @@ SurfaceFlinger::SurfaceFlinger() : SurfaceFlinger(SkipInitialization) {
     mVsyncModulator.setPhaseOffsets(sfVsyncPhaseOffsetNs - earlyWakeupOffsetOffsetNs,
             sfVsyncPhaseOffsetNs);
 
+#if !defined(_MSC_VER) /* M3E: */
     // We should be reading 'persist.sys.sf.color_saturation' here
     // but since /data may be encrypted, we need to wait until after vold
     // comes online to attempt to read the property. The property is
@@ -369,6 +373,7 @@ SurfaceFlinger::SurfaceFlinger() : SurfaceFlinger(SkipInitialization) {
         // for production purposes later on.
         setenv("TREBLE_TESTING_OVERRIDE", "true", true);
     }
+#endif
 }
 
 void SurfaceFlinger::onFirstRef()

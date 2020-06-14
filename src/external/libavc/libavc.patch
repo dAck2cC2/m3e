@@ -1,0 +1,42 @@
+diff --git a/common/x86/ih264_platform_macros.h b/common/x86/ih264_platform_macros.h
+index 340c5d8..b1e4ade 100644
+--- a/common/x86/ih264_platform_macros.h
++++ b/common/x86/ih264_platform_macros.h
+@@ -70,8 +70,18 @@
+ 
+ static __inline UWORD32 CLZ(UWORD32 u4_word)
+ {
+-    if(u4_word)
++    if (u4_word)
++#if defined(_MSC_VER)
++    {
++        unsigned char leading_zero = 0;
++        if (_BitScanReverse(&leading_zero, u4_word))
++            return 31 - leading_zero;
++        else
++            return 32;
++    }
++#else
+     return(__builtin_clz(u4_word));
++#endif
+     else
+         return 32;
+ }
+@@ -82,9 +92,17 @@ static __inline UWORD32 CTZ(UWORD32 u4_word)
+         return 31;
+     else
+     {
++#if defined(_MSC_VER)
++        unsigned char trailing_zero = 0;
++        if (_BitScanForward(&trailing_zero, u4_word))
++            return trailing_zero;
++        else
++            return 32;
++#else
+         unsigned int index;
+         index = __builtin_ctz(u4_word);
+         return (UWORD32)index;
++#endif
+     }
+ }
+ 

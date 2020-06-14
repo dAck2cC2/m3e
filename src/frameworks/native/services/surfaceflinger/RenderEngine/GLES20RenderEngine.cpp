@@ -22,7 +22,9 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+#if !defined(_MSC_VER) /* M3E: */
 #include <ui/ColorSpace.h>
+#endif
 #include <ui/DebugUtils.h>
 #include <ui/Rect.h>
 
@@ -133,6 +135,7 @@ GLES20RenderEngine::GLES20RenderEngine(uint32_t featureFlags)
 
     // mColorBlindnessCorrection = M;
 
+#if defined(ANDROID_UI_COLOR_SPACE) /* M3E: ui/ColorSpace.h */
     if (mPlatformHasWideColor) {
         ColorSpace srgb(ColorSpace::sRGB());
         ColorSpace displayP3(ColorSpace::DisplayP3());
@@ -154,6 +157,7 @@ GLES20RenderEngine::GLES20RenderEngine(uint32_t featureFlags)
         mXyzToDisplayP3 = mat4(displayP3.getXYZtoRGB());
         mXyzToBt2020 = mat4(bt2020.getXYZtoRGB());
     }
+#endif
 }
 
 GLES20RenderEngine::~GLES20RenderEngine() {}
