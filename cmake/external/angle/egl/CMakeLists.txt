@@ -41,7 +41,7 @@ source_group(EGL FILES ${ANGLE_SOURCE_EGL})
 #  Target file
 ###############################################################################
 set(DEPLIB_ANGLE_EGL
-GLESv2
+ANGLE
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

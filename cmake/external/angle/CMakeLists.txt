@@ -22,6 +22,7 @@ endif()
 # Sub Folder
 ###########################################################
 
+add_subdirectory(angle)
 add_subdirectory(glesv2)
 add_subdirectory(glesv1_cm)
 add_subdirectory(egl)
