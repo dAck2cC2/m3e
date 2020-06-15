@@ -1,10 +1,17 @@
+//
+// Copyright 2014 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// OSWindow:
+//   Operating system window integration base class.
 
 
 #ifndef SF_NATIVE_WINDOW_H
 #define SF_NATIVE_WINDOW_H
 
-#include <list>
 #include <stdint.h>
+#include <list>
 #include <string>
 
 #include <EGL/egl.h>
@@ -35,7 +42,7 @@ class NativeWindow : public RefBase
     // just grab the pixels of the window. Returns if it was successful.
     virtual bool takeScreenshot(uint8_t *pixelData);
 
-    virtual EGLNativeWindowType getNativeWindow() const = 0;
+    virtual EGLNativeWindowType getNativeWindow() const   = 0;
     virtual EGLNativeDisplayType getNativeDisplay() const = 0;
 
     virtual void messageLoop() = 0;
@@ -44,9 +51,9 @@ class NativeWindow : public RefBase
     virtual void pushEvent(Event event);
 
     virtual void setMousePosition(int x, int y) = 0;
-    virtual bool setPosition(int x, int y) = 0;
-    virtual bool resize(int width, int height) = 0;
-    virtual void setVisible(bool isVisible) = 0;
+    virtual bool setPosition(int x, int y)      = 0;
+    virtual bool resize(int width, int height)  = 0;
+    virtual void setVisible(bool isVisible)     = 0;
 
     virtual void signalTestEvent() = 0;
 

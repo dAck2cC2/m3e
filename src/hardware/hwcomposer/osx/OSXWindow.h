@@ -1,3 +1,8 @@
+//
+// Copyright 2015 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
 
 #ifndef SF_NATIVE_OSX_WINDOW_H_
 #define SF_NATIVE_OSX_WINDOW_H_
@@ -8,27 +13,25 @@
 
 class OSXWindow;
 
-@interface WindowDelegate : NSObject
-{
+@interface WindowDelegate : NSObject {
     OSXWindow *mWindow;
 }
-- (id) initWithWindow: (OSXWindow*) window;
+- (id)initWithWindow:(OSXWindow *)window;
 @end
 
-@interface ContentView : NSView
-{
+@interface ContentView : NSView {
     OSXWindow *mWindow;
     NSTrackingArea *mTrackingArea;
     int mCurrentModifier;
 }
-- (id) initWithWindow: (OSXWindow*) window;
+- (id)initWithWindow:(OSXWindow *)window;
 @end
-    
+
 class OSXWindow : public android::NativeWindow
 {
   public:
     OSXWindow();
-    ~OSXWindow();
+    ~OSXWindow() override;
 
     bool initialize(const std::string &name, size_t width, size_t height) override;
     void destroy() override;

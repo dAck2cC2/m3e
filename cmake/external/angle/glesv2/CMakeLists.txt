@@ -11,6 +11,7 @@ if(MSVC)
     add_definitions(-DGL_APICALL=__declspec\(dllexport\))
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++14 -stdlib=libc++")
+    set(CMAKE_C_FLAGS "-x objective-c")
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/include )
@@ -32,7 +33,8 @@ source_group(public\\GLES2 FILES ${ANGLE_HEADER_GLES2})
 #  GLESv2
 ###############################################################################
 file(GLOB ANGLE_SOURCE_GLESv2 
-${SOURCE_PATH}/libGLESv2/libGLESv2_autogen.cpp
+${SOURCE_PATH}/libGLESv2/libGLESv2.rc 
+${SOURCE_PATH}/libGLESv2/libGLESv2_autogen.cpp 
 ${SOURCE_PATH}/libGLESv2/resource.h
 )
 source_group(GLESv2 FILES ${ANGLE_SOURCE_GLESv2})
