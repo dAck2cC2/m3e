@@ -5,6 +5,7 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
 #add_definitions(-DNDEBUG=1)
 #add_definitions(-DLIBANGLE_IMPLEMENTATION=1)
+add_definitions(-DGL_GLES_PROTOTYPES=1)
 add_definitions(-DGL_GLEXT_PROTOTYPES=1)
 if(MSVC)
     add_definitions(-DGL_API=__declspec\(dllexport\))
@@ -19,6 +20,7 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src )
 
 include_directories(AFTER ${HEADER_PATH})
 include_directories(AFTER ${SOURCE_PATH})
+include_directories(AFTER ${SOURCE_PATH}/id)
 
 ###############################################################################
 #  Public Header

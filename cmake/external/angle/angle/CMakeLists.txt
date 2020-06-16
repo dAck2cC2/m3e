@@ -27,6 +27,18 @@ set(angle_frame_capture_enabled   "false")
 if(MSVC)
     #add_definitions(-DGL_API=__declspec\(dllexport\))
     #add_definitions(-DGL_APICALL=__declspec\(dllexport\))
+    add_definitions(-D__SCITECH_SNAP__)
+    add_definitions(-D__STDC_CONSTANT_MACROS)
+    add_definitions(-DNOMINMAX=1)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+    add_definitions(-D__STDC_LIMIT_MACROS=1)
+    add_definitions(-DZLIB_WINAPI)
+
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_latest_flag_suppoted)
+    if (_cpp_latest_flag_suppoted)
+        add_compile_options("/std:c++17")
+    endif()
 
     include(${M3E_SOURCE_DIR}/cmake/tool/FindWindowsSDK.cmake)
     get_windowssdk_library_dirs(${WINDOWSSDK_PREFERRED_DIR} DirectX_LIBRARY_PATHS)
@@ -255,7 +267,7 @@ source_group(translator_fuzzer FILES ${ANGLE_SOURCE_TRANSLATOR_FUZZER})
 set( ID_SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src )
 if(NOT EXISTS ${ID_SOURCE_PATH}/id)
     exec_program("cmake -E make_directory id" ${ID_SOURCE_PATH})
-    exec_program("python commit_id.py gen ../ ./id/commit.h" ${ID_SOURCE_PATH})
+    exec_program("python commit_id.py gen ./id/commit.h" ${ID_SOURCE_PATH})
 endif()
 include_directories(AFTER ${ID_SOURCE_PATH}/id)
 
@@ -309,13 +321,16 @@ source_group(libANGLE_headers FILES ${ANGLE_SOURCE_LIBANGLE_HEADERS})
 set(ANGLE_SOURCE_LIBANGLE_BASE ${libangle_sources})
 if (is_win)
     if (angle_enable_d3d9)
-        find_library(DELAYIMP_LIBRARY delayimp ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
-        list(APPEND ANGLE_DEPLIB ${DELAYIMP_LIBRARY})
+        # cannot find this library.
+        #find_library(DELAYIMP_LIBRARY delayimp ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
+        #list(APPEND ANGLE_DEPLIB ${DELAYIMP_LIBRARY})
     endif(angle_enable_d3d9)
-    find_library(GDI32_LIBRARY gdi32 ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
-    list(APPEND ANGLE_DEPLIB ${GDI32_LIBRARY})
-    find_library(USER32_LIBRARY user32 ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
-    list(APPEND ANGLE_DEPLIB ${USER32_LIBRARY})
+
+    # it seems already included automatically
+    #find_library(GDI32_LIBRARY gdi32 ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
+    #list(APPEND ANGLE_DEPLIB ${GDI32_LIBRARY})
+    #find_library(USER32_LIBRARY user32 ${DirectX_LIBRARY_PATHS} NO_DEFAULT_PATH)
+    #list(APPEND ANGLE_DEPLIB ${USER32_LIBRARY})
 endif(is_win)
 if (angle_enable_d3d9 OR angle_enable_d3d11)
     list(APPEND ANGLE_SOURCE_LIBANGLE_BASE ${libangle_d3d_shared_sources})
@@ -395,28 +410,6 @@ source_group(libANGLE FILES ${ANGLE_SOURCE_LIBANGLE})
 set(ANGLE_SOURCE_LIBGLESV2 ${libglesv2_sources})
 list(REMOVE_ITEM ANGLE_SOURCE_GLESv2 ${SOURCE_PATH}/libGLESv2/libGLESv2_autogen.cpp)
 source_group(angle_libGLESv2 FILES ${ANGLE_SOURCE_LIBGLESV2})
-
-
-###############################################################################
-#  Public Header
-###############################################################################
-#file(GLOB ANGLE_HEADER_KHR ${HEADER_PATH}/KHR/*.h)
-#source_group(public\\KHR FILES ${ANGLE_HEADER_KHR})
-
-#file(GLOB ANGLE_HEADER_GLES2 ${HEADER_PATH}/GLES2/*.h)
-#source_group(public\\GLES2 FILES ${ANGLE_HEADER_GLES2})
-
-###############################################################################
-#  GLESv2
-###############################################################################
-#file(GLOB ANGLE_SOURCE_GLESv2 
-#${SOURCE_PATH}/libGLESv2/*.cpp
-#${SOURCE_PATH}/libGLESv2/*.h
-#${HEADER_PATH}/*.h
-#${HEADER_PATH}/platform/*.h
-#)
-#list(REMOVE_ITEM ANGLE_SOURCE_GLESv2 ${SOURCE_PATH}/libGLESv2/libGLESv2_autogen.cpp)
-#source_group(GLESv2 FILES ${ANGLE_SOURCE_GLESv2})
 
 ###############################################################################
 #  Target file

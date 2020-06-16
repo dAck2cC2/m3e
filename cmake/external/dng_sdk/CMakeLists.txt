@@ -26,6 +26,7 @@ if(APPLE)
     list(APPEND DNG_DEPLIB ${APPKIT_LIBRARY})
 elseif(MSVC)
     add_definitions(-D_HAS_AUTO_PTR_ETC=1)
+    add_definitions(-DNOMINMAX=1)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/dng_sdk/source )

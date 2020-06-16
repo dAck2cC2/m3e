@@ -5,6 +5,7 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
 #add_definitions(-DNDEBUG=1)
 #add_definitions(-DLIBANGLE_IMPLEMENTATION=1)
+add_definitions(-DEGL_EGL_PROTOTYPES=1)
 add_definitions(-DEGL_EGLEXT_PROTOTYPES=1)
 
 if (APPLE)
@@ -17,6 +18,7 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/src )
 
 include_directories(AFTER ${HEADER_PATH})
 include_directories(AFTER ${SOURCE_PATH})
+include_directories(AFTER ${SOURCE_PATH}/id)
 include_directories(AFTER ${SOURCE_PATH}/common/third_party/base)
 
 include(${M3E_SOURCE_DIR}/cmake/${EXT_PATH}/angle/angle/libGLESv2_gni.cmake)
@@ -38,7 +40,10 @@ set(ANGLE_SOURCE_EGL ${libegl_sources})
 add_definitions(-DLIBEGL_IMPLEMENTATION)
 if(MSVC)
     add_definitions(-DEGLAPI=__declspec\(dllexport\))
-    list(APPEND ANGLE_SOURCE_EGL ${SOURCE_PATH}/libEGL/libEGL.def)
+
+    # It will lead to link libEGL.dll, 
+    # which cases error 126 when LoadLibrary call.
+    #list(APPEND ANGLE_SOURCE_EGL ${SOURCE_PATH}/libEGL/libEGL.def)
 endif()
 source_group(EGL FILES ${ANGLE_SOURCE_EGL})
 
