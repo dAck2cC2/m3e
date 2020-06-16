@@ -76,7 +76,7 @@ ${SOURCE_PATH}/MediaDefs.cpp
 
 if(ENABLE_AV_CODEC)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
-    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+    include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/av/camera/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)

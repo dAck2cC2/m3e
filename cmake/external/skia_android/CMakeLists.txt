@@ -18,7 +18,7 @@ include(${M3E_SOURCE_DIR}/cmake/external/webp/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/piex/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/zlib/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/expat/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/EGL/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/include.cmake)
 
 set(SKIA_DEPLIB
 ${PNG_LIBRARIES}
