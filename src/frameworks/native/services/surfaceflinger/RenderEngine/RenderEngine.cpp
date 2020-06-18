@@ -35,7 +35,7 @@
 using namespace android::hardware::configstore;
 using namespace android::hardware::configstore::V1_0;
 
-#if 0 /* M3E: no EGL android extention */
+#if defined(ENABLE_ANDROID_GL) /* M3E: no EGL android extention */
 extern "C" EGLAPI const char* eglQueryStringImplementationANDROID(EGLDisplay dpy, EGLint name);
 #endif
 
@@ -168,28 +168,28 @@ std::unique_ptr<RenderEngine> RenderEngine::create(int hwcFormat, uint32_t featu
         contextAttributes.push_back(contextClientVersion);
         contextAttributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
         contextAttributes.push_back(0);
-        contextAttributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
-        contextAttributes.push_back(EGL_FALSE);
+        //contextAttributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
+        //contextAttributes.push_back(EGL_FALSE);
         // TODO(jmadill): Check for the extension string.
         // bool hasKHRCreateContextNoError = strstr(displayExtensions,
         // "EGL_KHR_create_context_no_error") != nullptr;
         contextAttributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
         contextAttributes.push_back(EGL_FALSE);
         if (hasWebGLCompatibility) {
-            contextAttributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
-            contextAttributes.push_back(EGL_FALSE);
+            //contextAttributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
+            //contextAttributes.push_back(EGL_FALSE);
         }
         if (hasRobustness) {
             contextAttributes.push_back(EGL_CONTEXT_OPENGL_ROBUST_ACCESS_EXT);
             contextAttributes.push_back(EGL_FALSE);
         }
         if (hasBindGeneratesResource) {
-            contextAttributes.push_back(EGL_CONTEXT_BIND_GENERATES_RESOURCE_CHROMIUM);
-            contextAttributes.push_back(EGL_TRUE);
+            //contextAttributes.push_back(EGL_CONTEXT_BIND_GENERATES_RESOURCE_CHROMIUM);
+            //contextAttributes.push_back(EGL_TRUE);
         }
         if (hasClientArraysExtension) {
-            contextAttributes.push_back(EGL_CONTEXT_CLIENT_ARRAYS_ENABLED_ANGLE);
-            contextAttributes.push_back(EGL_TRUE);
+            //contextAttributes.push_back(EGL_CONTEXT_CLIENT_ARRAYS_ENABLED_ANGLE);
+            //contextAttributes.push_back(EGL_TRUE);
         }
     }
     contextAttributes.push_back(EGL_NONE);

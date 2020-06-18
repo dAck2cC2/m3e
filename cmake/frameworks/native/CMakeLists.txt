@@ -10,6 +10,6 @@ endif(ENABLE_SURFACE_FLINGER)
 
 add_subdirectory(audiomanager)
 
-if (ENABLE_DESKTOP_GL)
+if (ENABLE_DESKTOP_GL OR ENABLE_ANDROID_GL)
     add_subdirectory(opengl)
-endif(ENABLE_DESKTOP_GL)
+endif()

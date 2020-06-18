@@ -52,5 +52,5 @@ ANGLE
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(GLESv2 SHARED ${ANGLED_SOURCE_GLES2})
-target_link_libraries(GLESv2 ${DEPLIB_AGLESV2})
+add_library(GLESv2_angle SHARED ${ANGLED_SOURCE_GLES2})
+target_link_libraries(GLESv2_angle ${DEPLIB_AGLESV2})

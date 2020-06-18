@@ -55,5 +55,5 @@ ANGLE
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(EGL SHARED ${ANGLE_SOURCE_EGL} ${ANGLE_HEADER_EGL} ${ANGLE_HEADER_KHR})
-target_link_libraries(EGL ${DEPLIB_ANGLE_EGL})
+add_library(EGL_angle SHARED ${ANGLE_SOURCE_EGL} ${ANGLE_HEADER_EGL} ${ANGLE_HEADER_KHR})
+target_link_libraries(EGL_angle ${DEPLIB_ANGLE_EGL})

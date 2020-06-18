@@ -54,5 +54,5 @@ ANGLE
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(GLESv1_CM SHARED ${ANGLED_SOURCE_GLES1})
-target_link_libraries(GLESv1_CM ${DEPLIB_GLESV1_CM})
+add_library(GLESv1_CM_angle SHARED ${ANGLED_SOURCE_GLES1})
+target_link_libraries(GLESv1_CM_angle ${DEPLIB_GLESV1_CM})
