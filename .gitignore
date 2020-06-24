@@ -8,6 +8,7 @@ GTAGS
 external
 proj
 backup
+out
 
 !/cmake/external
 !/src/external

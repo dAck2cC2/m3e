@@ -47,9 +47,9 @@ void Surface::setNativeWindow(ANativeWindow* window) {
 
     mWindow = window;
     if (mWindow) {
-#if TODO /* M3E: maybe use Android's OpenGL ES instead of ANGLE later */
+#if defined(ENABLE_ANDROID_GL)
         mEGLSurface = eglCreateWindowSurface(mEGLDisplay, mEGLConfig, mWindow, nullptr);
-#endif
+#endif // ENABLE_ANROID_GL
     }
 }
 

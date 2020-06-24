@@ -5,7 +5,7 @@ elseif (ENABLE_ANDROID_GL)
     add_subdirectory(android)
 endif()
 
-#set(ENABLE_TEST true)
+#set(ENABLE_TEST TRUE)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif(ENABLE_TEST)

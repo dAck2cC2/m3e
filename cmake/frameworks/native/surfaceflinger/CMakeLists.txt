@@ -181,9 +181,13 @@ file(GLOB ${PROJECT_NAME}_CUSTOMIZED
 ${SOURCE_PATH}/customized/*.h
 )
 list(APPEND ${PROJECT_NAME}_CUSTOMIZED
-#${SOURCE_PATH}/customized/SurfaceHandler.cpp
 ${SOURCE_PATH}/customized/main_surfaceflinger.cpp
 )
+if(ENABLE_ANDROID_GL)
+    list(APPEND ${PROJECT_NAME}_CUSTOMIZED
+    ${SOURCE_PATH}/customized/NBufferProducer.cpp
+    )
+endif(ENABLE_ANDROID_GL)
 source_group(customized FILES ${${PROJECT_NAME}_CUSTOMIZED})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_CUSTOMIZED})
 
@@ -197,6 +201,7 @@ add_library(${LIB_NAME} SHARED ${${PROJECT_NAME}_SOURCE_FILES})
 target_link_libraries(${LIB_NAME} ${SURFACEFLINGER_DEPLIB})
 
 
+#set(ENABLE_TEST TRUE)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif(ENABLE_TEST)

@@ -258,25 +258,6 @@ DisplayDevice::DisplayDevice(
       mSupportedPerFrameMetadata(supportedPerFrameMetadata)
 {
     // clang-format on
-#if 0 //ENABLE_ANGLE
-    Surface* surface;
-    mNativeWindow = surface = new Surface(producer, false);
-    EGLNativeWindowType window = mFlinger->getEGLNativeWindow();
-
-    /*
-     * Create our display's surface
-     */
-
-    EGLSurface eglSurface;
-	EGLDisplay display = mFlinger->getEGLDisplay();
-    if (config == EGL_NO_CONFIG) {
-        config = RenderEngine::chooseEglConfig(display, PIXEL_FORMAT_RGBA_8888,
-                                               /*logConfig*/ false);
-    }
-    eglSurface = eglCreateWindowSurface(display, config, window, NULL);
-    eglQuerySurface(display, eglSurface, EGL_WIDTH,  &mDisplayWidth);
-    eglQuerySurface(display, eglSurface, EGL_HEIGHT, &mDisplayHeight);
-#endif
     populateColorModes(hwcColorModes);
 
     std::vector<Hdr> types = hdrCapabilities.getSupportedHdrTypes();
@@ -634,6 +615,15 @@ void DisplayDevice::setProjection(int orientation,
     float dst_y = frame.top;
     TL.set(-src_x, -src_y);
     TP.set(dst_x, dst_y);
+
+    // need to take care of primary display rotation for mGlobalTransform
+    // for case if the panel is not installed aligned with device orientation
+    if (mType == DisplayType::DISPLAY_PRIMARY) {
+        int primaryDisplayOrientation = mFlinger->getPrimaryDisplayOrientation();
+        DisplayDevice::orientationToTransfrom(
+                (orientation + primaryDisplayOrientation) % (DisplayState::eOrientation270 + 1),
+                w, h, &R);
+    }
 
     // The viewport and frame are both in the logical orientation.
     // Apply the logical translation, scale to physical size, apply the

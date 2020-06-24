@@ -19,8 +19,8 @@ add_definitions(-DLIBANGLE_UTIL_IMPLEMENTATION=1)
 add_definitions(-DGL_GLEXT_PROTOTYPES=1)
 
 set(ANGLE_UTIL_DEPLIB
-EGL
-GLESv2
+EGL_angle
+GLESv2_angle
 )
 
 set(HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/util/)

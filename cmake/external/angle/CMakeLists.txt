@@ -21,10 +21,9 @@ add_subdirectory(glesv2)
 add_subdirectory(glesv1_cm)
 add_subdirectory(egl)
 
-# util is just reference, but not really used
-#add_subdirectory(util)
-
 #set(ENABLE_TEST "TRUE")
 if(ENABLE_TEST)
+    # util is just reference, but not really used
+    add_subdirectory(util)
     add_subdirectory(test)
 endif(ENABLE_TEST)

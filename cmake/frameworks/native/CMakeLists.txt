@@ -5,11 +5,9 @@ add_subdirectory(servicemanager)
 add_subdirectory(ui)
 add_subdirectory(gui)
 if (ENABLE_SURFACE_FLINGER)
-add_subdirectory(surfaceflinger)
+    add_subdirectory(surfaceflinger)
 endif(ENABLE_SURFACE_FLINGER)
 
 add_subdirectory(audiomanager)
 
-if (ENABLE_DESKTOP_GL OR ENABLE_ANDROID_GL)
-    add_subdirectory(opengl)
-endif()
+add_subdirectory(opengl)

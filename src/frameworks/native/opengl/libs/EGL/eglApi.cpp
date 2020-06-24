@@ -712,12 +712,12 @@ EGLSurface eglCreateWindowSurface(  EGLDisplay dpy, EGLConfig config,
         }
 
         int value = 0;
-        (static_cast<struct ANativeWindow*>(window))->query(static_cast<struct ANativeWindow*>(window), NATIVE_WINDOW_IS_VALID, &value);
+        (static_cast<ANativeWindow*>(window))->query(static_cast<ANativeWindow*>(window), NATIVE_WINDOW_IS_VALID, &value);
         if (!value) {
             return setError(EGL_BAD_NATIVE_WINDOW, EGL_NO_SURFACE);
         }
 
-        int result = native_window_api_connect(static_cast<struct ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
+        int result = native_window_api_connect(static_cast<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
         if (result < 0) {
             ALOGE("eglCreateWindowSurface: native_window_api_connect (win=%p) "
                     "failed (%#x) (already connected to another API?)",
@@ -740,18 +740,18 @@ EGLSurface eglCreateWindowSurface(  EGLDisplay dpy, EGLConfig config,
         attrib_list = strippedAttribList.data();
 
         {
-            int err = native_window_set_buffers_format(static_cast<struct ANativeWindow*>(window), format);
+            int err = native_window_set_buffers_format(static_cast<ANativeWindow*>(window), format);
             if (err != 0) {
                 ALOGE("error setting native window pixel format: %s (%d)",
                       strerror(-err), err);
-                native_window_api_disconnect(static_cast<struct ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
+                native_window_api_disconnect(static_cast<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
                 return setError(EGL_BAD_NATIVE_WINDOW, EGL_NO_SURFACE);
             }
         }
 
         android_dataspace dataSpace = dataSpaceFromEGLColorSpace(colorSpace);
         if (dataSpace != HAL_DATASPACE_UNKNOWN) {
-            int err = native_window_set_buffers_data_space(static_cast<struct ANativeWindow*>(window), dataSpace);
+            int err = native_window_set_buffers_data_space(static_cast<ANativeWindow*>(window), dataSpace);
             if (err != 0) {
                 ALOGE("error setting native window pixel dataSpace: %s (%d)",
                       strerror(-err), err);
@@ -765,8 +765,16 @@ EGLSurface eglCreateWindowSurface(  EGLDisplay dpy, EGLConfig config,
         ANativeWindow* anw = reinterpret_cast<ANativeWindow*>(window);
         anw->setSwapInterval(anw, 1);
 
+#if defined(ENABLE_ANGLE) // M3E: use consumer usage to pass native window handle for ANGLE
+        NativeWindowType nativeWindow = 0;
+        native_window_get_consumer_usage(static_cast<ANativeWindow*>(window), reinterpret_cast<uint64_t*>(&nativeWindow));
+        
+        EGLSurface surface = cnx->egl.eglCreateWindowSurface(
+                iDpy, config, nativeWindow, attrib_list);
+#else
         EGLSurface surface = cnx->egl.eglCreateWindowSurface(
                 iDpy, config, window, attrib_list);
+#endif
         if (surface != EGL_NO_SURFACE) {
             egl_surface_t* s =
                     new egl_surface_t(dp.get(), config, window, surface,
@@ -775,8 +783,8 @@ EGLSurface eglCreateWindowSurface(  EGLDisplay dpy, EGLConfig config,
         }
 
         // EGLSurface creation failed
-        native_window_set_buffers_format(static_cast<struct ANativeWindow*>(window), 0);
-        native_window_api_disconnect(static_cast<struct ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
+        native_window_set_buffers_format(static_cast<ANativeWindow*>(window), 0);
+        native_window_api_disconnect(static_cast<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
     }
     return EGL_NO_SURFACE;
 }

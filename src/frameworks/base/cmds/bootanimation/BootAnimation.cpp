@@ -72,7 +72,9 @@
 
 #include "BootAnimation.h"
 
+#if defined(ENABLE_ANGLE) && !defined(ENABLE_ANDROID_GL) // M3E:
 #include <gui/customized/ISurfaceHandle.h>
+#endif
 
 namespace android {
 
@@ -147,7 +149,7 @@ void BootAnimation::binderDied(const wp<IBinder>&)
 
     // calling requestExit() is not enough here because the Surface code
     // might be blocked on a condition variable that will never be updated.
-    //kill( getpid(), SIGKILL );
+    //kill( getpid(), SIGKILL ); /* M3E: */
     requestExit();
 }
 
@@ -270,7 +272,7 @@ status_t BootAnimation::initTexture(FileMap* map, int* width, int* height)
 }
 
 status_t BootAnimation::readyToRun() {
-#if 0
+#if 0 /* M3E: */
     mAssets.addDefaultAssets();
 #else
 	String8 path(".");
@@ -293,7 +295,6 @@ status_t BootAnimation::readyToRun() {
         .apply();
 
     sp<Surface> s = control->getSurface();
-	EGLNativeWindowType window = ISurfaceHandle_getNativeWindow(control->getHandle());
 
     // initialize opengl and egl
     const EGLint attribs[] = {
@@ -309,15 +310,16 @@ status_t BootAnimation::readyToRun() {
     EGLSurface surface;
     EGLContext context;
 
-#if defined(__APPLE__)
-	EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY + 1);
-#else
-	EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-#endif
+    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
     eglInitialize(display, 0, 0);
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-	surface = eglCreateWindowSurface(display, config, window, NULL);
+#if defined(ENABLE_ANDROID_GL)
+    surface = eglCreateWindowSurface(display, config, static_cast<ANativeWindow *>(s.get()), NULL);
+#else
+    EGLNativeWindowType window = ISurfaceHandle_getNativeWindow(control->getHandle());
+    surface = eglCreateWindowSurface(display, config, window, NULL);
+#endif
     context = eglCreateContext(display, config, NULL, NULL);
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
@@ -1089,7 +1091,7 @@ bool BootAnimation::updateIsTimeAccurate() {
       if (lastChangedTime > 0) {
         struct timespec now;
 #if defined(__linux__)
-		clock_gettime(CLOCK_REALTIME, &now);
+        clock_gettime(CLOCK_REALTIME, &now);
 #else // __APPLE__
 		// Apple doesn't support POSIX clocks.
 		struct timeval t;
@@ -1109,6 +1111,7 @@ bool BootAnimation::updateIsTimeAccurate() {
 
     return mTimeIsAccurate;
 }
+
 #if ENABLE_TIME_CHECK
 BootAnimation::TimeCheckThread::TimeCheckThread(BootAnimation* bootAnimation) : Thread(false),
     mInotifyFd(-1), mSystemWd(-1), mTimeWd(-1), mBootAnimation(bootAnimation) {}
@@ -1201,6 +1204,7 @@ status_t BootAnimation::TimeCheckThread::readyToRun() {
     return NO_ERROR;
 }
 #endif // ENABLE_TIME_CHECK
+
 // ---------------------------------------------------------------------------
 
 }

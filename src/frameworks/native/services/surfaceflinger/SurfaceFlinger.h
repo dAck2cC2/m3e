@@ -122,6 +122,12 @@ namespace dvr {
 class VrFlinger;
 } // namespace dvr
 
+#if defined(ENABLE_ANDROID_GL) // M3E:
+namespace NATIVE {
+class BufferProducer;
+} // namespace NATIVE
+#endif
+
 // ---------------------------------------------------------------------------
 
 enum {
@@ -369,6 +375,10 @@ private:
 
     // For unit tests
     friend class TestableSurfaceFlinger;
+    
+#if defined(ENABLE_ANDROID_GL) // M3E:
+    friend class NATIVE::BufferProducer;
+#endif
 
     // This value is specified in number of frames.  Log frame stats at most
     // every half hour.
@@ -552,7 +562,9 @@ private:
                          sp<IBinder>* handle, sp<IGraphicBufferProducer>* gbp,
                          const sp<IBinder>& parentHandle, const sp<Layer>& parentLayer = nullptr);
 
+#if defined(ENABLE_ANGLE) && !defined(ENABLE_ANDROID_GL)
     virtual /* M3E: create native layer */
+#endif
     status_t createBufferLayer(const sp<Client>& client, const String8& name,
             uint32_t w, uint32_t h, uint32_t flags, PixelFormat& format,
             sp<IBinder>* outHandle, sp<IGraphicBufferProducer>* outGbp,
@@ -931,13 +943,6 @@ private:
     CreateNativeWindowSurfaceFunction mCreateNativeWindowSurface;
 
     SurfaceFlingerBE mBE;
-
-    
-    
-    /* M3E: Add customized */
-    using CreateNativeWindowSurfaceFunctionExt =
-            std::function<std::unique_ptr<NativeWindowSurface>(const sp<IGraphicBufferProducer>&, sp<SurfaceFlinger>&)>;
-    CreateNativeWindowSurfaceFunctionExt mCreateNativeWindowSurfaceExt;
 };
 }; // namespace android
 

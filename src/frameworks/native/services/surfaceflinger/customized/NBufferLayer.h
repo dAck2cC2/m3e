@@ -1,5 +1,7 @@
 #pragma once
 
+#if !defined(ENABLE_ANDROID_GL)
+
 #ifndef NATIVE_BUFFER_LAYER_H
 #define NATIVE_BUFFER_LAYER_H
 
@@ -96,3 +98,6 @@ private:
 } // android
 
 #endif // NATIVE_BUFFER_LAYER_H
+
+#endif // ENABLE_ANDROID_GL
+

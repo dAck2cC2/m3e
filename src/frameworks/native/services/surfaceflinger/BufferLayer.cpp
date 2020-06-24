@@ -48,6 +48,10 @@
 #include <stdlib.h>
 #include <mutex>
 
+#if ENABLE_ANDROID_GL // M3E:
+    #include "customized/NBufferProducer.h"
+#endif
+
 namespace android {
 
 BufferLayer::BufferLayer(SurfaceFlinger* flinger, const sp<Client>& client, const String8& name,
@@ -705,7 +709,11 @@ void BufferLayer::onFirstRef() {
     sp<IGraphicBufferProducer> producer;
     sp<IGraphicBufferConsumer> consumer;
     BufferQueue::createBufferQueue(&producer, &consumer, true);
+#if ENABLE_ANDROID_GL // M3E:
+    mProducer = new NATIVE::BufferProducer(producer, mFlinger);
+#else
     mProducer = new MonitoredProducer(producer, mFlinger, this);
+#endif
     mConsumer = new BufferLayerConsumer(consumer,
             mFlinger->getRenderEngine(), mTextureName, this);
     mConsumer->setConsumerUsageBits(getEffectiveUsage(0));

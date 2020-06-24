@@ -1,0 +1,29 @@
+diff --git a/src/libANGLE/Display.cpp b/src/libANGLE/Display.cpp
+index 672d6f92e..cd08dd565 100644
+--- a/src/libANGLE/Display.cpp
++++ b/src/libANGLE/Display.cpp
+@@ -784,6 +784,7 @@ Error Display::initialize()
+ 
+     if (isInitialized())
+     {
++        mImplementation->initialize(this);
+         return NoError();
+     }
+ 
+diff --git a/src/libANGLE/renderer/gl/cgl/DisplayCGL.mm b/src/libANGLE/renderer/gl/cgl/DisplayCGL.mm
+index c12a1b1ff..f69323b35 100644
+--- a/src/libANGLE/renderer/gl/cgl/DisplayCGL.mm
++++ b/src/libANGLE/renderer/gl/cgl/DisplayCGL.mm
+@@ -142,6 +142,12 @@ static void SetGPUByRegistryID(CGLContextObj contextObj,
+ 
+ egl::Error DisplayCGL::initialize(egl::Display *display)
+ {
++    // set CGL context for current thread
++    if ((mEGLDisplay == display) && (mContext != nullptr)) {
++        CGLSetCurrentContext(mContext);
++        return egl::NoError();
++    }
++    
+     mEGLDisplay = display;
+ 
+     angle::SystemInfo info;

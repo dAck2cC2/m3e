@@ -9,12 +9,13 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/include.cmake)
 
 set(DEMO_DEPLIBS 
 ${OPENGL_DEPLIB}
+initrc
 )
 
-set( NATIVE_WINDOW_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/surfaceflinger/NativeWindow )
+set( NATIVE_WINDOW_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
 file(GLOB NATIVE_WINDOW_SOURCE
-${NATIVE_WINDOW_PATH}/*.h 
-${NATIVE_WINDOW_PATH}/*.cpp 
+${NATIVE_WINDOW_PATH}/com/*.h 
+${NATIVE_WINDOW_PATH}/com/*.cpp 
 )
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/angle/third_party/khronos/GL)
@@ -32,14 +33,14 @@ if(APPLE)
 
 elseif(MSVC)
     list(APPEND NATIVE_WINDOW_SOURCE 
-    ${NATIVE_WINDOW_PATH}/win32/Win32Window.h
-    ${NATIVE_WINDOW_PATH}/win32/Win32Timer.h
-    ${NATIVE_WINDOW_PATH}/win32/Win32Window.cpp
-    ${NATIVE_WINDOW_PATH}/win32/Win32Timer.cpp 
+    ${NATIVE_WINDOW_PATH}/win/Win32Window.h
+    ${NATIVE_WINDOW_PATH}/win/Win32Timer.h
+    ${NATIVE_WINDOW_PATH}/win/Win32Window.cpp
+    ${NATIVE_WINDOW_PATH}/win/Win32Timer.cpp 
     )
 endif()
 
-include_directories(AFTER ${NATIVE_WINDOW_PATH}/../)
+include_directories(AFTER ${NATIVE_WINDOW_PATH})
 
 ADD_DEMO(egl   
 ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/test/test_egl.cpp
@@ -54,3 +55,15 @@ if (MSVC)
     ${NATIVE_WINDOW_SOURCE}    
     )
 endif(MSVC)
+
+if (APPLE)
+    #find_library(COCOA_LIBRARY Cocoa)
+    #list(APPEND DEMO_DEPLIBS ${COCOA_LIBRARY})
+
+    find_library(OPENGL_LIBRARY OpenGL)
+    list(APPEND DEMO_DEPLIBS ${OPENGL_LIBRARY})
+
+    ADD_DEMO(cgl   
+    ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/test/test_cgl.mm
+    )
+endif(APPLE)

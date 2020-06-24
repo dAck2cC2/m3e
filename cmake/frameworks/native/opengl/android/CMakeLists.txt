@@ -86,8 +86,12 @@ source_group(libEGL FILES ${libEGL_SOURCE_FILES})
 ###############################################################################
 #  libGLESv1_CM
 ###############################################################################
+add_definitions(-DUSE_SLOW_BINDING=1)
+
 set(libGLESv1_CM_SOURCE_FILES 
 ${SOURCE_PATH}/GLES_CM/gl.cpp
+${SOURCE_PATH}/GLES_CM/gl_api.in
+${SOURCE_PATH}/GLES_CM/glext_api.in
 )
 source_group(libGLESv1_CM FILES ${libGLESv1_CM_SOURCE_FILES})
 
@@ -96,6 +100,8 @@ source_group(libGLESv1_CM FILES ${libGLESv1_CM_SOURCE_FILES})
 ###############################################################################
 set(llibGLESv2_SOURCE_FILES 
 ${SOURCE_PATH}/GLES2/gl2.cpp
+${SOURCE_PATH}/GLES2/gl2_api.in
+${SOURCE_PATH}/GLES2/gl2ext_api.in
 )
 source_group(libGLESv2 FILES ${llibGLESv2_SOURCE_FILES})
 
@@ -128,19 +134,19 @@ ${KHR_HEADER_FILES}
 ${libETC1_SOURCE_FILES}
 ${libEGL_SOURCE_FILES}
 )
-add_library(EGL SHARED ${${PROJECT_NAME}_SOURCE})
-target_link_libraries(EGL ${${PROJECT_NAME}_DEPLIB})
+add_library(EGL_android SHARED ${${PROJECT_NAME}_SOURCE})
+target_link_libraries(EGL_android ${${PROJECT_NAME}_DEPLIB})
 
 # libGLESv1_CM
-list(APPEND ${PROJECT_NAME}_DEPLIB EGL)
+list(APPEND ${PROJECT_NAME}_DEPLIB EGL_android)
 
 set(${PROJECT_NAME}_SOURCE
 ${EGL_HEADER_FILES}
 ${KHR_HEADER_FILES}
 ${libGLESv1_CM_SOURCE_FILES}
 )
-add_library(GLESv1_CM SHARED ${${PROJECT_NAME}_SOURCE})
-target_link_libraries(GLESv1_CM ${${PROJECT_NAME}_DEPLIB})
+add_library(GLESv1_CM_android SHARED ${${PROJECT_NAME}_SOURCE})
+target_link_libraries(GLESv1_CM_android ${${PROJECT_NAME}_DEPLIB})
 
 # libGLESv2
 set(${PROJECT_NAME}_SOURCE
@@ -148,5 +154,5 @@ ${EGL_HEADER_FILES}
 ${KHR_HEADER_FILES}
 ${llibGLESv2_SOURCE_FILES}
 )
-add_library(GLESv2 SHARED ${${PROJECT_NAME}_SOURCE})
-target_link_libraries(GLESv2 ${${PROJECT_NAME}_DEPLIB})
+add_library(GLESv2_android SHARED ${${PROJECT_NAME}_SOURCE})
+target_link_libraries(GLESv2_android ${${PROJECT_NAME}_DEPLIB})

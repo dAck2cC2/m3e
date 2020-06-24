@@ -1,8 +1,13 @@
 
-#include "NativeWindow/NativeWindow.h"
+#include "com/NativeWindow.h"
 #include <EGL/egl.h>
 #include <GLES/gl.h>
+#include <GLES2/gl2.h>
 
+
+#if ENABLE_ANDROID_GL
+#include <initrc/initrc.h>
+#endif
 
 static EGLDisplay  mDisplay;
 static EGLDisplay  mContext;
@@ -14,6 +19,7 @@ void display_gl()
 {
 	/* rotate a triangle around */
 	glClear(GL_COLOR_BUFFER_BIT);
+#if ENABLE_DESKTOP_GL
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex2i(0, 1);
@@ -22,6 +28,26 @@ void display_gl()
 	glColor3f(0.0f, 0.0f, 1.0f);
 	glVertex2i(1, -1);
 	glEnd();
+#else
+	GLfloat vertices[] = {
+		0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f,
+	};
+
+	// Set the viewport
+	//glViewport(0, 0, getWindow()->getWidth(), getWindow()->getHeight());
+
+	// Clear the color buffer
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Use the program object
+	//glUseProgram(mProgram);
+
+	// Load the vertex data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+	glEnableVertexAttribArray(0);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+#endif
 	glFlush();
 }
 
@@ -73,6 +99,7 @@ redraw(void)
 	//glTranslatef(-1.5f, 0.0f, -6.0f);                 // Move Left 1.5 Units And Into The Screen 6.0
 
 	glClear(GL_COLOR_BUFFER_BIT);
+#if ENABLE_DESKTOP_GL
 	glBegin(GL_TRIANGLES);
 	glColor3f(0.0, 0.0, 1.0);  /* blue */
 	glVertex2i(0, 0);
@@ -81,6 +108,27 @@ redraw(void)
 	glColor3f(1.0, 0.0, 0.0);  /* red */
 	glVertex2i(-2, 2);
 	glEnd();
+#else
+	GLfloat vertices[] = {
+		0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f,
+	};
+
+	// Set the viewport
+	//glViewport(0, 0, getWindow()->getWidth(), getWindow()->getHeight());
+
+	// Clear the color buffer
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Use the program object
+	//glUseProgram(mProgram);
+
+	// Load the vertex data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+	glEnableVertexAttribArray(0);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+#endif
+
 	glFlush();  /* Single buffered, so needs a flush. */
 
 	//glTranslatef(3.0f, 0.0f, 0.0f);                   // Move Right 3 Units
@@ -90,7 +138,11 @@ redraw(void)
 
 int main(int argc, char** argv)
 {
-	android::NativeWindow* pWin = android::CreateNativeWindow();
+#if ENABLE_ANDROID_GL
+	InitRC_entry(argc, argv);
+#endif
+
+	android::sp<android::NativeWindow> pWin = android::CreateNativeWindow();
 	pWin->initialize("test_egl", 720, 480);
 	pWin->setVisible(true);
 

@@ -252,6 +252,12 @@ void setGlThreadSpecific(gl_hooks_t const *value) {
 #endif
 }
 
+// M3E: Implement it with cutils/thread store
+EGLAPI gl_hooks_t const* getGlThreadSpecific()
+{
+    return (gl_hooks_t const*)(thread_store_get(&mTLSOpenGL));
+}
+
 // ----------------------------------------------------------------------------
 // GL / EGL hooks
 // ----------------------------------------------------------------------------

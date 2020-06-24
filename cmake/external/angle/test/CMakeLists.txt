@@ -4,19 +4,20 @@
 project(TEST_ANGLE)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/angle/include_util.cmake)
 
-if(APPLE)
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
-elseif(MSVC)
+include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
+#add_definitions(-DGL_GLES_PROTOTYPES=1)
+#include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/angle/include)
+
+if(MSVC)
     add_definitions(-DNOMINMAX=1)
 endif()
 
 set(DEMO_DEPLIBS 
-EGL
-GLESv2
-GLESv1_CM
+EGL_angle
+GLESv2_angle
+GLESv1_CM_angle
 angle_util
 )
 

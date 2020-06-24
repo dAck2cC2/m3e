@@ -105,7 +105,9 @@
 #endif
 
 // M3E: Add
-#include "customized/NSurface.h"
+#if ENABLE_ANDROID_GL 
+#include "customized/NBufferProducer.h"
+#endif
 #if defined(_MSC_VER)
 android::SurfaceFlinger::SkipInitializationTag android::SurfaceFlinger::SkipInitialization;
 #endif
@@ -203,11 +205,7 @@ public:
 
     explicit NativeWindowSurface(const sp<IGraphicBufferProducer>& producer)
           : surface(new Surface(producer, false)) {}
-    
-    // M3E: Add native surface
-    explicit NativeWindowSurface(const sp<IGraphicBufferProducer>& producer, sp<SurfaceFlinger>& sf)
-          : surface(new NATIVE::Surface(producer, false, sf)) {}
-    
+
     ~NativeWindowSurface() override = default;
 
 private:
@@ -2336,11 +2334,7 @@ sp<DisplayDevice> SurfaceFlinger::setupNewDisplayDeviceInternal(
     HdrCapabilities hdrCapabilities;
     getHwComposer().getHdrCapabilities(hwcId, &hdrCapabilities);
 
-#if 1 /* M3E: using extension version */
     auto nativeWindowSurface = mCreateNativeWindowSurface(producer);
-#else
-    auto nativeWindowSurface = mCreateNativeWindowSurfaceExt(producer, this);
-#endif
     auto nativeWindow = nativeWindowSurface->getNativeWindow();
 
     /*
@@ -2474,7 +2468,11 @@ void SurfaceFlinger::processDisplayChangesLocked() {
                 sp<IGraphicBufferProducer> bqProducer;
                 sp<IGraphicBufferConsumer> bqConsumer;
                 mCreateBufferQueue(&bqProducer, &bqConsumer, false);
-
+                
+#if ENABLE_ANDROID_GL // M3E:
+                bqProducer = new NATIVE::BufferProducer(bqProducer, this);
+#endif
+                
                 int32_t hwcId = -1;
                 if (state.isVirtualDisplay()) {
                     // Virtual displays without a surface are dormant:

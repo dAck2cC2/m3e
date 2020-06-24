@@ -220,6 +220,10 @@ static void setEmulatorGlesValue(void) {
               "Fallback to legacy software renderer, qemu.gles is set to 0.");
         property_set("qemu.gles", "0");
     }
+    
+#if defined(ENABLE_ANGLE) /* M3E: */
+    property_set("qemu.gles", "3");
+#endif
 }
 
 void* Loader::open(egl_connection_t* cnx)
@@ -246,9 +250,23 @@ void* Loader::open(egl_connection_t* cnx)
 
     LOG_ALWAYS_FATAL_IF(!hnd, "couldn't find an OpenGL ES implementation");
 
+#if 0
     cnx->libEgl   = load_wrapper(EGL_WRAPPER_DIR "/libEGL.so");
     cnx->libGles2 = load_wrapper(EGL_WRAPPER_DIR "/libGLESv2.so");
     cnx->libGles1 = load_wrapper(EGL_WRAPPER_DIR "/libGLESv1_CM.so");
+#elif defined(_MSC_VER)
+    cnx->libEgl   = load_wrapper(".\\EGL_android.dll");
+    cnx->libGles2 = load_wrapper(".\\GLESv2_android.dll");
+    cnx->libGles1 = load_wrapper(".\\GLESv1_CM_android.dll");
+#elif defined(__APPLE__)
+    cnx->libEgl   = load_wrapper("./libEGL_android.dylib");
+    cnx->libGles2 = load_wrapper("./libGLESv2_android.dylib");
+    cnx->libGles1 = load_wrapper("./libGLESv1_CM_android.dylib");
+#else
+    cnx->libEgl   = load_wrapper("./libEGL_android.so");
+    cnx->libGles2 = load_wrapper("./libGLESv2_android.so");
+    cnx->libGles1 = load_wrapper("./libGLESv1_CM_android.so");
+#endif
 
     LOG_ALWAYS_FATAL_IF(!cnx->libEgl,
             "couldn't load system EGL wrapper libraries");
@@ -357,6 +375,8 @@ static void* load_system_driver(const char* kind) {
                 case 3:
 #if defined(_MSC_VER)
                     result = std::string(".\\") + kind + "_angle.dll";
+#elif defined(__APPLE__)
+                    result = std::string("./lib") + kind + "_angle.dylib";
 #else
                     result = std::string("./lib") + kind + "_angle.so";
 #endif

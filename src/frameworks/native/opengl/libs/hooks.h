@@ -33,8 +33,8 @@
 #include <GLES3/gl31.h>
 #include <GLES3/gl32.h>
 
-// set to 1 for debugging
-#define USE_SLOW_BINDING    0
+// M3E: let project file decide it
+//#define USE_SLOW_BINDING    0
 
 #undef NELEM
 #define NELEM(x)            (sizeof(x)/sizeof(*(x)))
@@ -89,11 +89,15 @@ inline gl_hooks_t const * volatile * get_tls_hooks() {
     return tls_hooks;
 }
 
+#if 0 /* M3E: Implement it with cutils/thread TLS */
 inline EGLAPI gl_hooks_t const* getGlThreadSpecific() {
     gl_hooks_t const * volatile * tls_hooks = get_tls_hooks();
     gl_hooks_t const* hooks = tls_hooks[TLS_SLOT_OPENGL_API];
     return hooks;
 }
+#else
+EGLAPI gl_hooks_t const* getGlThreadSpecific();
+#endif
 
 // ----------------------------------------------------------------------------
 }; // namespace android

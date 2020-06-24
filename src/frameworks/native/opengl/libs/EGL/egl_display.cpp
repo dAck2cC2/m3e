@@ -157,6 +157,18 @@ EGLBoolean egl_display_t::initialize(EGLint *major, EGLint *minor) {
             while(!eglIsInitialized) {
                 refCond.wait(_l);
             }
+#if defined(__APPLE__) && defined(ENABLE_ANGLE) // M3E:
+            {
+                std::lock_guard<std::mutex> _l(lock);
+                
+                // initialize each CGL for current thread
+                egl_connection_t* const cnx = &gEGLImpl;
+                if (cnx->dso) {
+                    EGLDisplay idpy = disp.dpy;
+                    cnx->egl.eglInitialize(idpy, &cnx->major, &cnx->minor);
+                }
+            }
+#endif
             return EGL_TRUE;
         }
         while(eglIsInitialized) {

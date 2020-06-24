@@ -5,7 +5,11 @@
 
 
 #include "Client.h"
+#include "DisplayHardware/ComposerHal.h"
+
+#if !defined(ENABLE_ANDROID_GL)
 #include "customized/NBufferLayer.h"
+#endif
 
 namespace android {
 namespace NATIVE {
@@ -84,7 +88,7 @@ private:
     {
             mEventQueue->waitMessage(timeoutMillis);
     };
-
+#if !defined(ENABLE_ANDROID_GL)
     /* ------------------------------------------------------------------------
      * Layer management
      */
@@ -114,7 +118,7 @@ private:
         ALOGE_IF(err, "createBufferLayer() failed (%s)", strerror(-err));
         return err;
     };
-    
+#endif // ENABLE_ANDROID_GL
 private:
     Vector< sp<Client> > mClients;
 }; // SurfaceFlinger
