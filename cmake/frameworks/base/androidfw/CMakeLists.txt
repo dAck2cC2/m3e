@@ -42,15 +42,21 @@ ${HEADER_PATH}/*.h
 )
 
 set(ANDROIDFW_SOURCE_FILES
+${SOURCE_PATH}/ApkAssets.cpp
 ${SOURCE_PATH}/Asset.cpp
 ${SOURCE_PATH}/AssetDir.cpp
 ${SOURCE_PATH}/AssetManager.cpp
+${SOURCE_PATH}/AssetManager2.cpp
+${SOURCE_PATH}/ChunkIterator.cpp
 ${SOURCE_PATH}/LocaleData.cpp
+${SOURCE_PATH}/LoadedArsc.cpp
 ${SOURCE_PATH}/misc.cpp
 ${SOURCE_PATH}/ObbFile.cpp
 ${SOURCE_PATH}/ResourceTypes.cpp
+${SOURCE_PATH}/ResourceUtils.cpp
 ${SOURCE_PATH}/StreamingZipInflater.cpp
 ${SOURCE_PATH}/TypeWrappers.cpp
+${SOURCE_PATH}/Util.cpp
 ${SOURCE_PATH}/ZipFileRO.cpp
 ${SOURCE_PATH}/ZipUtils.cpp
 )
