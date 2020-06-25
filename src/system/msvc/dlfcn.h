@@ -7,6 +7,9 @@
 
 #include <windows.h>
 
+#define RTLD_NOW    1
+#define RTLD_LOCAL  2
+
 #define dlopen(a, b) LoadLibrary(a);
 #define dlsym(a, b)  GetProcAddress((HMODULE)a, b);
 #define dlclose(a)   FreeLibrary((HMODULE)a)

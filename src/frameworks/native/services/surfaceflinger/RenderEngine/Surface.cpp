@@ -48,7 +48,7 @@ void Surface::setNativeWindow(ANativeWindow* window) {
     mWindow = window;
     if (mWindow) {
 #if defined(ENABLE_ANDROID_GL)
-        mEGLSurface = eglCreateWindowSurface(mEGLDisplay, mEGLConfig, mWindow, nullptr);
+        mEGLSurface = eglCreateWindowSurface(mEGLDisplay, mEGLConfig, reinterpret_cast<EGLNativeWindowType>(mWindow), nullptr);
 #endif // ENABLE_ANROID_GL
     }
 }

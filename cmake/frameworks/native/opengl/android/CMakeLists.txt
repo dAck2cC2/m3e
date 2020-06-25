@@ -29,7 +29,14 @@ vndksupport
 add_definitions(-DEGL_IMPLEMENTATION=1)
 
 if(APPLE)
+    add_definitions(-D_CAST=static_cast)
     add_definitions(-Doff64_t=off_t)
+elseif(MSVC)
+    add_definitions(-D_CAST=reinterpret_cast)
+    add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
+
+    add_definitions(-DEGLAPI=__declspec\(dllexport\))
+    add_definitions(-DGL_API=__declspec\(dllexport\))
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/include )
@@ -129,7 +136,7 @@ set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 
 # libEGL
 set(${PROJECT_NAME}_SOURCE
-${GLES_HEADER_FILES}
+${EGL_HEADER_FILES}
 ${KHR_HEADER_FILES}
 ${libETC1_SOURCE_FILES}
 ${libEGL_SOURCE_FILES}
@@ -139,9 +146,8 @@ target_link_libraries(EGL_android ${${PROJECT_NAME}_DEPLIB})
 
 # libGLESv1_CM
 list(APPEND ${PROJECT_NAME}_DEPLIB EGL_android)
-
 set(${PROJECT_NAME}_SOURCE
-${EGL_HEADER_FILES}
+${GLES_HEADER_FILES}
 ${KHR_HEADER_FILES}
 ${libGLESv1_CM_SOURCE_FILES}
 )
@@ -150,7 +156,8 @@ target_link_libraries(GLESv1_CM_android ${${PROJECT_NAME}_DEPLIB})
 
 # libGLESv2
 set(${PROJECT_NAME}_SOURCE
-${EGL_HEADER_FILES}
+${GLES2_HEADER_FILES}
+${GLES3_HEADER_FILES}
 ${KHR_HEADER_FILES}
 ${llibGLESv2_SOURCE_FILES}
 )

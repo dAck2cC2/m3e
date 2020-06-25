@@ -315,7 +315,7 @@ status_t BootAnimation::readyToRun() {
     eglInitialize(display, 0, 0);
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
 #if defined(ENABLE_ANDROID_GL)
-    surface = eglCreateWindowSurface(display, config, static_cast<ANativeWindow *>(s.get()), NULL);
+    surface = eglCreateWindowSurface(display, config, reinterpret_cast<EGLNativeWindowType>(static_cast<ANativeWindow *>(s.get())), NULL);
 #else
     EGLNativeWindowType window = ISurfaceHandle_getNativeWindow(control->getHandle());
     surface = eglCreateWindowSurface(display, config, window, NULL);

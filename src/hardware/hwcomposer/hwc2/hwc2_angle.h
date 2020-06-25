@@ -147,7 +147,16 @@ struct ComposerClientAngle : public ComposerClientDefault {
             return ::android::hardware::Void();
         }
 
-        win->setVisible(true);
+        bool visible = true;
+#if defined(ENABLE_ANDROID_GL)
+        // The Android GL will allow surface flinger creating main window,
+        // which should be invisible.
+        if (mWindows.empty()) {
+            visible = false;
+        }
+#endif
+        win->setVisible(visible);
+        
         mWindows.add(win);
         
         _hidl_cb(Error::NONE, reinterpret_cast<uint64_t>(win->getNativeWindow()));
