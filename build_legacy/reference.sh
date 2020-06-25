@@ -16,6 +16,7 @@ system/media \
 system/netd \
 system/libhidl \
 system/libhwbinder \
+libnativehelper \
 "
 
 TARGET_SRC="https://android.googlesource.com/platform"
