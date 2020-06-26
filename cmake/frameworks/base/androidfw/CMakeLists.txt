@@ -14,6 +14,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/ziparchive/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/zlib/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/base/android/include.cmake)
 
 set(ANDROIDFW_DEPLIB
 cutils

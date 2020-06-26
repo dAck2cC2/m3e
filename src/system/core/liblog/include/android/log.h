@@ -128,6 +128,7 @@ int __android_log_print(int prio, const char* tag, const char* fmt, ...)
  * Equivalent to `__android_log_print`, but taking a `va_list`.
  * (If `__android_log_print` is like `printf`, this is like `vprintf`.)
  */
+ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_vprint(int prio, const char* tag, const char* fmt, va_list ap)
 #if defined(__GNUC__)
 #ifdef __USE_MINGW_ANSI_STDIO
