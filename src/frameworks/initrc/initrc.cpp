@@ -7,6 +7,12 @@
 #include "initrc/initrc.h"
 #include "initrc_if.h"
 
+#define PROPERTY_DEFINE(name, value)  extern const char* const name = value
+
+PROPERTY_DEFINE(M_PROPERTY_DISPLAY_NAME,   "native.display.name");
+PROPERTY_DEFINE(M_PROPERTY_DISPLAY_WIDTH,  "native.display.width");
+PROPERTY_DEFINE(M_PROPERTY_DISPLAY_HEIGHT, "native.display.height");
+
 namespace android {
 
 class InitRCImpl : public RefBase
@@ -29,12 +35,17 @@ public:
 
 	virtual int  Entry(int argc, char** argv);
 	virtual void Run();
+    
+    virtual bool HasInited() const { return (mHasInited); };
 
 private:
 	~InitRCImpl();
 
 	void ResetProperties();
 	void StartService(int index);
+    
+private:
+    bool mHasInited;
 };
     
 static struct {
@@ -53,7 +64,7 @@ gServiceList[InitRCImpl::SERVICE_CNT] = {
 	{"bootanimation",         NULL}
 };
 
-InitRCImpl::InitRCImpl()
+InitRCImpl::InitRCImpl() : mHasInited(false)
 {
     ResetProperties();
     StartService(SERVICE_SM);
@@ -121,32 +132,33 @@ void InitRCImpl::StartService(int index)
  
 int InitRCImpl::Entry(int argc, char** argv)
 {
-    StartService(SERVICE_SF);
-	StartService(SERVICE_AF);
-	StartService(SERVICE_AP);
-	StartService(SERVICE_MEDIA_PLAYER);
-	StartService(SERVICE_MEDIA_RESOURCE);
-    StartService(SERVICE_MEDIA_CODEC);
-	StartService(SERVICE_MEDIA_EXTRACTOR);
+    if (!mHasInited) {
+        StartService(SERVICE_SF);
+        StartService(SERVICE_AF);
+        StartService(SERVICE_AP);
+        StartService(SERVICE_MEDIA_PLAYER);
+        StartService(SERVICE_MEDIA_RESOURCE);
+        StartService(SERVICE_MEDIA_CODEC);
+        StartService(SERVICE_MEDIA_EXTRACTOR);
+        
+        if (property_get_bool("run.start.bootanim", 0)) {
+            StartService(SERVICE_BOOT_ANIM);
+        }
+        
+        mHasInited = true;
+    }
     
     return 0;
 }
 
 void InitRCImpl::Run()
 {
-	char prop[PROPERTY_VALUE_MAX];
-
     if ((NULL == gServiceList[SERVICE_SF].handler)
     ||  (NULL == gServiceList[SERVICE_SF].handler->module)
     ||  (NULL == gServiceList[SERVICE_SF].handler->module->dso)) {
         return;
     }
     
-	property_get("ctl.start", prop, "");
-	if (!strcmp("bootanim", prop)) {
-		StartService(SERVICE_BOOT_ANIM);
-	}
-
 	sp<InitRCMainWindow> mainWindow = (InitRCMainWindow *)(gServiceList[SERVICE_SF].handler->module->dso);
 	if (mainWindow != NULL) {
 		mainWindow->run();
@@ -158,18 +170,31 @@ void InitRCImpl::Run()
 static android::Mutex                    s_lockInit("Init RC");
 static android::sp<android::InitRCImpl>  s_pInitRC;
 
+int InitRC_set(const char* property, const char* value)
+{
+    android::AutoMutex _l(s_lockInit);
+
+    if (s_pInitRC == NULL) {
+        s_pInitRC = new android::InitRCImpl();
+    }
+
+    if (s_pInitRC->HasInited()) {
+        // It is too late to set property
+        return -1;
+    }
+    
+    return (property_set(property, value));
+}
+
 int InitRC_entry(int argc, char** argv)
 {
 	android::AutoMutex _l(s_lockInit);
 
-	int ret = -1;
-
 	if (s_pInitRC == NULL) {
 		s_pInitRC = new android::InitRCImpl();
-		ret = s_pInitRC->Entry(argc, argv);
 	}
 
-	return (ret);
+	return (s_pInitRC->Entry(argc, argv));
 }
 
 void InitRC_run(void)

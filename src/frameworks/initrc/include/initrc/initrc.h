@@ -3,16 +3,25 @@
 #define _INIT_RC_H
 
 #ifndef INITRC_API
-#ifdef __GNUC__
-#define INITRC_API                 /* override per-platform */
-#else
-#define INITRC_API __declspec(dllimport)
-#endif
+    #ifdef __GNUC__
+        #define INITRC_API                 /* override per-platform */
+    #else
+        #define INITRC_API __declspec(dllimport)
+    #endif
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define M_PROPERTY(name)  extern INITRC_API const char* const name
+
+M_PROPERTY(M_PROPERTY_DISPLAY_NAME);
+M_PROPERTY(M_PROPERTY_DISPLAY_WIDTH);
+M_PROPERTY(M_PROPERTY_DISPLAY_HEIGHT);
+
+INITRC_API
+int InitRC_set(const char* property, const char* value);
 
 INITRC_API
 int InitRC_entry(int argc, char** argv);

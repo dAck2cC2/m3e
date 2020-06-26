@@ -31,7 +31,7 @@ namespace android {
 				PIXEL_FORMAT_RGB_565,
 				0);
 
-		if ((control != NULL) || (control->isValid())) {
+		if ((control == NULL) || (!control->isValid())) {
 			return NULL;
 		}
 #if TODO
