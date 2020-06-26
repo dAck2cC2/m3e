@@ -463,7 +463,7 @@ LogSeverity GetMinimumLogSeverity();
 LogSeverity SetMinimumLogSeverity(LogSeverity new_severity);
 
 // Allows to temporarily change the minimum severity level for logging.
-class ScopedLogSeverity {
+class ANDROID_API_BASE ScopedLogSeverity {
  public:
   explicit ScopedLogSeverity(LogSeverity level);
   ~ScopedLogSeverity();

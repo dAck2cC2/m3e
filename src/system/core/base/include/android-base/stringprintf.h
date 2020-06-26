@@ -42,6 +42,7 @@ std::string StringPrintf(const char* fmt, ...)
     __attribute__((__format__(ANDROID_BASE_FORMAT_ARCHETYPE, 1, 2)));
 
 // Appends a printf-like formatting of the arguments to 'dst'.
+ANDROID_API_BASE /* M3E: MSVC export */
 void StringAppendF(std::string* dst, const char* fmt, ...)
     __attribute__((__format__(ANDROID_BASE_FORMAT_ARCHETYPE, 2, 3)));
 

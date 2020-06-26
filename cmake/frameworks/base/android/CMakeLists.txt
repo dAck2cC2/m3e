@@ -22,6 +22,8 @@ androidfw
 
 if (APPLE)
     add_definitions(-Doff64_t=off_t)
+elseif(MSVC)
+    add_definitions(-DNOMINMAX=1)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/include/android )

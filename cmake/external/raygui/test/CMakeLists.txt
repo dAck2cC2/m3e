@@ -32,5 +32,5 @@ ${SOURCE_PATH}/test.c
 ${SOURCE_PATH}/text_editor.h
 ${SOURCE_PATH}/textbox_extended_demo.h
 ${SOURCE_PATH}/textbox_extended_demo.h
-${SOURCE_PATH}/portable_windows.h
+${SOURCE_PATH}/portable_window.h
 )
