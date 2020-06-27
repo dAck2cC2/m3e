@@ -5,6 +5,7 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/raylib)
   exec_program("git clone https://github.com/raysan5/raylib.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
   exec_program("git checkout tags/3.0.0" ${M3E_SOURCE_DIR}/${EXT_PATH}/raylib)
   #exec_program("git reset --hard 03846342bbb0a8b6b99025467bc6038119cf71ee" ${M3E_SOURCE_DIR}/${EXT_PATH}/raylib)
+  exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/raylib/raylib.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/raylib)
 endif()
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
@@ -30,8 +31,16 @@ ${OPENGL_DEPLIB}
 android
 )
 
+add_definitions(-DBUILD_LIBTYPE_SHARED)
+
 if(APPLE)
     add_definitions(-Doff64_t=off_t)
+elseif(MSVC)
+    add_definitions(-DSUPPORT_BUSY_WAIT_LOOP=1)
+
+    add_definitions(-DWINAPI_FAMILY=WINAPI_FAMILY_PC_APP)
+    #add_definitions(-DNOGDI)
+    #add_definitions(-DNOUSER)
 endif() 
 
 file(GLOB raylib_sources ${SOURCE_PATH}/*.c ${SOURCE_PATH}/*.h)

@@ -20,6 +20,8 @@ OpenMAXAL
 
 if(APPLE)
     add_definitions(-Doff64_t=off_t)
+elseif(MSVC)
+    include_directories(AFTER ${MSVC_PATH})
 endif() 
 
 #set(SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/raygui/examples)

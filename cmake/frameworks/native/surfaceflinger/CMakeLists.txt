@@ -15,9 +15,10 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/math/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/base/android/include.cmake)
 
+# private header of initrc_if.h
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/initrc)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include)
 
 set( SURFACEFLINGER_DEPLIB
 log

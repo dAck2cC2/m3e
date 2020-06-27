@@ -1,0 +1,40 @@
+diff --git a/src/external/android/native_app_glue/android_native_app_glue.h b/src/external/android/native_app_glue/android_native_app_glue.h
+index c99d6e12..8766d971 100644
+--- a/src/external/android/native_app_glue/android_native_app_glue.h
++++ b/src/external/android/native_app_glue/android_native_app_glue.h
+@@ -18,7 +18,9 @@
+ #ifndef _ANDROID_NATIVE_APP_GLUE_H
+ #define _ANDROID_NATIVE_APP_GLUE_H
+ 
++#if !defined(_MSC_VER)
+ #include <poll.h>
++#endif
+ #include <pthread.h>
+ #include <sched.h>
+ 
+@@ -345,7 +347,7 @@ app_dummy();
+  * This is the function that application code must implement, representing
+  * the main entry to the app.
+  */
+-extern void android_main(struct android_app* app);
++extern RLAPI void android_main(struct android_app* app);
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/src/utils.c b/src/utils.c
+index 5ba8b007..c44a7b1e 100644
+--- a/src/utils.c
++++ b/src/utils.c
+@@ -318,8 +318,12 @@ FILE *android_fopen(const char *fileName, const char *mode)
+         // NOTE: AAsset provides access to read-only asset
+         AAsset *asset = AAssetManager_open(assetManager, fileName, AASSET_MODE_UNKNOWN);
+ 
++#if defined(_MSC_VER)
++        return NULL;
++#else
+         if (asset != NULL) return funopen(asset, android_read, android_write, android_seek, android_close);
+         else return NULL;
++#endif
+     }
+ }
+ #endif  // PLATFORM_ANDROID

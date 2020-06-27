@@ -13,6 +13,7 @@
 
 #undef RAYGUI_IMPLEMENTATION            // Avoid including raygui implementation again
 #define GUI_TEXTBOX_EXTENDED_IMPLEMENTATION
+#define RAYGUIDEF 
 #include "gui_textbox_extended.h"
 
 
@@ -23,7 +24,9 @@ struct ANativeActivity mActivity;
 struct android_app     mApp;
 
 #include "text_editor.h"
+#if !defined(_MSC_VER)
 #include "textbox_extended_demo.h"
+#endif
 #include "scroll_panel.h"
 #include "portable_window.h"
 
