@@ -2214,10 +2214,10 @@ static bool InitGraphicsDevice(int width, int height)
         EGL_BLUE_SIZE, 8,           // BLUE color bit depth (alternative: 5)
         //EGL_ALPHA_SIZE, 8,        // ALPHA bit depth (required for transparent framebuffer)
         //EGL_TRANSPARENT_TYPE, EGL_NONE, // Request transparent framebuffer (EGL_TRANSPARENT_RGB does not work on RPI)
-        EGL_DEPTH_SIZE, 0,         // Depth buffer size (Required to use Depth testing!)
+        EGL_DEPTH_SIZE, 16,         // Depth buffer size (Required to use Depth testing!)
         //EGL_STENCIL_SIZE, 8,      // Stencil buffer size
-        //EGL_SAMPLE_BUFFERS, sampleBuffer,    // Activate MSAA
-        //EGL_SAMPLES, samples,       // 4x Antialiasing if activated (Free on MALI GPUs)
+        EGL_SAMPLE_BUFFERS, sampleBuffer,    // Activate MSAA
+        EGL_SAMPLES, samples,       // 4x Antialiasing if activated (Free on MALI GPUs)
         EGL_NONE
     };
 
@@ -2410,7 +2410,7 @@ static bool InitGraphicsDevice(int width, int height)
     eglChooseConfig(CORE.Window.device, framebufferAttribs, &CORE.Window.config, 1, &numConfigs);
 
     // Set rendering API
-    //eglBindAPI(EGL_OPENGL_ES_API);
+    eglBindAPI(EGL_OPENGL_ES_API);
 
     // Create an EGL rendering context
     CORE.Window.context = eglCreateContext(CORE.Window.device, CORE.Window.config, EGL_NO_CONTEXT, contextAttribs);

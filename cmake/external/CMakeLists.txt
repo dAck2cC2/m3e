@@ -87,6 +87,7 @@ if(MSVC)
 endif(MSVC)
 
 if (ENABLE_RAYLIB)
+    add_subdirectory(glfw)
     add_subdirectory(raylib)
     add_subdirectory(raygui)
 endif(ENABLE_RAYLIB)

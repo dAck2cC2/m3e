@@ -408,7 +408,7 @@ source_group(libANGLE FILES ${ANGLE_SOURCE_LIBANGLE})
 
 # template("angle_libGLESv2") {
 set(ANGLE_SOURCE_LIBGLESV2 ${libglesv2_sources})
-list(REMOVE_ITEM ANGLE_SOURCE_GLESv2 ${SOURCE_PATH}/libGLESv2/libGLESv2_autogen.cpp)
+list(REMOVE_ITEM ANGLE_SOURCE_LIBGLESV2 ${SOURCE_PATH}/libGLESv2/libGLESv2_autogen.cpp)
 source_group(angle_libGLESv2 FILES ${ANGLE_SOURCE_LIBGLESV2})
 
 ###############################################################################
