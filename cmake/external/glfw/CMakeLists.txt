@@ -6,6 +6,7 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/glfw)
   message(STATUS "Download\tglfw")
   exec_program("git clone https://github.com/glfw/glfw.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
   exec_program("git checkout tags/3.3.2" ${M3E_SOURCE_DIR}/${EXT_PATH}/glfw)
+  exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/glfw/glfw.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/glfw)
 endif()
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
@@ -509,7 +510,7 @@ endif()
 
 
 
-#set(ENABLE_TEST  TRUE)
+set(ENABLE_TEST  TRUE)
 if(ENABLE_TEST)
   add_subdirectory(test)
 endif(ENABLE_TEST)

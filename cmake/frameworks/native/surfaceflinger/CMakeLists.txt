@@ -27,8 +27,13 @@ utils
 binder
 gui
 ${OPENGL_DEPLIB}
-hwcomposer2
 )
+
+if (ENABLE_GLFW)
+    list(APPEND SURFACEFLINGER_DEPLIB hwcomposer2_glfw)
+else(ENABLE_GLFW)
+    list(APPEND SURFACEFLINGER_DEPLIB hwcomposer2_angle)
+endif(ENABLE_GLFW)
 
 if(MSVC)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)

@@ -9,7 +9,7 @@
 
 enum Key
 {
-    KEY_UNKNOWN,
+    KEY_UNKNOWN = -1,
     KEY_A,          // The A key
     KEY_B,          // The B key
     KEY_C,          // The C key
@@ -111,6 +111,7 @@ enum Key
     KEY_F14,        // The F14 key
     KEY_F15,        // The F15 key
     KEY_PAUSE,      // The pause key
+    KEY_CAPS_LOCK,  // caps lock
     KEY_COUNT,
 };
 

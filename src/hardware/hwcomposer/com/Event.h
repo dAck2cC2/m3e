@@ -25,9 +25,16 @@ class Event
         int Height;
     };
 
+    struct ScaleEvent
+    {
+        float X;
+        float Y;
+    };
+
     struct KeyEvent
     {
         Key Code;
+        int Mods;
         bool Alt;
         bool Control;
         bool Shift;
@@ -43,6 +50,7 @@ class Event
     struct MouseButtonEvent
     {
         MouseButton Button;
+        int Mods;
         int X;
         int Y;
     };
@@ -50,6 +58,12 @@ class Event
     struct MouseWheelEvent
     {
         int Delta;
+    };
+
+    struct ScrollEvent
+    {
+        double X;
+        double Y;
     };
 
     enum EventType
@@ -62,6 +76,7 @@ class Event
         EVENT_TEXT_ENTERED,           // A character was entered
         EVENT_KEY_PRESSED,            // A key was pressed
         EVENT_KEY_RELEASED,           // A key was released
+        EVENT_KEY_REPEATED,
         EVENT_MOUSE_WHEEL_MOVED,      // The mouse wheel was scrolled
         EVENT_MOUSE_BUTTON_PRESSED,   // A mouse button was pressed
         EVENT_MOUSE_BUTTON_RELEASED,  // A mouse button was released
@@ -69,6 +84,17 @@ class Event
         EVENT_MOUSE_ENTERED,          // The mouse cursor entered the area of the window
         EVENT_MOUSE_LEFT,             // The mouse cursor left the area of the window
         EVENT_TEST,                   // Event for testing purposes
+    
+        EVENT_MAXIMIZE,
+        EVENT_FRAME_BUFFER_RESIZED,
+        EVENT_CONTENT_SCALE,
+        EVENT_ICONTIFY,
+        EVENT_REFRESH,
+        EVENT_SCROLL,
+        EVENT_CHARACTER,
+        
+        // Internal key state used for sticky keys
+        EVENT_STICK,
     };
 
     EventType Type;
@@ -81,6 +107,13 @@ class Event
         MouseMoveEvent MouseMove;      // Mouse move event parameters
         MouseButtonEvent MouseButton;  // Mouse button event parameters
         MouseWheelEvent MouseWheel;    // Mouse wheel event parameters
+
+        ScaleEvent Scale;
+        ScrollEvent Scroll;
+    
+        bool Maximized;
+        bool Iconify;
+        unsigned int CodePoint;
     };
 };
 
