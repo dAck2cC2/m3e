@@ -1,8 +1,9 @@
 
-#if ENABLE_ANGLE
 
-#ifndef HARDWARE_GRAPHICS_COMPOSER_V2_1_ICOMPOSER_ANGLE_H
-#define HARDWARE_GRAPHICS_COMPOSER_V2_1_ICOMPOSER_ANGLE_H
+#if ENABLE_GLFW
+
+#ifndef HARDWARE_GRAPHICS_COMPOSER_V2_1_ICOMPOSER_GLFW_H
+#define HARDWARE_GRAPHICS_COMPOSER_V2_1_ICOMPOSER_GLFW_H
 
 // The necessary header files are included in cpp file
 
@@ -10,7 +11,8 @@
 #include <cutils/properties.h>
 #include <utils/Vector.h>
 #include <utils/Mutex.h>
-#include "com/NativeWindow.h"
+#include <glfw/glfw3.h>
+#include <glfw/glfw3native.h>
 
 namespace android {
 namespace hardware {
@@ -18,7 +20,7 @@ namespace graphics {
 namespace composer {
 namespace V2_1 {
 
-struct ComposerClientAngle : public ComposerClientDefault {
+struct ComposerClientGLFW : public ComposerClientDefault {
     static const uint64_t PRIMARY_DISPLAY = 0; // only one display
     static const uint32_t PRIMARY_CONFIGS = 1; // only one config
     
@@ -33,18 +35,34 @@ struct ComposerClientAngle : public ComposerClientDefault {
     // native window
     char mWindowName[PROPERTY_VALUE_MAX];
     android::Mutex mLockWindow;
-    android::Vector< android::sp<android::NativeWindow> > mWindows;
+    android::Vector<GLFWwindow*> mWindows;
 
-    ComposerClientAngle() :
-    mCallback(),
-    mTargetSlot(0),
-    mAttrWidth(property_get_int32("native.display.width",  400)),
-    mAttrHeight(property_get_int32("native.display.height", 300)),
-    mAttrVsyncPreiod(1),
-    mLockWindow("native window"),
-    mWindows()
+    ComposerClientGLFW() :
+        mCallback(),
+        mTargetSlot(0),
+        mAttrWidth(property_get_int32("native.display.width",  400)),
+        mAttrHeight(property_get_int32("native.display.height", 300)),
+        mAttrVsyncPreiod(1),
+        mLockWindow("native window"),
+        mWindows()
     {
         property_get("native.display.name", mWindowName, "default");
+        
+        glfwInit();
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_VISIBLE, 0);
+    }
+    
+    ~ComposerClientGLFW()
+    {
+        for (int i = 0; i < mWindows.size(); ++i) {
+            if (mWindows[i]) {
+                glfwDestroyWindow(mWindows[i]);
+            }
+        }
+        mWindows.clear();
+        
+        glfwTerminate();
     }
     
     virtual ::android::hardware::Return<void> registerCallback(const ::android::sp<::android::hardware::graphics::composer::V2_1::IComposerCallback>& callback) override
@@ -133,33 +151,34 @@ struct ComposerClientAngle : public ComposerClientDefault {
             return ::android::hardware::Void();
         }
 
-        android::sp<android::NativeWindow> win = android::CreateNativeWindow();
-        LOG_ALWAYS_FATAL_IF((win == NULL), "Failed to create main window %s:%d", __FILE__, __LINE__);
+       GLFWwindow* win = glfwCreateWindow(mAttrWidth, mAttrHeight, mWindowName, NULL, NULL);
+        LOG_ALWAYS_FATAL_IF((win == NULL), "Failed to create window %s:%d", __FILE__, __LINE__);
         if (win == NULL) {
             _hidl_cb(Error::NO_RESOURCES, 0);
             return ::android::hardware::Void();
         }
-        
-        bool check = win->initialize(mWindowName, mAttrWidth, mAttrHeight);
-        LOG_ALWAYS_FATAL_IF((check == false), "Failed to intialize native window %s:%d", __FILE__, __LINE__);
-        if (check == false) {
-            _hidl_cb(Error::NOT_VALIDATED, 0);
-            return ::android::hardware::Void();
-        }
 
-        bool visible = true;
 #if defined(ENABLE_ANDROID_GL)
         // The Android GL will allow surface flinger creating main window,
         // which should be invisible.
         if (mWindows.empty()) {
-            visible = false;
-        }
+            glfwHideWindow(win);
+        } else
 #endif
-        win->setVisible(visible);
+        {
+            glfwShowWindow(win);
+        }
         
         mWindows.add(win);
         
-        _hidl_cb(Error::NONE, reinterpret_cast<uint64_t>(win->getNativeWindow()));
+#if defined(__APPLE__)
+        _hidl_cb(Error::NONE, reinterpret_cast<uint64_t>(glfwGetCocoaLayer(win)));
+#elif defined(_MSC_VER)
+        _hidl_cb(Error::NONE, reinterpret_cast<uint64_t>(glfwGetWin32Window(win)));
+#else
+        _hidl_cb(Error::UNSUPPORTED, 0);
+#endif
+
         return ::android::hardware::Void();
     };
 
@@ -172,7 +191,16 @@ struct ComposerClientAngle : public ComposerClientDefault {
         }
         
         for (int i = 0; i < mWindows.size(); ++i) {
-            if (reinterpret_cast<uint64_t>(mWindows[i]->getNativeWindow()) == layer) {
+            if (reinterpret_cast<uint64_t>(
+#if defined(__APPLE__)
+                    glfwGetCocoaLayer(mWindows[i])
+#elif defined(_MSC_VER)
+                    glfwGetWin32Window(mWindows[i])
+#else
+                    0
+#endif
+                                           ) == layer) {
+                glfwDestroyWindow(mWindows[i]);
                 mWindows.removeAt(i);
                 break;
             }
@@ -183,46 +211,22 @@ struct ComposerClientAngle : public ComposerClientDefault {
 
     virtual ::android::hardware::Return<void> executeCommands(uint32_t inLength, const ::android::hardware::hidl_vec<::android::hardware::hidl_handle>& inHandles, executeCommands_cb _hidl_cb) override
     {
-        android::AutoMutex _l(mLockWindow);
-
-        if (mWindows.empty()) {
-            _hidl_cb(Error::BAD_LAYER, false, 0, 0);
-            return ::android::hardware::Void();
-        }
-        
-        // first one is main window
-        android::sp<android::NativeWindow> winMain = mWindows[0];
-        if (winMain == NULL) {
-            _hidl_cb(Error::NO_RESOURCES, false, 0, 0);
-            return ::android::hardware::Void();
-        }
-        
-        // Clear events that the application did not process from this frame
-        Event event;
-        while (winMain->popEvent(&event)) {
-            // If the application did not catch a close event, close now
-            if (event.Type == Event::EVENT_CLOSED) {
-                _hidl_cb(Error::NOT_VALIDATED, false, 0, 0);
-                return ::android::hardware::Void();
-            }
-        }
-        
-        winMain->messageLoop();
+        glfwPollEvents();
         
         _hidl_cb(Error::NONE, false, 0, 0);
         return ::android::hardware::Void();
     };
 
     
-}; // ComposerClientAngle
+}; // ComposerClientGLFW
 
-struct ComposerAngle : public ComposerDefault {
+struct ComposerGLFW : public ComposerDefault {
     virtual ::android::hardware::Return<void> createClient(createClient_cb _hidl_cb) override {
-        _hidl_cb(Error::NONE, new ComposerClientAngle());
+        _hidl_cb(Error::NONE, new ComposerClientGLFW());
         return  ::android::hardware::Void();
     };
 
-}; // ComposerAngle
+}; // ComposerGLFW
 
 }  // namespace V2_1
 }  // namespace composer
@@ -230,5 +234,5 @@ struct ComposerAngle : public ComposerDefault {
 }  // namespace hardware
 }  // namespace android
 
-#endif // HARDWARE_GRAPHICS_COMPOSER_V2_1_ICOMPOSER_ANGLE_H
-#endif // ENABLE_ANGLE
+#endif // HARDWARE_GRAPHICS_COMPOSER_V2_1_ICOMPOSER_GLFW_H
+#endif // ENABLE_GLFW

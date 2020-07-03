@@ -43,6 +43,9 @@ bool GLFWWindow::initialize(const std::string &name, size_t width, size_t height
     if (mWindow) {
         return true;
     }
+    
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
     mWindow = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
     

@@ -29,32 +29,33 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
 
 include_directories(AFTER ${HEADER_PATH})
+include_directories(AFTER ${HEADER_PATH}/angle)
 
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES  
 ${HEADER_PATH}/hwc2/*.h
-${HEADER_PATH}/com/*.h
+${HEADER_PATH}/angle/com/*.h
 )
 
 # source files
 file(GLOB ${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/hwc2/*.cpp
-${SOURCE_PATH}/com/*.cpp
+${SOURCE_PATH}/angle/com/*.cpp
 )
 
 if(APPLE)
     find_library(APPKIT_LIBRARY AppKit)
     list(APPEND ${PROJECT_NAME}_DEPLIB ${APPKIT_LIBRARY})
 
-    file(GLOB ${PROJECT_NAME}_HEADER_OSX ${HEADER_PATH}/osx/*.h)
-    file(GLOB ${PROJECT_NAME}_SOURCE_OSX ${SOURCE_PATH}/osx/*.cpp ${SOURCE_PATH}/osx/*.mm)
+    file(GLOB ${PROJECT_NAME}_HEADER_OSX ${HEADER_PATH}/angle/osx/*.h)
+    file(GLOB ${PROJECT_NAME}_SOURCE_OSX ${SOURCE_PATH}/angle/osx/*.cpp ${SOURCE_PATH}/angle/osx/*.mm)
 
     list(APPEND ${PROJECT_NAME}_HEADER_FILES ${${PROJECT_NAME}_HEADER_OSX})
     list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_SOURCE_OSX})
 
 elseif(MSVC)
-    file(GLOB ${PROJECT_NAME}_HEADER_WIN ${HEADER_PATH}/win/*.h)
-    file(GLOB ${PROJECT_NAME}_SOURCE_WIN ${SOURCE_PATH}/win/*.cpp)
+    file(GLOB ${PROJECT_NAME}_HEADER_WIN ${HEADER_PATH}/angle/win/*.h)
+    file(GLOB ${PROJECT_NAME}_SOURCE_WIN ${SOURCE_PATH}/angle/win/*.cpp)
 
     list(APPEND ${PROJECT_NAME}_HEADER_FILES ${${PROJECT_NAME}_HEADER_WIN})
     list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_SOURCE_WIN})

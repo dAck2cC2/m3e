@@ -9,7 +9,11 @@
 #include <android/hardware/graphics/composer/2.2/IComposerClient.h>
 
 #include "hwc2/hwc2_default.h"
-#include "hwc2/hwc2_angle.h"
+#if ENABLE_GLFW
+    #include "hwc2/hwc2_glfw.h"
+#elif ENABLE_ANGLE
+    #include "hwc2/hwc2_angle.h"
+#endif
 
 namespace android {
 namespace hardware {
@@ -19,7 +23,9 @@ namespace V2_1 {
 
 ::android::sp<IComposer> IComposer::getService(const std::string &serviceName, bool getStub)
 {
-#if ENABLE_ANGLE
+#if ENABLE_GLFW
+    return new ComposerGLFW();
+#elif ENABLE_ANGLE
     return new ComposerAngle();
 #else
     return new ComposerDefault();

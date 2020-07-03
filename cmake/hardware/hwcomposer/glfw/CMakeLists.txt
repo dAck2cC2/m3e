@@ -22,6 +22,8 @@ ${OPENGL_DEPLIB}
 glfw
 )
 
+add_definitions(-DENABLE_GLFW=1)
+
 if(MSVC)
     add_definitions(-DNOMINMAX)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
@@ -42,10 +44,6 @@ ${HEADER_PATH}/com/*.h
 file(GLOB ${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/hwc2/*.cpp
 ${SOURCE_PATH}/com/*.cpp
-)
-
-set(${PROJECT_NAME}_SOURCE_GLFW 
-${SOURCE_PATH}/glfw/GLFWWindow.cpp
 )
 
 list(APPEND ${PROJECT_NAME}_HEADER_FILES ${${PROJECT_NAME}_HEADER_GLFW})
