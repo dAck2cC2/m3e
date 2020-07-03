@@ -10,6 +10,7 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/glfw)
 endif()
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/glfw/include.cmake)
 
 set(HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/glfw/include)
 set(SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/glfw/src)

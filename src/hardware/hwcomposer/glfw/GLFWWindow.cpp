@@ -1,6 +1,8 @@
 
-#include <utils/Mutex.h>
 #include "glfw/GLFWWindow.h"
+
+#include <utils/Mutex.h>
+#include <glfw/glfw3native.h>
 
 static android::Mutex gLckCnt("init count");
 static uint64_t       gWndCnt = 0;
@@ -62,10 +64,14 @@ void GLFWWindow::destroy()
 EGLNativeWindowType GLFWWindow::getNativeWindow() const
 {
     if (mWindow) {
-        return reinterpret_cast<EGLNativeWindowType>(glfwGetNativeWindow(mWindow));
-    } else {
-        return static_cast<EGLNativeWindowType>(0);
+#if defined(__APPLE__)
+        return glfwGetCocoaLayer(mWindow);
+#elif defined(_MSC_VER)
+        return glfwGetWin32Window(mWindow);
+#endif
     }
+        
+    return static_cast<EGLNativeWindowType>(0);
 }
 
 EGLNativeDisplayType GLFWWindow::getNativeDisplay() const

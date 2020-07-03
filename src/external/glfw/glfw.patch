@@ -1,18 +1,19 @@
-diff --git a/include/GLFW/glfw3.h b/include/GLFW/glfw3.h
-index 66dff649..ccd285b9 100644
---- a/include/GLFW/glfw3.h
-+++ b/include/GLFW/glfw3.h
-@@ -5839,6 +5839,8 @@ GLFWAPI VkResult glfwCreateWindowSurface(VkInstance instance, GLFWwindow* window
- 
- #endif /*VK_VERSION_1_0*/
- 
+diff --git a/include/GLFW/glfw3native.h b/include/GLFW/glfw3native.h
+index 267e75ca..746320c5 100644
+--- a/include/GLFW/glfw3native.h
++++ b/include/GLFW/glfw3native.h
+@@ -215,6 +215,9 @@ GLFWAPI CGDirectDisplayID glfwGetCocoaMonitor(GLFWmonitor* monitor);
+  *  @ingroup native
+  */
+ GLFWAPI id glfwGetCocoaWindow(GLFWwindow* window);
++
 +// M3E: Add
-+GLFWAPI uintptr_t glfwGetNativeWindow(GLFWwindow* window);
++GLFWAPI id glfwGetCocoaLayer(GLFWwindow* window);
+ #endif
  
- /*************************************************************************
-  * Global definition cleanup
+ #if defined(GLFW_EXPOSE_NATIVE_NSGL)
 diff --git a/src/cocoa_window.m b/src/cocoa_window.m
-index 129e975e..ad295aa0 100644
+index 129e975e..12f35c41 100644
 --- a/src/cocoa_window.m
 +++ b/src/cocoa_window.m
 @@ -835,6 +835,9 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
@@ -25,13 +26,14 @@ index 129e975e..ad295aa0 100644
      if (fbconfig->transparent)
      {
          [window->ns.object setOpaque:NO];
-@@ -1818,3 +1821,9 @@ GLFWAPI id glfwGetCocoaWindow(GLFWwindow* handle)
+@@ -1818,3 +1821,10 @@ GLFWAPI id glfwGetCocoaWindow(GLFWwindow* handle)
      return window->ns.object;
  }
  
 +// M3E: Add
-+GLFWAPI uintptr_t glfwGetNativeWindow(GLFWwindow* handle)
++GLFWAPI id glfwGetCocoaLayer(GLFWwindow* handle)
 +{
 +    _GLFWwindow* window = (_GLFWwindow*) handle;
++    _GLFW_REQUIRE_INIT_OR_RETURN(nil);
 +    return [window->ns.view layer];
 +}
