@@ -16,7 +16,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/base/android/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/arect/include.cmake)
-
+include(${M3E_SOURCE_DIR}/cmake/frameworks/wilhelm/openmaxal/include.cmake)
 
 set(SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/raylib/src)
 
@@ -29,6 +29,7 @@ add_definitions(-DGRAPHICS_API_OPENGL_ES2)
 set(${PROJECT_NAME}_DEPLIB
 ${OPENGL_DEPLIB}
 android
+OpenMAXAL
 )
 
 add_definitions(-DBUILD_LIBTYPE_SHARED)

@@ -11,6 +11,8 @@
 #include <cutils/properties.h>
 #include <utils/Vector.h>
 #include <utils/Mutex.h>
+
+#define GLFW_INCLUDE_NONE
 #include <glfw/glfw3.h>
 #include <glfw/glfw3native.h>
 
@@ -50,7 +52,8 @@ struct ComposerClientGLFW : public ComposerClientDefault {
         
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_VISIBLE, 0);
+        glfwWindowHint(GLFW_VISIBLE,    GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE,  GLFW_FALSE);
     }
     
     ~ComposerClientGLFW()

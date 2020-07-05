@@ -4,11 +4,9 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/raylib/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/wilhelm/openmaxal/include.cmake)
 
 set(DEMO_DEPLIBS
 initrc
-OpenMAXAL
 raylib
 )
 

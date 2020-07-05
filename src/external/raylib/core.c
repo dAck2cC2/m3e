@@ -3,14 +3,7 @@
 *   raylib.core - Basic functions to manage windows, OpenGL context and input on multiple platforms
 *
 *   PLATFORMS SUPPORTED:
-*       - PLATFORM_DESKTOP: Windows (Win32, Win64)
-*       - PLATFORM_DESKTOP: Linux (X11 desktop mode)
-*       - PLATFORM_DESKTOP: FreeBSD, OpenBSD, NetBSD, DragonFly (X11 desktop)
-*       - PLATFORM_DESKTOP: OSX/macOS
 *       - PLATFORM_ANDROID: Android 4.0 (ARM, ARM64)
-*       - PLATFORM_RPI:     Raspberry Pi 0,1,2,3,4 (Raspbian)
-*       - PLATFORM_WEB:     HTML5 with asm.js (Chrome, Firefox)
-*       - PLATFORM_UWP:     Windows 10 App, Windows Phone, Xbox One
 *
 *   CONFIGURATION:
 *
@@ -21,18 +14,6 @@
 *   #define PLATFORM_ANDROID
 *       Windowing and input system configured for Android device, app activity managed internally in this module.
 *       NOTE: OpenGL ES 2.0 is required and graphic device is managed by EGL
-*
-*   #define PLATFORM_RPI
-*       Windowing and input system configured for Raspberry Pi i native mode (no X.org required, tested on Raspbian),
-*       graphic device is managed by EGL and inputs are processed is raw mode, reading from /dev/input/
-*
-*   #define PLATFORM_WEB
-*       Windowing and input system configured for HTML5 (run on browser), code converted from C to asm.js
-*       using emscripten compiler. OpenGL ES 2.0 required for direct translation to WebGL equivalent code.
-*
-*   #define PLATFORM_UWP
-*       Universal Windows Platform support, using OpenGL ES 2.0 through ANGLE on multiple Windows platforms,
-*       including Windows 10 App, Windows Phone and Xbox One platforms.
 *
 *   #define SUPPORT_DEFAULT_FONT (default)
 *       Default font is loaded on window initialization to be available for the user to render simple text.
@@ -200,12 +181,6 @@
     #include <GLES2/gl2.h>          // Khronos OpenGL ES 2.0 library
 #endif
 
-#if defined(PLATFORM_UWP)
-    #include "EGL/egl.h"            // Khronos EGL library - Native platform display device control functions
-    #include "EGL/eglext.h"         // Khronos EGL library - Extensions
-    #include "GLES2/gl2.h"          // Khronos OpenGL ES 2.0 library
-#endif
-
 #if defined(SUPPORT_COMPRESSION_API)
     // NOTE: Those declarations require stb_image and stb_image_write definitions, included in textures module
     unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality);
@@ -231,9 +206,6 @@
 typedef struct { int x; int y; } Point;
 typedef struct { unsigned int width; unsigned int height; } Size;
 
-#if defined(PLATFORM_UWP)
-extern EGLNativeWindowType handle;          // Native window handler for UWP (external, defined in UWP App)
-#endif
 
 // Core global state context data
 typedef struct CoreData {
@@ -304,12 +276,6 @@ typedef struct CoreData {
         struct {
             int lastButtonPressed;          // Register last gamepad button pressed
             int axisCount;                  // Register number of available gamepad axis
-#if defined(PLATFORM_DESKTOP) || defined(PLATFORM_RPI) || defined(PLATFORM_WEB) || defined(PLATFORM_UWP)
-            bool ready[MAX_GAMEPADS];       // Flag to know if gamepad is ready
-            float axisState[MAX_GAMEPADS][MAX_GAMEPAD_AXIS];        // Gamepad axis state
-            char currentState[MAX_GAMEPADS][MAX_GAMEPAD_BUTTONS];   // Current gamepad buttons state
-            char previousState[MAX_GAMEPADS][MAX_GAMEPAD_BUTTONS];  // Previous gamepad buttons state
-#endif
         } Gamepad;
     } Input;
     struct {
@@ -376,6 +342,15 @@ static int32_t AndroidInputCallback(struct android_app *app, AInputEvent *event)
     void __stdcall Sleep(unsigned long msTimeout);      // Required for Wait()
 #endif
 
+
+
+// M3E: Add
+#include <OMXAL/OpenMAXAL_Android.h>
+
+struct ANativeActivity mActivity;
+struct android_app     mApp;
+
+
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Window and OpenGL Context Functions
 //----------------------------------------------------------------------------------
@@ -405,7 +380,18 @@ struct android_app *GetAndroidApp(void)
 void InitWindow(int width, int height, const char *title)
 {
     TRACELOG(LOG_INFO, "Initializing raylib %s", RAYLIB_VERSION);
-
+    
+    
+    if (CORE.Android.app != NULL) {
+        return;
+    }
+    memset(&mActivity, 0x00, sizeof(mActivity));
+    memset(&mApp,      0x00, sizeof(mApp));
+    mApp.activity = &mActivity;
+    mApp.window   = xaAndroidCreateNativeWindow();
+    CORE.Android.app = &mApp;
+    
+    
     CORE.Window.title = title;
 
     // Initialize required global values different than 0
@@ -494,6 +480,8 @@ void InitWindow(int width, int height, const char *title)
     CORE.Input.Mouse.position.x = (float)CORE.Window.screen.width/2.0f;
     CORE.Input.Mouse.position.y = (float)CORE.Window.screen.height/2.0f;
 #endif        // PLATFORM_ANDROID
+    
+    CORE.Android.app->onAppCmd(CORE.Android.app, APP_CMD_INIT_WINDOW);
 }
 
 // Close window and unload OpenGL context

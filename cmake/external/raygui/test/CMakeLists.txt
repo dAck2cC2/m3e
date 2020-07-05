@@ -10,12 +10,10 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/arect/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/wilhelm/openmaxal/include.cmake)
 
 set(DEMO_DEPLIBS
 raylib
 initrc
-OpenMAXAL
 )
 
 if(APPLE)
