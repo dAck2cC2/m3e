@@ -49,7 +49,8 @@
 #include <mutex>
 
 #if ENABLE_ANDROID_GL // M3E:
-    #include "customized/NBufferProducer.h"
+#include <system/window.h>
+#include "customized/NBufferProducer.h"
 #endif
 
 namespace android {
@@ -134,6 +135,11 @@ status_t BufferLayer::setBuffers(uint32_t w, uint32_t h, PixelFormat format, uin
     mProtectedByApp = (flags & ISurfaceComposerClient::eProtectedByApp) ? true : false;
     mCurrentOpacity = getOpacityForFormat(format);
 
+#if ENABLE_ANDROID_GL // M3E:
+    mProducer->query(NATIVE_WINDOW_DEFAULT_WIDTH,  reinterpret_cast<int *>(&w));
+    mProducer->query(NATIVE_WINDOW_DEFAULT_HEIGHT, reinterpret_cast<int *>(&h));
+#endif
+    
     mConsumer->setDefaultBufferSize(w, h);
     mConsumer->setDefaultBufferFormat(format);
     mConsumer->setConsumerUsageBits(getEffectiveUsage(0));

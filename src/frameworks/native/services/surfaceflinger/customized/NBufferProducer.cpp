@@ -4,21 +4,32 @@
 #include "MessageQueue.h"
 #include "NBufferProducer.h"
 #include "SurfaceFlinger.h"
+#include "DisplayHardware/ComposerHal.h"
+
+#include <system/window.h>
+
 #include <gui/BufferItem.h>
 
 namespace android {
 namespace NATIVE {
+
+using namespace hardware::graphics::composer::V2_1;
 
 BufferProducer::BufferProducer(const sp<IGraphicBufferProducer>& producer,
         const sp<SurfaceFlinger>& flinger) :
     mProducer(producer),
     mFlinger(flinger),
     mNativeLayer(nullptr),
-    mEGLNativeWindow(0)
+    mEGLNativeWindow(0),
+    mFBWidth(0),
+    mFBHeight(0)
 {
     mNativeLayer = mFlinger->getBE().mHwc->createLayer(0);
     if (mNativeLayer) {
         mEGLNativeWindow = mNativeLayer->getId();
+        
+        mFlinger->getBE().mHwc->getComposer()->getDisplayAttribute(mEGLNativeWindow, 0, IComposerClient::Attribute::WIDTH, &mFBWidth);
+        mFlinger->getBE().mHwc->getComposer()->getDisplayAttribute(mEGLNativeWindow, 0, IComposerClient::Attribute::HEIGHT, &mFBHeight);
     }
 }
 
@@ -86,7 +97,16 @@ status_t BufferProducer::cancelBuffer(int slot, const sp<Fence>& fence) {
 }
 
 int BufferProducer::query(int what, int* value) {
-    return mProducer->query(what, value);
+    switch(what) {
+        case NATIVE_WINDOW_DEFAULT_WIDTH:
+            *value = mFBWidth;
+            return 0;
+        case NATIVE_WINDOW_DEFAULT_HEIGHT:
+            *value = mFBHeight;
+            return 0;
+        default:
+            return mProducer->query(what, value);
+    }
 }
 
 status_t BufferProducer::connect(const sp<IProducerListener>& listener,

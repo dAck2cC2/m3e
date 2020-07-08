@@ -63,7 +63,8 @@ private:
     sp<SurfaceFlinger>         mFlinger;
     HWC2::Layer*               mNativeLayer;
     hwc2_layer_t               mEGLNativeWindow;
-
+    int32_t                    mFBWidth;
+    int32_t                    mFBHeight;
 }; // BufferProducer
 
 } // NATIVE

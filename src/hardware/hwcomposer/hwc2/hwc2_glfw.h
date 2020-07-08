@@ -9,12 +9,21 @@
 
 // specific header files for platform
 #include <cutils/properties.h>
-#include <utils/Vector.h>
+#include <utils/KeyedVector.h>
 #include <utils/Mutex.h>
 
 #define GLFW_INCLUDE_NONE
 #include <glfw/glfw3.h>
 #include <glfw/glfw3native.h>
+
+#if defined(__APPLE__)
+#define glfwGetNativeWindow(h)  glfwGetCocoaLayer(h)
+#elif defined(_MSC_VER)
+#define glfwGetNativeWindow(h)  glfwGetWin32Window(h)
+#else
+#define glfwGetNativeWindow(h)  (0)
+#endif
+
 
 namespace android {
 namespace hardware {
@@ -30,37 +39,85 @@ struct ComposerClientGLFW : public ComposerClientDefault {
     uint32_t mTargetSlot;
     
     // attributes of config
-    int32_t  mAttrWidth;
-    int32_t  mAttrHeight;
+    int32_t  mDispWidth;
+    int32_t  mDispHeight;
+    int32_t  mWindWidth;
+    int32_t  mWindHeight;
     int32_t  mAttrVsyncPreiod;
     
     // native window
     char mWindowName[PROPERTY_VALUE_MAX];
     android::Mutex mLockWindow;
-    android::Vector<GLFWwindow*> mWindows;
+    struct LayerToNative {
+        GLFWwindow* win;
+        int         fbW;
+        int         fbH;
+    };
+    android::KeyedVector<uint64_t, LayerToNative> mWindows;
 
     ComposerClientGLFW() :
         mCallback(),
         mTargetSlot(0),
-        mAttrWidth(property_get_int32("native.display.width",  400)),
-        mAttrHeight(property_get_int32("native.display.height", 300)),
+        mDispWidth(1920),
+        mDispHeight(1080),
+        mWindWidth(property_get_int32("native.display.width",  400)),
+        mWindHeight(property_get_int32("native.display.height", 300)),
         mAttrVsyncPreiod(1),
         mLockWindow("native window"),
         mWindows()
     {
         property_get("native.display.name", mWindowName, "default");
         
-        glfwInit();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_VISIBLE,    GLFW_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE,  GLFW_FALSE);
+        //glfwSetErrorCallback(ErrorCallback);
+        
+#if defined(__APPLE__)
+        glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
+#endif
+        
+        if (!glfwInit()) {
+            ALOGE("GLFW: Failed to initialize GLFW");
+        }
+                
+        // Find monitor resolution
+        GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+        if (!monitor) {
+            ALOGW("GLFW: Failed to get primary monitor");
+        }
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+        if (mode) {
+            mDispWidth  = mode->width;
+            mDispHeight = mode->height;
+        }
+        // Obtain recommended display width / display height from a valid videomode for the monitor
+        int count = 0;
+        const GLFWvidmode *modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
+
+        // Get closest video mode to desired CORE.Window.screen.width/CORE.Window.screen.height
+        for (int i = 0; i < count; i++)
+        {
+            if (modes[i].width >= mDispWidth)
+            {
+                if (modes[i].height >= mDispHeight)
+                {
+                    mDispWidth = modes[i].width;
+                    mDispHeight = modes[i].height;
+                }
+            }
+        }
+        
+        glfwDefaultWindowHints();                           // Set default windows hints:
+        glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);   // Scale content area based on the monitor content scale where window is placed on
+
+        glfwWindowHint(GLFW_VISIBLE,    GLFW_FALSE);   // Window initially hidden
+        glfwWindowHint(GLFW_RESIZABLE,  GLFW_FALSE);   // Avoid window being resizable
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // Avoid any Graphic API
     }
     
     ~ComposerClientGLFW()
     {
         for (int i = 0; i < mWindows.size(); ++i) {
-            if (mWindows[i]) {
-                glfwDestroyWindow(mWindows[i]);
+            if (mWindows.valueAt(i).win) {
+                glfwDestroyWindow(mWindows.valueAt(i).win);
             }
         }
         mWindows.clear();
@@ -110,25 +167,42 @@ struct ComposerClientGLFW : public ComposerClientDefault {
 
     virtual ::android::hardware::Return<void> getDisplayAttribute(uint64_t display, uint32_t config, ::android::hardware::graphics::composer::V2_1::IComposerClient::Attribute attribute, getDisplayAttribute_cb _hidl_cb) override
     {
-        // paramter check
-        if (display != PRIMARY_DISPLAY) {
-            _hidl_cb(Error::BAD_DISPLAY, 0);
-        } else if  (config >= PRIMARY_CONFIGS) {
-            _hidl_cb(Error::BAD_CONFIG, 0);
-        }
-        
-        // return attributes
-        else if (attribute == Attribute::WIDTH) {
-            _hidl_cb(Error::NONE, mAttrWidth);
-            return ::android::hardware::Void();
-        } else if (attribute == Attribute::HEIGHT) {
-            _hidl_cb(Error::NONE, mAttrHeight);
-        } else if (attribute == Attribute::VSYNC_PERIOD) {
-            _hidl_cb(Error::NONE, mAttrVsyncPreiod);
+        // main display check
+        if (display == PRIMARY_DISPLAY) {
+            if  (config >= PRIMARY_CONFIGS) {
+                _hidl_cb(Error::BAD_CONFIG, 0);
+            }
+            
+            // return attributes
+            else if (attribute == Attribute::WIDTH) {
+                _hidl_cb(Error::NONE, mDispWidth);
+            } else if (attribute == Attribute::HEIGHT) {
+                _hidl_cb(Error::NONE, mDispHeight);
+            } else if (attribute == Attribute::VSYNC_PERIOD) {
+                _hidl_cb(Error::NONE, mAttrVsyncPreiod);
+            } else {
+                _hidl_cb(Error::UNSUPPORTED, 0);
+            }
+            
+        // hack for layer (native window)
         } else {
-            _hidl_cb(Error::UNSUPPORTED, 0);
+            android::AutoMutex _l(mLockWindow);
+
+            if (mWindows.indexOfKey(display) < 0) {
+                _hidl_cb(Error::BAD_DISPLAY, 0);
+                return ::android::hardware::Void();
+            }
+            
+            if (attribute == Attribute::WIDTH) {
+                _hidl_cb(Error::NONE, mWindows.valueFor(display).fbW);
+                return ::android::hardware::Void();
+            } else if (attribute == Attribute::HEIGHT) {
+                _hidl_cb(Error::NONE, mWindows.valueFor(display).fbH);
+            } else {
+                _hidl_cb(Error::UNSUPPORTED, 0);
+            }
         }
-        
+                
         return ::android::hardware::Void();
     };
 
@@ -154,17 +228,21 @@ struct ComposerClientGLFW : public ComposerClientDefault {
             return ::android::hardware::Void();
         }
 
-       GLFWwindow* win = glfwCreateWindow(mAttrWidth, mAttrHeight, mWindowName, NULL, NULL);
+       GLFWwindow* win = glfwCreateWindow(mWindWidth, mWindHeight, mWindowName, NULL, NULL);
         LOG_ALWAYS_FATAL_IF((win == NULL), "Failed to create window %s:%d", __FILE__, __LINE__);
         if (win == NULL) {
             _hidl_cb(Error::NO_RESOURCES, 0);
             return ::android::hardware::Void();
         }
 
+        int fbWidth = 0;
+        int fbHeight = 0;
+        glfwGetFramebufferSize(win, &fbWidth, &fbHeight);
+        
 #if defined(ENABLE_ANDROID_GL)
         // The Android GL will allow surface flinger creating main window,
         // which should be invisible.
-        if (mWindows.empty()) {
+        if (mWindows.isEmpty()) {
             glfwHideWindow(win);
         } else
 #endif
@@ -172,16 +250,14 @@ struct ComposerClientGLFW : public ComposerClientDefault {
             glfwShowWindow(win);
         }
         
-        mWindows.add(win);
+        uint64_t handle = reinterpret_cast<uint64_t>(glfwGetNativeWindow(win));
+        LayerToNative layerN;
+        layerN.win = win;
+        layerN.fbW = fbWidth;
+        layerN.fbH = fbHeight;
+        mWindows.add(handle, layerN);
         
-#if defined(__APPLE__)
-        _hidl_cb(Error::NONE, reinterpret_cast<uint64_t>(glfwGetCocoaLayer(win)));
-#elif defined(_MSC_VER)
-        _hidl_cb(Error::NONE, reinterpret_cast<uint64_t>(glfwGetWin32Window(win)));
-#else
-        _hidl_cb(Error::UNSUPPORTED, 0);
-#endif
-
+        _hidl_cb(Error::NONE, handle);
         return ::android::hardware::Void();
     };
 
@@ -193,21 +269,13 @@ struct ComposerClientGLFW : public ComposerClientDefault {
             return Error::BAD_DISPLAY;
         }
         
-        for (int i = 0; i < mWindows.size(); ++i) {
-            if (reinterpret_cast<uint64_t>(
-#if defined(__APPLE__)
-                    glfwGetCocoaLayer(mWindows[i])
-#elif defined(_MSC_VER)
-                    glfwGetWin32Window(mWindows[i])
-#else
-                    0
-#endif
-                                           ) == layer) {
-                glfwDestroyWindow(mWindows[i]);
-                mWindows.removeAt(i);
-                break;
-            }
+        if (mWindows.indexOfKey(layer) < 0) {
+            return Error::BAD_LAYER;
         }
+        
+        GLFWwindow* win = mWindows.valueFor(layer).win;
+        glfwDestroyWindow(win);
+        mWindows.removeItem(layer);
 
         return Error::NONE;
     };

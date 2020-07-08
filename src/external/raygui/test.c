@@ -16,7 +16,7 @@
 
 
 const int screenWidth = 800;
-const int screenHeight = 600;
+const int screenHeight = 450;
 
 static pthread_t mGUIThread = NULL;
 

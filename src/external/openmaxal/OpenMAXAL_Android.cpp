@@ -6,6 +6,7 @@
 #include <gui/SurfaceComposerClient.h>
 #include <utils/String8.h>
 #include <utils/KeyedVector.h>
+#include <utils/Mutex.h>
 
 namespace android {
 	struct WindowHandle {
@@ -14,10 +15,13 @@ namespace android {
 		sp<SurfaceControl> control;
 	};
 
+    Mutex                                     gLockWin("OpenMAXAL Native Window");
 	KeyedVector<ANativeWindow*, WindowHandle> gNativeWin;
 
 	ANativeWindow *getNativeWindow_()
 	{
+        AutoMutex _l(gLockWin);
+        
 		sp<SurfaceComposerClient> composerClient = new SurfaceComposerClient;
 		if (composerClient->initCheck() != (status_t)OK) {
 			return NULL;
@@ -51,7 +55,7 @@ namespace android {
 		hWin.surface = surface;
 		hWin.composerClient = composerClient;
 		hWin.control = control;
-
+        
 		gNativeWin.add(surface.get(), hWin);
 
 		// composerClient->dispose() at exit
@@ -60,10 +64,18 @@ namespace android {
 
 	void disposeNativeWindow_(ANativeWindow * nativeWin)
 	{
+        AutoMutex _l(gLockWin);
+
 		WindowHandle hWin = gNativeWin.editValueFor(nativeWin);
 		if (hWin.composerClient != NULL) {
 			hWin.composerClient->dispose();
 		}
+        if (hWin.surface != NULL) {
+            hWin.surface.clear();
+        }
+        if (hWin.control != NULL) {
+            hWin.control.clear();
+        }
 
 		gNativeWin.removeItem(nativeWin);
 	}

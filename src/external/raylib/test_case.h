@@ -1,25 +1,40 @@
 #if TEST_EGL_GL
 void hello_triangle(void)
 {
-        GLfloat vertices[] = {
-            0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f,
-        };
+    GLfloat vertices[] = {
+        0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f,
+    };
 
-        // Set the viewport
-        glViewport(0, 0, screenWidth, screenHeight);
+    // Set the viewport
+    glViewport(0, 0, screenWidth, screenHeight);
 
-        // Clear the color buffer
-        glClear(GL_COLOR_BUFFER_BIT);
+    // Clear the color buffer
+    glClear(GL_COLOR_BUFFER_BIT);
 
-        // Use the program object
-        //glUseProgram(mProgram);
+    // Use the program object
+    //glUseProgram(mProgram);
 
-        // Load the vertex data
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-        glEnableVertexAttribArray(0);
+    // Load the vertex data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+    glEnableVertexAttribArray(0);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
+
+void colored_rect(GLfloat left, GLfloat bottom, GLfloat right, GLfloat top, GLfloat R, GLfloat G, GLfloat B)
+{
+    GLfloat rect[] = {
+        left, bottom,
+        right, bottom,
+        right, top,
+        left, top
+    };
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glColor4f(R,G,B, 1.0f);
+    glVertexPointer(2, GL_FLOAT, 0, rect);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+}
+
 #endif // TEST_EGL_GL
 
 void example_hello_text(void)
@@ -59,4 +74,11 @@ void sharps_basic_sharps(void)
                       (Vector2){screenWidth/4*3 - 20, 230},
                       (Vector2){screenWidth/4*3 + 20, 230}, DARKBLUE);
 
+}
+
+void hello_rectangle(void)
+{
+    ClearBackground(RAYWHITE);
+
+    DrawRectangle(0, 0, 100, 100, RED);
 }

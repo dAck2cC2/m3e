@@ -345,6 +345,7 @@ static int32_t AndroidInputCallback(struct android_app *app, AInputEvent *event)
 
 
 // M3E: Add
+#include "android_fw_wrap.h"
 #include <OMXAL/OpenMAXAL_Android.h>
 
 struct ANativeActivity mActivity;
@@ -528,6 +529,12 @@ void CloseWindow(void)
     }
 #endif
 
+    
+    if (CORE.Android.app && CORE.Android.app->window) {
+        xaAndroidDisposeNativeWindow(CORE.Android.app->window);
+        CORE.Android.app = NULL;
+    }
+    
     TRACELOG(LOG_INFO, "Window closed successfully");
 }
 
@@ -2407,10 +2414,6 @@ static bool InitGraphicsDevice(int width, int height)
         TRACELOG(LOG_WARNING, "DISPLAY: Failed to create EGL context");
         return false;
     }
-    
-    // Get EGL device window size
-    eglQuerySurface(CORE.Window.device, CORE.Window.surface, EGL_WIDTH, &CORE.Window.display.width);
-    eglQuerySurface(CORE.Window.device, CORE.Window.surface, EGL_HEIGHT, &CORE.Window.display.height);
 #endif
 
     // Create an EGL window surface
@@ -2462,6 +2465,14 @@ static bool InitGraphicsDevice(int width, int height)
 
     int fbWidth = CORE.Window.render.width;
     int fbHeight = CORE.Window.render.height;
+    
+    AndroidFW_getFramebufferSize(CORE.Android.app->window, &fbWidth, &fbHeight);
+
+    // Screen scaling matrix is required in case desired screen area is different than display area
+    CORE.Window.screenScale = MatrixScale((float)fbWidth/CORE.Window.screen.width, (float)fbHeight/CORE.Window.screen.height, 1.0f);
+    #if !defined(__APPLE__)
+        SetMouseScale((float)CORE.Window.screen.width/fbWidth, (float)CORE.Window.screen.height/fbHeight);
+    #endif
 
     // Setup default viewport
     SetupViewport(fbWidth, fbHeight);
@@ -2746,13 +2757,9 @@ static void AndroidCommandCallback(struct android_app *app, int32_t cmd)
                 }
                 else
                 {
-#if ENABLE_NATVE_WINDOW // get them through egl.
-                    CORE.Window.display.width  = ANativeWindow_getWidth(CORE.Android.app->window);
-                    CORE.Window.display.height = ANativeWindow_getHeight(CORE.Android.app->window);
-#else
                     CORE.Window.display.width  = CORE.Window.screen.width;
                     CORE.Window.display.height = CORE.Window.screen.height;
-#endif
+
                     // Init graphics device (display device and OpenGL context)
                     InitGraphicsDevice(CORE.Window.screen.width, CORE.Window.screen.height);
 

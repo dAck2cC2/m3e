@@ -18,6 +18,18 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/arect/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/wilhelm/openmaxal/include.cmake)
 
+# for gui
+include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/math/include.cmake)
+
+
 set(SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/raylib/src)
 
 include_directories(AFTER ${SOURCE_PATH})
@@ -36,6 +48,8 @@ add_definitions(-DBUILD_LIBTYPE_SHARED)
 
 if(APPLE)
     add_definitions(-Doff64_t=off_t)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
+
 elseif(MSVC)
     add_definitions(-DSUPPORT_BUSY_WAIT_LOOP=1)
 
@@ -50,6 +64,10 @@ list(REMOVE_ITEM raylib_sources ${SOURCE_PATH}/raudio.c)
 
 list(REMOVE_ITEM raylib_sources ${SOURCE_PATH}/core.c)
 list(APPEND raylib_sources ${M3E_SOURCE_DIR}/src/${EXT_PATH}/raylib/core.c)
+list(APPEND raylib_sources 
+${M3E_SOURCE_DIR}/src/${EXT_PATH}/raylib/android_fw_wrap.h
+${M3E_SOURCE_DIR}/src/${EXT_PATH}/raylib/android_fw_wrap.cpp
+)
 
 set(${PROJECT_NAME}_SOURCE_FILES ${raylib_sources})
 

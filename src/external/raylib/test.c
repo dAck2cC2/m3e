@@ -5,22 +5,20 @@
 #include <pthread.h>
 
 #include <initrc/initrc.h>
-#include <OMXAL/OpenMAXAL_Android.h>
 
 #if TEST_EGL_GL
+#include <OMXAL/OpenMAXAL_Android.h>
 #include <EGL/egl.h>
 #include <GLES/gl.h>
 #include <GLES2/gl2.h>
 #endif // TEST_EGL_GL
 
 #include "raylib.h"
-#include "android_native_app_glue.h"
 
 const int screenWidth = 800;
 const int screenHeight = 600;
 
-struct ANativeActivity mActivity;
-struct android_app     mApp;
+static pthread_t mGUIThread = NULL;
 
 #include "test_case.h"
 
@@ -28,12 +26,8 @@ void* _threadLoopRay(void* user)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    mApp.window = xaAndroidCreateNativeWindow();
-
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-    
-    mApp.onAppCmd(&mApp, APP_CMD_INIT_WINDOW);
-    
+        
     // TODO: Load resources / Initialize variables at this point
     
     SetTargetFPS(60);
@@ -53,7 +47,9 @@ void* _threadLoopRay(void* user)
         
             //hello_triangle();
             //example_hello_text();
-            sharps_basic_sharps();
+            //sharps_basic_sharps();
+        
+            hello_rectangle();
 
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -87,7 +83,7 @@ void* _threadLoopEGL(void* user)
     EGLContext context;
     EGLDisplay display;
     
-    mApp.window = xaAndroidCreateNativeWindow();
+    XANativeHandle window = xaAndroidCreateNativeWindow();
 
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     eglInitialize(display, 0, 0);
@@ -98,16 +94,29 @@ void* _threadLoopEGL(void* user)
     eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &displayFormat);
 
     
-    surface = eglCreateWindowSurface(display, config, mApp.window, NULL);
+    surface = eglCreateWindowSurface(display, config, window, NULL);
     //eglQuerySurface(display, surface, EGL_WIDTH, &w);
     //eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
         return NULL;
 
+    // clear screen
+    /*
+    glShadeModel(GL_FLAT);
+    glDisable(GL_DITHER);
+    glDisable(GL_SCISSOR_TEST);
+    glClearColor(0,0,0,1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    eglSwapBuffers(display, surface);
+     */
+    
     for (;;) {
-        hello_triangle();
-        //sharps_basic_sharps();
+        
+        //hello_triangle();
+        colored_rect(-0.5f, -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f);
+        
+        
         EGLBoolean res = eglSwapBuffers(display, surface);
         if (res == EGL_FALSE)
             break;
@@ -116,10 +125,10 @@ void* _threadLoopEGL(void* user)
     eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(display, context);
     eglDestroySurface(display, surface);
-    xaAndroidDisposeNativeWindow(mApp.window);
-    mApp.window = NULL;
     eglTerminate(display);
     eglReleaseThread();
+    
+    xaAndroidDisposeNativeWindow(window);
 
     return NULL;
 }
@@ -127,19 +136,16 @@ void* _threadLoopEGL(void* user)
 
 int main(int argc, char** argv)
 {
+    InitRC_set(M_PROPERTY_DISPLAY_NAME,   "test raylib");
+    InitRC_set(M_PROPERTY_DISPLAY_WIDTH,  "800");
+    InitRC_set(M_PROPERTY_DISPLAY_HEIGHT, "600");
+    
     InitRC_entry(argc, argv);
-
-    memset(&mActivity, 0x00, sizeof(mActivity));
-    memset(&mApp,      0x00, sizeof(mApp));
-    
-    mApp.activity = &mActivity;
-    
-    android_main(&mApp);
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    int result = pthread_create(&(mApp.thread), &attr,
+    int result = pthread_create(&(mGUIThread), &attr,
 #if TEST_EGL_GL
                                 _threadLoopEGL,
 #else

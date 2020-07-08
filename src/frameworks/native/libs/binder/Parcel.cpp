@@ -2327,7 +2327,6 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
 
 status_t Parcel::read(FlattenableHelperInterface& val) const
 {
-#if TODO /* M3E: */
     // size
     const size_t len = this->readInt32();
     const size_t fd_count = this->readInt32();
@@ -2375,9 +2374,6 @@ status_t Parcel::read(FlattenableHelperInterface& val) const
     }
 
     return err;
-#else
-    return NO_ERROR;    
-#endif
 }
 const flat_binder_object* Parcel::readObject(bool nullMetaData) const
 {
@@ -2852,19 +2848,20 @@ void Parcel::initState()
     mOwner = NULL;
     mOpenAshmemSize = 0;
 
-	/* M3E:
     // racing multiple init leads only to multiple identical write
     if (gMaxFds == 0) {
+#if TODO  // M3E:
         struct rlimit result;
         if (!getrlimit(RLIMIT_NOFILE, &result)) {
             gMaxFds = (size_t)result.rlim_cur;
             //ALOGI("parcel fd limit set to %zu", gMaxFds);
-        } else {
+        } else
+#endif
+        {
             ALOGW("Unable to getrlimit: %s", strerror(errno));
             gMaxFds = 1024;
         }
     }
-	*/
 }
 
 void Parcel::scanForFds() const
