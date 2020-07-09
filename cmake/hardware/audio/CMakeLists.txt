@@ -1,6 +1,8 @@
 
 add_subdirectory(dump)
-if(LINUX)
-else()
-add_subdirectory(openal)
+
+if(MSVC)
+    add_subdirectory(wasapi)
+elseif(APPLE)
+    add_subdirectory(openal)
 endif()

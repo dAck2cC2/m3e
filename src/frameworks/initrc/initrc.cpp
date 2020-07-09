@@ -90,8 +90,7 @@ void InitRCImpl::ResetProperties()
     property_set("ro.hardware.audio_primary",  "openal");
     property_set("ro.board.platform", "osx");
 #elif defined(_MSC_VER)
-	//property_set("ro.hardware.audio_primary", "dump");
-    property_set("ro.hardware.audio_primary", "openal");
+    property_set("ro.hardware.audio_primary", "wasapi");
     property_set("ro.board.platform", "win");
 #elif defined(__linux__)
     property_set("ro.hardware.audio_primary", "dump");

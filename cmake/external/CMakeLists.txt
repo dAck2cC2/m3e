@@ -23,7 +23,7 @@ if (ENABLE_WXWIDGETS)
     add_subdirectory(tiff)
 endif(ENABLE_WXWIDGETS)
 
-# angle for EGL and OpenGL
+# angle for EGL and OpenGLES
 if (ENABLE_ANGLE)
     add_subdirectory(angle)
 endif()
@@ -83,7 +83,8 @@ if(ENABLE_AV_CODEC)
 endif(ENABLE_AV_CODEC)
 
 if(MSVC)
-    add_subdirectory(openal-soft)
+    # We have wasapi audio now, should not need openal.
+    #add_subdirectory(openal-soft)
 endif(MSVC)
 
 if (ENABLE_RAYLIB)

@@ -754,6 +754,10 @@ status_t Thread::run(const char* name, int32_t priority, size_t stack)
 
 int Thread::_threadLoop(void* user)
 {
+#if defined(_MSC_VER)
+    CoInitializeEx(NULL, COINIT_MULTITHREADED);
+#endif
+
     Thread* const self = static_cast<Thread*>(user);
 
     sp<Thread> strong(self->mHoldSelf);
@@ -843,6 +847,10 @@ int Thread::_threadLoop(void* user)
         // And immediately, re-acquire a strong reference for the next loop
         strong = weak.promote();
     } while(strong != 0);
+
+#if defined(_MSC_VER)
+    CoUninitialize();
+#endif
 
     return 0;
 }
