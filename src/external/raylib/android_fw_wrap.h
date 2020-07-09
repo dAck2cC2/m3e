@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 struct ANativeWindow;
+typedef struct ANativeWindow ANativeWindow;
 
 int AndroidFW_getFramebufferSize(ANativeWindow* win, int* w, int* h);
 

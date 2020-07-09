@@ -510,8 +510,7 @@ if (MSVC)
 endif()
 
 
-
-set(ENABLE_TEST  TRUE)
+#set(ENABLE_TEST  TRUE)
 if(ENABLE_TEST)
   add_subdirectory(test)
 endif(ENABLE_TEST)

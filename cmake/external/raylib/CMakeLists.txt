@@ -18,16 +18,19 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/arect/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/wilhelm/openmaxal/include.cmake)
 
-# for gui
+# for native window
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/native/math/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativebase/include.cmake)
+
+# for gui
+#include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+#include(${M3E_SOURCE_DIR}/cmake/frameworks/native/math/include.cmake)
 
 
 set(SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/raylib/src)
@@ -53,6 +56,7 @@ if(APPLE)
 elseif(MSVC)
     add_definitions(-DSUPPORT_BUSY_WAIT_LOOP=1)
 
+    add_definitions(-D_UNICODE)
     add_definitions(-DWINAPI_FAMILY=WINAPI_FAMILY_PC_APP)
     #add_definitions(-DNOGDI)
     #add_definitions(-DNOUSER)

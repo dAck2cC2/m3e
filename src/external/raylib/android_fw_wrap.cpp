@@ -1,13 +1,12 @@
 
 #include "android_fw_wrap.h"
 
-#include <ui/DisplayInfo.h>
-#include <gui/ISurfaceComposer.h>
-#include <gui/SurfaceComposerClient.h>
-
 #include <system/window.h>
 
-using namespace android;
+//#include <ui/DisplayInfo.h>
+//#include <gui/ISurfaceComposer.h>
+//#include <gui/SurfaceComposerClient.h>
+//using namespace android;
 
 int AndroidFW_getFramebufferSize(ANativeWindow* win, int* w, int* h)
 {
