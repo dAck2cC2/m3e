@@ -2354,6 +2354,7 @@ status_t Parcel::read(FlattenableHelperInterface& val) const
     status_t err = NO_ERROR;
     for (size_t i=0 ; i<fd_count && err==NO_ERROR ; i++) {
         int fd = this->readFileDescriptor();
+#if !defined(_MSC_VER)
         if (fd < 0 || ((fds[i] = fcntl(fd, F_DUPFD_CLOEXEC, 0)) < 0)) {
             err = BAD_VALUE;
             ALOGE("fcntl(F_DUPFD_CLOEXEC) failed in Parcel::read, i is %zu, fds[i] is %d, fd_count is %zu, error: %s",
@@ -2363,6 +2364,7 @@ status_t Parcel::read(FlattenableHelperInterface& val) const
                 close(fds[j]);
             }
         }
+#endif
     }
 
     if (err == NO_ERROR) {
