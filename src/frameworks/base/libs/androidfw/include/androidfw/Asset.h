@@ -279,7 +279,7 @@ private:
      * a buffer or memory-map it.  For small files it's probably best to
      * just read them in.
      */
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
     enum { kReadVsMapThreshold = 4096 * 1024 };
 #else
 	enum { kReadVsMapThreshold = 4096 };

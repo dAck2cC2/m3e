@@ -49,6 +49,7 @@ ${SOURCE_PATH}/AssetDir.cpp
 ${SOURCE_PATH}/AssetManager.cpp
 ${SOURCE_PATH}/AssetManager2.cpp
 ${SOURCE_PATH}/ChunkIterator.cpp
+${SOURCE_PATH}/Idmap.cpp
 ${SOURCE_PATH}/LocaleData.cpp
 ${SOURCE_PATH}/LoadedArsc.cpp
 ${SOURCE_PATH}/misc.cpp

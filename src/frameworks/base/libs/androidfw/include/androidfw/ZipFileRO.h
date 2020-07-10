@@ -66,7 +66,7 @@ typedef void* ZipEntryRO;
  * you must be on a platform that implements pread() to guarantee correctness
  * on the shared file descriptors.
  */
-class ANDROID_API_ANDROIDFW ZipFileRO {
+class ANDROID_API_ANDROIDFW ZipFileRO { // M3E: MSVC export
 public:
     /* Zip compression methods we support */
     enum : uint16_t {
@@ -78,6 +78,12 @@ public:
      * Open an archive.
      */
     static ZipFileRO* open(const char* zipFileName);
+
+    /*
+     * Open an archive from an already open file descriptor.
+     */
+    static ZipFileRO* openFd(int fd, const char* debugFileName,
+        bool assume_ownership = true);
 
     /*
      * Find an entry, by name.  Returns the entry identifier, or NULL if

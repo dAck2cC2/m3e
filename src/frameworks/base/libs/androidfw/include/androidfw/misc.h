@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <windows.h>
 #endif // _MSC_VER
 
