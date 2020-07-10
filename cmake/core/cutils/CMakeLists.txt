@@ -59,6 +59,8 @@ ${SOURCE_PATH}/trace-host.cpp
 
 ${SOURCE_PATH}/qtaguid.cpp
 ${SOURCE_PATH}/properties.cpp
+
+${SOURCE_PATH}/multiuser.cpp
 )
 
 if(MSVC)
