@@ -30,7 +30,7 @@
 #include "egl_tls.h"
 #include "egl_display.h"
 #include "egl_object.h"
-#if ENABLE_CALLSTACK
+#if ENABLE_CALLSTACK // M3E:
 #include "CallStack.h"
 #endif
 #include "Loader.h"
@@ -70,7 +70,7 @@ static int gl_no_context() {
         char value[PROPERTY_VALUE_MAX];
         property_get("debug.egl.callstack", value, "0");
         if (atoi(value)) {
-#if ENABLE_CALLSTACK
+#if ENABLE_CALLSTACK // M3E:
             CallStack::log(LOG_TAG);
 #endif
         }
@@ -231,7 +231,7 @@ void gl_unimplemented() {
         char value[PROPERTY_VALUE_MAX];
         property_get("debug.egl.callstack", value, "0");
         if (atoi(value)) {
-#if ENABLE_CALLSTACK
+#if ENABLE_CALLSTACK // M3E:
             CallStack::log(LOG_TAG);
 #endif
         }

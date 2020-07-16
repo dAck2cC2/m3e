@@ -36,7 +36,6 @@ ${HEADER_PATH}/*.h
 
 # source files
 set(${PROJECT_NAME}_SOURCE_FILES 
-${SOURCE_PATH}/IPlayer.cpp
 ${SOURCE_PATH}/IAudioManager.cpp
 )
 

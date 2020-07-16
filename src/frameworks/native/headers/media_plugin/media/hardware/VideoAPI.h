@@ -220,7 +220,7 @@ struct __attribute__ ((__packed__)) HDRStaticInfo {
 
 static_assert(sizeof(HDRStaticInfo::Primaries1) == 4, "wrong struct size");
 static_assert(sizeof(HDRStaticInfo::Type1) == 24, "wrong struct size");
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
 static_assert(sizeof(HDRStaticInfo) == 25, "wrong struct size");
 #endif 
 

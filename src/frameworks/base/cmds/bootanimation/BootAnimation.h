@@ -174,7 +174,7 @@ private:
     bool        mShuttingDown;
     String8     mZipFileName;
     SortedVector<String8> mLoadedFiles;
-#if ENABLE_TIME_CHECK 
+#if ENABLE_TIME_CHECK // M3E:
     sp<TimeCheckThread> mTimeCheckThread = nullptr;
 #endif
     sp<Callbacks> mCallbacks;

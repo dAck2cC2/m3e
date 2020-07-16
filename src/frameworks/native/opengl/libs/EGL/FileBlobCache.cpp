@@ -49,7 +49,7 @@ FileBlobCache::FileBlobCache(size_t maxKeySize, size_t maxValueSize, size_t maxT
         const std::string& filename)
         : BlobCache(maxKeySize, maxValueSize, maxTotalSize)
         , mFilename(filename) {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
     if (mFilename.length() > 0) {
         size_t headerSize = cacheFileHeaderSize;
 
@@ -117,7 +117,7 @@ FileBlobCache::FileBlobCache(size_t maxKeySize, size_t maxValueSize, size_t maxT
 }
 
 void FileBlobCache::writeToFile() {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
     if (mFilename.length() > 0) {
         size_t cacheSize = getFlattenedSize();
         size_t headerSize = cacheFileHeaderSize;

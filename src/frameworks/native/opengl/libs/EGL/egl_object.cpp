@@ -60,7 +60,7 @@ egl_surface_t::egl_surface_t(egl_display_t* dpy, EGLConfig config, EGLNativeWind
       : egl_object_t(dpy),
         surface(surface),
         config(config),
-        win(_CAST<ANativeWindow *>(w)),
+        win(_CAST<ANativeWindow *>(w)), // M3E:
         cnx(cnx),
         connected(true),
         colorSpace(colorSpace),

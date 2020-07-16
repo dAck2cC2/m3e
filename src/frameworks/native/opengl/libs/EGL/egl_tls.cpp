@@ -20,13 +20,13 @@
 
 #include <cutils/properties.h>
 #include <log/log.h>
-#if ENABLE_CALLSTACK
+#if ENABLE_CALLSTACK // M3E:
 #include "CallStack.h"
 #endif
 
 namespace android {
 
-#if defined(_LIBS_CUTILS_THREADS_H)
+#if defined(_LIBS_CUTILS_THREADS_H) // M3E:
 thread_store_t egl_tls_t::sTLS = THREAD_STORE_INITIALIZER;
 #else
 pthread_key_t egl_tls_t::sKey = TLS_KEY_NOT_INITIALIZED;
@@ -60,7 +60,7 @@ const char *egl_tls_t::egl_strerror(EGLint err) {
 
 void egl_tls_t::validateTLSKey()
 {
-#if !defined(_LIBS_CUTILS_THREADS_H)
+#if !defined(_LIBS_CUTILS_THREADS_H) // M3E:
     struct TlsKeyInitializer {
         static void create() {
             pthread_key_create(&sKey, (void (*)(void*))&eglReleaseThread);
@@ -81,7 +81,7 @@ void egl_tls_t::setErrorEtcImpl(
             char value[PROPERTY_VALUE_MAX];
             property_get("debug.egl.callstack", value, "0");
             if (atoi(value)) {
-#if ENABLE_CALLSTACK
+#if ENABLE_CALLSTACK // M3E:
                 CallStack::log(LOG_TAG);
 #endif
             }
@@ -101,7 +101,7 @@ bool egl_tls_t::logNoContextCall() {
 }
 
 egl_tls_t* egl_tls_t::getTLS() {
-#if defined(_LIBS_CUTILS_THREADS_H)
+#if defined(_LIBS_CUTILS_THREADS_H) // M3E:
     egl_tls_t* tls = (egl_tls_t*)thread_store_get(&sTLS);
     if (tls == NULL) {
         tls = new egl_tls_t;
@@ -119,7 +119,7 @@ egl_tls_t* egl_tls_t::getTLS() {
 }
 
 void egl_tls_t::clearTLS() {
-#if defined(_LIBS_CUTILS_THREADS_H)
+#if defined(_LIBS_CUTILS_THREADS_H) // M3E:
     egl_tls_t* tls = (egl_tls_t*)thread_store_get(&sTLS);
     if (tls) {
         thread_store_set(&sTLS, NULL, reinterpret_cast<thread_store_destruct_t>(&eglReleaseThread));
@@ -143,7 +143,7 @@ void egl_tls_t::clearError() {
 }
 
 EGLint egl_tls_t::getError() {
-#if defined(_LIBS_CUTILS_THREADS_H)
+#if defined(_LIBS_CUTILS_THREADS_H) // M3E:
     egl_tls_t* tls = (egl_tls_t*)thread_store_get(&sTLS);
 #else
     if (sKey == TLS_KEY_NOT_INITIALIZED) {
@@ -165,7 +165,7 @@ void egl_tls_t::setContext(EGLContext ctx) {
 }
 
 EGLContext egl_tls_t::getContext() {
-#if defined(_LIBS_CUTILS_THREADS_H)
+#if defined(_LIBS_CUTILS_THREADS_H) // M3E:
     egl_tls_t* tls = (egl_tls_t*)thread_store_get(&sTLS);
 #else
     if (sKey == TLS_KEY_NOT_INITIALIZED) {

@@ -24,7 +24,7 @@
 #include <dirent.h>
 #include <dlfcn.h>
 
-#if ENABLE_DLEXT
+#if ENABLE_DLEXT // M3E:
 #include <android/dlext.h>
 #endif
 #include <cutils/properties.h>
@@ -117,7 +117,7 @@ static void* do_dlopen(const char* path, int mode) {
     return dlopen(path, mode);
 }
 
-#if ENABLE_DLEXT
+#if ENABLE_DLEXT // M3E:
 static void* do_android_dlopen_ext(const char* path, int mode, const android_dlextinfo* info) {
     ATRACE_CALL();
     return android_dlopen_ext(path, mode, info);
@@ -250,7 +250,7 @@ void* Loader::open(egl_connection_t* cnx)
 
     LOG_ALWAYS_FATAL_IF(!hnd, "couldn't find an OpenGL ES implementation");
 
-#if 0
+#if 0 // M3E:
     cnx->libEgl   = load_wrapper(EGL_WRAPPER_DIR "/libEGL.so");
     cnx->libGles2 = load_wrapper(EGL_WRAPPER_DIR "/libGLESv2.so");
     cnx->libGles1 = load_wrapper(EGL_WRAPPER_DIR "/libGLESv1_CM.so");
@@ -373,7 +373,7 @@ static void* load_system_driver(const char* kind) {
 #endif
                     return result;
                 case 3:
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
                     result = std::string(".\\") + kind + "_angle.dll";
 #elif defined(__APPLE__)
                     result = std::string("./lib") + kind + "_angle.dylib";
@@ -495,7 +495,7 @@ static const char* HAL_SUBNAME_KEY_PROPERTIES[2] = {
 
 #ifndef __ANDROID_VNDK__
 static void* load_updated_driver(const char* kind, android_namespace_t* ns) {
-#if TODO
+#if TODO // M3E:
     ATRACE_CALL();
     const android_dlextinfo dlextinfo = {
         .flags = ANDROID_DLEXT_USE_NAMESPACE,

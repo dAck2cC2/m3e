@@ -258,7 +258,7 @@ struct PrependSPSPPSToIDRFramesParams {
 
 // @deprecated: use DescribeColorFormat2Params
 struct DescribeColorFormat2Params;
-struct ANDROID_API_STAGEFRIGHT_OMX DescribeColorFormatParams {
+struct ANDROID_API_STAGEFRIGHT_OMX DescribeColorFormatParams { // M3E: MSVC export
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     // input: parameters from OMX_VIDEO_PORTDEFINITIONTYPE
@@ -279,7 +279,7 @@ struct ANDROID_API_STAGEFRIGHT_OMX DescribeColorFormatParams {
 // index for the 'OMX.google.android.index.describeColorFormat2'
 // extension is given. This is operationally the same as DescribeColorFormatParams
 // but can be used for HDR and RGBA/YUVA formats.
-struct ANDROID_API_STAGEFRIGHT_OMX DescribeColorFormat2Params {
+struct ANDROID_API_STAGEFRIGHT_OMX DescribeColorFormat2Params { // M3E: MSVC export
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     // input: parameters from OMX_VIDEO_PORTDEFINITIONTYPE

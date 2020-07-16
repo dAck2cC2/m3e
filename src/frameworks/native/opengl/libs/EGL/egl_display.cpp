@@ -30,7 +30,7 @@
 #include "Loader.h"
 #include <cutils/properties.h>
 
-#if ENABLE_FLINGER_CONFIGS
+#if ENABLE_FLINGER_CONFIGS // M3E:
 #include <android/hardware/configstore/1.0/ISurfaceFlingerConfigs.h>
 #endif
 #include <configstore/Utils.h>
@@ -225,7 +225,7 @@ EGLBoolean egl_display_t::initialize(EGLint *major, EGLint *minor) {
         // Note: CDD requires that devices supporting wide color and/or HDR color also support
         // the EGL_KHR_gl_colorspace extension.
         bool wideColorBoardConfig =
-#if ENABLE_FLINGER_CONFIGS
+#if ENABLE_FLINGER_CONFIGS // M3E:
                 getBool<ISurfaceFlingerConfigs, &ISurfaceFlingerConfigs::hasWideColorDisplay>(
                         false);
 #else
@@ -240,7 +240,7 @@ EGLBoolean egl_display_t::initialize(EGLint *major, EGLint *minor) {
         }
 
         bool hasHdrBoardConfig =
-#if ENABLE_FLINGER_CONFIGS
+#if ENABLE_FLINGER_CONFIGS // M3E:
                 getBool<ISurfaceFlingerConfigs, &ISurfaceFlingerConfigs::hasHDRDisplay>(false);
 #else
         false;

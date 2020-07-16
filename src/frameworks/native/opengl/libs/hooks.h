@@ -34,7 +34,10 @@
 #include <GLES3/gl32.h>
 
 // M3E: let project file decide it
-//#define USE_SLOW_BINDING    0
+#if !defined(USE_SLOW_BINDING)
+// set to 1 for debugging
+#define USE_SLOW_BINDING    0
+#endif
 
 #undef NELEM
 #define NELEM(x)            (sizeof(x)/sizeof(*(x)))
@@ -46,7 +49,7 @@
 #define MAX_NUMBER_OF_GL_EXTENSIONS 256
 
 
-#if 0
+#if 0 // M3E:
 #include <bionic_tls.h>  /* special private C library header */
 #else
 #define TLS_SLOT_OPENGL_API (3)

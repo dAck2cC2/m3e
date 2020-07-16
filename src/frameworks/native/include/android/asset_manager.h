@@ -99,7 +99,7 @@ AAssetDir* AAssetManager_openDir(AAssetManager* mgr, const char* dirName);
  *
  * The object returned here should be freed by calling AAsset_close().
  */
-ANDROID_API_ANDROID
+ANDROID_API_ANDROID // M3E: MSVC export
 AAsset* AAssetManager_open(AAssetManager* mgr, const char* filename, int mode);
 
 /**
@@ -122,7 +122,7 @@ void AAssetDir_rewind(AAssetDir* assetDir);
 /**
  * Close an opened AAssetDir, freeing any related resources.
  */
-ANDROID_API_ANDROID
+ANDROID_API_ANDROID // M3E: MSVC export
 void AAssetDir_close(AAssetDir* assetDir);
 
 /**
@@ -130,7 +130,7 @@ void AAssetDir_close(AAssetDir* assetDir);
  *
  * Returns the number of bytes read, zero on EOF, or < 0 on error.
  */
-ANDROID_API_ANDROID
+ANDROID_API_ANDROID // M3E: MSVC export
 int AAsset_read(AAsset* asset, void* buf, size_t count);
 
 /**
@@ -139,7 +139,7 @@ int AAsset_read(AAsset* asset, void* buf, size_t count);
  *
  * Returns the new position on success, or (off_t) -1 on error.
  */
-ANDROID_API_ANDROID
+ANDROID_API_ANDROID // M3E: MSVC export
 off_t AAsset_seek(AAsset* asset, off_t offset, int whence)
     __RENAME_IF_FILE_OFFSET64(AAsset_seek64);
 
@@ -157,7 +157,7 @@ off64_t AAsset_seek64(AAsset* asset, off64_t offset, int whence);
 /**
  * Close the asset, freeing all associated resources.
  */
-ANDROID_API_ANDROID
+ANDROID_API_ANDROID // M3E: MSVC export
 void AAsset_close(AAsset* asset);
 
 /**

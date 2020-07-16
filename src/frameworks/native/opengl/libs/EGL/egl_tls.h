@@ -19,7 +19,7 @@
 
 #include <EGL/egl.h>
 
-#if 0
+#if 0  // M3E:
 #include <pthread.h>
 #else
 #include <cutils/threads.h>
@@ -32,7 +32,7 @@ namespace android {
 class DbgContext;
 
 class egl_tls_t {
-#if defined(_LIBS_CUTILS_THREADS_H)
+#if defined(_LIBS_CUTILS_THREADS_H) // M3E:
     static thread_store_t sTLS;
 #else
     enum { TLS_KEY_NOT_INITIALIZED = -1 };

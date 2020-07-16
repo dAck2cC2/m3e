@@ -288,7 +288,7 @@ EGLDisplay eglGetDisplay(EGLNativeDisplayType display)
     ATRACE_CALL();
     clearError();
 
-    uintptr_t index = _CAST<uintptr_t>(display);
+    uintptr_t index = _CAST<uintptr_t>(display); // M3E:
     if (index >= NUM_DISPLAYS) {
         return setError(EGL_BAD_PARAMETER, EGL_NO_DISPLAY);
     }
@@ -414,7 +414,7 @@ EGLBoolean eglChooseConfig( EGLDisplay dpy, const EGLint *attrib_list,
                         (!attribCaveat || attribCaveat[1] != EGL_NONE)) {
 
                     // Insert 2 extra attributes to force-enable MSAA 4x
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
                     EGLint* aaAttribs = new EGLint[attribCount + 4];
 #else
                     EGLint aaAttribs[attribCount + 4];
@@ -430,10 +430,9 @@ EGLBoolean eglChooseConfig( EGLDisplay dpy, const EGLint *attrib_list,
                     EGLBoolean resAA = cnx->egl.eglChooseConfig(
                             dp->disp.dpy, aaAttribs, configs, config_size, &numConfigAA);
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
                     delete[] aaAttribs;
 #endif
-
                     if (resAA == EGL_TRUE && numConfigAA > 0) {
                         ALOGD("Enabling MSAA 4x");
                         *num_config = numConfigAA;
@@ -601,7 +600,7 @@ static EGLBoolean processAttributes(egl_display_ptr dp, NativeWindowType window,
         // if the application has specifically asked for wide-color we avoid
         // the deadlock with SurfaceFlinger since it will not ask for a
         // wide-color surface.
-        int err = native_window_get_wide_color_support(_CAST<struct ANativeWindow*>(window), &windowSupportsWideColor);
+        int err = native_window_get_wide_color_support(_CAST<struct ANativeWindow*>(window), &windowSupportsWideColor); // M3E:
 
         if (err) {
             ALOGE("processAttributes: invalid window (win=%p) "
@@ -720,12 +719,12 @@ EGLSurface eglCreateWindowSurface(  EGLDisplay dpy, EGLConfig config,
         }
 
         int value = 0;
-        (_CAST<ANativeWindow*>(window))->query(_CAST<ANativeWindow*>(window), NATIVE_WINDOW_IS_VALID, &value);
+        (_CAST<ANativeWindow*>(window))->query(_CAST<ANativeWindow*>(window), NATIVE_WINDOW_IS_VALID, &value); // M3E:
         if (!value) {
             return setError(EGL_BAD_NATIVE_WINDOW, EGL_NO_SURFACE);
         }
 
-        int result = native_window_api_connect(_CAST<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
+        int result = native_window_api_connect(_CAST<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL); // M3E:
         if (result < 0) {
             ALOGE("eglCreateWindowSurface: native_window_api_connect (win=%p) "
                     "failed (%#x) (already connected to another API?)",
@@ -748,22 +747,22 @@ EGLSurface eglCreateWindowSurface(  EGLDisplay dpy, EGLConfig config,
         attrib_list = strippedAttribList.data();
 
         {
-            int err = native_window_set_buffers_format(_CAST<ANativeWindow*>(window), format);
+            int err = native_window_set_buffers_format(_CAST<ANativeWindow*>(window), format); // M3E:
             if (err != 0) {
                 ALOGE("error setting native window pixel format: %s (%d)",
                       strerror(-err), err);
-                native_window_api_disconnect(_CAST<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
+                native_window_api_disconnect(_CAST<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL); // M3E:
                 return setError(EGL_BAD_NATIVE_WINDOW, EGL_NO_SURFACE);
             }
         }
 
         android_dataspace dataSpace = dataSpaceFromEGLColorSpace(colorSpace);
         if (dataSpace != HAL_DATASPACE_UNKNOWN) {
-            int err = native_window_set_buffers_data_space(_CAST<ANativeWindow*>(window), dataSpace);
+            int err = native_window_set_buffers_data_space(_CAST<ANativeWindow*>(window), dataSpace); // M3E:
             if (err != 0) {
                 ALOGE("error setting native window pixel dataSpace: %s (%d)",
                       strerror(-err), err);
-                native_window_api_disconnect(_CAST<struct ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
+                native_window_api_disconnect(_CAST<struct ANativeWindow*>(window), NATIVE_WINDOW_API_EGL); // M3E:
                 return setError(EGL_BAD_NATIVE_WINDOW, EGL_NO_SURFACE);
             }
         }
@@ -791,8 +790,8 @@ EGLSurface eglCreateWindowSurface(  EGLDisplay dpy, EGLConfig config,
         }
 
         // EGLSurface creation failed
-        native_window_set_buffers_format(_CAST<ANativeWindow*>(window), 0);
-        native_window_api_disconnect(_CAST<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL);
+        native_window_set_buffers_format(_CAST<ANativeWindow*>(window), 0); // M3E:
+        native_window_api_disconnect(_CAST<ANativeWindow*>(window), NATIVE_WINDOW_API_EGL); // M3E:
     }
     return EGL_NO_SURFACE;
 }

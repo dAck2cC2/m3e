@@ -25,7 +25,7 @@
 #include <dirent.h>
 #include <time.h>
 #else  // _MSC_VER
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) // M3E:
 #include <sys/inotify.h>
 #endif // __APPLE__
 #include <sys/poll.h>
@@ -115,7 +115,7 @@ static constexpr size_t TEXT_POS_LEN_MAX = 16;
 BootAnimation::BootAnimation(sp<Callbacks> callbacks)
         : Thread(false), mClockEnabled(true), mTimeIsAccurate(false),
         mTimeFormat12Hour(false),
-#if ENABLE_TIME_CHECK 
+#if ENABLE_TIME_CHECK // M3E:
 		mTimeCheckThread(NULL), 
 #endif
 		mCallbacks(callbacks) {
@@ -149,7 +149,9 @@ void BootAnimation::binderDied(const wp<IBinder>&)
 
     // calling requestExit() is not enough here because the Surface code
     // might be blocked on a condition variable that will never be updated.
-    //kill( getpid(), SIGKILL ); /* M3E: */
+#if 0 // M3E:
+    kill( getpid(), SIGKILL );
+#endif
     requestExit();
 }
 
@@ -199,7 +201,7 @@ status_t BootAnimation::initTexture(Texture* texture, AssetManager& assets,
     }
 
     glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_CROP_RECT_OES, crop);
-#if ENABLE_ANGLE
+#if ENABLE_ANGLE // M3E:
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 #else  // ENABLE_ANGLE
@@ -272,7 +274,7 @@ status_t BootAnimation::initTexture(FileMap* map, int* width, int* height)
 }
 
 status_t BootAnimation::readyToRun() {
-#if 0 /* M3E: */
+#if 0 // M3E:
     mAssets.addDefaultAssets();
 #else
 	String8 path(".");
@@ -314,7 +316,7 @@ status_t BootAnimation::readyToRun() {
 
     eglInitialize(display, 0, 0);
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-#if defined(ENABLE_ANDROID_GL)
+#if defined(ENABLE_ANDROID_GL) // M3E:
     surface = eglCreateWindowSurface(display, config, reinterpret_cast<EGLNativeWindowType>(static_cast<ANativeWindow *>(s.get())), NULL);
 #else
     EGLNativeWindowType window = ISurfaceHandle_getNativeWindow(control->getHandle());
@@ -393,8 +395,8 @@ bool BootAnimation::android()
 {
     ALOGD("%sAnimationShownTiming start time: %" PRId64 "ms", mShuttingDown ? "Shutdown" : "Boot",
             elapsedRealtime());
-    initTexture(&mAndroid[0], mAssets, "android-logo-mask.png");
-    initTexture(&mAndroid[1], mAssets, "android-logo-shine.png");
+    initTexture(&mAndroid[0], mAssets, "android-logo-mask.png");  // M3E:
+    initTexture(&mAndroid[1], mAssets, "android-logo-shine.png"); // M3E:
 
     mCallbacks->init({});
 
@@ -446,7 +448,7 @@ bool BootAnimation::android()
             break;
 
         // 12fps: don't animate too fast to preserve CPU
-#if defined(__APPLE__)
+#if defined(__APPLE__) // M3E:
         const nsecs_t sleepTime = 83333;
 #else
         const nsecs_t sleepTime = 83333 - ns2us(systemTime() - now);
@@ -882,19 +884,23 @@ bool BootAnimation::movie()
             (initFont(&animation->clockFont, CLOCK_FONT_ASSET) == NO_ERROR);
         mClockEnabled = clockFontInitialized;
     }
-#if ENABLE_TIME_CHECK
+
+#if ENABLE_TIME_CHECK // M3E:
     if (mClockEnabled && !updateIsTimeAccurate()) {
         mTimeCheckThread = new TimeCheckThread(this);
         mTimeCheckThread->run("BootAnimation::TimeCheckThread", PRIORITY_NORMAL);
     }
 #endif // ENABLE_TIME_CHECK
+
     playAnimation(*animation);
-#if ENABLE_TIME_CHECK
+
+#if ENABLE_TIME_CHECK // M3E:
     if (mTimeCheckThread != nullptr) {
         mTimeCheckThread->requestExit();
         mTimeCheckThread = nullptr;
     }
 #endif // ENABLE_TIME_CHECK
+
     releaseAnimation(animation);
 
     if (clockFontInitialized) {
@@ -990,9 +996,13 @@ bool BootAnimation::playAnimation(const Animation& animation)
                     struct timespec spec;
                     spec.tv_sec  = (now + delay) / 1000000000;
                     spec.tv_nsec = (now + delay) % 1000000000;
-                    int err = 0;
+                    int err;
                     do {
-                        //err = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &spec, NULL);
+#if 0 // M3E:
+                        err = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &spec, NULL);
+#else
+                        err = 0;
+#endif
                     } while (err<0 && errno == EINTR);
                 }
 
@@ -1090,7 +1100,7 @@ bool BootAnimation::updateIsTimeAccurate() {
       fclose(file);
       if (lastChangedTime > 0) {
         struct timespec now;
-#if defined(__linux__)
+#if defined(__linux__) // M3E:
         clock_gettime(CLOCK_REALTIME, &now);
 #else // __APPLE__
 		// Apple doesn't support POSIX clocks.
@@ -1112,7 +1122,7 @@ bool BootAnimation::updateIsTimeAccurate() {
     return mTimeIsAccurate;
 }
 
-#if ENABLE_TIME_CHECK
+#if ENABLE_TIME_CHECK // M3E:
 BootAnimation::TimeCheckThread::TimeCheckThread(BootAnimation* bootAnimation) : Thread(false),
     mInotifyFd(-1), mSystemWd(-1), mTimeWd(-1), mBootAnimation(bootAnimation) {}
 

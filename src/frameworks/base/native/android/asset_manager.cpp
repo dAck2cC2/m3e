@@ -26,7 +26,9 @@
 #include <utils/threads.h>
 
 #include "jni.h"
-//#include <nativehelper/JNIHelp.h>
+#if 0 // M3E:
+#include <nativehelper/JNIHelp.h>
+#endif
 
 using namespace android;
 
@@ -60,7 +62,7 @@ struct AAsset {
  */
 AAssetManager* AAssetManager_fromJava(JNIEnv* env, jobject assetManager)
 {
-#if TODO
+#if TODO // M3E:
     return (AAssetManager*) env->GetLongField(assetManager, gAssetManagerOffsets.mObject);
 #else
     return nullptr;
@@ -87,7 +89,7 @@ AAsset* AAssetManager_open(AAssetManager* amgr, const char* filename, int mode)
         return NULL;
     }
 
-#if TODO
+#if TODO // M3E:
     ScopedLock<AssetManager2> locked_mgr(*AssetManagerForNdkAssetManager(amgr));
     std::unique_ptr<Asset> asset = locked_mgr->Open(filename, amMode);
     if (asset == nullptr) {
@@ -101,7 +103,7 @@ AAsset* AAssetManager_open(AAssetManager* amgr, const char* filename, int mode)
 
 AAssetDir* AAssetManager_openDir(AAssetManager* amgr, const char* dirName)
 {
-#if TODO
+#if TODO // M3E:
     ScopedLock<AssetManager2> locked_mgr(*AssetManagerForNdkAssetManager(amgr));
     return new AAssetDir(locked_mgr->OpenDir(dirName));
 #else

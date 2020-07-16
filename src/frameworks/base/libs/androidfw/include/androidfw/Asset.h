@@ -282,8 +282,9 @@ private:
 #if defined(_MSC_VER) // M3E:
     enum { kReadVsMapThreshold = 4096 * 1024 };
 #else
-	enum { kReadVsMapThreshold = 4096 };
+    enum { kReadVsMapThreshold = 4096 };
 #endif
+
     FileMap*    mMap;           // for memory map
     unsigned char* mBuf;        // for read
 

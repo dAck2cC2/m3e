@@ -199,10 +199,9 @@ namespace android {
 
         #define GL_EXTENSION(_n)
 
-    #if !defined(_MSC_VER)
+    #if !defined(_MSC_VER)  // M3E:
         #warning "eglGetProcAddress() partially supported"
     #endif
-
 #endif
 
 
