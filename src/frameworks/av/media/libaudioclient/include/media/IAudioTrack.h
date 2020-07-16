@@ -32,7 +32,7 @@ namespace android {
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOCLIENT IAudioTrack : public IInterface
+class ANDROID_API_AUDIOCLIENT IAudioTrack : public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(AudioTrack);
@@ -77,21 +77,17 @@ public:
     virtual void        signal() = 0;
 
     /* Sets the volume shaper */
-#if defined(__linux__)
-    virtual status_t applyVolumeShaper(
-#else
-    virtual VolumeShaper::Status applyVolumeShaper(
-#endif
-            const sp<VolumeShaper::Configuration>& configuration,
-            const sp<VolumeShaper::Operation>& operation) = 0;
+    virtual media::VolumeShaper::Status applyVolumeShaper(
+            const sp<media::VolumeShaper::Configuration>& configuration,
+            const sp<media::VolumeShaper::Operation>& operation) = 0;
 
     /* gets the volume shaper state */
-    virtual sp<VolumeShaper::State> getVolumeShaperState(int id) = 0;
+    virtual sp<media::VolumeShaper::State> getVolumeShaperState(int id) = 0;
 };
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOCLIENT BnAudioTrack : public BnInterface<IAudioTrack>
+class ANDROID_API_AUDIOCLIENT BnAudioTrack : public BnInterface<IAudioTrack> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact( uint32_t code,

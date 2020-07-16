@@ -40,7 +40,7 @@ struct effect_param_cblk_t;
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOCLIENT AudioEffect : public RefBase
+class ANDROID_API_AUDIOCLIENT AudioEffect : public RefBase // M3E: MSVC export
 {
 public:
 

@@ -66,7 +66,8 @@ status_t AudioHwDevice::openOutputStream(
             config->format,
             config->channel_mask,
             status);
-#if TODO
+
+#if TODO // M3E:
         // If the data is encoded then try again using wrapped PCM.
         bool wrapperNeeded = !audio_has_proportional_frames(originalConfig.format)
                 && ((flags & AUDIO_OUTPUT_FLAG_DIRECT) != 0)

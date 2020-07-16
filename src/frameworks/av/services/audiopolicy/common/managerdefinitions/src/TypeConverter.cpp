@@ -16,12 +16,12 @@
 
 #include <media/AudioPolicy.h>
 
-#include "managerdefinitions/include/TypeConverter.h"
+#include "TypeConverter.h"
 
 namespace android {
 
 #define MAKE_STRING_FROM_ENUM(string) { #string, string }
-#define TERMINATOR { /*.literal =*/ nullptr }
+#define TERMINATOR { /*.literal =*/ nullptr } // M3E:
 
 template <>
 const DeviceCategoryConverter::Table DeviceCategoryConverter::mTable[] = {
@@ -29,6 +29,7 @@ const DeviceCategoryConverter::Table DeviceCategoryConverter::mTable[] = {
     MAKE_STRING_FROM_ENUM(DEVICE_CATEGORY_SPEAKER),
     MAKE_STRING_FROM_ENUM(DEVICE_CATEGORY_EARPIECE),
     MAKE_STRING_FROM_ENUM(DEVICE_CATEGORY_EXT_MEDIA),
+    MAKE_STRING_FROM_ENUM(DEVICE_CATEGORY_HEARING_AID),
     TERMINATOR
 };
 
@@ -65,4 +66,4 @@ template class TypeConverter<MixTypeTraits>;
 template class TypeConverter<RouteFlagTraits>;
 template class TypeConverter<RuleTraits>;
 
-}; // namespace android
+} // namespace android

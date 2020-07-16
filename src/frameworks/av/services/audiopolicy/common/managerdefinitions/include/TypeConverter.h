@@ -49,7 +49,7 @@ typedef TypeConverter<MixTypeTraits> MixTypeConverter;
 typedef TypeConverter<RouteFlagTraits> RouteFlagTypeConverter;
 typedef TypeConverter<RuleTraits> RuleTypeConverter;
 
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
 template <>
 const DeviceCategoryConverter::Table DeviceCategoryConverter::mTable[];
 template <>
@@ -60,4 +60,4 @@ template <>
 const RuleTypeConverter::Table RuleTypeConverter::mTable[];
 #endif
 
-}; // namespace android
+} // namespace android

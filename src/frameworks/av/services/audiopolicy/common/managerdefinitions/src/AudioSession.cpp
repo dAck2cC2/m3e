@@ -19,6 +19,7 @@
 
 #include <AudioPolicyInterface.h>
 #include "policy.h"
+#include "AudioPolicyMix.h"
 #include "AudioSession.h"
 #include "AudioGain.h"
 #include "TypeConverter.h"
@@ -36,9 +37,9 @@ AudioSession::AudioSession(audio_session_t session,
                            audio_input_flags_t flags,
                            uid_t uid,
                            bool isSoundTrigger,
-                           AudioMix* policyMix,
+                           const sp<AudioPolicyMix> &policyMix,
                            AudioPolicyClientInterface *clientInterface) :
-#if !defined(_MSC_VER) && !defined(__linux__)
+#if !defined(_MSC_VER) && !defined(__linux__) // M3E:
     mRecordClientInfo({ .uid = uid, .session = session, .source = inputSource}),
     mConfig({ .format = format, .sample_rate = sampleRate, .channel_mask = channelMask}),
 #endif
@@ -46,7 +47,7 @@ AudioSession::AudioSession(audio_session_t session,
     mOpenCount(1), mActiveCount(0), mPolicyMix(policyMix), mClientInterface(clientInterface),
     mInfoProvider(NULL)
 {
-#if defined(_MSC_VER) || defined(__linux__)
+#if defined(_MSC_VER) || defined(__linux__) // M3E:
 	mRecordClientInfo.uid = uid;
 	mRecordClientInfo.session = session;
 	mRecordClientInfo.source = inputSource;
@@ -92,9 +93,10 @@ uint32_t AudioSession::changeActiveCount(int delta)
     if (event != RECORD_CONFIG_EVENT_NONE) {
         // Dynamic policy callback:
         // if input maps to a dynamic policy with an activity listener, notify of state change
-        if ((mPolicyMix != NULL) && ((mPolicyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0))
+        sp<AudioPolicyMix> policyMix = mPolicyMix.promote();
+        if ((policyMix != NULL) && ((policyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0))
         {
-            mClientInterface->onDynamicPolicyMixStateUpdate(mPolicyMix->mDeviceAddress,
+            mClientInterface->onDynamicPolicyMixStateUpdate(policyMix->mDeviceAddress,
                     (event == RECORD_CONFIG_EVENT_START) ? MIX_STATE_MIXING : MIX_STATE_IDLE);
         }
 
@@ -303,4 +305,4 @@ status_t AudioSessionCollection::dump(int fd, int spaces) const
     return NO_ERROR;
 }
 
-}; // namespace android
+} // namespace android

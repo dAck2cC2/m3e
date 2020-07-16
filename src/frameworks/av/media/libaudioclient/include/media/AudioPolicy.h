@@ -71,7 +71,7 @@ public:
     } mValue;
     uint32_t        mRule;
     
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	inline  bool  operator<(const AudioMixMatchCriterion& other) const { return (this->mRule < other.mRule); };
 #endif // _MSC_VER
 };

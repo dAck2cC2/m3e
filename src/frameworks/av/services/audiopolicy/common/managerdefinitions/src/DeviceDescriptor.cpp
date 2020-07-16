@@ -17,11 +17,13 @@
 #define LOG_TAG "APM::Devices"
 //#define LOG_NDEBUG 0
 
+#include <audio_utils/string.h>
 #include "DeviceDescriptor.h"
 #include "TypeConverter.h"
 #include "AudioGain.h"
 #include "HwModule.h"
 
+// M3E: add
 #include "IOProfile.h"
 
 namespace android {
@@ -62,7 +64,7 @@ bool DeviceDescriptor::equals(const sp<DeviceDescriptor>& other) const
 void DeviceVector::refreshTypes()
 {
     mDeviceTypes = AUDIO_DEVICE_NONE;
-    for(size_t i = 0; i < size(); i++) {
+    for (size_t i = 0; i < size(); i++) {
         mDeviceTypes |= itemAt(i)->type();
     }
     ALOGV("DeviceVector::refreshTypes() mDeviceTypes %08x", mDeviceTypes);
@@ -70,7 +72,7 @@ void DeviceVector::refreshTypes()
 
 ssize_t DeviceVector::indexOf(const sp<DeviceDescriptor>& item) const
 {
-    for(size_t i = 0; i < size(); i++) {
+    for (size_t i = 0; i < size(); i++) {
         if (item->equals(itemAt(i))) {
             return i;
         }
@@ -80,11 +82,14 @@ ssize_t DeviceVector::indexOf(const sp<DeviceDescriptor>& item) const
 
 void DeviceVector::add(const DeviceVector &devices)
 {
-    for (size_t i = 0; i < devices.size(); i++) {
-        sp<DeviceDescriptor> device = devices.itemAt(i);
+    bool added = false;
+    for (const auto& device : devices) {
         if (indexOf(device) < 0 && SortedVector::add(device) >= 0) {
-            refreshTypes();
+            added = true;
         }
+    }
+    if (added) {
+        refreshTypes();
     }
 }
 
@@ -150,14 +155,12 @@ sp<DeviceDescriptor> DeviceVector::getDevice(audio_devices_t type, const String8
 
 sp<DeviceDescriptor> DeviceVector::getDeviceFromId(audio_port_handle_t id) const
 {
-    sp<DeviceDescriptor> device;
-    for (size_t i = 0; i < size(); i++) {
-        if (itemAt(i)->getId() == id) {
-            device = itemAt(i);
-            break;
+    for (const auto& device : *this) {
+        if (device->getId() == id) {
+            return device;
         }
     }
-    return device;
+    return nullptr;
 }
 
 DeviceVector DeviceVector::getDevicesFromType(audio_devices_t type) const
@@ -182,11 +185,9 @@ DeviceVector DeviceVector::getDevicesFromTypeAddr(
         audio_devices_t type, const String8& address) const
 {
     DeviceVector devices;
-    for (size_t i = 0; i < size(); i++) {
-        if (itemAt(i)->type() == type) {
-            if (itemAt(i)->mAddress == address) {
-                devices.add(itemAt(i));
-            }
+    for (const auto& device : *this) {
+        if (device->type() == type && device->mAddress == address) {
+            devices.add(device);
         }
     }
     return devices;
@@ -194,14 +195,12 @@ DeviceVector DeviceVector::getDevicesFromTypeAddr(
 
 sp<DeviceDescriptor> DeviceVector::getDeviceFromTagName(const String8 &tagName) const
 {
-    sp<DeviceDescriptor> device;
-    for (size_t i = 0; i < size(); i++) {
-        if (itemAt(i)->getTagName() == tagName) {
-            device = itemAt(i);
-            break;
+    for (const auto& device : *this) {
+        if (device->getTagName() == tagName) {
+            return device;
         }
     }
-    return device;
+    return nullptr;
 }
 
 status_t DeviceVector::dump(int fd, const String8 &tag, int spaces, bool verbose) const
@@ -250,8 +249,9 @@ void DeviceDescriptor::toAudioPortConfig(struct audio_port_config *dstConfig,
     // without the test?
     // This has been demonstrated to NOT be true (at start up)
     // ALOG_ASSERT(mModule != NULL);
-    dstConfig->ext.device.hw_module = mModule != 0 ? mModule->mHandle : AUDIO_MODULE_HANDLE_NONE;
-    strncpy(dstConfig->ext.device.address, mAddress.string(), AUDIO_DEVICE_MAX_ADDRESS_LEN);
+    dstConfig->ext.device.hw_module =
+            mModule != 0 ? mModule->getHandle() : AUDIO_MODULE_HANDLE_NONE;
+    (void)audio_utils_strlcpy_zerofill(dstConfig->ext.device.address, mAddress.string());
 }
 
 void DeviceDescriptor::toAudioPort(struct audio_port *port) const
@@ -261,8 +261,8 @@ void DeviceDescriptor::toAudioPort(struct audio_port *port) const
     port->id = mId;
     toAudioPortConfig(&port->active_config);
     port->ext.device.type = mDeviceType;
-    port->ext.device.hw_module = mModule->mHandle;
-    strncpy(port->ext.device.address, mAddress.string(), AUDIO_DEVICE_MAX_ADDRESS_LEN);
+    port->ext.device.hw_module = mModule->getHandle();
+    (void)audio_utils_strlcpy_zerofill(port->ext.device.address, mAddress.string());
 }
 
 void DeviceDescriptor::importAudioPort(const sp<AudioPort>& port, bool force) {
@@ -314,4 +314,4 @@ void DeviceDescriptor::log() const
     AudioPort::log("  ");
 }
 
-}; // namespace android
+} // namespace android

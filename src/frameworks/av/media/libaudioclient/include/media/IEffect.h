@@ -24,7 +24,7 @@
 
 namespace android {
 
-class ANDROID_API_AUDIOCLIENT IEffect: public IInterface
+class ANDROID_API_AUDIOCLIENT IEffect: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(Effect);
@@ -46,7 +46,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOCLIENT BnEffect: public BnInterface<IEffect>
+class ANDROID_API_AUDIOCLIENT BnEffect: public BnInterface<IEffect> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact( uint32_t code,

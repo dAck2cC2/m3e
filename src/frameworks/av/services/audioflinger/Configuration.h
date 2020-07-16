@@ -30,7 +30,7 @@
 //#define CPU_FREQUENCY_STATISTICS
 
 // uncomment to enable fast threads to take performance samples for later statistical analysis
-//#define FAST_THREAD_STATISTICS
+//#define FAST_THREAD_STATISTICS // M3E:
 
 // uncomment for debugging timing problems related to StateQueue::push()
 //#define STATE_QUEUE_DUMP
@@ -40,5 +40,16 @@
 
 // uncomment to log CPU statistics every n wall clock seconds
 //#define DEBUG_CPU_USAGE 10
+
+// define FLOAT_EFFECT_CHAIN to request float effects (falls back to int16_t if unavailable)
+#define FLOAT_EFFECT_CHAIN
+
+#ifdef FLOAT_EFFECT_CHAIN
+// define FLOAT_AUX to process aux effect buffers in float (FLOAT_EFFECT_CHAIN must be defined)
+#define FLOAT_AUX
+
+// define MULTICHANNEL_EFFECT_CHAIN to allow multichannel effects (FLOAT_EFFECT_CHAIN defined)
+#define MULTICHANNEL_EFFECT_CHAIN
+#endif
 
 #endif // ANDROID_AUDIOFLINGER_CONFIGURATION_H

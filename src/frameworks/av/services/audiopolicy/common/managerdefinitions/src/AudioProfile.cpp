@@ -26,6 +26,7 @@
 #include <media/AudioResamplerPublic.h>
 #include <algorithm>
 
+// M3E: add
 #include "IOProfile.h"
 
 namespace android {
@@ -259,8 +260,7 @@ status_t AudioProfileVector::checkExactProfile(uint32_t samplingRate,
         return NO_ERROR;
     }
 
-    for (size_t i = 0; i < size(); i++) {
-        const sp<AudioProfile> profile = itemAt(i);
+    for (const auto& profile : *this) {
         if (profile->checkExact(samplingRate, channelMask, format) == NO_ERROR) {
             return NO_ERROR;
         }
@@ -314,4 +314,4 @@ int AudioProfileVector::compareFormats(const sp<AudioProfile> *profile1,
     return AudioPort::compareFormats((*profile1)->getFormat(), (*profile2)->getFormat());
 }
 
-}; // namespace android
+} // namespace android

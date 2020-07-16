@@ -48,12 +48,9 @@ ${SOURCE_PATH}/NBAIO.cpp
 
 ${SOURCE_PATH}/AudioBufferProviderSource.cpp   
 ${SOURCE_PATH}/AudioStreamInSource.cpp
-${SOURCE_PATH}/AudioStreamOutSink.cpp   
-${SOURCE_PATH}/NBLog.cpp          
-${SOURCE_PATH}/PerformanceAnalysis.cpp          
+${SOURCE_PATH}/AudioStreamOutSink.cpp          
 ${SOURCE_PATH}/Pipe.cpp       
 ${SOURCE_PATH}/PipeReader.cpp 
-${SOURCE_PATH}/ReportPerformance.cpp       
 ${SOURCE_PATH}/SourceAudioBufferProvider.cpp
 )
 

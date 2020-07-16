@@ -18,7 +18,7 @@ binder
 stagefright_foundation
 )
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmediametrics/include )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmediametrics/include/media )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmediametrics )
 
 file(GLOB ${PROJECT_NAME}_HEADER_FILES  

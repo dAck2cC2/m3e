@@ -21,8 +21,8 @@
 #include "HwModule.h"
 #include "AudioGain.h"
 #include <policy.h>
-#include <cutils/atomic.h>
 
+// M3E: add
 #include "IOProfile.h"
 
 #if defined(__linux__)
@@ -35,8 +35,6 @@
 
 namespace android {
 
-int32_t volatile AudioPort::mNextUniqueId = 1;
-
 // --- AudioPort class implementation
 void AudioPort::attach(const sp<HwModule>& module)
 {
@@ -46,31 +44,22 @@ void AudioPort::attach(const sp<HwModule>& module)
 // Note that is a different namespace than AudioFlinger unique IDs
 audio_port_handle_t AudioPort::getNextUniqueId()
 {
-    return static_cast<audio_port_handle_t>(android_atomic_inc(&mNextUniqueId));
+    return getNextHandle();
 }
 
 audio_module_handle_t AudioPort::getModuleHandle() const
 {
-    if (mModule == 0) {
-        return AUDIO_MODULE_HANDLE_NONE;
-    }
-    return mModule->mHandle;
+    return mModule != 0 ? mModule->getHandle() : AUDIO_MODULE_HANDLE_NONE;
 }
 
 uint32_t AudioPort::getModuleVersionMajor() const
 {
-    if (mModule == 0) {
-        return 0;
-    }
-    return mModule->getHalVersionMajor();
+    return mModule != 0 ? mModule->getHalVersionMajor() : 0;
 }
 
 const char *AudioPort::getModuleName() const
 {
-    if (mModule == 0) {
-        return "invalid module";
-    }
-    return mModule->getName();
+    return mModule != 0 ? mModule->getName() : "invalid module";
 }
 
 void AudioPort::toAudioPort(struct audio_port *port) const
@@ -80,11 +69,11 @@ void AudioPort::toAudioPort(struct audio_port *port) const
     SortedVector<audio_format_t> flatenedFormats;
     SampleRateVector flatenedRates;
     ChannelsVector flatenedChannels;
-    for (size_t profileIndex = 0; profileIndex < mProfiles.size(); profileIndex++) {
-        if (mProfiles[profileIndex]->isValid()) {
-            audio_format_t formatToExport = mProfiles[profileIndex]->getFormat();
-            const SampleRateVector &ratesToExport = mProfiles[profileIndex]->getSampleRates();
-            const ChannelsVector &channelsToExport = mProfiles[profileIndex]->getChannels();
+    for (const auto& profile : mProfiles) {
+        if (profile->isValid()) {
+            audio_format_t formatToExport = profile->getFormat();
+            const SampleRateVector &ratesToExport = profile->getSampleRates();
+            const ChannelsVector &channelsToExport = profile->getChannels();
 
             if (flatenedFormats.indexOf(formatToExport) < 0) {
                 flatenedFormats.add(formatToExport);
@@ -136,14 +125,12 @@ void AudioPort::toAudioPort(struct audio_port *port) const
 
 void AudioPort::importAudioPort(const sp<AudioPort>& port, bool force __unused)
 {
-    size_t indexToImport;
-    for (indexToImport = 0; indexToImport < port->mProfiles.size(); indexToImport++) {
-        const sp<AudioProfile> &profileToImport = port->mProfiles[indexToImport];
+    for (const auto& profileToImport : port->mProfiles) {
         if (profileToImport->isValid()) {
             // Import only valid port, i.e. valid format, non empty rates and channels masks
             bool hasSameProfile = false;
-            for (size_t profileIndex = 0; profileIndex < mProfiles.size(); profileIndex++) {
-                if (*mProfiles[profileIndex] == *profileToImport) {
+            for (const auto& profile : mProfiles) {
+                if (*profile == *profileToImport) {
                     // never import a profile twice
                     hasSameProfile = true;
                     break;
@@ -155,6 +142,26 @@ void AudioPort::importAudioPort(const sp<AudioPort>& port, bool force __unused)
             addAudioProfile(profileToImport);
         }
     }
+}
+
+status_t AudioPort::checkExactAudioProfile(const struct audio_port_config *config) const
+{
+    status_t status = NO_ERROR;
+    auto config_mask = config->config_mask;
+    if (config_mask & AUDIO_PORT_CONFIG_GAIN) {
+        config_mask &= ~AUDIO_PORT_CONFIG_GAIN;
+        status = checkGain(&config->gain, config->gain.index);
+        if (status != NO_ERROR) {
+            return status;
+        }
+    }
+    if (config_mask != 0) {
+        // TODO should we check sample_rate / channel_mask / format separately?
+        status = mProfiles.checkExactProfile(config->sample_rate,
+                                             config->channel_mask,
+                                             config->format);
+    }
+    return status;
 }
 
 void AudioPort::pickSamplingRate(uint32_t &pickedRate,const SampleRateVector &samplingRates) const
@@ -409,9 +416,7 @@ status_t AudioPortConfig::applyAudioPortConfig(const struct audio_port_config *c
         status = NO_INIT;
         goto exit;
     }
-    status = audioport->checkExactAudioProfile(config->sample_rate,
-                                               config->channel_mask,
-                                               config->format);
+    status = audioport->checkExactAudioProfile(config);
     if (status != NO_ERROR) {
         goto exit;
     }
@@ -425,10 +430,6 @@ status_t AudioPortConfig::applyAudioPortConfig(const struct audio_port_config *c
         mFormat = config->format;
     }
     if (config->config_mask & AUDIO_PORT_CONFIG_GAIN) {
-        status = audioport->checkGain(&config->gain, config->gain.index);
-        if (status != NO_ERROR) {
-            goto exit;
-        }
         mGain = config->gain;
     }
 
@@ -486,4 +487,4 @@ void AudioPortConfig::toAudioPortConfig(struct audio_port_config *dstConfig,
     }
 }
 
-}; // namespace android
+} // namespace android

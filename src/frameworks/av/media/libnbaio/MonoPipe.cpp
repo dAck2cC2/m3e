@@ -26,6 +26,7 @@
 #include <media/nbaio/MonoPipe.h>
 #include <audio_utils/roundup.h>
 
+// M3E:
 #include <sys/time.h> // clock_gettime
 
 namespace android {

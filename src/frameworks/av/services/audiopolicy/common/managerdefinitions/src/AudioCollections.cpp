@@ -23,20 +23,19 @@
 #include "HwModule.h"
 #include "AudioGain.h"
 
+// M3E: add
 #include "IOProfile.h"
 
 namespace android {
 
 sp<AudioPort> AudioPortVector::findByTagName(const String8 &tagName) const
 {
-    sp<AudioPort> port = 0;
-    for (size_t i = 0; i < size(); i++) {
-        if (itemAt(i)->getTagName() == tagName) {
-            port = itemAt(i);
-            break;
+    for (const auto& port : *this) {
+        if (port->getTagName() == tagName) {
+            return port;
         }
     }
-    return port;
+    return nullptr;
 }
 
 status_t AudioRouteVector::dump(int fd, int spaces) const
@@ -57,4 +56,4 @@ status_t AudioRouteVector::dump(int fd, int spaces) const
     return NO_ERROR;
 }
 
-}; // namespace android
+} // namespace android

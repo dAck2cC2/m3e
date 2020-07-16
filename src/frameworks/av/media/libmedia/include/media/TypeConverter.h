@@ -82,6 +82,11 @@ struct AudioModeTraits
     typedef audio_mode_t Type;
     typedef Vector<Type> Collection;
 };
+struct AudioContentTraits
+{
+    typedef audio_content_type_t Type;
+    typedef Vector<Type> Collection;
+};
 struct UsageTraits
 {
     typedef audio_usage_t Type;
@@ -228,6 +233,7 @@ typedef TypeConverter<ChannelIndexTraits> ChannelIndexConverter;
 typedef TypeConverter<GainModeTraits> GainModeConverter;
 typedef TypeConverter<StreamTraits> StreamTypeConverter;
 typedef TypeConverter<AudioModeTraits> AudioModeConverter;
+typedef TypeConverter<AudioContentTraits> AudioContentTypeConverter;
 typedef TypeConverter<UsageTraits> UsageTypeConverter;
 typedef TypeConverter<SourceTraits> SourceTypeConverter;
 
@@ -243,6 +249,7 @@ template<> const ChannelIndexConverter::Table ChannelIndexConverter::mTable[];
 template<> const GainModeConverter::Table GainModeConverter::mTable[];
 template<> const StreamTypeConverter::Table StreamTypeConverter::mTable[];
 template<> const AudioModeConverter::Table AudioModeConverter::mTable[];
+template<> const AudioContentTypeConverter::Table AudioContentTypeConverter::mTable[];
 template<> const UsageTypeConverter::Table UsageTypeConverter::mTable[];
 template<> const SourceTypeConverter::Table SourceTypeConverter::mTable[];
 #endif
@@ -252,23 +259,29 @@ bool deviceFromString(const std::string& literalDevice, audio_devices_t& device)
 
 ANDROID_API_MEDIA
 bool deviceToString(audio_devices_t device, std::string& literalDevice);
+
 ANDROID_API_MEDIA
 SampleRateTraits::Collection samplingRatesFromString(
         const std::string &samplingRates, const char *del = AudioParameter::valueListSeparator);
+
 ANDROID_API_MEDIA
 FormatTraits::Collection formatsFromString(
         const std::string &formats, const char *del = AudioParameter::valueListSeparator);
 
 audio_format_t formatFromString(
         const std::string &literalFormat, audio_format_t defaultFormat = AUDIO_FORMAT_DEFAULT);
+
 //ANDROID_API_MEDIA
 audio_channel_mask_t channelMaskFromString(const std::string &literalChannels);
+
 ANDROID_API_MEDIA
 ChannelTraits::Collection channelMasksFromString(
         const std::string &channels, const char *del = AudioParameter::valueListSeparator);
+
 ANDROID_API_MEDIA
 InputChannelTraits::Collection inputChannelMasksFromString(
         const std::string &inChannels, const char *del = AudioParameter::valueListSeparator);
+
 ANDROID_API_MEDIA
 OutputChannelTraits::Collection outputChannelMasksFromString(
         const std::string &outChannels, const char *del = AudioParameter::valueListSeparator);

@@ -31,7 +31,7 @@
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/Utils.h>
 
-#include <IMediaAnalyticsService.h> // <media/IMediaAnalyticsService.h>
+#include <media/IMediaAnalyticsService.h>
 
 static const int kDumpLockRetries = 50;
 static const int kDumpLockSleepUs = 20000;
@@ -598,7 +598,6 @@ void NuPlayerDriver::logMetrics(const char *where) {
     // So the canonical "empty" record has 3 elements in it.
     if (mAnalyticsItem->count() > 3) {
 
-        mAnalyticsItem->setFinalized(true);
         mAnalyticsItem->selfrecord();
 
         // re-init in case we prepare() and start() again.

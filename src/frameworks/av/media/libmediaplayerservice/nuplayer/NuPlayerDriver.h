@@ -16,7 +16,7 @@
 
 #include <MediaPlayerInterface.h>  // <media/MediaPlayerInterface.h>
 
-#include <MediaAnalyticsItem.h> // <media/MediaAnalyticsItem.h>
+#include <media/MediaAnalyticsItem.h>
 #include <media/stagefright/foundation/ABase.h>
 
 namespace android {

@@ -28,6 +28,7 @@
 namespace android {
 
 class AudioPolicyClientInterface;
+class AudioPolicyMix;
 
 class AudioSession : public RefBase, public AudioSessionInfoUpdateListener
 {
@@ -40,7 +41,7 @@ public:
                  audio_input_flags_t flags,
                  uid_t uid,
                  bool isSoundTrigger,
-                 AudioMix* policyMix,
+                 const sp<AudioPolicyMix> &policyMix,
                  AudioPolicyClientInterface *clientInterface);
 
     status_t dump(int fd, int spaces, int index) const;
@@ -55,6 +56,8 @@ public:
     void setUid(uid_t uid) { mRecordClientInfo.uid = uid; }
     bool matches(const sp<AudioSession> &other) const;
     bool isSoundTrigger() const { return mIsSoundTrigger; }
+    void setSilenced(bool silenced) { mSilenced = silenced; }
+    bool isSilenced() const { return mSilenced; }
     uint32_t openCount() const { return mOpenCount; } ;
     uint32_t activeCount() const { return mActiveCount; } ;
 
@@ -67,16 +70,17 @@ public:
 
 private:
     record_client_info_t mRecordClientInfo;
-#if defined(__linux__)
+#if defined(__linux__) // M3E:
     struct audio_config_base mConfig;
 #else
     const struct audio_config_base mConfig;
 #endif
     const audio_input_flags_t mFlags;
     bool  mIsSoundTrigger;
+    bool mSilenced;
     uint32_t  mOpenCount;
     uint32_t  mActiveCount;
-    AudioMix* mPolicyMix; // non NULL when used by a dynamic policy
+    wp<AudioPolicyMix> mPolicyMix; // non NULL when used by a dynamic policy
     AudioPolicyClientInterface* mClientInterface;
     const AudioSessionInfoProvider* mInfoProvider;
 };
@@ -106,4 +110,4 @@ public:
     status_t dump(int fd, int spaces) const;
 };
 
-}; // namespace android
+} // namespace android

@@ -89,7 +89,7 @@ status_t CopyBufferProvider::getNextBuffer(AudioBufferProvider::Buffer *pBuffer)
         //
         // By API spec, if res != OK, then mBuffer.frameCount == 0.
         // but there may be improper implementations.
-        ALOG_ASSERT(res == OK || mBuffer.frameCount == 0, "");
+        ALOG_ASSERT(res == OK || mBuffer.frameCount == 0, "_MSC_VER"); // M3E:
         if (res != OK || mBuffer.frameCount == 0) { // not needed by API spec, but to be safe.
             pBuffer->raw = NULL;
             pBuffer->frameCount = 0;
@@ -97,7 +97,7 @@ status_t CopyBufferProvider::getNextBuffer(AudioBufferProvider::Buffer *pBuffer)
         }
         mConsumed = 0;
     }
-    ALOG_ASSERT(mConsumed < mBuffer.frameCount, "");
+    ALOG_ASSERT(mConsumed < mBuffer.frameCount, "_MSC_VER"); // M3E:
     size_t count = min(mLocalBufferFrameCount, mBuffer.frameCount - mConsumed);
     count = min(count, pBuffer->frameCount);
     pBuffer->raw = mLocalBufferData;
@@ -119,7 +119,7 @@ void CopyBufferProvider::releaseBuffer(AudioBufferProvider::Buffer *pBuffer)
     mConsumed += pBuffer->frameCount; // TODO: update for efficiency to reuse existing content
     if (mConsumed != 0 && mConsumed >= mBuffer.frameCount) {
         mTrackBufferProvider->releaseBuffer(&mBuffer);
-        ALOG_ASSERT(mBuffer.frameCount == 0, "");
+        ALOG_ASSERT(mBuffer.frameCount == 0, "_MSC_VER"); // M3E:
     }
     pBuffer->raw = NULL;
     pBuffer->frameCount = 0;
@@ -376,6 +376,23 @@ void ReformatBufferProvider::copyFrames(void *dst, const void *src, size_t frame
     memcpy_by_audio_format(dst, mOutputFormat, src, mInputFormat, frames * mChannelCount);
 }
 
+ClampFloatBufferProvider::ClampFloatBufferProvider(int32_t channelCount, size_t bufferFrameCount) :
+        CopyBufferProvider(
+                channelCount * audio_bytes_per_sample(AUDIO_FORMAT_PCM_FLOAT),
+                channelCount * audio_bytes_per_sample(AUDIO_FORMAT_PCM_FLOAT),
+                bufferFrameCount),
+        mChannelCount(channelCount)
+{
+    ALOGV("ClampFloatBufferProvider(%p)(%u)", this, channelCount);
+}
+
+void ClampFloatBufferProvider::copyFrames(void *dst, const void *src, size_t frames)
+{
+    memcpy_to_float_from_float_with_clamping((float*)dst, (const float*)src,
+                                             frames * mChannelCount,
+                                             FLOAT_NOMINAL_RANGE_HEADROOM);
+}
+
 TimestretchBufferProvider::TimestretchBufferProvider(int32_t channelCount,
         audio_format_t format, uint32_t sampleRate, const AudioPlaybackRate &playbackRate) :
         mChannelCount(channelCount),
@@ -447,7 +464,7 @@ status_t TimestretchBufferProvider::getNextBuffer(
 
         status_t res = mTrackBufferProvider->getNextBuffer(&mBuffer);
 
-        ALOG_ASSERT(res == OK || mBuffer.frameCount == 0, "");
+        ALOG_ASSERT(res == OK || mBuffer.frameCount == 0, "_MSC_VER"); // M3E:
         if (res != OK || mBuffer.frameCount == 0) { // not needed by API spec, but to be safe.
             ALOGV("upstream provider cannot provide data");
             if (mRemaining == 0) {

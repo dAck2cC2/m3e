@@ -24,7 +24,7 @@
 
 namespace android {
 
-class ANDROID_API_NBAIO SourceAudioBufferProvider : public ExtendedAudioBufferProvider {
+class ANDROID_API_NBAIO SourceAudioBufferProvider : public ExtendedAudioBufferProvider { // M3E:
 
 public:
     SourceAudioBufferProvider(const sp<NBAIO_Source>& source);

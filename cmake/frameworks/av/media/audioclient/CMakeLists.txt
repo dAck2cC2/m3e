@@ -12,6 +12,9 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/audiomanager/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/nblog/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 
@@ -25,6 +28,9 @@ utils
 binder
 audioutils
 audiomanager
+nblog
+media
+mediametrics
 )
 
 if(MSVC)
@@ -64,13 +70,28 @@ ${SOURCE_PATH}/IAudioFlinger.cpp
 ${SOURCE_PATH}/IAudioFlingerClient.cpp 
 ${SOURCE_PATH}/IAudioPolicyService.cpp 
 ${SOURCE_PATH}/IAudioPolicyServiceClient.cpp 
-${SOURCE_PATH}/IAudioRecord.cpp 
 ${SOURCE_PATH}/IAudioTrack.cpp 
 ${SOURCE_PATH}/IEffect.cpp 
 ${SOURCE_PATH}/IEffectClient.cpp 
 ${SOURCE_PATH}/ToneGenerator.cpp 
 ${SOURCE_PATH}/PlayerBase.cpp 
 ${SOURCE_PATH}/TrackPlayerBase.cpp 
+)
+
+set(AIDL_HEADER_PATH ${M3E_SOURCE_DIR}/src/intermediate/frameworks/av/media/libaudioclient/aidl/android/media)
+list(APPEND ${PROJECT_NAME}_HEADER_FILES 
+${AIDL_HEADER_PATH}/BnAudioRecord.h
+${AIDL_HEADER_PATH}/BnPlayer.h
+${AIDL_HEADER_PATH}/BpAudioRecord.h
+${AIDL_HEADER_PATH}/BpPlayer.h
+${AIDL_HEADER_PATH}/IAudioRecord.h
+${AIDL_HEADER_PATH}/IPlayer.h
+)
+
+set(AIDL_SOURCE_PATH ${M3E_SOURCE_DIR}/src/intermediate/frameworks/av/media/libaudioclient/aidl/frameworks/av/media/libaudioclient/aidl/android/media)
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES
+${AIDL_SOURCE_PATH}/IAudioRecord.cpp
+${AIDL_SOURCE_PATH}/IPlayer.cpp
 )
 
 # target files

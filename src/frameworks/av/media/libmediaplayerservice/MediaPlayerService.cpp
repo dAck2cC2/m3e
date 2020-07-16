@@ -1282,9 +1282,9 @@ status_t MediaPlayerService::Client::setNextPlayer(const sp<IMediaPlayer>& playe
     return OK;
 }
 
-VolumeShaper::Status MediaPlayerService::Client::applyVolumeShaper(
-        const sp<VolumeShaper::Configuration>& configuration,
-        const sp<VolumeShaper::Operation>& operation) {
+media::VolumeShaper::Status MediaPlayerService::Client::applyVolumeShaper(
+        const sp<media::VolumeShaper::Configuration>& configuration,
+        const sp<media::VolumeShaper::Operation>& operation) {
     // for hardware output, call player instead
     ALOGV("Client::applyVolumeShaper(%p)", this);
     sp<MediaPlayerBase> p = getPlayer();
@@ -1292,16 +1292,16 @@ VolumeShaper::Status MediaPlayerService::Client::applyVolumeShaper(
         Mutex::Autolock l(mLock);
         if (p != 0 && p->hardwareOutput()) {
             // TODO: investigate internal implementation
-            return VolumeShaper::Status(INVALID_OPERATION);
+            return media::VolumeShaper::Status(INVALID_OPERATION);
         }
         if (mAudioOutput.get() != nullptr) {
             return mAudioOutput->applyVolumeShaper(configuration, operation);
         }
     }
-    return VolumeShaper::Status(INVALID_OPERATION);
+    return media::VolumeShaper::Status(INVALID_OPERATION);
 }
 
-sp<VolumeShaper::State> MediaPlayerService::Client::getVolumeShaperState(int id) {
+sp<media::VolumeShaper::State> MediaPlayerService::Client::getVolumeShaperState(int id) {
     // for hardware output, call player instead
     ALOGV("Client::getVolumeShaperState(%p)", this);
     sp<MediaPlayerBase> p = getPlayer();
@@ -1648,7 +1648,7 @@ MediaPlayerService::AudioOutput::AudioOutput(audio_session_t sessionId, uid_t ui
       mSendLevel(0.0),
       mAuxEffectId(0),
       mFlags(AUDIO_OUTPUT_FLAG_NONE),
-      mVolumeHandler(new VolumeHandler())
+      mVolumeHandler(new media::VolumeHandler())
 {
     ALOGV("AudioOutput(%d)", sessionId);
     if (attr != NULL) {
@@ -2114,9 +2114,9 @@ status_t MediaPlayerService::AudioOutput::open(
 
     // Restore VolumeShapers for the MediaPlayer in case the track was recreated
     // due to an output sink error (e.g. offload to non-offload switch).
-    mVolumeHandler->forall([&t](const VolumeShaper &shaper) -> VolumeShaper::Status {
-        sp<VolumeShaper::Operation> operationToEnd =
-                new VolumeShaper::Operation(shaper.mOperation);
+    mVolumeHandler->forall([&t](const media::VolumeShaper &shaper) -> media::VolumeShaper::Status {
+        sp<media::VolumeShaper::Operation> operationToEnd =
+                new media::VolumeShaper::Operation(shaper.mOperation);
         // TODO: Ideally we would restore to the exact xOffset position
         // as returned by getVolumeShaperState(), but we don't have that
         // information when restoring at the client unless we periodically poll
@@ -2370,16 +2370,16 @@ status_t MediaPlayerService::AudioOutput::attachAuxEffect(int effectId)
     return NO_ERROR;
 }
 
-VolumeShaper::Status MediaPlayerService::AudioOutput::applyVolumeShaper(
-                const sp<VolumeShaper::Configuration>& configuration,
-                const sp<VolumeShaper::Operation>& operation)
+media::VolumeShaper::Status MediaPlayerService::AudioOutput::applyVolumeShaper(
+                const sp<media::VolumeShaper::Configuration>& configuration,
+                const sp<media::VolumeShaper::Operation>& operation)
 {
     Mutex::Autolock lock(mLock);
     ALOGV("AudioOutput::applyVolumeShaper");
 
     mVolumeHandler->setIdIfNecessary(configuration);
 
-    VolumeShaper::Status status;
+    media::VolumeShaper::Status status;
     if (mTrack != 0) {
         status = mTrack->applyVolumeShaper(configuration, operation);
         if (status >= 0) {
@@ -2394,7 +2394,7 @@ VolumeShaper::Status MediaPlayerService::AudioOutput::applyVolumeShaper(
         // We forward VolumeShaper operations that do not change configuration
         // to the new player so that unducking may occur as expected.
         // Unducking is an idempotent operation, same if applied back-to-back.
-        if (configuration->getType() == VolumeShaper::Configuration::TYPE_ID
+        if (configuration->getType() == media::VolumeShaper::Configuration::TYPE_ID
                 && mNextOutput != nullptr) {
             ALOGV("applyVolumeShaper: Attempting to forward missed operation: %s %s",
                     configuration->toString().c_str(), operation->toString().c_str());
@@ -2421,7 +2421,7 @@ VolumeShaper::Status MediaPlayerService::AudioOutput::applyVolumeShaper(
     return status;
 }
 
-sp<VolumeShaper::State> MediaPlayerService::AudioOutput::getVolumeShaperState(int id)
+sp<media::VolumeShaper::State> MediaPlayerService::AudioOutput::getVolumeShaperState(int id)
 {
     Mutex::Autolock lock(mLock);
     if (mTrack != 0) {

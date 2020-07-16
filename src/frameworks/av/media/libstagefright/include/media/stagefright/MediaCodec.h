@@ -25,7 +25,7 @@
 #include <media/hardware/CryptoAPI.h>
 #include <media/MediaCodecInfo.h>
 #include <media/MediaResource.h>
-#include <MediaAnalyticsItem.h> // <media/MediaAnalyticsItem.h>
+#include <media/MediaAnalyticsItem.h>
 #include <media/stagefright/foundation/AHandler.h>
 #include <media/stagefright/FrameRenderTracker.h>
 #include <utils/Vector.h>

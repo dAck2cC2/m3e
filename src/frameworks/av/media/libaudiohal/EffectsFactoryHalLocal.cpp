@@ -23,7 +23,7 @@ namespace android {
 
 // static
 sp<EffectsFactoryHalInterface> EffectsFactoryHalInterface::create() {
-    return new EffectsFactoryHalLocal();
+    return nullptr; //new EffectsFactoryHalLocal();
 }
 
 // static

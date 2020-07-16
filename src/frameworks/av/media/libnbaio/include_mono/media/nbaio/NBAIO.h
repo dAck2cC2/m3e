@@ -65,24 +65,24 @@ struct NBAIO_Format {
     size_t      mFrameSize;
 };
 
-ANDROID_API_NBAIO
+ANDROID_API_NBAIO // M3E: MSVC export
 extern const NBAIO_Format Format_Invalid;
 
 // Return the frame size of an NBAIO_Format in bytes
-ANDROID_API_NBAIO
+ANDROID_API_NBAIO // M3E: MSVC export
 size_t Format_frameSize(const NBAIO_Format& format);
 
 // Convert a sample rate in Hz and channel count to an NBAIO_Format
 // FIXME rename
-ANDROID_API_NBAIO
+ANDROID_API_NBAIO // M3E: MSVC export
 NBAIO_Format Format_from_SR_C(unsigned sampleRate, unsigned channelCount, audio_format_t format);
 
 // Return the sample rate in Hz of an NBAIO_Format
-ANDROID_API_NBAIO
+ANDROID_API_NBAIO // M3E: MSVC export
 unsigned Format_sampleRate(const NBAIO_Format& format);
 
 // Return the channel count of an NBAIO_Format
-ANDROID_API_NBAIO
+ANDROID_API_NBAIO // M3E: MSVC export
 unsigned Format_channelCount(const NBAIO_Format& format);
 
 // Callbacks used by NBAIO_Sink::writeVia() and NBAIO_Source::readVia() below.
@@ -97,7 +97,7 @@ ANDROID_API_NBAIO
 bool Format_isEqual(const NBAIO_Format& format1, const NBAIO_Format& format2);
 
 // Abstract class (interface) representing a data port.
-class ANDROID_API_NBAIO NBAIO_Port : public RefBase {
+class ANDROID_API_NBAIO NBAIO_Port : public RefBase {  // M3E: MSVC export
 
 public:
 
@@ -146,7 +146,7 @@ protected:
 };
 
 // Abstract class (interface) representing a non-blocking data sink, for use by a data provider.
-class ANDROID_API_NBAIO NBAIO_Sink : public NBAIO_Port {
+class ANDROID_API_NBAIO NBAIO_Sink : public NBAIO_Port {  // M3E: MSVC export
 
 public:
 
@@ -238,7 +238,7 @@ protected:
 };
 
 // Abstract class (interface) representing a non-blocking data source, for use by a data consumer.
-class ANDROID_API_NBAIO NBAIO_Source : public NBAIO_Port {
+class ANDROID_API_NBAIO NBAIO_Source : public NBAIO_Port {  // M3E: MSVC export
 
 public:
 

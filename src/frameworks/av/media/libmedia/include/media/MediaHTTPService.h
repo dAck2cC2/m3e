@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
+#ifndef MEDIA_HTTP_SERVICE_H_
 
-#ifndef ANDROID_AUDIO_CLIENT_H
-#define ANDROID_AUDIO_CLIENT_H
+#define MEDIA_HTTP_SERVICE_H_
 
-#include <system/audio.h>
-#include <utils/String16.h>
+#include <media/stagefright/foundation/ABase.h>
 
 namespace android {
 
-class AudioClient {
- public:
-    AudioClient() :
-        clientUid(-1), clientPid(-1), packageName("") {}
+struct MediaHTTPConnection;
 
-    uid_t clientUid;
-    pid_t clientPid;
-    String16 packageName;
+struct MediaHTTPService : public virtual RefBase {
+    MediaHTTPService() {}
+
+    virtual sp<MediaHTTPConnection> makeHTTPConnection() = 0;
+
+private:
+    DISALLOW_EVIL_CONSTRUCTORS(MediaHTTPService);
 };
 
-}; // namespace android
+}  // namespace android
 
-#endif  // ANDROID_AUDIO_CLIENT_H
+#endif  // MEDIA_HTTP_SERVICE_H_

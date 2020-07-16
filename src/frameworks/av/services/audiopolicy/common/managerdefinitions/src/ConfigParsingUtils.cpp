@@ -26,7 +26,7 @@
 #include <utils/Log.h>
 #include <cutils/misc.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #define strndup(a, b) strdup(a)
 #endif
 
@@ -37,7 +37,7 @@ namespace android {
 //static
 void ConfigParsingUtils::loadAudioPortGain(cnode *root, AudioPort &audioPort, int index)
 {
-#if TODO
+#if TODO // M3E:
     cnode *node = root->first_child;
 
     sp<AudioGain> gain = new AudioGain(index, audioPort.useInputChannelMask());
@@ -156,7 +156,7 @@ status_t ConfigParsingUtils::loadHwModuleDevice(cnode *root, DeviceVector &devic
 status_t ConfigParsingUtils::loadHwModuleProfile(cnode *root, sp<HwModule> &module,
                                                  audio_port_role_t role)
 {
-#if TODO
+#if TODO // M3E:
     cnode *node = root->first_child;
 
     sp<IOProfile> profile = new IOProfile(String8(root->name), role);
@@ -424,4 +424,4 @@ status_t ConfigParsingUtils::loadConfig(const char *path, AudioPolicyConfig &con
     return NO_ERROR;
 }
 
-}; // namespace android
+} // namespace android

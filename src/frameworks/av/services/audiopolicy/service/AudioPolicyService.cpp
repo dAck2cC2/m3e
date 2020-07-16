@@ -26,13 +26,17 @@
 #include <sys/time.h>
 #include <binder/IServiceManager.h>
 #include <utils/Log.h>
+#include <cutils/multiuser.h>
 #include <cutils/properties.h>
 #include <binder/IPCThreadState.h>
+#include <binder/ActivityManager.h>
+#include <binder/PermissionController.h>
+#include <binder/IResultReceiver.h>
 #include <utils/String16.h>
 #include <utils/threads.h>
 #include "AudioPolicyService.h"
 #include "ServiceUtilities.h"
-#if defined(ENABLE_HARDWARE_LEGACY)
+#if defined(ENABLE_HARDWARE_LEGACY) // M3E:
 #include <hardware_legacy/power.h>
 #endif
 #include <media/AudioEffect.h>
@@ -40,6 +44,8 @@
 
 #include <system/audio.h>
 #include <system/audio_policy.h>
+
+#include <private/android_filesystem_config.h>
 
 namespace android {
 
@@ -51,6 +57,7 @@ static const int kDumpLockSleepUs = 20000;
 
 static const nsecs_t kAudioCommandTimeoutNs = seconds(3); // 3 seconds
 
+static const String16 sManageAudioPolicyPermission("android.permission.MANAGE_AUDIO_POLICY");
 
 // ----------------------------------------------------------------------------
 
@@ -81,6 +88,9 @@ void AudioPolicyService::onFirstRef()
         Mutex::Autolock _l(mLock);
         mAudioPolicyEffects = audioPolicyEffects;
     }
+
+    mUidPolicy = new UidPolicy(this);
+    mUidPolicy->registerSelf();
 }
 
 AudioPolicyService::~AudioPolicyService()
@@ -94,6 +104,9 @@ AudioPolicyService::~AudioPolicyService()
 
     mNotificationClients.clear();
     mAudioPolicyEffects.clear();
+
+    mUidPolicy->unregisterSelf();
+    mUidPolicy.clear();
 }
 
 // A notification client is always registered by AudioSystem when the client process
@@ -141,6 +154,7 @@ void AudioPolicyService::removeNotificationClient(uid_t uid)
     {
         Mutex::Autolock _l(mLock);
         if (mAudioPolicyManager) {
+            // called from binder death notification: no need to clear caller identity
             mAudioPolicyManager->releaseResourcesForUid(uid);
         }
     }
@@ -263,7 +277,7 @@ void AudioPolicyService::NotificationClient::onAudioPatchListUpdate()
 void AudioPolicyService::NotificationClient::onDynamicPolicyMixStateUpdate(
         const String8& regId, int32_t state)
 {
-    if (mAudioPolicyServiceClient != 0) {
+    if (mAudioPolicyServiceClient != 0 && multiuser_get_app_id(mUid) < AID_APP_START) {
         mAudioPolicyServiceClient->onDynamicPolicyMixStateUpdate(regId, state);
     }
 }
@@ -273,7 +287,7 @@ void AudioPolicyService::NotificationClient::onRecordingConfigurationUpdate(
         const audio_config_base_t *clientConfig, const audio_config_base_t *deviceConfig,
         audio_patch_handle_t patchHandle)
 {
-    if (mAudioPolicyServiceClient != 0) {
+    if (mAudioPolicyServiceClient != 0 && multiuser_get_app_id(mUid) < AID_APP_START) {
         mAudioPolicyServiceClient->onRecordingConfigurationUpdate(event, clientInfo,
                 clientConfig, deviceConfig, patchHandle);
     }
@@ -320,6 +334,21 @@ status_t AudioPolicyService::dumpInternals(int fd)
     return NO_ERROR;
 }
 
+void AudioPolicyService::setRecordSilenced(uid_t uid, bool silenced)
+{
+    {
+        Mutex::Autolock _l(mLock);
+        if (mAudioPolicyManager) {
+            AutoCallerClear acc;
+            mAudioPolicyManager->setRecordSilenced(uid, silenced);
+        }
+    }
+    sp<IAudioFlinger> af = AudioSystem::get_audio_flinger();
+    if (af) {
+        af->setRecordSilenced(uid, silenced);
+    }
+}
+
 status_t AudioPolicyService::dump(int fd, const Vector<String16>& args __unused)
 {
     if (!dumpAllowed()) {
@@ -363,11 +392,250 @@ status_t AudioPolicyService::dumpPermissionDenial(int fd)
 }
 
 status_t AudioPolicyService::onTransact(
-        uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
-{
+        uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags) {
+    switch (code) {
+        case SHELL_COMMAND_TRANSACTION: {
+            int in = data.readFileDescriptor();
+            int out = data.readFileDescriptor();
+            int err = data.readFileDescriptor();
+            int argc = data.readInt32();
+            Vector<String16> args;
+            for (int i = 0; i < argc && data.dataAvail() > 0; i++) {
+               args.add(data.readString16());
+            }
+            sp<IBinder> unusedCallback;
+            sp<IResultReceiver> resultReceiver;
+            status_t status;
+            if ((status = data.readNullableStrongBinder(&unusedCallback)) != NO_ERROR) {
+                return status;
+            }
+            if ((status = data.readNullableStrongBinder(&resultReceiver)) != NO_ERROR) {
+                return status;
+            }
+            status = shellCommand(in, out, err, args);
+            if (resultReceiver != nullptr) {
+                resultReceiver->send(status);
+            }
+            return NO_ERROR;
+        }
+    }
+
     return BnAudioPolicyService::onTransact(code, data, reply, flags);
 }
 
+// ------------------- Shell command implementation -------------------
+
+// NOTE: This is a remote API - make sure all args are validated
+status_t AudioPolicyService::shellCommand(int in, int out, int err, Vector<String16>& args) {
+    if (!checkCallingPermission(sManageAudioPolicyPermission, nullptr, nullptr)) {
+        return PERMISSION_DENIED;
+    }
+    if (in == BAD_TYPE || out == BAD_TYPE || err == BAD_TYPE) {
+        return BAD_VALUE;
+    }
+    if (args.size() == 3 && args[0] == String16("set-uid-state")) {
+        return handleSetUidState(args, err);
+    } else if (args.size() == 2 && args[0] == String16("reset-uid-state")) {
+        return handleResetUidState(args, err);
+    } else if (args.size() == 2 && args[0] == String16("get-uid-state")) {
+        return handleGetUidState(args, out, err);
+    } else if (args.size() == 1 && args[0] == String16("help")) {
+        printHelp(out);
+        return NO_ERROR;
+    }
+    printHelp(err);
+    return BAD_VALUE;
+}
+
+status_t AudioPolicyService::handleSetUidState(Vector<String16>& args, int err) {
+    PermissionController pc;
+    int uid = pc.getPackageUid(args[1], 0);
+    if (uid <= 0) {
+        ALOGE("Unknown package: '%s'", String8(args[1]).string());
+        dprintf(err, "Unknown package: '%s'\n", String8(args[1]).string());
+        return BAD_VALUE;
+    }
+    bool active = false;
+    if (args[2] == String16("active")) {
+        active = true;
+    } else if ((args[2] != String16("idle"))) {
+        ALOGE("Expected active or idle but got: '%s'", String8(args[2]).string());
+        return BAD_VALUE;
+    }
+    mUidPolicy->addOverrideUid(uid, active);
+    return NO_ERROR;
+}
+
+status_t AudioPolicyService::handleResetUidState(Vector<String16>& args, int err) {
+    PermissionController pc;
+    int uid = pc.getPackageUid(args[1], 0);
+    if (uid < 0) {
+        ALOGE("Unknown package: '%s'", String8(args[1]).string());
+        dprintf(err, "Unknown package: '%s'\n", String8(args[1]).string());
+        return BAD_VALUE;
+    }
+    mUidPolicy->removeOverrideUid(uid);
+    return NO_ERROR;
+}
+
+status_t AudioPolicyService::handleGetUidState(Vector<String16>& args, int out, int err) {
+    PermissionController pc;
+    int uid = pc.getPackageUid(args[1], 0);
+    if (uid < 0) {
+        ALOGE("Unknown package: '%s'", String8(args[1]).string());
+        dprintf(err, "Unknown package: '%s'\n", String8(args[1]).string());
+        return BAD_VALUE;
+    }
+    if (mUidPolicy->isUidActive(uid)) {
+        return dprintf(out, "active\n");
+    } else {
+        return dprintf(out, "idle\n");
+    }
+}
+
+status_t AudioPolicyService::printHelp(int out) {
+    return dprintf(out, "Audio policy service commands:\n"
+        "  get-uid-state <PACKAGE> gets the uid state\n"
+        "  set-uid-state <PACKAGE> <active|idle> overrides the uid state\n"
+        "  reset-uid-state <PACKAGE> clears the uid state override\n"
+        "  help print this message\n");
+}
+
+// -----------  AudioPolicyService::UidPolicy implementation ----------
+
+void AudioPolicyService::UidPolicy::registerSelf() {
+#if TODO // M3E:
+    ActivityManager am;
+    am.registerUidObserver(this, ActivityManager::UID_OBSERVER_GONE
+            | ActivityManager::UID_OBSERVER_IDLE
+            | ActivityManager::UID_OBSERVER_ACTIVE,
+            ActivityManager::PROCESS_STATE_UNKNOWN,
+            String16("audioserver"));
+    status_t res = am.linkToDeath(this);
+    if (!res) {
+        Mutex::Autolock _l(mLock);
+        mObserverRegistered = true;
+    } else {
+        ALOGE("UidPolicy::registerSelf linkToDeath failed: %d", res);
+        am.unregisterUidObserver(this);
+    }
+#endif
+}
+
+void AudioPolicyService::UidPolicy::unregisterSelf() {
+    ActivityManager am;
+    am.unlinkToDeath(this);
+    am.unregisterUidObserver(this);
+    Mutex::Autolock _l(mLock);
+    mObserverRegistered = false;
+}
+
+void AudioPolicyService::UidPolicy::binderDied(__unused const wp<IBinder> &who) {
+    Mutex::Autolock _l(mLock);
+    mCachedUids.clear();
+    mObserverRegistered = false;
+}
+
+bool AudioPolicyService::UidPolicy::isUidActive(uid_t uid) {
+    if (isServiceUid(uid)) return true;
+    bool needToReregister = false;
+    {
+        Mutex::Autolock _l(mLock);
+        needToReregister = !mObserverRegistered;
+    }
+    if (needToReregister) {
+        // Looks like ActivityManager has died previously, attempt to re-register.
+        registerSelf();
+    }
+    {
+        Mutex::Autolock _l(mLock);
+        auto overrideIter = mOverrideUids.find(uid);
+        if (overrideIter != mOverrideUids.end()) {
+            return overrideIter->second;
+        }
+        // In an absense of the ActivityManager, assume everything to be active.
+        if (!mObserverRegistered) return true;
+        auto cacheIter = mCachedUids.find(uid);
+        if (cacheIter != mCachedUids.end()) {
+            return cacheIter->second;
+        }
+    }
+    ActivityManager am;
+    bool active = am.isUidActive(uid, String16("audioserver"));
+    {
+        Mutex::Autolock _l(mLock);
+        mCachedUids.insert(std::pair<uid_t, bool>(uid, active));
+    }
+    return active;
+}
+
+void AudioPolicyService::UidPolicy::onUidActive(uid_t uid) {
+    updateUidCache(uid, true, true);
+}
+
+void AudioPolicyService::UidPolicy::onUidGone(uid_t uid, __unused bool disabled) {
+    updateUidCache(uid, false, false);
+}
+
+void AudioPolicyService::UidPolicy::onUidIdle(uid_t uid, __unused bool disabled) {
+    updateUidCache(uid, false, true);
+}
+
+bool AudioPolicyService::UidPolicy::isServiceUid(uid_t uid) const {
+    return multiuser_get_app_id(uid) < AID_APP_START;
+}
+
+void AudioPolicyService::UidPolicy::notifyService(uid_t uid, bool active) {
+    sp<AudioPolicyService> service = mService.promote();
+    if (service != nullptr) {
+        service->setRecordSilenced(uid, !active);
+    }
+}
+
+void AudioPolicyService::UidPolicy::updateOverrideUid(uid_t uid, bool active, bool insert) {
+    if (isServiceUid(uid)) return;
+    bool wasOverridden = false, wasActive = false;
+    {
+        Mutex::Autolock _l(mLock);
+        updateUidLocked(&mOverrideUids, uid, active, insert, &wasOverridden, &wasActive);
+    }
+    if (!wasOverridden && insert) {
+        notifyService(uid, active);  // Started to override.
+    } else if (wasOverridden && !insert) {
+        notifyService(uid, isUidActive(uid));  // Override ceased, notify with ground truth.
+    } else if (wasActive != active) {
+        notifyService(uid, active);  // Override updated.
+    }
+}
+
+void AudioPolicyService::UidPolicy::updateUidCache(uid_t uid, bool active, bool insert) {
+    if (isServiceUid(uid)) return;
+    bool wasActive = false;
+    {
+        Mutex::Autolock _l(mLock);
+        updateUidLocked(&mCachedUids, uid, active, insert, nullptr, &wasActive);
+        // Do not notify service if currently overridden.
+        if (mOverrideUids.find(uid) != mOverrideUids.end()) return;
+    }
+    bool nowActive = active && insert;
+    if (wasActive != nowActive) notifyService(uid, nowActive);
+}
+
+void AudioPolicyService::UidPolicy::updateUidLocked(std::unordered_map<uid_t, bool> *uids,
+        uid_t uid, bool active, bool insert, bool *wasThere, bool *wasActive) {
+    auto it = uids->find(uid);
+    if (it != uids->end()) {
+        if (wasThere != nullptr) *wasThere = true;
+        if (wasActive != nullptr) *wasActive = it->second;
+        if (insert) {
+            it->second = active;
+        } else {
+            uids->erase(it);
+        }
+    } else if (insert) {
+        uids->insert(std::pair<uid_t, bool>(uid, active));
+    }
+}
 
 // -----------  AudioPolicyService::AudioCommandThread implementation ----------
 
@@ -382,7 +650,7 @@ AudioPolicyService::AudioCommandThread::AudioCommandThread(String8 name,
 AudioPolicyService::AudioCommandThread::~AudioCommandThread()
 {
     if (!mAudioCommands.isEmpty()) {
-#if defined(ENABLE_HARDWARE_LEGACY)
+#if defined(ENABLE_HARDWARE_LEGACY) // M3E:
         release_wake_lock(mName.string());
 #endif
     }
@@ -578,7 +846,7 @@ bool AudioPolicyService::AudioCommandThread::threadLoop()
 
         // release delayed commands wake lock if the queue is empty
         if (mAudioCommands.isEmpty()) {
-#if defined(ENABLE_HARDWARE_LEGACY)
+#if defined(ENABLE_HARDWARE_LEGACY) // M3E:
             release_wake_lock(mName.string());
 #endif
         }
@@ -596,7 +864,7 @@ bool AudioPolicyService::AudioCommandThread::threadLoop()
     }
     // release delayed commands wake lock before quitting
     if (!mAudioCommands.isEmpty()) {
-#if defined(ENABLE_HARDWARE_LEGACY)
+#if defined(ENABLE_HARDWARE_LEGACY) // M3E:
         release_wake_lock(mName.string());
 #endif
     }
@@ -863,13 +1131,13 @@ void AudioPolicyService::AudioCommandThread::insertCommand_l(sp<AudioCommand>& c
 
     // acquire wake lock to make sure delayed commands are processed
     if (mAudioCommands.isEmpty()) {
-#if defined(ENABLE_HARDWARE_LEGACY)
+#if defined(ENABLE_HARDWARE_LEGACY) // M3E:
         acquire_wake_lock(PARTIAL_WAKE_LOCK, mName.string());
 #endif
     }
 
     // check same pending commands with later time stamps and eliminate them
-    for (i = mAudioCommands.size()-1; i >= 0; i--) {
+    for (i = (ssize_t)mAudioCommands.size()-1; i >= 0; i--) {
         sp<AudioCommand> command2 = mAudioCommands[i];
         // commands are sorted by increasing time stamp: no need to scan the rest of mAudioCommands
         if (command2->mTime <= command->mTime) break;
@@ -1156,4 +1424,4 @@ int aps_stop_tone(void *service);
 int aps_set_voice_volume(void *service, float volume, int delay_ms);
 };
 
-}; // namespace android
+} // namespace android

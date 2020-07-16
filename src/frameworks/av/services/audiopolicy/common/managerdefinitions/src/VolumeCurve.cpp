@@ -18,7 +18,7 @@
 //#define LOG_NDEBUG 0
 
 #include "VolumeCurve.h"
-#include "managerdefinitions/include/TypeConverter.h"
+#include "TypeConverter.h"
 
 namespace android {
 
@@ -29,6 +29,13 @@ float VolumeCurve::volIndexToDb(int indexInUi, int volIndexMin, int volIndexMax)
     size_t nbCurvePoints = mCurvePoints.size();
     // the volume index in the UI is relative to the min and max volume indices for this stream
     int nbSteps = 1 + mCurvePoints[nbCurvePoints - 1].mIndex - mCurvePoints[0].mIndex;
+    if (indexInUi < volIndexMin) {
+        ALOGV("VOLUME remapping index from %d to min index %d", indexInUi, volIndexMin);
+        indexInUi = volIndexMin;
+    } else if (indexInUi > volIndexMax) {
+        ALOGV("VOLUME remapping index from %d to max index %d", indexInUi, volIndexMax);
+        indexInUi = volIndexMax;
+    }
     int volIdx = (nbSteps * (indexInUi - volIndexMin)) / (volIndexMax - volIndexMin);
 
     // Where would this volume index been inserted in the curve point
@@ -79,7 +86,7 @@ void VolumeCurve::dump(int fd) const
 
 void VolumeCurvesForStream::dump(int fd, int spaces = 0, bool curvePoints) const
 {
-#if TODO
+#if TODO // M3E:
     const size_t SIZE = 256;
     char buffer[SIZE];
     String8 result;
@@ -112,7 +119,7 @@ void VolumeCurvesForStream::dump(int fd, int spaces = 0, bool curvePoints) const
 
 status_t VolumeCurvesCollection::dump(int fd) const
 {
-#if TODO
+#if TODO // M3E:
     const size_t SIZE = 256;
     char buffer[SIZE];
 
@@ -138,7 +145,8 @@ status_t VolumeCurvesCollection::dump(int fd) const
         valueAt(i).dump(fd, 2, true);
     }
 #endif
+
     return NO_ERROR;
 }
 
-}; // namespace android
+} // namespace android

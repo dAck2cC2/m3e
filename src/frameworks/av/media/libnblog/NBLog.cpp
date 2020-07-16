@@ -12,88 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ *
  */
 
-/*
-* Documentation: Workflow summary for histogram data processing:
-* For more details on FIFO, please see system/media/audio_utils; doxygen
-* TODO: add this documentation to doxygen once it is further developed
-* 1) Writing buffer period timestamp to the circular buffer
-* onWork()
-*     Called every period length (e.g., 4ms)
-*     Calls LOG_HIST_TS
-* LOG_HIST_TS
-*     Hashes file name and line number, and writes single timestamp to buffer
-*     calls NBLOG::Writer::logEventHistTS once
-* NBLOG::Writer::logEventHistTS
-*     calls NBLOG::Writer::log on hash and current timestamp
-*     time is in CLOCK_MONOTONIC converted to ns
-* NBLOG::Writer::log(Event, const void*, size_t)
-*     Initializes Entry, a struct containing one log entry
-*     Entry contains the event type (mEvent), data length (mLength),
-*     and data pointer (mData)
-*     TODO: why mLength (max length of buffer data)  must be <= kMaxLength = 255?
-*     calls NBLOG::Writer::log(Entry *, bool)
-* NBLog::Writer::log(Entry *, bool)
-*     Calls copyEntryDataAt to format data as follows in temp array:
-*     [type][length][data ... ][length]
-*     calls audio_utils_fifo_writer.write on temp
-* audio_utils_fifo_writer.write
-*     calls obtain(), memcpy (reference in doxygen)
-*     returns number of frames written
-* ssize_t audio_utils_fifo_reader::obtain
-*     Determines readable buffer section via pointer arithmetic on reader
-*     and writer pointers
-* Similarly, LOG_AUDIO_STATE() is called by onStateChange whenever audio is
-* turned on or off, and writes this notification to the FIFO.
-*
-* 2) reading the data from shared memory
-* Thread::threadloop()
-*     TODO: add description?
-* NBLog::MergeThread::threadLoop()
-*     calls NBLog::Merger::merge
-* NBLog::Merger::merge
-*     Merges snapshots sorted by timestamp
-*     for each reader in vector of class NamedReader,
-*     callsNamedReader::reader()->getSnapshot
-*     TODO: check whether the rest of this function is relevant
-* NBLog::Reader::getSnapshot
-*     copies snapshot of reader's fifo buffer into its own buffer
-*     calls mFifoReader->obtain to find readable data
-*     sets snapshot.begin() and .end() iterators to boundaries of valid entries
-*     moves the fifo reader index to after the last entry read
-*     in this case, the buffer is in shared memory. in (4), the buffer is private
-*
-* 3) reading the data from private buffer
-* MediaLogService::dump
-*     calls NBLog::Reader::dump(CONSOLE)
-*     The private buffer contains all logs for all readers in shared memory
-* NBLog::Reader::dump(int)
-*     calls getSnapshot on the current reader
-*     calls dump(int, size_t, Snapshot)
-* NBLog::Reader::dump(int, size, snapshot)
-*     iterates through snapshot's events and switches based on their type
-*     (string, timestamp, etc...)
-*     In the case of EVENT_HISTOGRAM_ENTRY_TS, adds a list of timestamp sequences
-*     (histogram entry) to NBLog::mHists
-*     TODO: add every HISTOGRAM_ENTRY_TS to two
-*     circular buffers: one short-term and one long-term (can add even longer-term
-*     structures in the future). When dump is called, print everything currently
-*     in the buffer.
-* NBLog::drawHistogram
-*     input: timestamp array
-*     buckets this to a histogram and prints
-*
-*/
-
 #define LOG_TAG "NBLog"
-// #define LOG_NDEBUG 0
 
 #include <algorithm>
 #include <climits>
 #include <deque>
 #include <fstream>
-// #include <inttypes.h>
 #include <iostream>
 #include <math.h>
 #include <numeric>
@@ -102,24 +30,23 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-//#include <sys/prctl.h>
+#if ENABLE_PRCTL // M3E:
+#include <sys/prctl.h>
+#endif
 #include <time.h>
 #include <new>
 #include <audio_utils/roundup.h>
-#include <media/nbaio/NBLog.h>
-#include <media/nbaio/PerformanceAnalysis.h>
-#include <media/nbaio/ReportPerformance.h>
-// #include <utils/CallStack.h> // used to print callstack
+#include <media/nblog/NBLog.h>
+#include <media/nblog/PerformanceAnalysis.h>
+#include <media/nblog/ReportPerformance.h>
+#if ENABLE_CALLSTACK // M3E:
+#include <utils/CallStack.h>
+#endif
 #include <utils/Log.h>
 #include <utils/String8.h>
 
 #include <queue>
 #include <utility>
-
-
-#if defined(_MSC_VER)
-#define dprintf(a, ...)  do { } while(0)
-#endif // _MSC_VER
 
 namespace android {
 
@@ -231,11 +158,7 @@ NBLog::EntryIterator NBLog::FormatEntry::copyWithAuthor(
     (++it).copyTo(dst);
     // insert author entry
     size_t authorEntrySize = NBLog::Entry::kOverhead + sizeof(author);
-#if defined(_MSC_VER)
-	uint8_t* authorEntry = new uint8_t[authorEntrySize];
-#else
-	uint8_t authorEntry[authorEntrySize];
-#endif
+    uint8_t authorEntry[authorEntrySize];
     authorEntry[offsetof(entry, type)] = EVENT_AUTHOR;
     authorEntry[offsetof(entry, length)] =
         authorEntry[authorEntrySize + NBLog::Entry::kPreviousLengthOffset] =
@@ -248,9 +171,6 @@ NBLog::EntryIterator NBLog::FormatEntry::copyWithAuthor(
     }
     it.copyTo(dst);
     ++it;
-#if defined(_MSC_VER)
-	delete[] authorEntry;
-#endif
     return it;
 }
 
@@ -343,7 +263,8 @@ NBLog::EntryIterator NBLog::HistogramEntry::copyWithAuthor(
     *(int*) (buffer + sizeof(entry) + sizeof(HistTsEntry)) = author;
     // Update lengths
     buffer[offsetof(entry, length)] = sizeof(HistTsEntryWithAuthor);
-    buffer[sizeof(buffer) + Entry::kPreviousLengthOffset] = sizeof(HistTsEntryWithAuthor);
+    buffer[offsetof(entry, data) + sizeof(HistTsEntryWithAuthor) + offsetof(ending, length)]
+        = sizeof(HistTsEntryWithAuthor);
     // Write new buffer into FIFO
     dst->write(buffer, sizeof(buffer));
     return EntryIterator(mEntry).next();
@@ -393,8 +314,11 @@ NBLog::Writer::Writer(void *shared, size_t size)
     // caching pid and process name
     pid_t id = ::getpid();
     char procName[16];
-	int status = 1; //prctl(PR_GET_NAME, procName);
-    if (status) {  // error getting process name
+#if ENABLE_PRCTL // M3E:
+    int status = prctl(PR_GET_NAME, procName);
+    if (status)
+#endif
+    {  // error getting process name
         procName[0] = '\0';
     }
     size_t length = strlen(procName);
@@ -772,14 +696,15 @@ bool NBLog::LockedWriter::setEnabled(bool enabled)
 // ---------------------------------------------------------------------------
 
 const std::set<NBLog::Event> NBLog::Reader::startingTypes {NBLog::Event::EVENT_START_FMT,
-                                                           NBLog::Event::EVENT_HISTOGRAM_ENTRY_TS};
+        NBLog::Event::EVENT_HISTOGRAM_ENTRY_TS,
+        NBLog::Event::EVENT_AUDIO_STATE};
 const std::set<NBLog::Event> NBLog::Reader::endingTypes   {NBLog::Event::EVENT_END_FMT,
-                                                           NBLog::Event::EVENT_HISTOGRAM_ENTRY_TS,
-                                                           NBLog::Event::EVENT_AUDIO_STATE};
+        NBLog::Event::EVENT_HISTOGRAM_ENTRY_TS,
+        NBLog::Event::EVENT_AUDIO_STATE};
 
 NBLog::Reader::Reader(const void *shared, size_t size)
-    : mShared((/*const*/ Shared *) shared), /*mIMemory*/
-      mFd(-1), mIndent(0),
+    : mFd(-1), mIndent(0), mLost(0),
+      mShared((/*const*/ Shared *) shared), /*mIMemory*/
       mFifo(mShared != NULL ?
         new audio_utils_fifo(size, sizeof(uint8_t),
             mShared->mBuffer, mShared->mRear, NULL /*throttlesFront*/) : NULL),
@@ -817,6 +742,9 @@ const uint8_t *NBLog::Reader::findLastEntryOfTypes(const uint8_t *front, const u
     return nullptr; // no entry found
 }
 
+// Copies content of a Reader FIFO into its Snapshot
+// The Snapshot has the same raw data, but represented as a sequence of entries
+// and an EntryIterator making it possible to process the data.
 std::unique_ptr<NBLog::Reader::Snapshot> NBLog::Reader::getSnapshot()
 {
     if (mFifoReader == NULL) {
@@ -882,24 +810,11 @@ std::unique_ptr<NBLog::Reader::Snapshot> NBLog::Reader::getSnapshot()
 
 }
 
-// TODO: move this to PerformanceAnalysis
-// TODO: make call to dump periodic so that data in shared FIFO does not get overwritten
-void NBLog::Reader::dump(int fd, size_t indent, NBLog::Reader::Snapshot &snapshot)
+// Takes raw content of the local merger FIFO, processes log entries, and
+// writes the data to a map of class PerformanceAnalysis, based on their thread ID.
+void NBLog::MergeReader::getAndProcessSnapshot(NBLog::Reader::Snapshot &snapshot)
 {
-    mFd = fd;
-    mIndent = indent;
     String8 timestamp, body;
-    // FIXME: this is not thread safe
-    // TODO: need a separate instance of performanceAnalysis for each thread
-    // used to store data and to call analysis functions
-    static ReportPerformance::PerformanceAnalysis performanceAnalysis;
-    size_t lost = snapshot.lost() + (snapshot.begin() - EntryIterator(snapshot.data()));
-    if (lost > 0) {
-        body.appendFormat("warning: lost %zu bytes worth of events", lost);
-        // TODO timestamp empty here, only other choice to wait for the first timestamp event in the
-        //      log to push it out.  Consider keeping the timestamp/body between calls to copyEntryDataAt().
-        dumpLine(timestamp, body);
-    }
 
     for (auto entry = snapshot.begin(); entry != snapshot.end();) {
         switch (entry->type) {
@@ -914,12 +829,22 @@ void NBLog::Reader::dump(int fd, size_t indent, NBLog::Reader::Snapshot &snapsho
             memcpy(&hash, &(data->hash), sizeof(hash));
             int64_t ts;
             memcpy(&ts, &data->ts, sizeof(ts));
-            performanceAnalysis.logTsEntry(ts);
+            // TODO: hash for histogram ts and audio state need to match
+            // and correspond to audio production source file location
+            mThreadPerformanceAnalysis[data->author][0 /*hash*/].logTsEntry(ts);
             ++entry;
             break;
         }
         case EVENT_AUDIO_STATE: {
-            performanceAnalysis.handleStateChange();
+            HistTsEntryWithAuthor *data = (HistTsEntryWithAuthor *) (entry->data);
+            // TODO This memcpies are here to avoid unaligned memory access crash.
+            // There's probably a more efficient way to do it
+            log_hash_t hash;
+            memcpy(&hash, &(data->hash), sizeof(hash));
+            // TODO: remove ts if unused
+            int64_t ts;
+            memcpy(&ts, &data->ts, sizeof(ts));
+            mThreadPerformanceAnalysis[data->author][0 /*hash*/].handleStateChange();
             ++entry;
             break;
         }
@@ -934,19 +859,25 @@ void NBLog::Reader::dump(int fd, size_t indent, NBLog::Reader::Snapshot &snapsho
             break;
         }
     }
-    performanceAnalysis.reportPerformance(&body);
+    // FIXME: decide whether to print the warnings here or elsewhere
     if (!body.isEmpty()) {
         dumpLine(timestamp, body);
     }
 }
 
-void NBLog::Reader::dump(int fd, size_t indent)
+void NBLog::MergeReader::getAndProcessSnapshot()
 {
-    // get a snapshot, dump it
+    // get a snapshot, process it
     std::unique_ptr<Snapshot> snap = getSnapshot();
-    dump(fd, indent, *snap);
+    getAndProcessSnapshot(*snap);
 }
 
+void NBLog::MergeReader::dump(int fd, int indent) {
+    // TODO: add a mutex around media.log dump
+    ReportPerformance::dump(fd, indent, mThreadPerformanceAnalysis);
+}
+
+// Writes a string to the console
 void NBLog::Reader::dumpLine(const String8 &timestamp, String8 &body)
 {
     if (mFd >= 0) {
@@ -1105,6 +1036,7 @@ NBLog::Merger::Merger(const void *shared, size_t size):
       {}
 
 void NBLog::Merger::addReader(const NBLog::NamedReader &reader) {
+
     // FIXME This is called by binder thread in MediaLogService::registerWriter
     //       but the access to shared variable mNamedReaders is not yet protected by a lock.
     mNamedReaders.push_back(reader);
@@ -1128,7 +1060,7 @@ bool operator>(const struct MergeItem &i1, const struct MergeItem &i2) {
     return i1.ts > i2.ts || (i1.ts == i2.ts && i1.index > i2.index);
 }
 
-// Merge registered readers, sorted by timestamp
+// Merge registered readers, sorted by timestamp, and write data to a single FIFO in local memory
 void NBLog::Merger::merge() {
     // FIXME This is called by merge thread
     //       but the access to shared variable mNamedReaders is not yet protected by a lock.
@@ -1185,8 +1117,9 @@ void NBLog::MergeReader::handleAuthor(const NBLog::AbstractEntry &entry, String8
 
 // ---------------------------------------------------------------------------
 
-NBLog::MergeThread::MergeThread(NBLog::Merger &merger)
+NBLog::MergeThread::MergeThread(NBLog::Merger &merger, NBLog::MergeReader &mergeReader)
     : mMerger(merger),
+      mMergeReader(mergeReader),
       mTimeoutUs(0) {}
 
 NBLog::MergeThread::~MergeThread() {
@@ -1208,7 +1141,12 @@ bool NBLog::MergeThread::threadLoop() {
         mTimeoutUs -= kThreadSleepPeriodUs;
     }
     if (doMerge) {
+        // Merge data from all the readers
         mMerger.merge();
+        // Process the data collected by mMerger and write it to PerformanceAnalysis
+        // FIXME: decide whether to call getAndProcessSnapshot every time
+        // or whether to have a separate thread that calls it with a lower frequency
+        mMergeReader.getAndProcessSnapshot();
     }
     return true;
 }

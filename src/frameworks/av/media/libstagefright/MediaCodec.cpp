@@ -35,7 +35,7 @@
 #include <media/IOMX.h>
 #include <media/IResourceManagerService.h>
 #include <media/MediaCodecBuffer.h>
-#include <MediaAnalyticsItem.h> // <media/MediaAnalyticsItem.h>
+#include <media/MediaAnalyticsItem.h>
 #include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/AMessage.h>
@@ -513,7 +513,6 @@ void MediaCodec::flushAnalyticsItem() {
     if (mAnalyticsItem != NULL) {
         // don't log empty records
         if (mAnalyticsItem->count() > 0) {
-            mAnalyticsItem->setFinalized(true);
             mAnalyticsItem->selfrecord();
         }
         delete mAnalyticsItem;

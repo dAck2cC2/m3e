@@ -119,6 +119,7 @@ if(ENABLE_AV_CODEC)
     ${SOURCE_PATH}/IMediaHTTPConnection.cpp
     ${SOURCE_PATH}/IStreamSource.cpp
     ${SOURCE_PATH}/IHDCP.cpp
+    ${SOURCE_PATH}/TimeCheck.cpp
     ${SOURCE_PATH}/Metadata.cpp
     ${SOURCE_PATH}/MediaScanner.cpp
     ${SOURCE_PATH}/MediaScannerClient.cpp

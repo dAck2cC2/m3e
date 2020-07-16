@@ -14,7 +14,9 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/effects/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/soundtrigger/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 
 set( ${PROJECT_NAME}_DEPLIB
 log

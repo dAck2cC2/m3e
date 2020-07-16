@@ -21,6 +21,7 @@
 #include "HwModule.h"
 #include "AudioGain.h"
 
+// M3E: add
 #include "IOProfile.h"
 
 namespace android

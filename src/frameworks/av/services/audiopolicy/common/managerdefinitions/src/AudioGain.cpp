@@ -21,7 +21,7 @@
 #ifdef VERY_VERBOSE_LOGGING
 #define ALOGVV ALOGV
 #else
-#define ALOGVV(a, ...) do { } while(0)
+#define ALOGVV(a, ...) do { } while(0) // M3E:
 #endif
 
 #include "AudioGain.h"
@@ -126,4 +126,4 @@ void AudioGain::dump(int fd, int spaces, int index) const
     write(fd, result.string(), result.size());
 }
 
-}; // namespace android
+} // namespace android

@@ -95,12 +95,12 @@ ssize_t NBAIO_Sink::writeVia(writeVia_t via, size_t total, void *user, size_t bl
                 continue;
             }
         }
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 		delete[] buffer;
 #endif
         return accumulator > 0 ? accumulator : ret;
     }
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	delete[] buffer;
 #endif
     return accumulator;
@@ -119,7 +119,7 @@ ssize_t NBAIO_Source::readVia(readVia_t via, size_t total, void *user, size_t bl
     if (block == 0 || block > maxBlock) {
         block = maxBlock;
     }
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	double* buffer = new double[((frameSize * block) + sizeof(double) - 1) / sizeof(double)];
 #else
     double buffer[((frameSize * block) + sizeof(double) - 1) / sizeof(double)];
@@ -141,12 +141,12 @@ ssize_t NBAIO_Source::readVia(readVia_t via, size_t total, void *user, size_t bl
                 continue;
             }
         }
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 		delete[] buffer;
 #endif
         return accumulator > 0 ? accumulator : ret;
     }
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	delete[] buffer;
 #endif
     return accumulator;

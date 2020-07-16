@@ -192,7 +192,7 @@ void FastMixer::onStateChange()
             // FIXME new may block for unbounded time at internal mutex of the heap
             //       implementation; it would be better to have normal mixer allocate for us
             //       to avoid blocking here and to prevent possible priority inversion
-            mMixer = new AudioMixer(frameCount, mSampleRate, FastMixerState::sMaxFastTracks);
+            mMixer = new AudioMixer(frameCount, mSampleRate);
             // FIXME See the other FIXME at FastMixer::setNBLogWriter()
             const size_t mixerFrameSize = mSinkChannelCount
                     * audio_bytes_per_sample(mMixerBufferFormat);
@@ -247,9 +247,7 @@ void FastMixer::onStateChange()
             const FastTrack* fastTrack = &current->mFastTracks[i];
             ALOG_ASSERT(fastTrack->mBufferProvider == NULL);
             if (mMixer != NULL) {
-                name = mFastTrackNames[i];
-                ALOG_ASSERT(name >= 0);
-                mMixer->deleteTrackName(name);
+                mMixer->destroy(i);
             }
 #if !LOG_NDEBUG
             mFastTrackNames[i] = -1;
@@ -267,10 +265,16 @@ void FastMixer::onStateChange()
             AudioBufferProvider *bufferProvider = fastTrack->mBufferProvider;
             ALOG_ASSERT(bufferProvider != NULL && mFastTrackNames[i] == -1);
             if (mMixer != NULL) {
-                name = mMixer->getTrackName(fastTrack->mChannelMask,
+                /*const int*/ name = i; // for clarity, choose name as fast track index.
+                status_t status = mMixer->create(
+                        name,
+                        fastTrack->mChannelMask,
                         fastTrack->mFormat, AUDIO_SESSION_OUTPUT_MIX);
-                ALOG_ASSERT(name >= 0);
-                mFastTrackNames[i] = name;
+                LOG_ALWAYS_FATAL_IF(status != NO_ERROR,
+                        "%s: cannot create track name"
+                        " %d, mask %#x, format %#x, sessionId %d in AudioMixer",
+                        __func__, name,
+                        fastTrack->mChannelMask, fastTrack->mFormat, AUDIO_SESSION_OUTPUT_MIX);
                 mMixer->setBufferProvider(name, bufferProvider);
                 mMixer->setParameter(name, AudioMixer::TRACK, AudioMixer::MAIN_BUFFER,
                         (void *)mMixerBuffer);

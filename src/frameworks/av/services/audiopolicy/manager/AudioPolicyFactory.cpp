@@ -24,9 +24,9 @@ extern "C" AudioPolicyInterface* createAudioPolicyManager(
     return new AudioPolicyManager(clientInterface);
 }
 
-extern "C" void destroyAudioPolicyManager(AudioPolicyInterface *_interface)
+extern "C" void destroyAudioPolicyManager(AudioPolicyInterface *_interface) // M3E:
 {
     delete _interface;
 }
 
-}; // namespace android
+} // namespace android

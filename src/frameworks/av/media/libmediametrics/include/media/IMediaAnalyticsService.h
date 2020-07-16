@@ -29,7 +29,7 @@
 
 #include <binder/IServiceManager.h>
 
-#include <MediaAnalyticsItem.h> // <media/MediaAnalyticsItem.h>
+#include <media/MediaAnalyticsItem.h>
 // nope...#include <media/MediaAnalytics.h>
 
 namespace android {

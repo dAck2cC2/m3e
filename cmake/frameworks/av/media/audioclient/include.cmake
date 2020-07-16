@@ -6,3 +6,6 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libaudioclie
 
 # for VolumeShaper.h which is included by IAudioTrack.h
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/include)
+
+# for IAudioRecord.h
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/intermediate/frameworks/av/media/libaudioclient/aidl)

@@ -28,6 +28,8 @@
 
 namespace android {
 
+using media::VolumeShaper;
+
 enum {
     GET_CBLK = IBinder::FIRST_CALL_TRANSACTION,
     START,
@@ -155,7 +157,7 @@ public:
         status_t status = configuration.get() == nullptr
                 ? data.writeInt32(0)
                 :  data.writeInt32(1)
-                    ? -1 : configuration->writeToParcel(&data);
+                    ?: configuration->writeToParcel(&data);
         if (status != NO_ERROR) {
             return VolumeShaper::Status(status);
         }
@@ -163,16 +165,16 @@ public:
         status = operation.get() == nullptr
                 ? status = data.writeInt32(0)
                 : data.writeInt32(1)
-                    ? -1 : operation->writeToParcel(&data);
+                    ? -1 : operation->writeToParcel(&data); // M3E:
         if (status != NO_ERROR) {
             return VolumeShaper::Status(status);
         }
 
         int32_t remoteVolumeShaperStatus;
         status = remote()->transact(APPLY_VOLUME_SHAPER, data, &reply)
-                 ? -1 : reply.readInt32(&remoteVolumeShaperStatus);
+                 ? -1 : reply.readInt32(&remoteVolumeShaperStatus); // M3E:
 
-        return VolumeShaper::Status(status ? -1 : remoteVolumeShaperStatus);
+        return VolumeShaper::Status(status ? -1 : remoteVolumeShaperStatus); // M3E:
     }
 
     virtual sp<VolumeShaper::State> getVolumeShaperState(int id) {
@@ -185,7 +187,7 @@ public:
             return nullptr;
         }
         sp<VolumeShaper::State> state = new VolumeShaper::State;
-        status = state->readFromParcel(reply);
+        status = state->readFromParcel(&reply);
         if (status != NO_ERROR) {
             return nullptr;
         }
@@ -263,12 +265,12 @@ status_t BnAudioTrack::onTransact(
             status_t status = data.readInt32(&present);
             if (status == NO_ERROR && present != 0) {
                 configuration = new VolumeShaper::Configuration();
-                status = configuration->readFromParcel(data);
+                status = configuration->readFromParcel(&data);
             }
-            status = status ? -1 : data.readInt32(&present);
+            status = status ?: data.readInt32(&present);
             if (status == NO_ERROR && present != 0) {
                 operation = new VolumeShaper::Operation();
-                status = operation->readFromParcel(data);
+                status = operation->readFromParcel(&data);
             }
             if (status == NO_ERROR) {
                 status = (status_t)applyVolumeShaper(configuration, operation);

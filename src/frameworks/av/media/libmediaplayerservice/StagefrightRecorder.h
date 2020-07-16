@@ -18,7 +18,7 @@
 
 #define STAGEFRIGHT_RECORDER_H_
 
-#include <MediaAnalyticsItem.h> // <media/MediaAnalyticsItem.h>
+#include <media/MediaAnalyticsItem.h>
 #include <media/MediaRecorderBase.h>
 #include <camera/CameraParameters.h>
 #include <utils/String8.h>

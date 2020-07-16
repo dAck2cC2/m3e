@@ -24,7 +24,7 @@ namespace android {
 class StreamInHalInterface;
 
 // not multi-thread safe
-class ANDROID_API_NBAIO AudioStreamInSource : public NBAIO_Source {
+class ANDROID_API_NBAIO AudioStreamInSource : public NBAIO_Source { // M3E:
 
 public:
     AudioStreamInSource(sp<StreamInHalInterface> stream);

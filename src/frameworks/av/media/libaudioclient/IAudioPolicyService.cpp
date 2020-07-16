@@ -22,11 +22,13 @@
 #include <math.h>
 #include <sys/types.h>
 
+#include <binder/IPCThreadState.h>
 #include <binder/Parcel.h>
-
+#include <cutils/multiuser.h>
 #include <media/AudioEffect.h>
 #include <media/IAudioPolicyService.h>
-
+#include <media/TimeCheck.h>
+#include <private/android_filesystem_config.h>
 #include <system/audio.h>
 
 namespace android {
@@ -78,7 +80,9 @@ enum {
     SET_AUDIO_PORT_CALLBACK_ENABLED,
     SET_MASTER_MONO,
     GET_MASTER_MONO,
-    GET_STREAM_VOLUME_DB
+    GET_STREAM_VOLUME_DB,
+    GET_SURROUND_FORMATS,
+    SET_SURROUND_FORMAT_ENABLED
 };
 
 #define MAX_ITEMS_PER_LIST 1024
@@ -160,28 +164,11 @@ public:
         return static_cast <audio_policy_forced_cfg_t> (reply.readInt32());
     }
 
-    virtual audio_io_handle_t getOutput(
-                                        audio_stream_type_t stream,
-                                        uint32_t samplingRate,
-                                        audio_format_t format,
-                                        audio_channel_mask_t channelMask,
-                                        audio_output_flags_t flags,
-                                        const audio_offload_info_t *offloadInfo)
+    virtual audio_io_handle_t getOutput(audio_stream_type_t stream)
     {
         Parcel data, reply;
         data.writeInterfaceToken(IAudioPolicyService::getInterfaceDescriptor());
         data.writeInt32(static_cast <uint32_t>(stream));
-        data.writeInt32(samplingRate);
-        data.writeInt32(static_cast <uint32_t>(format));
-        data.writeInt32(channelMask);
-        data.writeInt32(static_cast <uint32_t>(flags));
-        // hasOffloadInfo
-        if (offloadInfo == NULL) {
-            data.writeInt32(0);
-        } else {
-            data.writeInt32(1);
-            data.write(offloadInfo, sizeof(audio_offload_info_t));
-        }
         remote()->transact(GET_OUTPUT, data, &reply);
         return static_cast <audio_io_handle_t> (reply.readInt32());
     }
@@ -190,6 +177,7 @@ public:
                                         audio_io_handle_t *output,
                                         audio_session_t session,
                                         audio_stream_type_t *stream,
+                                        pid_t pid,
                                         uid_t uid,
                                         const audio_config_t *config,
                                         audio_output_flags_t flags,
@@ -233,6 +221,7 @@ public:
                 data.writeInt32(1);
                 data.writeInt32(*stream);
             }
+            data.writeInt32(pid);
             data.writeInt32(uid);
             data.write(config, sizeof(audio_config_t));
             data.writeInt32(static_cast <uint32_t>(flags));
@@ -299,6 +288,7 @@ public:
                                      audio_session_t session,
                                      pid_t pid,
                                      uid_t uid,
+                                     const String16& opPackageName,
                                      const audio_config_base_t *config,
                                      audio_input_flags_t flags,
                                      audio_port_handle_t *selectedDeviceId,
@@ -327,6 +317,7 @@ public:
         data.writeInt32(session);
         data.writeInt32(pid);
         data.writeInt32(uid);
+        data.writeString16(opPackageName);
         data.write(config, sizeof(audio_config_base_t));
         data.writeInt32(flags);
         data.writeInt32(*selectedDeviceId);
@@ -345,35 +336,33 @@ public:
         return NO_ERROR;
     }
 
-    virtual status_t startInput(audio_io_handle_t input,
-                                audio_session_t session)
+    virtual status_t startInput(audio_port_handle_t portId,
+                                bool *silenced)
     {
         Parcel data, reply;
         data.writeInterfaceToken(IAudioPolicyService::getInterfaceDescriptor());
-        data.writeInt32(input);
-        data.writeInt32(session);
+        data.writeInt32(portId);
+        data.writeInt32(*silenced ? 1 : 0);
         remote()->transact(START_INPUT, data, &reply);
-        return static_cast <status_t> (reply.readInt32());
+        status_t status = static_cast <status_t> (reply.readInt32());
+        *silenced = reply.readInt32() == 1;
+        return status;
     }
 
-    virtual status_t stopInput(audio_io_handle_t input,
-                               audio_session_t session)
+    virtual status_t stopInput(audio_port_handle_t portId)
     {
         Parcel data, reply;
         data.writeInterfaceToken(IAudioPolicyService::getInterfaceDescriptor());
-        data.writeInt32(input);
-        data.writeInt32(session);
+        data.writeInt32(portId);
         remote()->transact(STOP_INPUT, data, &reply);
         return static_cast <status_t> (reply.readInt32());
     }
 
-    virtual void releaseInput(audio_io_handle_t input,
-                              audio_session_t session)
+    virtual void releaseInput(audio_port_handle_t portId)
     {
         Parcel data, reply;
         data.writeInterfaceToken(IAudioPolicyService::getInterfaceDescriptor());
-        data.writeInt32(input);
-        data.writeInt32(session);
+        data.writeInt32(portId);
         remote()->transact(RELEASE_INPUT, data, &reply);
     }
 
@@ -842,16 +831,127 @@ public:
         }
         return reply.readFloat();
     }
+
+    virtual status_t getSurroundFormats(unsigned int *numSurroundFormats,
+                                        audio_format_t *surroundFormats,
+                                        bool *surroundFormatsEnabled,
+                                        bool reported)
+    {
+        if (numSurroundFormats == NULL || (*numSurroundFormats != 0 &&
+                (surroundFormats == NULL || surroundFormatsEnabled == NULL))) {
+            return BAD_VALUE;
+        }
+        Parcel data, reply;
+        data.writeInterfaceToken(IAudioPolicyService::getInterfaceDescriptor());
+        unsigned int numSurroundFormatsReq = *numSurroundFormats;
+        data.writeUint32(numSurroundFormatsReq);
+        data.writeBool(reported);
+        status_t status = remote()->transact(GET_SURROUND_FORMATS, data, &reply);
+        if (status == NO_ERROR && (status = (status_t)reply.readInt32()) == NO_ERROR) {
+            *numSurroundFormats = reply.readUint32();
+        }
+        if (status == NO_ERROR) {
+            if (numSurroundFormatsReq > *numSurroundFormats) {
+                numSurroundFormatsReq = *numSurroundFormats;
+            }
+            if (numSurroundFormatsReq > 0) {
+                status = reply.read(surroundFormats,
+                                    numSurroundFormatsReq * sizeof(audio_format_t));
+                if (status != NO_ERROR) {
+                    return status;
+                }
+                status = reply.read(surroundFormatsEnabled,
+                                    numSurroundFormatsReq * sizeof(bool));
+            }
+        }
+        return status;
+    }
+
+    virtual status_t setSurroundFormatEnabled(audio_format_t audioFormat, bool enabled)
+    {
+        Parcel data, reply;
+        data.writeInterfaceToken(IAudioPolicyService::getInterfaceDescriptor());
+        data.writeInt32(audioFormat);
+        data.writeBool(enabled);
+        status_t status = remote()->transact(SET_SURROUND_FORMAT_ENABLED, data, &reply);
+        if (status != NO_ERROR) {
+            return status;
+        }
+        return reply.readInt32();
+    }
 };
 
 IMPLEMENT_META_INTERFACE(AudioPolicyService, "android.media.IAudioPolicyService");
 
 // ----------------------------------------------------------------------
 
-
 status_t BnAudioPolicyService::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
+    // make sure transactions reserved to AudioFlinger do not come from other processes
+    switch (code) {
+        case START_OUTPUT:
+        case STOP_OUTPUT:
+        case RELEASE_OUTPUT:
+        case GET_INPUT_FOR_ATTR:
+        case START_INPUT:
+        case STOP_INPUT:
+        case RELEASE_INPUT:
+        case GET_STRATEGY_FOR_STREAM:
+        case GET_OUTPUT_FOR_EFFECT:
+        case REGISTER_EFFECT:
+        case UNREGISTER_EFFECT:
+        case SET_EFFECT_ENABLED:
+        case GET_OUTPUT_FOR_ATTR:
+        case ACQUIRE_SOUNDTRIGGER_SESSION:
+        case RELEASE_SOUNDTRIGGER_SESSION:
+#if 0 // M3E: it stops above important calls
+            ALOGW("%s: transaction %d received from PID %d",
+                  __func__, code, IPCThreadState::self()->getCallingPid());
+            // return status only for non void methods
+            switch (code) {
+                case RELEASE_OUTPUT:
+                case RELEASE_INPUT:
+                    break;
+                default:
+                    reply->writeInt32(static_cast<int32_t> (INVALID_OPERATION));
+                    break;
+            }
+            return OK;
+#endif
+        default:
+            break;
+    }
+
+    // make sure the following transactions come from system components
+    switch (code) {
+        case SET_DEVICE_CONNECTION_STATE:
+        case HANDLE_DEVICE_CONFIG_CHANGE:
+        case SET_PHONE_STATE:
+//FIXME: Allow SET_FORCE_USE calls from system apps until a better use case routing API is available
+//      case SET_FORCE_USE:
+        case INIT_STREAM_VOLUME:
+        case SET_STREAM_VOLUME:
+        case REGISTER_POLICY_MIXES:
+        case SET_MASTER_MONO:
+        case START_AUDIO_SOURCE:
+        case STOP_AUDIO_SOURCE:
+        case GET_SURROUND_FORMATS:
+        case SET_SURROUND_FORMAT_ENABLED: {
+            if (multiuser_get_app_id(IPCThreadState::self()->getCallingUid()) >= AID_APP_START) {
+                ALOGW("%s: transaction %d received from PID %d unauthorized UID %d",
+                      __func__, code, IPCThreadState::self()->getCallingPid(),
+                      IPCThreadState::self()->getCallingUid());
+                reply->writeInt32(static_cast<int32_t> (INVALID_OPERATION));
+                return OK;
+            }
+        } break;
+        default:
+            break;
+    }
+
+    TimeCheck check("IAudioPolicyService");
+
     switch (code) {
         case SET_DEVICE_CONNECTION_STATE: {
             CHECK_INTERFACE(IAudioPolicyService, data, reply);
@@ -934,22 +1034,7 @@ status_t BnAudioPolicyService::onTransact(
             CHECK_INTERFACE(IAudioPolicyService, data, reply);
             audio_stream_type_t stream =
                     static_cast <audio_stream_type_t>(data.readInt32());
-            uint32_t samplingRate = data.readInt32();
-            audio_format_t format = (audio_format_t) data.readInt32();
-            audio_channel_mask_t channelMask = data.readInt32();
-            audio_output_flags_t flags =
-                    static_cast <audio_output_flags_t>(data.readInt32());
-            bool hasOffloadInfo = data.readInt32() != 0;
-            audio_offload_info_t offloadInfo = {};
-            if (hasOffloadInfo) {
-                data.read(&offloadInfo, sizeof(audio_offload_info_t));
-            }
-            audio_io_handle_t output = getOutput(stream,
-                                                 samplingRate,
-                                                 format,
-                                                 channelMask,
-                                                 flags,
-                                                 hasOffloadInfo ? &offloadInfo : NULL);
+            audio_io_handle_t output = getOutput(stream);
             reply->writeInt32(static_cast <int>(output));
             return NO_ERROR;
         } break;
@@ -968,6 +1053,7 @@ status_t BnAudioPolicyService::onTransact(
             if (hasStream) {
                 stream = (audio_stream_type_t)data.readInt32();
             }
+            pid_t pid = (pid_t)data.readInt32();
             uid_t uid = (uid_t)data.readInt32();
             audio_config_t config;
             memset(&config, 0, sizeof(audio_config_t));
@@ -978,7 +1064,7 @@ status_t BnAudioPolicyService::onTransact(
             audio_port_handle_t portId = (audio_port_handle_t)data.readInt32();
             audio_io_handle_t output = 0;
             status_t status = getOutputForAttr(hasAttributes ? &attr : NULL,
-                    &output, session, &stream, uid,
+                    &output, session, &stream, pid, uid,
                     &config,
                     flags, &selectedDeviceId, &portId);
             reply->writeInt32(status);
@@ -1031,6 +1117,7 @@ status_t BnAudioPolicyService::onTransact(
             audio_session_t session = (audio_session_t)data.readInt32();
             pid_t pid = (pid_t)data.readInt32();
             uid_t uid = (uid_t)data.readInt32();
+            const String16 opPackageName = data.readString16();
             audio_config_base_t config;
             memset(&config, 0, sizeof(audio_config_base_t));
             data.read(&config, sizeof(audio_config_base_t));
@@ -1038,7 +1125,7 @@ status_t BnAudioPolicyService::onTransact(
             audio_port_handle_t selectedDeviceId = (audio_port_handle_t) data.readInt32();
             audio_port_handle_t portId = (audio_port_handle_t)data.readInt32();
             status_t status = getInputForAttr(&attr, &input, session, pid, uid,
-                                              &config,
+                                              opPackageName, &config,
                                               flags, &selectedDeviceId, &portId);
             reply->writeInt32(status);
             if (status == NO_ERROR) {
@@ -1051,25 +1138,25 @@ status_t BnAudioPolicyService::onTransact(
 
         case START_INPUT: {
             CHECK_INTERFACE(IAudioPolicyService, data, reply);
-            audio_io_handle_t input = static_cast <audio_io_handle_t>(data.readInt32());
-            audio_session_t session = static_cast <audio_session_t>(data.readInt32());
-            reply->writeInt32(static_cast <uint32_t>(startInput(input, session)));
+            audio_port_handle_t portId = static_cast <audio_port_handle_t>(data.readInt32());
+            bool silenced = data.readInt32() == 1;
+            status_t status = startInput(portId, &silenced);
+            reply->writeInt32(static_cast <uint32_t>(status));
+            reply->writeInt32(silenced ? 1 : 0);
             return NO_ERROR;
         } break;
 
         case STOP_INPUT: {
             CHECK_INTERFACE(IAudioPolicyService, data, reply);
-            audio_io_handle_t input = static_cast <audio_io_handle_t>(data.readInt32());
-            audio_session_t session = static_cast <audio_session_t>(data.readInt32());
-            reply->writeInt32(static_cast <uint32_t>(stopInput(input, session)));
+            audio_port_handle_t portId = static_cast <audio_port_handle_t>(data.readInt32());
+            reply->writeInt32(static_cast <uint32_t>(stopInput(portId)));
             return NO_ERROR;
         } break;
 
         case RELEASE_INPUT: {
             CHECK_INTERFACE(IAudioPolicyService, data, reply);
-            audio_io_handle_t input = static_cast <audio_io_handle_t>(data.readInt32());
-            audio_session_t session = static_cast <audio_session_t>(data.readInt32());
-            releaseInput(input, session);
+            audio_port_handle_t portId = static_cast <audio_port_handle_t>(data.readInt32());
+            releaseInput(portId);
             return NO_ERROR;
         } break;
 
@@ -1453,6 +1540,50 @@ status_t BnAudioPolicyService::onTransact(
             audio_devices_t device =
                     static_cast <audio_devices_t>(data.readUint32());
             reply->writeFloat(getStreamVolumeDB(stream, index, device));
+            return NO_ERROR;
+        }
+
+        case GET_SURROUND_FORMATS: {
+            CHECK_INTERFACE(IAudioPolicyService, data, reply);
+            unsigned int numSurroundFormatsReq = data.readUint32();
+            if (numSurroundFormatsReq > MAX_ITEMS_PER_LIST) {
+                numSurroundFormatsReq = MAX_ITEMS_PER_LIST;
+            }
+            bool reported = data.readBool();
+            unsigned int numSurroundFormats = numSurroundFormatsReq;
+            audio_format_t *surroundFormats = (audio_format_t *)calloc(
+                    numSurroundFormats, sizeof(audio_format_t));
+            bool *surroundFormatsEnabled = (bool *)calloc(numSurroundFormats, sizeof(bool));
+            if (numSurroundFormatsReq > 0 &&
+                    (surroundFormats == NULL || surroundFormatsEnabled == NULL)) {
+                free(surroundFormats);
+                free(surroundFormatsEnabled);
+                reply->writeInt32(NO_MEMORY);
+                return NO_ERROR;
+            }
+            status_t status = getSurroundFormats(
+                    &numSurroundFormats, surroundFormats, surroundFormatsEnabled, reported);
+            reply->writeInt32(status);
+
+            if (status == NO_ERROR) {
+                reply->writeUint32(numSurroundFormats);
+                if (numSurroundFormatsReq > numSurroundFormats) {
+                    numSurroundFormatsReq = numSurroundFormats;
+                }
+                reply->write(surroundFormats, numSurroundFormatsReq * sizeof(audio_format_t));
+                reply->write(surroundFormatsEnabled, numSurroundFormatsReq * sizeof(bool));
+            }
+            free(surroundFormats);
+            free(surroundFormatsEnabled);
+            return NO_ERROR;
+        }
+
+        case SET_SURROUND_FORMAT_ENABLED: {
+            CHECK_INTERFACE(IAudioPolicyService, data, reply);
+            audio_format_t audioFormat = (audio_format_t) data.readInt32();
+            bool enabled = data.readBool();
+            status_t status = setSurroundFormatEnabled(audioFormat, enabled);
+            reply->writeInt32(status);
             return NO_ERROR;
         }
 

@@ -29,8 +29,8 @@
 #include <utils/Log.h>
 #include <utils/String8.h>
 
-#include <MediaAnalyticsItem.h>     // <media/MediaAnalyticsItem.h>
-#include <IMediaAnalyticsService.h> // <media/IMediaAnalyticsService.h>
+#include <media/MediaAnalyticsItem.h>
+#include <media/IMediaAnalyticsService.h>
 
 #define DEBUGGING               0
 #define DEBUGGING_FLOW          0

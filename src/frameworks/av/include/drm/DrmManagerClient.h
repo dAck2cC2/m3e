@@ -39,7 +39,7 @@ class DrmManagerClientImpl;
  * services through this class.
  *
  */
-class ANDROID_API_DRMFW DrmManagerClient {
+class ANDROID_API_DRMFW DrmManagerClient { // M3E: MSVC export
 public:
     DrmManagerClient();
 
@@ -381,7 +381,7 @@ public:
 
 private:
     int mUniqueId;
-#if !defined(ENABLE_CUSTOMISE)
+#if !defined(ENABLE_CUSTOMISE) // M3E:
     sp<DrmManagerClientImpl> mDrmManagerClientImpl;
 #endif // ENABLE_CUSTOMISE
 };

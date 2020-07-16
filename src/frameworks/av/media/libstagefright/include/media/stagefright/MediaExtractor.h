@@ -20,7 +20,7 @@
 
 #include <media/IMediaExtractor.h>
 #include <media/IMediaSource.h>
-#include <MediaAnalyticsItem.h> // <media/MediaAnalyticsItem.h>
+#include <media/MediaAnalyticsItem.h>
 
 namespace android {
 class DataSource;

@@ -38,7 +38,7 @@
 #include <binder/IServiceManager.h>
 #include <binder/MemoryDealer.h>
 
-#include <MediaAnalyticsItem.h> // <media/MediaAnalyticsItem.h>
+#include <media/MediaAnalyticsItem.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/AMessage.h>
 #include <media/stagefright/DataSource.h>
@@ -91,7 +91,6 @@ MediaExtractor::~MediaExtractor() {
     if (MEDIA_LOG) {
         if (mAnalyticsItem != NULL) {
             if (mAnalyticsItem->count() > 0) {
-                mAnalyticsItem->setFinalized(true);
                 mAnalyticsItem->selfrecord();
             }
         }

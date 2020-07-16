@@ -21,7 +21,7 @@
 #ifdef VERY_VERBOSE_LOGGING
 #define ALOGVV ALOGV
 #else
-#define ALOGVV(a, ...) do { } while(0)
+#define ALOGVV(a, ...) do { } while(0) // M3E:
 #endif
 
 #include "StreamDescriptor.h"
@@ -223,4 +223,4 @@ status_t StreamDescriptorCollection::dump(int fd) const
     return NO_ERROR;
 }
 
-}; // namespace android
+} // namespace android
