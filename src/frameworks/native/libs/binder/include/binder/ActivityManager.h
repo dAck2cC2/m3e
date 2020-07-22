@@ -26,7 +26,7 @@
 // ---------------------------------------------------------------------------
 namespace android {
 
-class ActivityManager
+class ANDROID_API_BINDER ActivityManager // M3E: MSVC export
 {
 public:
 

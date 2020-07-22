@@ -1029,7 +1029,7 @@ PSNIP_SAFE_DEFINE_UNSIGNED_MOD(psnip_uint64_t, uint64, 0xffffffffffffffffULL)
 #  define __builtin_uaddl_overflow(a, b, res)  psnip_safe_ulong_add(res, a, b)
 #  define __builtin_uaddll_overflow(a, b, res) psnip_safe_ullong_add(res, a, b)
 #if defined(PSNIP_SAFE_HAVE_INTSAFE_H)
-#  define __builtin_szadd_overflow(a, b, res)   psnip_safe_size_add(res, a, b)
+#  define __builtin_szadd_overflow(a, b, res)   psnip_safe_size_add((size_t*)(res), a, b)
 #  define __builtin_add_overflow __builtin_szadd_overflow
 #else
 #  define __builtin_add_overflow __builtin_uadd_overflow
@@ -1041,6 +1041,12 @@ PSNIP_SAFE_DEFINE_UNSIGNED_MOD(psnip_uint64_t, uint64, 0xffffffffffffffffULL)
 #  define __builtin_usub_overflow(a, b, res)   psnip_safe_uint_sub(res, a, b)
 #  define __builtin_usubl_overflow(a, b, res)  psnip_safe_ulong_sub(res, a, b)
 #  define __builtin_usubll_overflow(a, b, res) psnip_safe_ullong_sub(res, a, b)
+#if defined(PSNIP_SAFE_HAVE_INTSAFE_H)
+#  define __builtin_szsub_overflow(a, b, res)  psnip_safe_size_sub((size_t*)(res), a, b)
+#  define __builtin_sub_overflow __builtin_szsub_overflow
+#else
+#  define __builtin_sub_overflow __builtin_usub_overflow
+#endif
 
 #  define __builtin_smul_overflow(a, b, res)   psnip_safe_int_mul(res, a, b)
 #  define __builtin_smull_overflow(a, b, res)  psnip_safe_long_mul(res, a, b)

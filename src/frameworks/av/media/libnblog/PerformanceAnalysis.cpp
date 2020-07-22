@@ -44,6 +44,10 @@
 #include <queue>
 #include <utility>
 
+#if defined(_MSC_VER) // M3E:
+#define dprintf(a, ...)  do { } while(0)
+#endif // _MSC_VER
+
 namespace android {
 
 namespace ReportPerformance {

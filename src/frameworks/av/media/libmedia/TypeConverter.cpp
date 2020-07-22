@@ -445,4 +445,86 @@ OutputChannelTraits::Collection outputChannelMasksFromString(
     return outputChannelMaskCollection;
 }
 
+#if defined(_MSC_VER) // M3E: MSVC linking error
+
+template <class Traits>
+bool TypeConverter<Traits>::toString(const typename Traits::Type& value, std::string& str)
+{
+    for (size_t i = 0; mTable[i].literal; i++) {
+        if (mTable[i].value == value) {
+            str = mTable[i].literal;
+            return true;
+        }
+    }
+    char result[64];
+    snprintf(result, sizeof(result), "Unknown enum value %d", value);
+    str = result;
+    return false;
+}
+
+template <class Traits>
+bool TypeConverter<Traits>::fromString(const std::string& str, typename Traits::Type& result)
+{
+    for (size_t i = 0; mTable[i].literal; i++) {
+        if (strcmp(mTable[i].literal, str.c_str()) == 0) {
+            ALOGV("stringToEnum() found %s", mTable[i].literal);
+            result = mTable[i].value;
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class Traits>
+void TypeConverter<Traits>::collectionFromString(const std::string& str,
+    typename Traits::Collection& collection,
+    const char* del)
+{
+    char* literal = strdup(str.c_str());
+
+    for (const char* cstr = strtok(literal, del); cstr != NULL; cstr = strtok(NULL, del)) {
+        typename Traits::Type value;
+        if (fromString(cstr, value)) {
+            collection.add(value);
+        }
+    }
+    free(literal);
+}
+
+template <class Traits>
+uint32_t TypeConverter<Traits>::maskFromString(const std::string& str, const char* del)
+{
+    char* literal = strdup(str.c_str());
+    uint32_t value = 0;
+    for (const char* cstr = strtok(literal, del); cstr != NULL; cstr = strtok(NULL, del)) {
+        typename Traits::Type type;
+        if (fromString(cstr, type)) {
+            value |= static_cast<uint32_t>(type);
+        }
+    }
+    free(literal);
+    return value;
+}
+
+template <class Traits>
+void TypeConverter<Traits>::maskToString(uint32_t mask, std::string& str, const char* del)
+{
+    if (mask != 0) {
+        bool first_flag = true;
+        for (size_t i = 0; mTable[i].literal; i++) {
+            uint32_t value = static_cast<uint32_t>(mTable[i].value);
+            if (mTable[i].value != 0 && ((mask & value) == value)) {
+                if (!first_flag) str += del;
+                first_flag = false;
+                str += mTable[i].literal;
+            }
+        }
+    }
+    else {
+        toString(static_cast<typename Traits::Type>(0), str);
+    }
+}
+
+#endif // _MSC_VER
+
 }; // namespace android

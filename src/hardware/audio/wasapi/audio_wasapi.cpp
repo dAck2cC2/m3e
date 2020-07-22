@@ -446,7 +446,7 @@ public:
 
 	const audio_config_t& getConfig() const { return config; };
 	const unsigned int getBufferSize() const { return (UpdateSize * NumUpdates); };
-	const unsigned int getLatency() const { return 0; };
+	const unsigned int getLatency() const { return (UpdateSize * NumUpdates * 1000) / config.sample_rate; };
 
 private:
 	audio_config_t        config;

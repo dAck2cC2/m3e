@@ -26,7 +26,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class IUidObserver : public IInterface
+class ANDROID_API_BINDER IUidObserver : public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(UidObserver)
@@ -44,7 +44,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-class BnUidObserver : public BnInterface<IUidObserver>
+class ANDROID_API_BINDER BnUidObserver : public BnInterface<IUidObserver> // M3E: MSVC export
 {
 public:
     virtual status_t  onTransact(uint32_t code,

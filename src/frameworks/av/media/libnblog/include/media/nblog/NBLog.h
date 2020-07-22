@@ -31,6 +31,10 @@
 #include <utils/Mutex.h>
 #include <utils/threads.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <memory>
+#endif
+
 namespace android {
 
 class String8;
@@ -293,7 +297,7 @@ public:
 
     // FIXME Timeline was intended to wrap Writer and Reader, but isn't actually used yet.
     // For now it is just a namespace for sharedSize().
-    class Timeline : public RefBase {
+    class ANDROID_API_NBLOG Timeline : public RefBase { // M3E:
     public:
 #if 0
         Timeline(size_t size, void *shared = NULL);
@@ -319,7 +323,7 @@ public:
 
     // Writer is thread-safe with respect to Reader, but not with respect to multiple threads
     // calling Writer methods.  If you need multi-thread safety for writing, use LockedWriter.
-    class Writer : public RefBase {
+    class ANDROID_API_NBLOG Writer : public RefBase { // M3E:
     public:
         Writer();                   // dummy nop implementation without shared memory
 
@@ -490,7 +494,11 @@ public:
         NamedReader() { mName[0] = '\0'; } // for Vector
         NamedReader(const sp<NBLog::Reader>& reader, const char *name) :
             mReader(reader)
+#if defined(_MSC_VER) // M3E:
+            { strncpy(mName, name, sizeof(mName)); }
+#else
             { strlcpy(mName, name, sizeof(mName)); }
+#endif
         ~NamedReader() { }
         const sp<NBLog::Reader>&  reader() const { return mReader; }
         const char*               name() const { return mName; }

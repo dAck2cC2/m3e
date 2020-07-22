@@ -20,9 +20,13 @@
 #include <private/media/AudioTrackShared.h>
 #include <utils/Log.h>
 
-#if ENABLE_FUTEX // M3E:
+#if ENABLE_FUTEX // M3E: No Futex
 #include <linux/futex.h>
 #include <sys/syscall.h>
+#endif
+
+#if defined(_MSC_VER) // M3E: add
+#include <safe-math/safe-math.h> // __builtin_add_overflow
 #endif
 
 namespace android {

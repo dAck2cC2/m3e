@@ -254,8 +254,10 @@ typedef uint64_t  uintmax_t;
 // define pid_t
 typedef int pid_t;
 
-// define uid_t
+// define uid_t gid_t
 typedef unsigned int uid_t;
+typedef unsigned int gid_t;
+
 
 // define off64_t
 typedef int64_t off64_t;

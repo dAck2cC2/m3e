@@ -66,7 +66,9 @@ void writeToFile(const std::deque<std::pair<timestamp, Histogram>> &hists,
     struct timeval tv;
     gettimeofday(&tv, NULL);
     struct tm tm;
+#if !defined(_MSC_VER) // M3E: implement it when we really need it
     localtime_r(&tv.tv_sec, &tm);
+#endif
     strftime(currTime, sizeof(currTime), "%Y%m%d%H%M%S", &tm);
 
     // generate file names

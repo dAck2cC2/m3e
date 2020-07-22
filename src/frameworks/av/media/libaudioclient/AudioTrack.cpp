@@ -159,10 +159,12 @@ status_t AudioTrack::getMinFrameCount(
 // ---------------------------------------------------------------------------
 
 static std::string audioContentTypeString(audio_content_type_t value) {
+#if !defined(_MSC_VER) // M3E: No idea why only AudioContentTypeConverter failed ???
     std::string contentType;
     if (AudioContentTypeConverter::toString(value, contentType)) {
         return contentType;
     }
+#endif
     char rawbuffer[16];  // room for "%d"
     snprintf(rawbuffer, sizeof(rawbuffer), "%d", value);
     return rawbuffer;

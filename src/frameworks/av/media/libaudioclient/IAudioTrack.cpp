@@ -157,7 +157,7 @@ public:
         status_t status = configuration.get() == nullptr
                 ? data.writeInt32(0)
                 :  data.writeInt32(1)
-                    ?: configuration->writeToParcel(&data);
+                    ? -1 : configuration->writeToParcel(&data); // M3E:
         if (status != NO_ERROR) {
             return VolumeShaper::Status(status);
         }
@@ -267,7 +267,7 @@ status_t BnAudioTrack::onTransact(
                 configuration = new VolumeShaper::Configuration();
                 status = configuration->readFromParcel(&data);
             }
-            status = status ?: data.readInt32(&present);
+            status = status ? status : data.readInt32(&present);
             if (status == NO_ERROR && present != 0) {
                 operation = new VolumeShaper::Operation();
                 status = operation->readFromParcel(&data);

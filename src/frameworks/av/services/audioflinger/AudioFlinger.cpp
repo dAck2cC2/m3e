@@ -777,7 +777,7 @@ sp<IAudioTrack> AudioFlinger::createTrack(const CreateTrackInput& input,
                                       input.notificationsPerBuffer, input.speed,
                                       input.sharedBuffer, sessionId, &output.flags,
                                       input.clientInfo.clientTid, clientUid, &lStatus, portId);
-        LOG_ALWAYS_FATAL_IF((lStatus == NO_ERROR) && (track == 0));
+        LOG_ALWAYS_FATAL_IF((lStatus == NO_ERROR) && (track == 0), "_MSC_VER"); // M3E:
         // we don't abort yet if lStatus != NO_ERROR; there is still work to be done regardless
 
         output.afFrameCount = thread->frameCount();
@@ -1747,7 +1747,7 @@ sp<media::IAudioRecord> AudioFlinger::createRecord(const CreateRecordInput& inpu
                                                   input.clientInfo.clientTid,
                                                   &lStatus, portId,
                                                   input.opPackageName);
-        LOG_ALWAYS_FATAL_IF((lStatus == NO_ERROR) && (recordTrack == 0));
+        LOG_ALWAYS_FATAL_IF((lStatus == NO_ERROR) && (recordTrack == 0), "_MSC_VER"); // M3E:
 
         // lStatus == BAD_TYPE means FAST flag was rejected: request a new input from
         // audio policy manager without FAST constraint

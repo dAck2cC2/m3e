@@ -8,7 +8,7 @@ namespace android {
 
 namespace media {
 
-class BnAudioRecord : public ::android::BnInterface<IAudioRecord> {
+class ANDROID_API_AUDIOCLIENT BnAudioRecord : public ::android::BnInterface<IAudioRecord> { // M3E: MSVC export
 public:
 ::android::status_t onTransact(uint32_t _aidl_code, const ::android::Parcel& _aidl_data, ::android::Parcel* _aidl_reply, uint32_t _aidl_flags = 0) override;
 };  // class BnAudioRecord

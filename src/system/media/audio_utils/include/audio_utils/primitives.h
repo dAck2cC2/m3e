@@ -66,6 +66,7 @@ void ditherAndClamp(int32_t *out, const int32_t *sums, size_t pairs);
  * The destination and source buffers must either be completely separate (non-overlapping), or
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  */
+ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 void memcpy_to_i16_from_q4_27(int16_t *dst, const int32_t *src, size_t count);
 
 /**
@@ -427,6 +428,7 @@ void memcpy_to_float_from_i32(float *dst, const int32_t *src, size_t count);
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  * Note: NAN is clamped to absMax and not 0 for performance reason (~2xfaster).
  */
+ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 void memcpy_to_float_from_float_with_clamping(float *dst, const float *src, size_t count,
                                               float absMax);
 

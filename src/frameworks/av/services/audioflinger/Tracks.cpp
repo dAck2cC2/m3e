@@ -1021,9 +1021,9 @@ void AudioFlinger::PlaybackThread::Track::setFinalVolume(float volume)
 void AudioFlinger::PlaybackThread::Track::copyMetadataTo(MetadataInserter& backInserter) const
 {
     *backInserter++ = {
-            .usage = mAttr.usage,
-            .content_type = mAttr.content_type,
-            .gain = mFinalVolume,
+            /* .usage = */ mAttr.usage, // M3E:
+            /* .content_type = */ mAttr.content_type,
+            /* .gain = */ mFinalVolume,
     };
 }
 

@@ -145,6 +145,7 @@ protected:
     static const Table mTable[];
 };
 
+#if !defined(_MSC_VER) // M3E: MSVC linking problem
 template <class Traits>
 inline bool TypeConverter<Traits>::toString(const typename Traits::Type &value, std::string &str)
 {
@@ -221,6 +222,7 @@ inline void TypeConverter<Traits>::maskToString(uint32_t mask, std::string &str,
         toString(static_cast<typename Traits::Type>(0), str);
     }
 }
+#endif // _MSC_VER
 
 typedef TypeConverter<OutputDeviceTraits> OutputDeviceConverter;
 typedef TypeConverter<InputDeviceTraits> InputDeviceConverter;
@@ -237,7 +239,7 @@ typedef TypeConverter<AudioContentTraits> AudioContentTypeConverter;
 typedef TypeConverter<UsageTraits> UsageTypeConverter;
 typedef TypeConverter<SourceTraits> SourceTypeConverter;
 
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
 template<> const OutputDeviceConverter::Table OutputDeviceConverter::mTable[];
 template<> const InputDeviceConverter::Table InputDeviceConverter::mTable[];
 template<> const OutputFlagConverter::Table OutputFlagConverter::mTable[];
@@ -252,7 +254,7 @@ template<> const AudioModeConverter::Table AudioModeConverter::mTable[];
 template<> const AudioContentTypeConverter::Table AudioContentTypeConverter::mTable[];
 template<> const UsageTypeConverter::Table UsageTypeConverter::mTable[];
 template<> const SourceTypeConverter::Table SourceTypeConverter::mTable[];
-#endif
+#endif // _MSC_VER
 
 ANDROID_API_MEDIA
 bool deviceFromString(const std::string& literalDevice, audio_devices_t& device);

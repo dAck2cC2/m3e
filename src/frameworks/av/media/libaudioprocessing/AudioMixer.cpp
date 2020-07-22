@@ -38,6 +38,10 @@
 
 #include "AudioMixerOps.h"
 
+#if defined(_MSC_VER) // M3E:
+#include <algorithm>
+#endif
+
 // The FCC_2 macro refers to the Fixed Channel Count of 2 for the legacy integer mixer.
 #ifndef FCC_2
 #define FCC_2 2
@@ -1824,7 +1828,7 @@ AudioMixer::hook_t AudioMixer::Track::getTrackHook(int trackType, uint32_t chann
             break;
         }
     }
-    LOG_ALWAYS_FATAL_IF(channelCount > MAX_NUM_CHANNELS);
+    LOG_ALWAYS_FATAL_IF(channelCount > MAX_NUM_CHANNELS, "_MSC_VER"); // M3E:
     switch (trackType) {
     case TRACKTYPE_NOP:
         return &Track::track__nop;
@@ -1893,7 +1897,7 @@ AudioMixer::process_hook_t AudioMixer::getProcessHook(
     if (!kUseNewMixer && channelCount == FCC_2 && mixerInFormat == AUDIO_FORMAT_PCM_16_BIT) {
         return &AudioMixer::process__oneTrack16BitsStereoNoResampling;
     }
-    LOG_ALWAYS_FATAL_IF(channelCount > MAX_NUM_CHANNELS);
+    LOG_ALWAYS_FATAL_IF(channelCount > MAX_NUM_CHANNELS, "_MSC_VER"); // M3E:
     switch (mixerInFormat) {
     case AUDIO_FORMAT_PCM_FLOAT:
         switch (mixerOutFormat) {

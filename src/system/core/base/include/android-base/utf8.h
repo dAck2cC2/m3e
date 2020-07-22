@@ -91,6 +91,7 @@ namespace utf8 {
 #ifdef _WIN32
 FILE* fopen(const char* name, const char* mode);
 int mkdir(const char* name, mode_t mode);
+ANDROID_API_BASE /* M3E: MSVC export */
 int open(const char* name, int flags, ...);
 int unlink(const char* name);
 #else

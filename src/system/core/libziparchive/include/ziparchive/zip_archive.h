@@ -249,7 +249,7 @@ int32_t ProcessZipEntryContents(ZipArchiveHandle handle, ZipEntry* entry,
 
 namespace zip_archive {
 
-class Writer {
+class ANDROID_API_ZIPARCHIVE Writer { // M3E: MSVC export
  public:
   virtual bool Append(uint8_t* buf, size_t buf_size) = 0;
   virtual ~Writer();
@@ -262,7 +262,7 @@ class Writer {
   void operator=(const Writer&) = delete;
 };
 
-class Reader {
+class ANDROID_API_ZIPARCHIVE Reader { // M3E: MSVC export
  public:
   virtual bool ReadAtOffset(uint8_t* buf, size_t len, uint32_t offset) const = 0;
   virtual ~Reader();
@@ -286,6 +286,7 @@ class Reader {
  * If |crc_out| is not nullptr, it is set to the crc32 checksum of the
  * uncompressed data.
  */
+ANDROID_API_ZIPARCHIVE // M3E: MSVC export
 int32_t Inflate(const Reader& reader, const uint32_t compressed_length,
                 const uint32_t uncompressed_length, Writer* writer, uint64_t* crc_out);
 }  // namespace zip_archive

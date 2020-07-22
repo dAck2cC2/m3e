@@ -22,6 +22,11 @@
 /** similar to strlcpy but also zero fills to end of string buffer, ensures no data leak
     in parceled data sent over binder.*/
 inline size_t audio_utils_strlcpy_zerofill(char *dst, const char *src, size_t dst_size) {
+#if defined(_MSC_VER) // M3E: temporary implmentation which may not be proper
+    strncpy(dst, src, dst_size);
+    dst[dst_size - 1] = '\0';
+    return strlen(dst);
+#else
     const size_t srclen = strlcpy(dst, src, dst_size);
     const size_t srclen_with_zero = srclen + 1; /* include zero termination in length. */
     if (srclen_with_zero < dst_size) {
@@ -29,6 +34,7 @@ inline size_t audio_utils_strlcpy_zerofill(char *dst, const char *src, size_t ds
         memset(dst + srclen_with_zero, 0 /* value */, num_zeroes); /* clear remaining buffer */
     }
     return srclen;
+#endif
 }
 
 #ifdef __cplusplus
@@ -42,7 +48,11 @@ inline size_t audio_utils_strlcpy_zerofill(char (&dst)[size], const char *src) {
 /** similar to strlcpy for fixed size destination string. */
 template <size_t size>
 inline size_t audio_utils_strlcpy(char (&dst)[size], const char *src) {
+#if defined(_MSC_VER) // M3E:
+    return audio_utils_strlcpy_zerofill(dst, src, size);
+#else
     return strlcpy(dst, src, size);
+#endif
 }
 
 #endif // __cplusplus

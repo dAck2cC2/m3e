@@ -48,6 +48,10 @@
 #include <queue>
 #include <utility>
 
+#if defined(_MSC_VER) // M3E:
+#define dprintf(a, ...)  do { } while(0)
+#endif // _MSC_VER
+
 namespace android {
 
 int NBLog::Entry::copyEntryDataAt(size_t offset) const
@@ -158,13 +162,20 @@ NBLog::EntryIterator NBLog::FormatEntry::copyWithAuthor(
     (++it).copyTo(dst);
     // insert author entry
     size_t authorEntrySize = NBLog::Entry::kOverhead + sizeof(author);
+#if defined(_MSC_VER) // M3E:
+    uint8_t* authorEntry = new uint8_t[authorEntrySize];
+#else
     uint8_t authorEntry[authorEntrySize];
+#endif
     authorEntry[offsetof(entry, type)] = EVENT_AUTHOR;
     authorEntry[offsetof(entry, length)] =
         authorEntry[authorEntrySize + NBLog::Entry::kPreviousLengthOffset] =
         sizeof(author);
     *(int*) (&authorEntry[offsetof(entry, data)]) = author;
     dst->write(authorEntry, authorEntrySize);
+#if defined(_MSC_VER) // M3E:
+    delete[] authorEntry;
+#endif
     // copy rest of entries
     while ((++it)->type != EVENT_END_FMT) {
         it.copyTo(dst);

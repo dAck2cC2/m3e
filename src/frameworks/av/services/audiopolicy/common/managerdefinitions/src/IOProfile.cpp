@@ -74,10 +74,13 @@ bool IOProfile::isCompatibleProfile(audio_devices_t device,
         }
     } else {
         const struct audio_port_config config = {
-            .config_mask = AUDIO_PORT_CONFIG_ALL & ~AUDIO_PORT_CONFIG_GAIN,
-            .sample_rate = samplingRate,
-            .channel_mask = channelMask,
-            .format = format,
+            /* .id */ 0, // M3E:
+            /* .role */ AUDIO_PORT_ROLE_NONE,
+            /* .type */ AUDIO_PORT_TYPE_NONE,
+            /* .config_mask = */ AUDIO_PORT_CONFIG_ALL & ~AUDIO_PORT_CONFIG_GAIN,
+            /* .sample_rate = */ samplingRate,
+            /* .channel_mask = */ channelMask,
+            /* .format = */ format,
         };
         if (checkExactAudioProfile(&config) != NO_ERROR) {
             return false;

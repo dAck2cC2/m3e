@@ -32,6 +32,10 @@
 
 #include <cutils/atomic.h>
 
+#if defined(_MSC_VER) // M3E:
+#define strlcpy strncpy
+#endif
+
 #define FAST_DEFAULT_NS    999999999L   // ~1 sec: default time to sleep
 #define FAST_HOT_IDLE_NS     1000000L   // 1 ms: time to sleep while hot idling
 #define MIN_WARMUP_CYCLES          2    // minimum number of consecutive in-range loop cycles

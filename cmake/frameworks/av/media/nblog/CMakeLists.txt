@@ -1,4 +1,4 @@
-project(NBAIO)
+project(NBLOG)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/nblog/include.cmake)
@@ -20,6 +20,8 @@ audioutils
 
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
+elseif(MSVC)
+    add_definitions(-DNOMINMAX=1)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libnblog/include/media/nblog )

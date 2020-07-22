@@ -27,7 +27,7 @@ namespace android {
 // A class monitoring execution time for a code block (scoped variable) and causing an assert
 // if it exceeds a certain time
 
-class TimeCheck {
+class ANDROID_API_MEDIA TimeCheck { // M3E: MSVC export
 public:
 
     // The default timeout is chosen to be less than system server watchdog timeout

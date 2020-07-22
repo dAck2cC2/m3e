@@ -717,10 +717,10 @@ public:
 
         static_assert(NO_ERROR == 0, "NO_ERROR must be 0");
         return data.writeInterfaceToken(IAudioFlinger::getInterfaceDescriptor())
-                ?: data.writeInt32((int) isLowRamDevice)
-                ?: data.writeInt64(totalMemory)
-                ?: remote()->transact(SET_LOW_RAM_DEVICE, data, &reply)
-                ?: reply.readInt32();
+                ? -1 : data.writeInt32((int) isLowRamDevice) // M3E:
+                ? -2 : data.writeInt64(totalMemory)
+                ? -3 : remote()->transact(SET_LOW_RAM_DEVICE, data, &reply)
+                ? -4 : reply.readInt32();
     }
 
     virtual status_t listAudioPorts(unsigned int *num_ports,
@@ -974,7 +974,7 @@ status_t BnAudioFlinger::onTransact(
                                                output,
                                                &status);
 
-            LOG_ALWAYS_FATAL_IF((track != 0) != (status == NO_ERROR));
+            LOG_ALWAYS_FATAL_IF((track != 0) != (status == NO_ERROR), "_MSC_VER"); // M3E:
             reply->writeInt32(status);
             if (status != NO_ERROR) {
                 return NO_ERROR;
@@ -999,7 +999,7 @@ status_t BnAudioFlinger::onTransact(
                                                           output,
                                                           &status);
 
-            LOG_ALWAYS_FATAL_IF((record != 0) != (status == NO_ERROR));
+            LOG_ALWAYS_FATAL_IF((record != 0) != (status == NO_ERROR), "_MSC_VER"); // M3E:
             reply->writeInt32(status);
             if (status != NO_ERROR) {
                 return NO_ERROR;
@@ -1344,8 +1344,8 @@ status_t BnAudioFlinger::onTransact(
             int32_t isLowRamDevice;
             int64_t totalMemory;
             const status_t status =
-                    data.readInt32(&isLowRamDevice) ?:
-                    data.readInt64(&totalMemory) ?:
+                    data.readInt32(&isLowRamDevice) ? data.readInt32(&isLowRamDevice) : // M3E:
+                    data.readInt64(&totalMemory) ? data.readInt64(&totalMemory) :
                     setLowRamDevice(isLowRamDevice != 0, totalMemory);
             (void)reply->writeInt32(status);
             return NO_ERROR;

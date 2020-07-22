@@ -26,7 +26,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class IAppOpsCallback : public IInterface
+class ANDROID_API_BINDER IAppOpsCallback : public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(AppOpsCallback)
@@ -40,7 +40,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-class BnAppOpsCallback : public BnInterface<IAppOpsCallback>
+class ANDROID_API_BINDER BnAppOpsCallback : public BnInterface<IAppOpsCallback> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact( uint32_t code,

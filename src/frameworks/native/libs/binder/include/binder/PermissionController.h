@@ -26,7 +26,7 @@
 // ---------------------------------------------------------------------------
 namespace android {
 
-class PermissionController
+class ANDROID_API_BINDER PermissionController // M3E: MSVC export
 {
 public:
 
@@ -57,6 +57,11 @@ private:
     sp<IPermissionController> mService;
 
     sp<IPermissionController> getService();
+
+#if defined(_MSC_VER) // M3E: linking error
+public:
+    virtual ~PermissionController() {};
+#endif
 };
 
 

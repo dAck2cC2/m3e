@@ -47,6 +47,10 @@
 
 #include <private/android_filesystem_config.h>
 
+#if defined(_MSC_VER) // M3E:
+#define dprintf(a, ...)  do { } while(0)
+#endif // _MSC_VER
+
 namespace android {
 
 static const char kDeadlockedString[] = "AudioPolicyService may be deadlocked\n";
@@ -479,6 +483,9 @@ status_t AudioPolicyService::handleResetUidState(Vector<String16>& args, int err
 }
 
 status_t AudioPolicyService::handleGetUidState(Vector<String16>& args, int out, int err) {
+#if defined(_MSC_VER) // M3E: implment it when we really need it
+    return 0;
+#else // _MSC_VER
     PermissionController pc;
     int uid = pc.getPackageUid(args[1], 0);
     if (uid < 0) {
@@ -491,14 +498,19 @@ status_t AudioPolicyService::handleGetUidState(Vector<String16>& args, int out, 
     } else {
         return dprintf(out, "idle\n");
     }
+#endif // _MSC_VER
 }
 
 status_t AudioPolicyService::printHelp(int out) {
+#if defined(_MSC_VER) // M3E: implment it when we really need it
+    return 0;
+#else // _MSC_VER
     return dprintf(out, "Audio policy service commands:\n"
         "  get-uid-state <PACKAGE> gets the uid state\n"
         "  set-uid-state <PACKAGE> <active|idle> overrides the uid state\n"
         "  reset-uid-state <PACKAGE> clears the uid state override\n"
         "  help print this message\n");
+#endif // _MSC_VER
 }
 
 // -----------  AudioPolicyService::UidPolicy implementation ----------

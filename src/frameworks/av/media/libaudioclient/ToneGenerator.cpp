@@ -763,7 +763,7 @@ const ToneGenerator::ToneDescriptor ToneGenerator::sToneDescriptors[] = {
                         { /* .duration = */ 0, /* .waveFreq = */ { 0 }, 0, 0}},
           /* .repeatCnt =*/ ToneGenerator::TONEGEN_INF,
           /* .repeatSegment =*/ 0 },                              // TONE_GB_RINGTONE
-        { /* .segments = */{ { /* .duration = */ ToneGenerator::TONEGEN_INF, .waveFreq = { 400, 425, 450, 0 }, 0, 0 },
+        { /* .segments = */{ { /* .duration = */ ToneGenerator::TONEGEN_INF, /* .waveFreq = */ { 400, 425, 450, 0 }, 0, 0 },
                         { /* .duration = */ 0 , /* .waveFreq = */ { 0 }, 0, 0}},
           /* .repeatCnt =*/ ToneGenerator::TONEGEN_INF,
           /* .repeatSegment =*/ 0 },                              // TONE_AUSTRALIA_DIAL
