@@ -18,7 +18,7 @@
 //#define LOG_NDEBUG 0
 
 #define __STDC_CONSTANT_MACROS
-#if defined(__APPLE__) || defined(_MSC_VER)
+#if defined(__APPLE__) || defined(_MSC_VER) // M3E:
 #include <stdlib.h>
 #include <stdint.h>
 static inline void * memalign(size_t align, size_t size) {
@@ -31,7 +31,7 @@ static inline void * memalign(size_t align, size_t size) {
 #endif
 #include <string.h>
 #include <stdlib.h>
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
 #include <dlfcn.h>
 #endif
 
@@ -43,13 +43,12 @@ static inline void * memalign(size_t align, size_t size) {
 
 #include "AudioResamplerSinc.h"
 
+// M3E: add
 #include <cutils/threads.h>
 
-#if defined(__clang__) && defined(__has_builtin)
-#  if !__has_builtin(__builtin_assume_aligned)
-#    define __builtin_assume_aligned(p, a) \
+#if defined(__clang__) && !__has_builtin(__builtin_assume_aligned)
+#define __builtin_assume_aligned(p, a) \
 	(((uintptr_t(p) % (a)) == 0) ? (p) : (__builtin_unreachable(), (p)))
-#  endif
 #endif
 
 #if defined(__arm__) && !defined(__thumb__)
@@ -117,14 +116,14 @@ void AudioResamplerSinc::init_routine()
     veryHighQualityConstants = highQualityConstants;
 
     // Open the dll to get the coefficients for VERY_HIGH_QUALITY
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	void *resampleCoeffLib = LoadLibrary("libaudio-resampler.so");
 #else
     void *resampleCoeffLib = dlopen("libaudio-resampler.so", RTLD_NOW);
 #endif
     ALOGV("Open libaudio-resampler library = %p", resampleCoeffLib);
     if (resampleCoeffLib == NULL) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 		ALOGE("Could not open audio-resampler library: %d", GetLastError());
 #else
         ALOGE("Could not open audio-resampler library: %s", dlerror());
@@ -135,7 +134,7 @@ void AudioResamplerSinc::init_routine()
     readResampleFirNumCoeffFn readResampleFirNumCoeff;
     readResampleFirLerpIntBitsFn readResampleFirLerpIntBits;
 
-#if defined(_MSC_VER) 
+#if defined(_MSC_VER)  // M3E:
 	readResampleCoefficients = (readCoefficientsFn)
 		GetProcAddress((HMODULE)resampleCoeffLib, "readResamplerCoefficients");
 	readResampleFirNumCoeff = (readResampleFirNumCoeffFn)
@@ -153,13 +152,13 @@ void AudioResamplerSinc::init_routine()
 
     if (!readResampleCoefficients || !readResampleFirNumCoeff || !readResampleFirLerpIntBits) {
         readResampleCoefficients = NULL;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 		FreeLibrary((HMODULE)resampleCoeffLib);
 #else
         dlclose(resampleCoeffLib);
 #endif
         resampleCoeffLib = NULL;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 		ALOGE("Could not find symbol: %d", GetLastError());
 #else
         ALOGE("Could not find symbol: %s", dlerror());

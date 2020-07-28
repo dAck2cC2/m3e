@@ -16,6 +16,7 @@ system/media \
 system/netd \
 system/libhidl \
 system/libhwbinder \
+system/libfmq \
 libnativehelper \
 "
 

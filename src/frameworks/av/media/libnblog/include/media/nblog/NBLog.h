@@ -39,7 +39,7 @@ namespace android {
 
 class String8;
 
-class ANDROID_API_NBLOG NBLog {
+class ANDROID_API_NBLOG NBLog { // M3E:
 
 public:
 

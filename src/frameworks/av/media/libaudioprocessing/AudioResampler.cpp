@@ -218,22 +218,22 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
     default:
     case LOW_QUALITY:
         ALOGV("Create linear Resampler");
-        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
+        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "_MSC_VER"); // M3E:
         resampler = new AudioResamplerOrder1(inChannelCount, sampleRate);
         break;
     case MED_QUALITY:
         ALOGV("Create cubic Resampler");
-        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
+        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "_MSC_VER"); // M3E:
         resampler = new AudioResamplerCubic(inChannelCount, sampleRate);
         break;
     case HIGH_QUALITY:
         ALOGV("Create HIGH_QUALITY sinc Resampler");
-        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
+        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "_MSC_VER"); // M3E:
         resampler = new AudioResamplerSinc(inChannelCount, sampleRate);
         break;
     case VERY_HIGH_QUALITY:
         ALOGV("Create VERY_HIGH_QUALITY sinc Resampler = %d", quality);
-        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
+        LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "_MSC_VER"); // M3E:
         resampler = new AudioResamplerSinc(inChannelCount, sampleRate, quality);
         break;
     case DYN_LOW_QUALITY:
@@ -244,7 +244,7 @@ AudioResampler* AudioResampler::create(audio_format_t format, int inChannelCount
             resampler = new AudioResamplerDyn<float, float, float>(inChannelCount,
                     sampleRate, quality);
         } else {
-            LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "");
+            LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "_MSC_VER"); // M3E:
             if (quality == DYN_HIGH_QUALITY) {
                 resampler = new AudioResamplerDyn<int32_t, int16_t, int32_t>(inChannelCount,
                         sampleRate, quality);

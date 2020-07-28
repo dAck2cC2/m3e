@@ -24,7 +24,7 @@
 
 namespace android {
 
-class ANDROID_API_AUDIOHAL EffectsFactoryHalInterface : public RefBase
+class ANDROID_API_AUDIOHAL EffectsFactoryHalInterface : public RefBase // M3E:
 {
   public:
     // Returns the number of different effects in all loaded libraries.

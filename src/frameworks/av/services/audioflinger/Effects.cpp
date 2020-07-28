@@ -1718,8 +1718,13 @@ status_t AudioFlinger::EffectChain::addEffect_ll(const sp<EffectModule>& effect)
         // calling the process in effect engine
         size_t numSamples = thread->frameCount();
         sp<EffectBufferHalInterface> halBuffer;
-        status_t result = EffectBufferHalInterface::allocate(
+#ifdef FLOAT_EFFECT_CHAIN
+        status_t result = thread->mAudioFlinger->mEffectsFactoryHal->allocateBuffer(
+                numSamples * sizeof(float), &halBuffer);
+#else
+        status_t result = thread->mAudioFlinger->mEffectsFactoryHal->allocateBuffer(
                 numSamples * sizeof(int32_t), &halBuffer);
+#endif
         if (result != OK) return result;
         effect->setInBuffer(halBuffer);
         // auxiliary effects output samples to chain input buffer for further processing

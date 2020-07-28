@@ -28,13 +28,14 @@
 
 namespace android {
 
+// M3E: add
 #if defined(DEFAULT_QUALITY)
 #undef DEFAULT_QUALITY
 #endif
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_AUDIOPROCESSING AudioResampler {
+class ANDROID_API_AUDIOPROCESSING AudioResampler { // M3E: MSVC export
 public:
     // Determines quality of SRC.
     //  LOW_QUALITY: linear interpolator (1st order)

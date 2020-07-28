@@ -59,7 +59,7 @@
 #define ALOGVV ALOGV
 //define ALOGVV printf  // for test-mixer.cpp
 #else
-#define ALOGVV(a, ...) do { } while (0)
+#define ALOGVV(a, ...) do { } while (0) // M3E:
 #endif
 
 #ifndef ARRAY_SIZE
