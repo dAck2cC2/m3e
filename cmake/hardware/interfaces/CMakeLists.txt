@@ -8,6 +8,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 
 set(${PROJECT_NAME}_DEPLIB
 log
@@ -53,6 +54,13 @@ ${INTERMEDIATE_PATH}/graphics/bufferqueue/1.0/android.hardware.graphics.bufferqu
 ${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerCallbackAll.cpp
 ${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerAll.cpp
 ${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerClientAll.cpp
+
+${SOURCE_PATH}/audio/common/2.0/default/HidlUtils.cpp
+${INTERMEDIATE_PATH}/audio/2.0/android.hardware.audio@2.0_genc++/gen/android/hardware/audio/2.0/PrimaryDeviceAll.cpp
+${INTERMEDIATE_PATH}/audio/2.0/android.hardware.audio@2.0_genc++/gen/android/hardware/audio/2.0/DeviceAll.cpp
+${INTERMEDIATE_PATH}/audio/2.0/android.hardware.audio@2.0_genc++/gen/android/hardware/audio/2.0/DevicesFactoryAll.cpp
+${INTERMEDIATE_PATH}/audio/2.0/android.hardware.audio@2.0_genc++/gen/android/hardware/audio/2.0/StreamOutCallbackAll.cpp
+${INTERMEDIATE_PATH}/audio/effect/2.0/android.hardware.audio.effect@2.0_genc++/gen/android/hardware/audio/effect/2.0/EffectsFactoryAll.cpp
 )
 
 ADD_LIB(interfaces)
