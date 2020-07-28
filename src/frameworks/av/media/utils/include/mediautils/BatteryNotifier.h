@@ -29,7 +29,7 @@ namespace android {
 /**
  * Class used for logging battery life events in mediaserver.
  */
-class ANDROID_API_MEDIAUTILS BatteryNotifier : public Singleton<BatteryNotifier> {
+class ANDROID_API_MEDIAUTILS BatteryNotifier : public Singleton<BatteryNotifier> { // M3E:
 
     friend class Singleton<BatteryNotifier>;
     BatteryNotifier();

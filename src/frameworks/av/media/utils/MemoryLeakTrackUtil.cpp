@@ -22,7 +22,7 @@
 #include "media/MemoryLeakTrackUtil.h"
 #include <sstream>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #define __i386__ 
 #endif
 
@@ -76,6 +76,7 @@ std::string dumpMemoryAddresses(size_t limit)
     oss << totalMemory << " bytes in " << count << " allocations\n";
     oss << "  ABI: '" ABI_STRING "'" << "\n\n";
     if (count > limit) count = limit;
+
 #if TODO
     // The memory is sorted based on total size which is useful for finding
     // worst memory offenders. For diffs, sometimes it is preferable to sort

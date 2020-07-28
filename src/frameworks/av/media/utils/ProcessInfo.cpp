@@ -21,7 +21,9 @@
 #include <media/stagefright/ProcessInfo.h>
 
 #include <binder/IPCThreadState.h>
-//#include <binder/IProcessInfoService.h>
+#if ENABLE_PROCESS_INFO // M3E:
+#include <binder/IProcessInfoService.h>
+#endif
 #include <binder/IServiceManager.h>
 
 namespace android {
@@ -29,22 +31,23 @@ namespace android {
 ProcessInfo::ProcessInfo() {}
 
 bool ProcessInfo::getPriority(int pid, int* priority) {
-	/*
+#if ENABLE_PROCESS_INFO
     sp<IBinder> binder = defaultServiceManager()->getService(String16("processinfo"));
     sp<IProcessInfoService> service = interface_cast<IProcessInfoService>(binder);
-	*/
+#endif
+
     size_t length = 1;
     int32_t state;
     static const int32_t INVALID_ADJ = -10000;
     static const int32_t NATIVE_ADJ = -1000;
     int32_t score = INVALID_ADJ;
-	/*
+#if ENABLE_PROCESS_INFO
     status_t err = service->getProcessStatesAndOomScoresFromPids(length, &pid, &state, &score);
     if (err != OK) {
         ALOGE("getProcessStatesAndOomScoresFromPids failed");
         return false;
     }
-	*/
+#endif
     ALOGV("pid %d state %d score %d", pid, state, score);
     if (score <= NATIVE_ADJ) {
         ALOGE("pid %d invalid OOM adjustments value %d", pid, score);
