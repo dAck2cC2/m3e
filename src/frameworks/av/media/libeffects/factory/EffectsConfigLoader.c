@@ -30,7 +30,7 @@
 #include "EffectsConfigLoader.h"
 #include "EffectsFactoryState.h"
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <windows.h>
 #ifndef PATH_MAX
 #define PATH_MAX MAX_PATH
@@ -72,7 +72,7 @@ int loadEffectConfigFile(const char *path)
     cnode *root;
     char *data;
 
-    data = (char *)load_file(path, NULL);
+    data = (char *)load_file(path, NULL); // M3E:
     if (data == NULL) {
         return -ENODEV;
     }
@@ -203,7 +203,7 @@ int loadLibrary(cnode *root, const char *name)
     }
 
     // add entry for library in gLibraryList
-    l = (lib_entry_t *)malloc(sizeof(lib_entry_t));
+    l = (lib_entry_t *)malloc(sizeof(lib_entry_t)); // M3E:
     l->name = strndup(name, PATH_MAX);
     l->path = strndup(path, PATH_MAX);
     l->handle = hdl;
@@ -211,7 +211,7 @@ int loadLibrary(cnode *root, const char *name)
     l->effects = NULL;
     pthread_mutex_init(&l->lock, NULL);
 
-    e = (list_elem_t *)malloc(sizeof(list_elem_t));
+    e = (list_elem_t *)malloc(sizeof(list_elem_t)); // M3E:
     e->object = l;
     pthread_mutex_lock(&gLibLock);
     e->next = gLibraryList;
@@ -226,11 +226,11 @@ error:
         dlclose(hdl);
     }
     //add entry for library errors in gLibraryFailedList
-    lib_failed_entry_t *fl = (lib_failed_entry_t *)malloc(sizeof(lib_failed_entry_t));
+    lib_failed_entry_t *fl = (lib_failed_entry_t *)malloc(sizeof(lib_failed_entry_t)); // M3E:
     fl->name = strndup(name, PATH_MAX);
     fl->path = strndup(path, PATH_MAX);
 
-    list_elem_t *fe = (list_elem_t *)malloc(sizeof(list_elem_t));
+    list_elem_t *fe = (list_elem_t *)malloc(sizeof(list_elem_t)); // M3E:
     fe->object = fl;
     fe->next = gLibraryFailedList;
     gLibraryFailedList = fe;
@@ -267,7 +267,7 @@ int addSubEffect(cnode *root)
         ALOGW("addSubEffect() invalid uuid %s", node->value);
         return -EINVAL;
     }
-    d = (effect_descriptor_t *)malloc(sizeof(effect_descriptor_t));
+    d = (effect_descriptor_t *)malloc(sizeof(effect_descriptor_t)); // M3E:
     if (l->desc->get_descriptor(&uuid, d) != 0) {
         char s[40];
         uuidToString(&uuid, s, 40);
@@ -286,11 +286,11 @@ int addSubEffect(cnode *root)
         free(d);
         return -EINVAL;
     }
-    sub_effect_entry_t *sub_effect = (sub_effect_entry_t *)malloc(sizeof(sub_effect_entry_t));
+    sub_effect_entry_t *sub_effect = (sub_effect_entry_t *)malloc(sizeof(sub_effect_entry_t)); // M3E:
     sub_effect->object = d;
     // lib_entry_t is stored since the sub effects are not linked to the library
     sub_effect->lib = l;
-    e = (list_elem_t *)malloc(sizeof(list_elem_t));
+    e = (list_elem_t *)malloc(sizeof(list_elem_t)); // M3E:
     e->object = sub_effect;
     e->next = gSubEffectList->sub_elem;
     gSubEffectList->sub_elem = e;
@@ -349,7 +349,7 @@ int loadEffect(cnode *root)
         skip = true;
     }
 
-    d = (effect_descriptor_t *)malloc(sizeof(effect_descriptor_t));
+    d = (effect_descriptor_t *)malloc(sizeof(effect_descriptor_t)); // M3E:
     if (l->desc->get_descriptor(&uuid, d) != 0) {
         char s[40];
         uuidToString(&uuid, s, 40);
@@ -368,7 +368,7 @@ int loadEffect(cnode *root)
         free(d);
         return -EINVAL;
     }
-    e = (list_elem_t *)malloc(sizeof(list_elem_t));
+    e = (list_elem_t *)malloc(sizeof(list_elem_t)); // M3E:
     e->object = d;
     if (skip) {
         e->next = gSkippedEffects;
@@ -388,7 +388,7 @@ int loadEffect(cnode *root)
     list_sub_elem_t *sube = NULL;
     if (node != NULL) {
         ALOGV("Adding the effect to gEffectSubList as there are sub effects");
-        sube = (list_sub_elem_t *)malloc(sizeof(list_sub_elem_t));
+        sube = (list_sub_elem_t *)malloc(sizeof(list_sub_elem_t)); // M3E:
         sube->object = d;
         sube->sub_elem = NULL;
         sube->next = gSubEffectList;

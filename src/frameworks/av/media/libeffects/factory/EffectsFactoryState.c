@@ -114,11 +114,12 @@ int uuidToString(const effect_uuid_t *uuid, char *str, size_t maxLen)
 void dumpEffectDescriptor(effect_descriptor_t *desc, char *str, size_t len, int indent) {
     char s[256];
     char ss[256];
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	char* idt = new char[indent + 1];
 #else
     char idt[indent + 1];
 #endif
+
     memset(idt, ' ', indent);
     idt[indent] = 0;
 
@@ -139,7 +140,7 @@ void dumpEffectDescriptor(effect_descriptor_t *desc, char *str, size_t len, int 
             desc->apiVersion, idt, desc->flags);
     strlcat(str, s, len);
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	delete[] idt;
 #endif
 }

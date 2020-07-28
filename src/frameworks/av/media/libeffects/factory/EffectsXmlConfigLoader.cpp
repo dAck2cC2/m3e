@@ -30,7 +30,7 @@
 #include "EffectsFactoryState.h"
 #include "EffectsXmlConfigLoader.h"
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <windows.h> // for strdup
 #endif
 
@@ -65,7 +65,8 @@ bool resolveLibrary(const std::string& path, std::string* resolvedPath) {
  * The caller MUST free the resources path (free) and handle (dlclose) if filled.
  */
 bool loadLibrary(const char* relativePath, lib_entry_t* libEntry) noexcept {
-#if TODO
+
+#if TODO // M3E:
     std::string absolutePath;
     if (!resolveLibrary(relativePath, &absolutePath)) {
         ALOGE("Could not find library in effect directories: %s", relativePath);
@@ -322,7 +323,7 @@ size_t loadEffects(const Effects& effects, list_elem_t* libList, list_elem_t** s
 
 extern "C" ssize_t EffectLoadXmlEffectConfig(const char* path)
 {
-#if TODO
+#if TODO // M3E:
     using effectsConfig::parse;
     auto result = path ? parse(path) : parse();
     if (result.parsedConfig == nullptr) {
@@ -335,7 +336,7 @@ extern "C" ssize_t EffectLoadXmlEffectConfig(const char* path)
                                            &gSkippedEffects, &gSubEffectList);
 
     ALOGE_IF(result.nbSkippedElement != 0, "%zu errors during loading of configuration: %s",
-             result.nbSkippedElement, path ? path : effectsConfig::DEFAULT_PATH);
+             result.nbSkippedElement, result.configPath ?: "No config file found");
 
     return result.nbSkippedElement;
 #else
