@@ -20,7 +20,7 @@
 #include <utils/KeyedVector.h>
 #include <utils/String8.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #ifdef TRUE
 #undef TRUE
 #endif

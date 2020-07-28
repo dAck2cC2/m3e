@@ -31,7 +31,7 @@
 namespace android {
 namespace hardware {
 
-#if defined(__linux__)
+#if defined(__linux__) // M3E:
 #  if defined(Status)
 #    undef Status
 #  endif

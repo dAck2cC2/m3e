@@ -14,25 +14,15 @@
 // limitations under the License.
 //
 
-cc_library_shared {
-    name: "libdrmpassthruplugin",
+cc_library_static {
+    name: "libfwdlock-converter",
 
-    srcs: ["src/DrmPassthruPlugIn.cpp"],
+    srcs: ["FwdLockConv.c"],
 
-    static_libs: ["libdrmframeworkcommon"],
+    cflags: ["-Wall", "-Werror"],
 
-    shared_libs: [
-        "libutils",
-        "liblog",
-        "libdl",
-    ],
+    shared_libs: ["libcrypto"],
+    static_libs: ["libfwdlock-common"],
 
-    local_include_dirs: ["include"],
-
-    cflags: [
-        // Set the following flag to enable the decryption passthru flow
-        //"-DENABLE_PASSTHRU_DECRYPTION",
-        "-Wall",
-        "-Werror",
-    ],
+    export_include_dirs: ["."],
 }

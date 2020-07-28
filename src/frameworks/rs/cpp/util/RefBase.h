@@ -17,7 +17,7 @@
 #ifndef RS_REF_BASE_H
 #define RS_REF_BASE_H
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <windows.h>
 #endif
 
@@ -68,8 +68,8 @@ public:
 class RefBase
 {
 public:
-			void            incStrong(const void* id) const {};
-			void            decStrong(const void* id) const {};
+            void            incStrong(const void* id) const {};
+            void            decStrong(const void* id) const {};
 
             void            forceIncStrong(const void* id) const;
 
@@ -124,8 +124,8 @@ public:
     typedef RefBase basetype;
 
 protected:
-	RefBase() : mRefs(NULL) {};
-	virtual                 ~RefBase() {};
+                            RefBase() : mRefs(NULL) {};
+    virtual                 ~RefBase() {};
 
     //! Flags for extendObjectLifetime()
     enum {
@@ -141,10 +141,10 @@ protected:
         FIRST_INC_STRONG = 0x0001
     };
 
-	virtual void            onFirstRef() {};
-	virtual void            onLastStrongRef(const void* id) {};
-	virtual bool            onIncStrongAttempted(uint32_t flags, const void* id) { return false; };
-	virtual void            onLastWeakRef(const void* id) {};
+    virtual void            onFirstRef() {};
+    virtual void            onLastStrongRef(const void* id) {};
+    virtual bool            onIncStrongAttempted(uint32_t flags, const void* id) { return false; };
+    virtual void            onLastWeakRef(const void* id) {};
 
 private:
     friend class ReferenceMover;
@@ -169,14 +169,14 @@ class LightRefBase
 public:
     inline LightRefBase() : mCount(0) { }
     inline void incStrong(__attribute__((unused)) const void* id) const {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 		InterlockedIncrement((unsigned int *)&mCount);
 #else  // _MSC_VER
         __sync_fetch_and_add(&mCount, 1);
 #endif
     }
     inline void decStrong(__attribute__((unused)) const void* id) const {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 		if (InterlockedDecrement((unsigned int *)&mCount) == 1) {
 #else  // _MSC_VER
         if (__sync_fetch_and_sub(&mCount, 1) == 1) {

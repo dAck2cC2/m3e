@@ -28,16 +28,28 @@
 #include <algorithm>
 
 #include <android/log.h>
-//#include <sys/system_properties.h>
+#if 0 // M3E:
+#include <sys/system_properties.h>
+#else
 #include <cutils/properties.h>
+#endif
+
+#ifndef ALOGE
 #define ALOGE(...) \
     __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__);
+#endif
+#ifndef ALOGW
 #define ALOGW(...) \
     __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__);
+#endif
+#ifndef ALOGD
 #define ALOGD(...) \
     __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__);
+#endif
+#ifndef ALOGV
 #define ALOGV(...) \
     __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__);
+#endif
 
 #if defined(_WIN32)
 #define OS_PATH_SEPARATOR '\\'
@@ -60,7 +72,7 @@ enum {
 
 static inline nsecs_t systemTime(int clock)
 {
-#if defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__) // M3E:
     static const clockid_t clocks[] = {
             CLOCK_REALTIME,
             CLOCK_MONOTONIC,
@@ -190,7 +202,9 @@ const char* rsuJoinStrings(int n, const char* const* strs);
 bool rsuExecuteCommand(const char *exe, int nArgs, const char * const *args);
 #endif
 
-/*int property_get(const char *key, char *value, const char *default_value);*/
+#if 0 // M3E:
+int property_get(const char *key, char *value, const char *default_value);
+#endif
 
 } // namespace renderscript
 } // namespace android

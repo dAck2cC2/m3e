@@ -77,7 +77,7 @@ class Parcel;
  *    (3) The app: ICamera.stopRecording().
  */
 
-class ANDROID_API_CAMERA_CLIENT ICameraRecordingProxy: public IInterface
+class ANDROID_API_CAMERA_CLIENT ICameraRecordingProxy: public IInterface // M3E:
 {
 public:
     DECLARE_META_INTERFACE(CameraRecordingProxy);

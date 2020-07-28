@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) // M3E:
 #include <malloc.h>
 #endif
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <dirent.h>
 #endif
 #include <string.h>
@@ -27,11 +27,12 @@
 #include "rsCppStructs.h"
 #include "rsCppInternal.h"
 
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
 #include <dlfcn.h>
 #endif
 #include <unistd.h>
 
+// M3E:
 using namespace android::RSC;
 
 using android::RSC::RS;
@@ -64,9 +65,10 @@ RS::~RS() {
             RS::dispatch->ContextDeinitToClient(mContext);
 
             void *res = nullptr;
-#if TODO
-            int status = pthread_join(mMessageThreadId, &res);
+#if TODO // M3E:
+            pthread_join(mMessageThreadId, &res);
 #endif
+
             RS::dispatch->ContextDestroy(mContext);
             mContext = nullptr;
         }
@@ -80,13 +82,13 @@ bool RS::init(const char * name, uint32_t flags) {
 // This will only open API 19+ libRS, because that's when
 // we changed libRS to extern "C" entry points.
 static bool loadSO(const char* filename, int targetApi) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	void* handle = LoadLibrary(filename);
 #else
     void* handle = dlopen(filename, RTLD_LAZY | RTLD_LOCAL);
 #endif
     if (handle == nullptr) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 		ALOGE("couldn't dlopen %s, %d", filename, GetLastError());
 #else
         ALOGV("couldn't dlopen %s, %s", filename, dlerror());
@@ -189,7 +191,8 @@ bool RS::init(const char * name, uint32_t flags, int targetApi) {
     }
 
     pid_t mNativeMessageThreadId;
-#if TODO
+
+#if TODO // M3E:
     int status = pthread_create(&mMessageThreadId, nullptr, threadProc, this);
     if (status) {
         ALOGE("Failed to start RS message thread.");
@@ -238,7 +241,13 @@ void * RS::threadProc(void *vrsc) {
 
         if (receiveLen >= rbuf_size) {
             rbuf_size = receiveLen + 32;
-            rbuf = realloc(rbuf, rbuf_size);
+            void *tmpBuf = realloc(rbuf, rbuf_size);
+            if (tmpBuf) {
+                rbuf = tmpBuf;
+            } else {
+                free(rbuf);
+                rbuf = NULL;
+            }
         }
         if (!rbuf) {
             ALOGE("RS::message handler realloc error %zu", rbuf_size);

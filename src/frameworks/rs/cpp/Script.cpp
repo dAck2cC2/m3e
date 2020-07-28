@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) // M3E:
 #include <malloc.h>
 #endif
 
 #include "RenderScript.h"
 #include "rsCppInternal.h"
 
+// M3E: add
 using namespace android;
 using namespace RSC;
 

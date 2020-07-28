@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) // M3E:
 #include <malloc.h>
 #endif
 #include <string.h>

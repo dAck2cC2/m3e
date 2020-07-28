@@ -17,7 +17,7 @@
 #include <android/log.h>
 
 #include "rsDispatch.h"
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <windows.h>
 #define dlsym(a, b) GetProcAddress((HMODULE)a, b)
 #define dlerror GetLastError
@@ -481,7 +481,8 @@ bool loadSymbols(void* handle, dispatchTable& dispatchTab, int targetApiLevel) {
 
 }
 
-#ifdef RS_COMPATIBILITY_LIB
+
+#ifdef RS_COMPATIBILITY_LIB // M3E:
 bool loadIOSuppSyms(void* handleIO, ioSuppDT& ioDispatch){
     ioDispatch.sAllocationSetSurface = (sAllocationSetSurfaceFnPtr)dlsym(handleIO, "AllocationSetSurface");
     if (ioDispatch.sAllocationSetSurface == nullptr) {

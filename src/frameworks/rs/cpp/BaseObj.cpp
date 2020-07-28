@@ -17,6 +17,7 @@
 #include "RenderScript.h"
 #include "rsCppInternal.h"
 
+// M3E:
 using namespace android;
 using namespace RSC;
 

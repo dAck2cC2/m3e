@@ -17,6 +17,7 @@
 #include "RenderScript.h"
 #include "rsCppInternal.h"
 
+// M3E: add
 using namespace android;
 using namespace RSC;
 
@@ -496,7 +497,7 @@ void Allocation::ioGetInput() {
 #endif
 }
 
-#if 0 //ndef RS_COMPATIBILITY_LIB
+#if 0 //ndef RS_COMPATIBILITY_LIB // M3E:
 #include <gui/Surface.h>
 
 sp<Surface> Allocation::getSurface() {

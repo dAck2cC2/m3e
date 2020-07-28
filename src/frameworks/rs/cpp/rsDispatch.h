@@ -18,9 +18,6 @@
 #define ANDROID_RSDISPATCH_H
 
 #include "rsInternalDefines.h"
-//#include "jni.h"
-typedef void JNIEnv;
-typedef int jobject;
 
 typedef void (*SetNativeLibDirFnPtr)(RsContext con, const char *nativeLibDir, size_t length);
 typedef const void* (*AllocationGetTypeFnPtr)(RsContext con, RsAllocation va);

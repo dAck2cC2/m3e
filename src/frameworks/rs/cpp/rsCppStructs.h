@@ -22,7 +22,7 @@
 
 #include <pthread.h>
 
-#if defined (_MSC_VER)
+#if defined (_MSC_VER) // M3E:
 #include <dirent.h>
 #endif
 #include <limits.h>
@@ -353,7 +353,7 @@ class Double4 {
  /**
   * The RenderScript context. This class controls initialization, resource management, and teardown.
   */
- class ANDROID_API_RS RS : public android::RSC::LightRefBase<RS> {
+ class ANDROID_API_RS RS : public android::RSC::LightRefBase<RS> { // M3E:
 
  public:
     RS();
@@ -574,7 +574,7 @@ protected:
   * developer must call syncAll(RS_ALLOCATION_USAGE_SCRIPT) prior to launching the
   * second kernel to ensure correctness.
   */
-class ANDROID_API_RS Allocation : public BaseObj {
+class ANDROID_API_RS Allocation : public BaseObj { // M3E:
 protected:
     sp<const Type> mType;
     uint32_t mUsage;
@@ -655,7 +655,7 @@ public:
      */
     void ioGetInput();
 
-#if 0 //ndef RS_COMPATIBILITY_LIB
+#if 0 //ndef RS_COMPATIBILITY_LIB // M3E:
     /**
      * Returns the handle to a raw buffer that is being managed by the screen
      * compositor. This operation is only valid for Allocations with USAGE_IO_INPUT.
@@ -926,7 +926,7 @@ public:
  */
 
 
-class ANDROID_API_RS Element : public BaseObj {
+class ANDROID_API_RS Element : public BaseObj { // M3E:
 public:
     bool isComplex();
 
@@ -1566,7 +1566,7 @@ public:
  * A Type also supports YUV format information to support an Allocation in a YUV
  * format. The YUV formats supported are RS_YUV_YV12 and RS_YUV_NV21.
  */
-class ANDROID_API_RS Type : public BaseObj {
+class ANDROID_API_RS Type : public BaseObj { // M3E:
 protected:
     friend class Allocation;
 
@@ -1669,7 +1669,7 @@ public:
      */
     static sp<const Type> create(const sp<RS>& rs, const sp<const Element>& e, uint32_t dimX, uint32_t dimY, uint32_t dimZ);
 
-    class ANDROID_API_RS Builder {
+    class ANDROID_API_RS Builder { // M3E:
     protected:
         RS* mRS;
         uint32_t mDimX;
@@ -3863,7 +3863,7 @@ class ScriptIntrinsicBlend : public ScriptIntrinsic {
  * Intrinsic Gausian blur filter. Applies a Gaussian blur of the specified
  * radius to all elements of an Allocation.
  */
-class ANDROID_API_RS ScriptIntrinsicBlur : public ScriptIntrinsic {
+class ANDROID_API_RS ScriptIntrinsicBlur : public ScriptIntrinsic { // M3E:
  private:
     ScriptIntrinsicBlur(sp<RS> rs, sp<const Element> e);
  public:
