@@ -17,6 +17,11 @@
 #define LOG_TAG "FMQ"
 #include <android-base/logging.h>
 
+// M3E: add
+#if defined(_MSC_VER)
+#include "fmq/MessageQueue.h"
+#endif
+
 namespace android {
 namespace hardware {
 namespace details {
@@ -26,7 +31,9 @@ void check(bool exp) {
 }
 
 void logError(const std::string &message) {
+#if !defined(_MSC_VER) // M3E:
     LOG(ERROR) << message;
+#endif
 }
 
 }  // namespace details

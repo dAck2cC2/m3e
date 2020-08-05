@@ -917,7 +917,11 @@ std::string arrayToString(const Array &a, size_t size);
 
 template<size_t SIZE1>
 std::string arraySizeToString() {
+#if !defined(_MSC_VER) // M3E:
     return std::string{"["} + toString(SIZE1) + "]";
+#else
+    return std::string{ "[" } + std::to_string(SIZE1) + "]";
+#endif
 }
 
 template<size_t SIZE1, size_t SIZE2, size_t... SIZES>

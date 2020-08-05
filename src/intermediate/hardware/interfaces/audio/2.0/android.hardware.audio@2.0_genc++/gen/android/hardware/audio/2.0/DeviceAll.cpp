@@ -78,9 +78,11 @@ __attribute__((destructor))static void static_destructor() {
     return ::android::hardware::Void();}
 
 ::android::hardware::Return<void> IDevice::getHashChain(getHashChain_cb _hidl_cb){
+#if 0 // M3E:
     _hidl_cb({
         (uint8_t[32]){242,25,195,181,184,198,203,29,101,157,76,115,40,246,114,70,171,254,26,134,19,244,105,130,111,211,185,173,9,4,23,162} /* f219c3b5b8c6cb1d659d4c7328f67246abfe1a8613f469826fd3b9ad090417a2 */,
         (uint8_t[32]){189,218,182,24,77,122,52,109,166,160,125,192,130,140,241,154,105,111,76,170,54,17,197,31,46,20,86,90,20,180,15,217} /* bddab6184d7a346da6a07dc0828cf19a696f4caa3611c51f2e14565a14b40fd9 */});
+#endif
     return ::android::hardware::Void();
 }
 

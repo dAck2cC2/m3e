@@ -63,9 +63,11 @@ __attribute__((destructor))static void static_destructor() {
     return ::android::hardware::Void();}
 
 ::android::hardware::Return<void> IEffectsFactory::getHashChain(getHashChain_cb _hidl_cb){
+#if 0 // M3E:
     _hidl_cb({
         (uint8_t[32]){33,127,145,97,152,58,72,211,191,63,174,177,88,248,104,170,139,240,206,37,136,158,78,227,210,186,177,162,232,211,62,119} /* 217f9161983a48d3bf3faeb158f868aa8bf0ce25889e4ee3d2bab1a2e8d33e77 */,
         (uint8_t[32]){189,218,182,24,77,122,52,109,166,160,125,192,130,140,241,154,105,111,76,170,54,17,197,31,46,20,86,90,20,180,15,217} /* bddab6184d7a346da6a07dc0828cf19a696f4caa3611c51f2e14565a14b40fd9 */});
+#endif
     return ::android::hardware::Void();
 }
 

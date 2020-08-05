@@ -19,6 +19,11 @@
 
 #include "utils/Compat.h"
 
+// M3E: add
+#if defined(_MSC_VER)
+#include <string>
+#endif
+
 namespace android {
 
 /*

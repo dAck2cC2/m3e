@@ -35,6 +35,7 @@ namespace android {
 namespace hardware {
 
 namespace details {
+ANDROID_API_FMQ // M3E: MSVC export
 void check(bool exp);
 void logError(const std::string &message);
 }  // namespace details
@@ -1186,12 +1187,16 @@ void* MessageQueue<T, flavor>::mapGrantorDescr(uint32_t grantorIdx) {
     int mapLength =
             grantors[grantorIdx].offset - mapOffset + grantors[grantorIdx].extent;
 
+#if !defined(_MSC_VER) // M3E:
     void* address = mmap(0, mapLength, PROT_READ | PROT_WRITE, MAP_SHARED,
                          handle->data[fdIndex], mapOffset);
     return (address == MAP_FAILED)
             ? nullptr
             : reinterpret_cast<uint8_t*>(address) +
             (grantors[grantorIdx].offset - mapOffset);
+#else
+    return nullptr;
+#endif
 }
 
 template <typename T, MQFlavor flavor>
@@ -1207,7 +1212,9 @@ void MessageQueue<T, flavor>::unmapGrantorDescr(void* address,
             grantors[grantorIdx].offset - mapOffset + grantors[grantorIdx].extent;
     void* baseAddress = reinterpret_cast<uint8_t*>(address) -
             (grantors[grantorIdx].offset - mapOffset);
+#if !defined(_MSC_VER) // M3E:
     if (baseAddress) munmap(baseAddress, mapLength);
+#endif
 }
 
 }  // namespace hardware

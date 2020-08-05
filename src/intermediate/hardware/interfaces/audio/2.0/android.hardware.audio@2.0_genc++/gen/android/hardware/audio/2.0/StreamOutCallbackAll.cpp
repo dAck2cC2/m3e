@@ -61,9 +61,11 @@ __attribute__((destructor))static void static_destructor() {
     return ::android::hardware::Void();}
 
 ::android::hardware::Return<void> IStreamOutCallback::getHashChain(getHashChain_cb _hidl_cb){
+#if 0 // M3E:
     _hidl_cb({
         (uint8_t[32]){25,210,65,215,28,62,17,64,175,186,129,64,220,181,116,72,68,96,37,165,252,3,115,151,136,196,194,94,154,152,182,194} /* 19d241d71c3e1140afba8140dcb57448446025a5fc03739788c4c25e9a98b6c2 */,
         (uint8_t[32]){189,218,182,24,77,122,52,109,166,160,125,192,130,140,241,154,105,111,76,170,54,17,197,31,46,20,86,90,20,180,15,217} /* bddab6184d7a346da6a07dc0828cf19a696f4caa3611c51f2e14565a14b40fd9 */});
+#endif
     return ::android::hardware::Void();
 }
 

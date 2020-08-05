@@ -34,12 +34,12 @@ set(ENABLE_AUDIOHAL_2_0  TRUE)
 set(ENABLE_AUDIOHAL_4_0  FALSE)
 
 if (MSVC)
-    #add_definitions(-DNOMINMAX=1)
-    #dd_definitions(-D__unused= )
+    add_definitions(-DNOMINMAX=1)
+    add_definitions(-D__unused= )
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 
-    #include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
-    #list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 endif()
 
 add_definitions(-DUSE_LEGACY_LOCAL_AUDIO_HAL=1)

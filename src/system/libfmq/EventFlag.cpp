@@ -21,7 +21,9 @@
 #endif
 #include <string.h>
 #include <sys/mman.h>
+#if !defined(_MSC_VER) // M3E:
 #include <sys/syscall.h>
+#endif
 #include <unistd.h>
 
 #include <new>
@@ -29,6 +31,10 @@
 #include <fmq/EventFlag.h>
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
+
+#if defined(_MSC_VER) // M3E:
+#include <sys/time.h>
+#endif
 
 namespace android {
 namespace hardware {
@@ -78,10 +84,12 @@ status_t EventFlag::createEventFlag(std::atomic<uint32_t>* fwAddr,
  * mmap memory for the futex word
  */
 EventFlag::EventFlag(int fd, off_t offset, status_t* status) {
+#if !defined(_MSC_VER) // M3E:
     mEfWordPtr = static_cast<std::atomic<uint32_t>*>(mmap(NULL,
                                                           sizeof(std::atomic<uint32_t>),
                                                           PROT_READ | PROT_WRITE,
                                                           MAP_SHARED, fd, offset));
+#endif
     mEfWordNeedsUnmapping = true;
     if (mEfWordPtr != MAP_FAILED) {
         *status = NO_ERROR;
@@ -239,11 +247,13 @@ status_t EventFlag::unmapEventFlagWord(std::atomic<uint32_t>* efWordPtr,
                                        bool* efWordNeedsUnmapping) {
     status_t status = NO_ERROR;
     if (*efWordNeedsUnmapping) {
+#if !defined(_MSC_VER)
         int ret = munmap(efWordPtr, sizeof(std::atomic<uint32_t>));
         if (ret != 0) {
             status = -errno;
             ALOGE("Error in deleting event flag group: %s\n", strerror(errno));
         }
+#endif
         *efWordNeedsUnmapping = false;
     }
     return status;
