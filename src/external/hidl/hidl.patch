@@ -1,0 +1,63 @@
+diff --git a/Coordinator.cpp b/Coordinator.cpp
+index 96c96582..f9ba23c9 100644
+--- a/Coordinator.cpp
++++ b/Coordinator.cpp
+@@ -906,7 +906,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
+                 return false;
+             }
+ 
++#if defined(_MSC_VER)
++            int res = mkdir(partial.c_str());
++#else
+             int res = mkdir(partial.c_str(), kMode);
++#endif
+             if (res < 0) {
+                 return false;
+             }
+diff --git a/Hash.cpp b/Hash.cpp
+index 7eb315b4..5b9bcb18 100644
+--- a/Hash.cpp
++++ b/Hash.cpp
+@@ -24,7 +24,12 @@
+ #include <sstream>
+ 
+ #include <android-base/logging.h>
++#if ENABLE_OPENSSL
+ #include <openssl/sha.h>
++#else
++#define SHA256_DIGEST_LENGTH 32
++#define SHA256(a, b, c) 
++#endif
+ 
+ namespace android {
+ 
+diff --git a/HidlTypeAssertion.cpp b/HidlTypeAssertion.cpp
+index 4522f15a..40708ecc 100644
+--- a/HidlTypeAssertion.cpp
++++ b/HidlTypeAssertion.cpp
+@@ -21,6 +21,10 @@
+ #include <string>
+ #include <vector>
+ 
++#if defined(_MSC_VER)
++#include <algorithm>
++#endif
++
+ namespace android {
+ 
+ typedef std::vector<std::pair<std::string, size_t>> Registry;
+diff --git a/main.cpp b/main.cpp
+index dabbdaa4..a005468c 100644
+--- a/main.cpp
++++ b/main.cpp
+@@ -31,6 +31,10 @@
+ #include <string>
+ #include <vector>
+ 
++#if defined(_MSC_VER)
++#include <algorithm>
++#endif
++
+ using namespace android;
+ 
+ enum class OutputMode {

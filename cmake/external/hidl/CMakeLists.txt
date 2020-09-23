@@ -4,11 +4,27 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
   message(STATUS Download\t hidl)
-  exec_program(git clone ${EXT_LINK}/system/tools/hidl ${M3E_SOURCE_DIR}/${EXT_PATH})
-  exec_program(git checkout tags/${EXT_TAG} ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+  exec_program("git clone ${EXT_LINK}/system/tools/hidl" ${M3E_SOURCE_DIR}/${EXT_PATH})
+  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+  
+  # apply patch
+  exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl/hidl.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+endif()
 
-  exec_program(yacc --defines=hidl-gen_y.h -o hidl-gen_y.cpp hidl-gen_y.yy ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
-  exec_program(lex -o hidl-gen_l.cpp hidl-gen_l.ll ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl/hidl-gen_y.cpp)
+  if (MSVC)
+    exec_program("bison --defines=hidl-gen_y.h -o hidl-gen_y.cpp hidl-gen_y.yy" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+  else ()
+    exec_program("yacc --defines=hidl-gen_y.h -o hidl-gen_y.cpp hidl-gen_y.yy" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+  endif()
+endif()
+
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl/hidl-gen_l.cpp)
+  if (MSVC)
+    exec_program("flex -o hidl-gen_l.cpp hidl-gen_l.ll" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+  else()
+    exec_program("lex -o hidl-gen_l.cpp hidl-gen_l.ll" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+  endif()
 endif()
 
 # dependency
@@ -26,8 +42,16 @@ base
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl )
 
+include_directories(AFTER ${HEADER_PATH})
+
+
 if(APPLE)
-    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
+  set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS}) 
+elseif (MSVC)
+  include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+  list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
+
+  add_definitions(-Dmode_t=int)
 endif()
 
 file(GLOB ${PROJECT_NAME}_HEADER_FILES
@@ -45,6 +69,7 @@ ${HEADER_PATH}/utils/include
 set(HIDL_SOURCE_UTILS
 ${SOURCE_PATH}/utils/FQName.cpp
 ${SOURCE_PATH}/utils/Formatter.cpp
+${SOURCE_PATH}/utils/FqInstance.cpp
 ${SOURCE_PATH}/utils/StringHelper.cpp
 )
 source_group(libhidl-gen-utils FILES ${HIDL_SOURCE_UTILS})
@@ -68,10 +93,12 @@ ${SOURCE_PATH}/ArrayType.cpp
 ${SOURCE_PATH}/CompoundType.cpp 
 ${SOURCE_PATH}/ConstantExpression.cpp 
 ${SOURCE_PATH}/DeathRecipientType.cpp 
+${SOURCE_PATH}/DocComment.cpp
 ${SOURCE_PATH}/EnumType.cpp 
 ${SOURCE_PATH}/HandleType.cpp 
 ${SOURCE_PATH}/HidlTypeAssertion.cpp 
 ${SOURCE_PATH}/Interface.cpp 
+${SOURCE_PATH}/Location.cpp
 ${SOURCE_PATH}/MemoryType.cpp 
 ${SOURCE_PATH}/Method.cpp 
 ${SOURCE_PATH}/NamedType.cpp 
@@ -92,6 +119,7 @@ source_group(libhidl-gen FILES ${HIDL_SOURCE_GEN})
 set(HIDL_SOURCE_AST
 ${SOURCE_PATH}/Coordinator.cpp 
 ${SOURCE_PATH}/generateCpp.cpp 
+${SOURCE_PATH}/generateCppAdapter.cpp
 ${SOURCE_PATH}/generateCppImpl.cpp 
 ${SOURCE_PATH}/generateJava.cpp 
 ${SOURCE_PATH}/generateVts.cpp 

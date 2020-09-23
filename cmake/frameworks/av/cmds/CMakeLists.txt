@@ -33,7 +33,7 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/media/
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/cmds/stagefright )
 
 if (MSVC)
-    set( XGETOPT_SRC  ${MSVC_PATH}/XGetopt.cpp )
+    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()
@@ -52,8 +52,11 @@ stagefright_foundation
 stagefright
 )
 
+if (MSVC)
+    list(APPEND CMDS_AUDIOLOOP_DEPLIBS ${LIB_MSVC_WRAP})
+endif()
+
 set(CMDS_AUDIOLOOP_SOURCE_FILES
-${XGETOPT_SRC}
 ${SOURCE_PATH}/SineSource.cpp    
 ${SOURCE_PATH}/audioloop.cpp
 )
@@ -84,8 +87,11 @@ gui
 ui
 )
 
+if (MSVC)
+    list(APPEND CMDS_CODEC_DEPLIBS ${LIB_MSVC_WRAP})
+endif()
+
 set(CMDS_CODEC_SOURCE_FILES
-${XGETOPT_SRC}
 ${SOURCE_PATH}/codec.cpp    
 ${SOURCE_PATH}/SimplePlayer.cpp
 )

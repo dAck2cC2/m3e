@@ -15,16 +15,18 @@
 #ifndef XGETOPT_H
 #define XGETOPT_H
 
+#include <msvc_export.h>
+
 #include <tchar.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int optind, opterr;
-extern TCHAR *optarg;
+MSVC_EXPORT extern int optind, opterr;
+MSVC_EXPORT extern TCHAR *optarg;
 
-int getopt(int argc, TCHAR *argv[], TCHAR *optstring);
+MSVC_EXPORT int getopt(int argc, TCHAR *argv[], TCHAR *optstring);
 
 #ifdef __cplusplus
 }
