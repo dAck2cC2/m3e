@@ -1,8 +1,91 @@
 diff --git a/Coordinator.cpp b/Coordinator.cpp
-index 96c96582..f9ba23c9 100644
+index 96c96582..a5ad756f 100644
 --- a/Coordinator.cpp
 +++ b/Coordinator.cpp
-@@ -906,7 +906,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
+@@ -49,9 +49,16 @@ const std::string &Coordinator::getRootPath() const {
+ void Coordinator::setRootPath(const std::string &rootPath) {
+     mRootPath = rootPath;
+ 
++#if defined(_MSC_VER)
++    if (!mRootPath.empty() && !StringHelper::EndsWith(mRootPath, "\\")) {
++        mRootPath += "\\";
++    }
++#else
+     if (!mRootPath.empty() && !StringHelper::EndsWith(mRootPath, "/")) {
+         mRootPath += "/";
+     }
++#endif
++
+ }
+ 
+ void Coordinator::setOutputPath(const std::string& outputPath) {
+@@ -390,7 +397,11 @@ const Coordinator::PackageRoot* Coordinator::findPackageRoot(const FQName& fqNam
+ }
+ 
+ std::string Coordinator::makeAbsolute(const std::string& path) const {
++#if defined(_MSC_VER)
++    if (StringHelper::StartsWith(path, "\\") || mRootPath.empty()) {
++#else
+     if (StringHelper::StartsWith(path, "/") || mRootPath.empty()) {
++#endif
+         return path;
+     }
+ 
+@@ -430,12 +441,20 @@ status_t Coordinator::getPackagePath(const FQName& fqName, bool relative, bool s
+ 
+     std::vector<std::string> components;
+     if (!relative) {
++#if defined(_MSC_VER)
++        components.push_back(StringHelper::RTrimAll(packageRoot->path, "\\"));
++#else
+         components.push_back(StringHelper::RTrimAll(packageRoot->path, "/"));
++#endif
+     }
+     components.insert(components.end(), suffixComponents.begin(), suffixComponents.end());
+     components.push_back(sanitized ? fqName.sanitizedVersion() : fqName.version());
+ 
++#if defined(_MSC_VER)
++    *path = StringHelper::JoinStrings(components, "\\") + "\\";
++#else
+     *path = StringHelper::JoinStrings(components, "/") + "/";
++#endif
+     return OK;
+ }
+ 
+@@ -518,11 +537,20 @@ status_t Coordinator::convertPackageRootToPath(const FQName& fqName, std::string
+     status_t err = getPackageRoot(fqName, &packageRoot);
+     if (err != OK) return err;
+ 
++#if defined(_MSC_VER)
++    std::string::const_iterator end_itr = (packageRoot.end()-1);
++    if (*end_itr != '.') {
++#else
+     if (*(packageRoot.end()--) != '.') {
++#endif
+         packageRoot += '.';
+     }
+ 
++#if defined(_MSC_VER)
++    std::replace(packageRoot.begin(), packageRoot.end(), '.', '\\');
++#else
+     std::replace(packageRoot.begin(), packageRoot.end(), '.', '/');
++#endif
+ 
+     *path = packageRoot;  // now converted to a path
+     return OK;
+@@ -897,7 +925,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
+ 
+     size_t start = 1;  // Ignore leading '/'
+     size_t slashPos;
++#if defined(_MSC_VER) 
++    while ((slashPos = path.find('\\', start)) != std::string::npos) {
++#else
+     while ((slashPos = path.find('/', start)) != std::string::npos) {
++#endif
+         std::string partial = path.substr(0, slashPos);
+ 
+         struct stat st;
+@@ -906,7 +938,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
                  return false;
              }
  
@@ -46,8 +129,110 @@ index 4522f15a..40708ecc 100644
  namespace android {
  
  typedef std::vector<std::pair<std::string, size_t>> Registry;
+diff --git a/Interface.cpp b/Interface.cpp
+index 1c66b315..e9820d1c 100644
+--- a/Interface.cpp
++++ b/Interface.cpp
+@@ -318,12 +318,14 @@ bool Interface::fillHashChainMethod(Method *method) const {
+         HIDL_HASH_CHAIN_TRANSACTION,
+         { { IMPL_INTERFACE, [this, digestType](auto &out) {
+             std::vector<const Interface *> chain = typeChain();
++#if !defined(_MSC_VER)  // M3E: the MSVC doesn't support it
+             out << "_hidl_cb(";
+             out.block([&] {
+                 emitDigestChain(out, "(" + digestType->getInternalDataCppType() + ")", chain,
+                                 [](const auto& e) { return e->cppValue(); });
+             });
+             out << ");\n";
++#endif
+             out << "return ::android::hardware::Void();\n";
+         } } }, /* cppImpl */
+         { { IMPL_INTERFACE, [this, digestType, chainType](auto &out) {
+diff --git a/generateCpp.cpp b/generateCpp.cpp
+index fa2a3ca5..e6bf8d53 100644
+--- a/generateCpp.cpp
++++ b/generateCpp.cpp
+@@ -786,6 +786,7 @@ void AST::generateCppSource(Formatter& out) const {
+         // This is a no-op for IServiceManager itself.
+         out << "#include <android/hidl/manager/1.0/IServiceManager.h>\n";
+ 
++#if 0 // M3E:
+         generateCppPackageInclude(out, mPackage, iface->getProxyName());
+         generateCppPackageInclude(out, mPackage, iface->getStubName());
+         generateCppPackageInclude(out, mPackage, iface->getPassthroughName());
+@@ -795,6 +796,9 @@ void AST::generateCppSource(Formatter& out) const {
+                                       superType->fqName(),
+                                       superType->fqName().getInterfaceProxyName());
+         }
++#else
++        generateCppPackageInclude(out, mPackage, "I" + iface->getBaseName());
++#endif
+ 
+         out << "#include <hidl/ServiceManagement.h>\n";
+     } else {
+@@ -818,6 +822,8 @@ void AST::generateCppSource(Formatter& out) const {
+             << "::descriptor(\""
+             << iface->fqName().string()
+             << "\");\n\n";
++
++#if 0 // M3E:
+         out << "__attribute__((constructor)) ";
+         out << "static void static_constructor() {\n";
+         out.indent([&] {
+@@ -864,11 +870,14 @@ void AST::generateCppSource(Formatter& out) const {
+                 << "::descriptor);\n";
+         });
+         out << "};\n\n";
++#endif
+ 
+         generateInterfaceSource(out);
++#if 0  // M3E:
+         generateProxySource(out, iface->fqName());
+         generateStubSource(out, iface);
+         generatePassthroughSource(out);
++#endif
+ 
+         if (isIBase()) {
+             out << "// skipped getService, registerAsService, registerForNotifications\n";
+@@ -876,11 +885,15 @@ void AST::generateCppSource(Formatter& out) const {
+             std::string package = iface->fqName().package()
+                     + iface->fqName().atVersion();
+ 
++#if 0 // M3E:
+             implementServiceManagerInteractions(out, iface->fqName(), package);
++#endif
+         }
+     }
+ 
++#if 0 // M3E:
+     HidlTypeAssertion::EmitAll(out);
++#endif
+     out << "\n";
+ 
+     enterLeaveNamespace(out, false /* enter */);
+@@ -1734,6 +1747,7 @@ void AST::generateInterfaceSource(Formatter& out) const {
+         if (iface == superType) {
+             out << "return parent;\n";
+         } else {
++#if 0 // M3E:
+             out << "return ::android::hardware::details::castInterface<";
+             out << iface->localName() << ", "
+                 << superType->fqName().cppName() << ", "
+@@ -1744,8 +1758,12 @@ void AST::generateInterfaceSource(Formatter& out) const {
+             out << "parent, \""
+                 << iface->fqName().string()
+                 << "\", emitError);\n";
++
+             out.unindent();
+             out.unindent();
++#else
++            out << "return nullptr;\n";
++#endif
+         }
+         out.unindent();
+         out << "}\n\n";
 diff --git a/main.cpp b/main.cpp
-index dabbdaa4..a005468c 100644
+index dabbdaa4..9541b5fb 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -31,6 +31,10 @@
@@ -61,3 +246,53 @@ index dabbdaa4..a005468c 100644
  using namespace android;
  
  enum class OutputMode {
+@@ -1341,9 +1345,15 @@ int main(int argc, char **argv) {
+             }
+ 
+             if (outputFormat->mOutputMode == OutputMode::NEEDS_DIR) {
++#if defined(_MSC_VER)
++                if (outputPath.back() != '\\') {
++                    outputPath += "\\";
++                }
++#else
+                 if (outputPath.back() != '/') {
+                     outputPath += "/";
+                 }
++#endif
+             }
+             break;
+         }
+@@ -1351,9 +1361,15 @@ int main(int argc, char **argv) {
+             if (outputPath.empty()) {
+                 outputPath = coordinator.getRootPath();
+             }
++#if defined(_MSC_VER)
++            if (outputPath.back() != '\\') {
++                outputPath += "\\";
++            }
++#else
+             if (outputPath.back() != '/') {
+                 outputPath += "/";
+             }
++#endif
+ 
+             break;
+         }
+@@ -1365,10 +1381,17 @@ int main(int argc, char **argv) {
+ 
+     coordinator.setOutputPath(outputPath);
+ 
++#if defined(_MSC_VER)
++    coordinator.addDefaultPackagePath("android.hardware", "hardware\\interfaces");
++    coordinator.addDefaultPackagePath("android.hidl", "system\\libhidl\\transport");
++    coordinator.addDefaultPackagePath("android.frameworks", "frameworks\\hardware\\interfaces");
++    coordinator.addDefaultPackagePath("android.system", "system\\hardware\\interfaces");
++#else
+     coordinator.addDefaultPackagePath("android.hardware", "hardware/interfaces");
+     coordinator.addDefaultPackagePath("android.hidl", "system/libhidl/transport");
+     coordinator.addDefaultPackagePath("android.frameworks", "frameworks/hardware/interfaces");
+     coordinator.addDefaultPackagePath("android.system", "system/hardware/interfaces");
++#endif
+ 
+     for (int i = 0; i < argc; ++i) {
+         FQName fqName;
