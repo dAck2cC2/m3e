@@ -95,3 +95,7 @@ endif(ENABLE_RAYLIB)
 if (ENABLE_GLFW)
     add_subdirectory(glfw)
 endif(ENABLE_GLFW)
+
+if (ENABLE_HIDL_GEN)
+    add_subdirectory(hidl)
+endif(ENABLE_HIDL_GEN)

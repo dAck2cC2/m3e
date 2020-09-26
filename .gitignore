@@ -9,6 +9,8 @@ external
 proj
 backup
 out
+tool
 
 !/cmake/external
+!/cmake/tool
 !/src/external

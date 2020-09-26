@@ -25,6 +25,10 @@ if(CFG_NO_DEFAULT)
      
     set(ENABLE_AV_BASE   "TRUE")   
  
+  elseif(CFG_ENABLE_TOOL_GEN)
+    set(ENABLE_CORE      "TRUE")
+    set(ENABLE_HIDL_GEN  "TRUE")
+
   elseif(CFG_ENABLE_AV_CODEC)
     set(ENABLE_CORE      "TRUE")  
     set(ENABLE_NATIVE    "TRUE")
@@ -83,6 +87,18 @@ if(NOT EXISTS ${BUILD_PATH})
   exec_program("mkdir ${BUILD_PATH}")
 endif()
 
+# create and generate project for building tool
+if(NOT EXISTS ${M3E_SOURCE_DIR}/tool)
+  if(APPLE)
+    set(ARG_GENERATE  "-G Xcode")
+  else()
+    set(ARG_GENERATE  "")
+  endif()
+
+  exec_program("mkdir tool" ${M3E_SOURCE_DIR})
+  exec_program("cmake ${ARG_GENERATE} -C ${M3E_SOURCE_DIR}/cmake/config/tool_gen.cmake .." ${M3E_SOURCE_DIR}/tool)
+endif()
+
 # create the configure header file
 #if(NOT EXISTS ${M3E_CFG_PATH})
 #  message(STATUS "Create\t${M3E_CFG_PATH}")
@@ -92,8 +108,15 @@ endif()
 
 # the subdirectory
 add_subdirectory(external)
-add_subdirectory(frameworks)
-add_subdirectory(system)
+
+if(ENABLE_NATIVE)
+  if(NOT EXISTS ${BIN_HIDL_GEN})
+    message( FATAL_ERROR "Please firstly build ${M3E_SOURCE_DIR}/tool " )
+  endif()
+
+  add_subdirectory(frameworks)
+  add_subdirectory(system)
+endif(ENABLE_NATIVE)
 
 if(ENABLE_CORE)
   add_subdirectory(core)

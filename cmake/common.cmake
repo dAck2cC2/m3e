@@ -5,6 +5,23 @@ set(MSVC_PATH     ${M3E_SOURCE_DIR}/src/system/msvc)
 set(GENERIC_PATH  ${M3E_SOURCE_DIR}/src/system/generic)
 set(EXT_PATH      external)
 #set(M3E_CFG_PATH  ${BUILD_PATH}/header)
+set(TOOL_PATH     ${M3E_SOURCE_DIR}/tool/build)
+
+if(MSVC)
+    set(BIN_HIDL_GEN  ${M3E_SOURCE_DIR}/tool/build/hidl-gen.exe)
+else()
+    set(BIN_HIDL_GEN  ${M3E_SOURCE_DIR}/tool/build/hidl-gen)
+endif()
+
+# refer to 
+# frameworks/av/media/libstagefright/MediaExtractorFactory.cpp
+# void MediaExtractorFactory::UpdateExtractors
+set(SYS_EXTR_PATH ${BUILD_PATH}/system/extractors)
+set(VND_EXTR_PATH ${BUILD_PATH}/vendor/extractors)
+
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${BUILD_PATH}" ) #->define path for archive
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${BUILD_PATH}" ) #->define path for Library
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${BUILD_PATH}" ) #->define path for Runtime
 
 if (MSVC)
     set(LIB_TYPE STATIC)

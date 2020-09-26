@@ -11,12 +11,14 @@ frameworks/compile/slang \
 frameworks/wilhelm \
 hardware/libhardware \
 hardware/interfaces \
+hardware/google/av \
 system/core \
 system/media \
 system/netd \
 system/libhidl \
 system/libhwbinder \
 system/libfmq \
+system/tools/hidl \
 libnativehelper \
 "
 
