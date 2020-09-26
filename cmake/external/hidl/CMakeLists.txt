@@ -11,21 +11,25 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
   exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl/hidl.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
 endif()
 
-if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl/hidl-gen_y.cpp)
-  if (MSVC)
-    exec_program("bison --defines=hidl-gen_y.h -o hidl-gen_y.cpp hidl-gen_y.yy" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
-  else ()
-    exec_program("yacc --defines=hidl-gen_y.h -o hidl-gen_y.cpp hidl-gen_y.yy" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
-  endif()
-endif()
+###############################################################################
+# Generate and store the source code to src/external/hidl/
+# It will not request additional tool of bison and flex then.
 
-if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl/hidl-gen_l.cpp)
-  if (MSVC)
-    exec_program("flex -o hidl-gen_l.cpp hidl-gen_l.ll" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
-  else()
-    exec_program("lex -o hidl-gen_l.cpp hidl-gen_l.ll" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
-  endif()
-endif()
+#if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl/hidl-gen_y.cpp)
+#  if (MSVC)
+#    exec_program("bison --defines=hidl-gen_y.h -o hidl-gen_y.cpp hidl-gen_y.yy" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+#  else ()
+#    exec_program("yacc --defines=hidl-gen_y.h -o hidl-gen_y.cpp hidl-gen_y.yy" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+#  endif()
+#endif()
+
+#if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl/hidl-gen_l.cpp)
+#  if (MSVC)
+#    exec_program("flex -o hidl-gen_l.cpp hidl-gen_l.ll" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+#  else()
+#    exec_program("lex -o hidl-gen_l.cpp hidl-gen_l.ll" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
+#  endif()
+#endif()
 
 # dependency
 
@@ -43,7 +47,7 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl )
 
 include_directories(AFTER ${HEADER_PATH})
-
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl)
 
 if(APPLE)
   set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS}) 
@@ -58,6 +62,7 @@ file(GLOB ${PROJECT_NAME}_HEADER_FILES
 ${HEADER_PATH}/*.h
 ${HEADER_PATH}/include_hash/hidl-hash/*.h
 ${HEADER_PATH}/utils/include/hidl-util/*.h
+${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl/*.h
 )
 
 ###############################################################################
@@ -127,8 +132,8 @@ ${SOURCE_PATH}/hidl-gen_y.yy
 ${SOURCE_PATH}/hidl-gen_l.ll 
 ${SOURCE_PATH}/AST.cpp 
 
-${SOURCE_PATH}/hidl-gen_y.cpp
-${SOURCE_PATH}/hidl-gen_l.cpp
+${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl/hidl-gen_y.cpp
+${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl/hidl-gen_l.cpp
 )
 source_group(libhidl-gen-ast FILES ${HIDL_SOURCE_AST})
 
