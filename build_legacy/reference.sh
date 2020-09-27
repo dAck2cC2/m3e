@@ -12,6 +12,7 @@ frameworks/wilhelm \
 hardware/libhardware \
 hardware/interfaces \
 hardware/google/av \
+hardware/google/interfaces \
 system/core \
 system/media \
 system/netd \

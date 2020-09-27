@@ -4,6 +4,7 @@ set(BUILD_PATH    ${M3E_BINARY_DIR}/build)
 set(MSVC_PATH     ${M3E_SOURCE_DIR}/src/system/msvc)
 set(GENERIC_PATH  ${M3E_SOURCE_DIR}/src/system/generic)
 set(EXT_PATH      external)
+set(TMP_PATH      ${M3E_BINARY_DIR}/intermediate)
 #set(M3E_CFG_PATH  ${BUILD_PATH}/header)
 set(TOOL_PATH     ${M3E_SOURCE_DIR}/tool/build)
 
@@ -12,6 +13,9 @@ if(MSVC)
 else()
     set(BIN_HIDL_GEN  ${M3E_SOURCE_DIR}/tool/build/hidl-gen)
 endif()
+set(HIDL_HEADER_PATH  genc++_headers)
+set(HIDL_SOURCE_PATH  genc++)
+
 
 # refer to 
 # frameworks/av/media/libstagefright/MediaExtractorFactory.cpp
