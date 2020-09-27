@@ -13,7 +13,6 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/intermediate/hardware/interfaces
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/intermediate/hardware/interfaces/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++_headers/gen)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/intermediate/hardware/interfaces/graphics/composer/2.2/android.hardware.graphics.composer@2.2_genc++_headers/gen)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/intermediate/hardware/interfaces/media/1.0/android.hardware.media@1.0_genc++_headers/gen)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/intermediate/hardware/interfaces/media/omx/1.0/android.hardware.media.omx@1.0_genc++_headers/gen)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/hardware/interfaces/audio/common/all-versions/default/include)
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/hardware/interfaces/audio/common/all-versions/util/include)

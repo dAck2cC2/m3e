@@ -44,15 +44,11 @@ ${INTERMEDIATE_PATH}/graphics/common/1.1/android.hardware.graphics.common@1.1_ge
 ${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++_headers/gen/android/hardware/graphics/composer/2.1/*.h
 ${INTERMEDIATE_PATH}/graphics/composer/2.2/android.hardware.graphics.composer@2.2_genc++_headers/gen/android/hardware/graphics/composer/2.2/*.h
 ${INTERMEDIATE_PATH}/media/1.0/android.hardware.media@1.0_genc++_headers/gen/android/hardware/media/1.0/*.h
-${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++_headers/gen/android/hardware/media/omx/1.0/*.h
 )
 
 # source files
 set(${PROJECT_NAME}_SOURCE_FILES 
 ${SOURCE_PATH}/configstore/utils/ConfigStoreUtils.cpp
-${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++/gen/android/hardware/media/omx/1.0/OmxNodeAll.cpp
-${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++/gen/android/hardware/media/omx/1.0/OmxBufferSourceAll.cpp
-${INTERMEDIATE_PATH}/media/omx/1.0/android.hardware.media.omx@1.0_genc++/gen/android/hardware/media/omx/1.0/OmxStoreAll.cpp
 
 ${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerCallbackAll.cpp
 ${INTERMEDIATE_PATH}/graphics/composer/2.1/android.hardware.graphics.composer@2.1_genc++/gen/android/hardware/graphics/composer/2.1/ComposerAll.cpp
@@ -77,6 +73,26 @@ endif()
 if(NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH})
     exec_program("mkdir ${HIDL_SOURCE_PATH}" ${TMP_PATH})
 endif()
+
+###############################################################################
+# generate android.hardware.media.omx@1.0
+if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hardware/media/omx/1.0)
+    exec_program("${BIN_HIDL_GEN} -p ${M3E_SOURCE_DIR}/src -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers android.hardware.media.omx@1.0")
+endif()
+if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0)
+    exec_program("${BIN_HIDL_GEN} -p ${M3E_SOURCE_DIR}/src -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources android.hardware.media.omx@1.0")
+endif()
+
+file(GLOB ANDROID_HARDWARE_MEDIA_OMX_10_SOURCES
+    ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hardware/media/omx/1.0/*.h
+)
+list(APPEND ANDROID_HARDWARE_MEDIA_OMX_10_SOURCES
+${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxNodeAll.cpp
+${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxBufferSourceAll.cpp
+${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxStoreAll.cpp
+)
+source_group(android.hardware.media.omx@1.0 FILES ${ANDROID_HARDWARE_MEDIA_OMX_10_SOURCES})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_HARDWARE_MEDIA_OMX_10_SOURCES})
 
 ###############################################################################
 # generate android.hardware.media.bufferpool@1.0
