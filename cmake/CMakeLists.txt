@@ -99,6 +99,17 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/tool)
   exec_program("cmake ${ARG_GENERATE} -C ${M3E_SOURCE_DIR}/cmake/config/tool_gen.cmake .." ${M3E_SOURCE_DIR}/tool)
 endif()
 
+# generate intermediate path
+if(NOT EXISTS ${TMP_PATH})
+    exec_program("mkdir ${TMP_PATH}")
+endif()
+if(NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH})
+    exec_program("mkdir ${HIDL_HEADER_PATH}" ${TMP_PATH})
+endif()
+if(NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH})
+    exec_program("mkdir ${HIDL_SOURCE_PATH}" ${TMP_PATH})
+endif()
+
 # create the configure header file
 #if(NOT EXISTS ${M3E_CFG_PATH})
 #  message(STATUS "Create\t${M3E_CFG_PATH}")

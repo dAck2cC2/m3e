@@ -39,104 +39,6 @@ ${SOURCE_PATH}/audio/common/2.0/default/HidlUtils.cpp
 )
 
 ###############################################################################
-# generate intermediate path
-if(NOT EXISTS ${TMP_PATH})
-    exec_program("mkdir ${TMP_PATH}")
-endif()
-if(NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH})
-    exec_program("mkdir ${HIDL_HEADER_PATH}" ${TMP_PATH})
-endif()
-if(NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH})
-    exec_program("mkdir ${HIDL_SOURCE_PATH}" ${TMP_PATH})
-endif()
-
-###############################################################################
-# generate android.hidl.memory@1.0
-if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/memory/1.0)
-    exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers android.hidl.memory@1.0")
-endif()
-if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hidl/memory/1.0)
-    #exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources android.hidl.memory@1.0")
-endif()
-
-file(GLOB ANDROID_HIDL_MEMORY_10_SOURCES
-${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/memory/1.0/*.h
-)
-list(APPEND ANDROID_HIDL_MEMORY_10_SOURCES
-)
-source_group(android.hidl.memory@1.0 FILES ${ANDROID_HIDL_MEMORY_10_SOURCES})
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_HIDL_MEMORY_10_SOURCES})
-
-###############################################################################
-# generate android.hidl.manager@1.0
-if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/manager/1.0)
-    exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers android.hidl.manager@1.0")
-endif()
-if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hidl/manager/1.0)
-    #exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources android.hidl.manager@1.0")
-endif()
-
-file(GLOB ANDROID_HIDL_MANAGER_10_SOURCES
-${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/manager/1.0/*.h
-)
-list(APPEND ANDROID_HIDL_MANAGER_10_SOURCES
-)
-source_group(android.hidl.manager@1.0 FILES ${ANDROID_HIDL_MANAGER_10_SOURCES})
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_HIDL_MANAGER_10_SOURCES})
-
-###############################################################################
-# generate android.hidl.allocator@1.0
-if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/allocator/1.0)
-    exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers android.hidl.allocator@1.0")
-endif()
-if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hidl/allocator/1.0)
-    #exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources android.hidl.allocator@1.0")
-endif()
-
-file(GLOB ANDROID_HIDL_ALLOCATOR_10_SOURCES
-${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/allocator/1.0/*.h
-)
-list(APPEND ANDROID_HIDL_ALLOCATOR_10_SOURCES
-)
-source_group(android.hidl.allocator@1.0 FILES ${ANDROID_HIDL_ALLOCATOR_10_SOURCES})
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_HIDL_ALLOCATOR_10_SOURCES})
-
-###############################################################################
-# generate android.hidl.token@1.0
-if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/token/1.0)
-    exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers android.hidl.token@1.0")
-endif()
-if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hidl/token/1.0)
-    #exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources android.hidl.token@1.0")
-endif()
-
-file(GLOB ANDROID_HIDL_TOKEN_10_SOURCES
-${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/token/1.0/*.h
-)
-list(APPEND ANDROID_HIDL_TOKEN_10_SOURCES
-)
-source_group(android.hidl.token@1.0 FILES ${ANDROID_HIDL_TOKEN_10_SOURCES})
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_HIDL_TOKEN_10_SOURCES})
-
-###############################################################################
-# generate android.hidl.base@1.0
-if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/base/1.0)
-    exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers android.hidl.base@1.0")
-endif()
-if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hidl/base/1.0)
-    exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources android.hidl.base@1.0")
-endif()
-
-file(GLOB ANDROID_HIDL_BASE_10_SOURCES
-    ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hidl/base/1.0/*.h
-)
-list(APPEND ANDROID_HIDL_BASE_10_SOURCES
-${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hidl/base/1.0/BaseAll.cpp
-)
-source_group(android.hidl.base@1.0 FILES ${ANDROID_HIDL_BASE_10_SOURCES})
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_HIDL_BASE_10_SOURCES})
-
-###############################################################################
 # generate android.hardware.cas@1.0
 if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/android/hardware/cas/1.0)
     exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers android.hardware.cas@1.0")
@@ -466,6 +368,7 @@ list(APPEND ANDROID_HARDWARE_MEDIA_OMX_10_SOURCES
 ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxNodeAll.cpp
 ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxBufferSourceAll.cpp
 ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxStoreAll.cpp
+${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxAll.cpp
 ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxAll.cpp
 )
 source_group(android.hardware.media.omx@1.0 FILES ${ANDROID_HARDWARE_MEDIA_OMX_10_SOURCES})
