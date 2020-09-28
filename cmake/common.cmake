@@ -15,6 +15,7 @@ else()
 endif()
 set(HIDL_HEADER_PATH  genc++_headers)
 set(HIDL_SOURCE_PATH  genc++)
+set(HIDL_ROOT_PATH    ${M3E_SOURCE_DIR}/src)
 
 
 # refer to 

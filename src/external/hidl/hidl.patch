@@ -97,6 +97,29 @@ index 96c96582..a5ad756f 100644
              if (res < 0) {
                  return false;
              }
+diff --git a/EnumType.cpp b/EnumType.cpp
+index ead64ba7..d9b411bd 100644
+--- a/EnumType.cpp
++++ b/EnumType.cpp
+@@ -238,6 +238,18 @@ void EnumType::emitTypeDeclarations(Formatter& out) const {
+     const ScalarType *scalarType = mStorageType->resolveToScalarType();
+     CHECK(scalarType != nullptr);
+ 
++#if defined(_MSC_VER)
++    if (localName() == "Status") {
++        out << "#if defined(NO_ERROR)\n"
++            << "#undef NO_ERROR\n"
++            << "#endif\n";
++    } else if (localName() == "Transport") {
++        out << "#if defined(PASSTHROUGH)\n"
++            << "#undef PASSTHROUGH\n"
++            << "#endif\n";
++    } 
++#endif
++
+     const std::string storageType = scalarType->getCppStackType();
+ 
+     out << "enum class "
 diff --git a/Hash.cpp b/Hash.cpp
 index 7eb315b4..5b9bcb18 100644
 --- a/Hash.cpp
@@ -149,10 +172,20 @@ index 1c66b315..e9820d1c 100644
          } } }, /* cppImpl */
          { { IMPL_INTERFACE, [this, digestType, chainType](auto &out) {
 diff --git a/generateCpp.cpp b/generateCpp.cpp
-index fa2a3ca5..112a5cac 100644
+index fa2a3ca5..067052ae 100644
 --- a/generateCpp.cpp
 +++ b/generateCpp.cpp
-@@ -144,11 +144,15 @@ static void implementGetService(Formatter &out,
+@@ -140,15 +140,25 @@ static void implementGetService(Formatter &out,
+     const std::string interfaceName = fqName.getInterfaceName();
+     const std::string functionName = isTry ? "tryGetService" : "getService";
+ 
++#if 1 // M3E:
++    if (interfaceName == "IComposer") {
++        return;
++    }
++#endif
++
+     out << "// static\n"
          << "::android::sp<" << interfaceName << "> " << interfaceName << "::" << functionName << "("
          << "const std::string &serviceName, const bool getStub) ";
      out.block([&] {
@@ -168,7 +201,7 @@ index fa2a3ca5..112a5cac 100644
      }).endl().endl();
  }
  
-@@ -160,6 +164,7 @@ static void implementServiceManagerInteractions(Formatter &out,
+@@ -160,6 +170,7 @@ static void implementServiceManagerInteractions(Formatter &out,
      implementGetService(out, fqName, true /* isTry */);
      implementGetService(out, fqName, false /* isTry */);
  
@@ -176,7 +209,7 @@ index fa2a3ca5..112a5cac 100644
      out << "::android::status_t " << interfaceName << "::registerAsService("
          << "const std::string &serviceName) ";
      out.block([&] {
-@@ -202,6 +207,7 @@ static void implementServiceManagerInteractions(Formatter &out,
+@@ -202,6 +213,7 @@ static void implementServiceManagerInteractions(Formatter &out,
          });
          out << "return success.isOk() && success;\n";
      }).endl().endl();
@@ -184,7 +217,7 @@ index fa2a3ca5..112a5cac 100644
  }
  
  void AST::generateInterfaceHeader(Formatter& out) const {
-@@ -786,6 +792,7 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -786,6 +798,7 @@ void AST::generateCppSource(Formatter& out) const {
          // This is a no-op for IServiceManager itself.
          out << "#include <android/hidl/manager/1.0/IServiceManager.h>\n";
  
@@ -192,7 +225,7 @@ index fa2a3ca5..112a5cac 100644
          generateCppPackageInclude(out, mPackage, iface->getProxyName());
          generateCppPackageInclude(out, mPackage, iface->getStubName());
          generateCppPackageInclude(out, mPackage, iface->getPassthroughName());
-@@ -795,6 +802,9 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -795,6 +808,9 @@ void AST::generateCppSource(Formatter& out) const {
                                        superType->fqName(),
                                        superType->fqName().getInterfaceProxyName());
          }
@@ -202,7 +235,7 @@ index fa2a3ca5..112a5cac 100644
  
          out << "#include <hidl/ServiceManagement.h>\n";
      } else {
-@@ -807,8 +817,10 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -807,8 +823,10 @@ void AST::generateCppSource(Formatter& out) const {
      enterLeaveNamespace(out, true /* enter */);
      out << "\n";
  
@@ -214,7 +247,7 @@ index fa2a3ca5..112a5cac 100644
      if (iface) {
          const Interface* iface = mRootScope.getInterface();
  
-@@ -818,6 +830,8 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -818,6 +836,8 @@ void AST::generateCppSource(Formatter& out) const {
              << "::descriptor(\""
              << iface->fqName().string()
              << "\");\n\n";
@@ -223,7 +256,7 @@ index fa2a3ca5..112a5cac 100644
          out << "__attribute__((constructor)) ";
          out << "static void static_constructor() {\n";
          out.indent([&] {
-@@ -864,11 +878,14 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -864,11 +884,14 @@ void AST::generateCppSource(Formatter& out) const {
                  << "::descriptor);\n";
          });
          out << "};\n\n";
@@ -238,7 +271,7 @@ index fa2a3ca5..112a5cac 100644
  
          if (isIBase()) {
              out << "// skipped getService, registerAsService, registerForNotifications\n";
-@@ -880,7 +897,9 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -880,7 +903,9 @@ void AST::generateCppSource(Formatter& out) const {
          }
      }
  
@@ -248,7 +281,7 @@ index fa2a3ca5..112a5cac 100644
      out << "\n";
  
      enterLeaveNamespace(out, false /* enter */);
-@@ -1734,6 +1753,7 @@ void AST::generateInterfaceSource(Formatter& out) const {
+@@ -1734,6 +1759,7 @@ void AST::generateInterfaceSource(Formatter& out) const {
          if (iface == superType) {
              out << "return parent;\n";
          } else {
@@ -256,7 +289,7 @@ index fa2a3ca5..112a5cac 100644
              out << "return ::android::hardware::details::castInterface<";
              out << iface->localName() << ", "
                  << superType->fqName().cppName() << ", "
-@@ -1744,8 +1764,12 @@ void AST::generateInterfaceSource(Formatter& out) const {
+@@ -1744,8 +1770,12 @@ void AST::generateInterfaceSource(Formatter& out) const {
              out << "parent, \""
                  << iface->fqName().string()
                  << "\", emitError);\n";
