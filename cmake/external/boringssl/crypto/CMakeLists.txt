@@ -204,8 +204,12 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_digest_extra_SOURCE})
 if (${ARCH} STREQUAL "x86_64")
   set(CIPHER_ARCH_SOURCES
   ${SOURCE_PATH}/../${OS_NAME}-${ARCH}/crypto/cipher_extra/aes128gcmsiv-x86_64.${ASM_EXT}
-  #${SOURCE_PATH}/../${OS_NAME}-${ARCH}/crypto/cipher_extra/chacha20_poly1305_x86_64.${ASM_EXT}
   )
+  if (APPLE)
+    list(APPEND CIPHER_ARCH_SOURCES
+    ${SOURCE_PATH}/../${OS_NAME}-${ARCH}/crypto/cipher_extra/chacha20_poly1305_x86_64.${ASM_EXT}
+    )
+  endif()
 endif()
 set(${PROJECT_NAME}_cipher_extra_SOURCE 
 ${SOURCE_PATH}/crypto/cipher_extra/cipher_extra.c
@@ -355,6 +359,27 @@ file(GLOB ${PROJECT_NAME}_cmac_SOURCE ${SOURCE_PATH}/crypto/cmac/cmac.c)
 source_group(cmac FILES ${${PROJECT_NAME}_cmac_SOURCE})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_cmac_SOURCE})
 
+#add_subdirectory(evp)
+file(GLOB ${PROJECT_NAME}_evp_SOURCE 
+${SOURCE_PATH}/crypto/evp/digestsign.c
+${SOURCE_PATH}/crypto/evp/evp.c
+${SOURCE_PATH}/crypto/evp/evp_asn1.c
+${SOURCE_PATH}/crypto/evp/evp_ctx.c
+${SOURCE_PATH}/crypto/evp/p_dsa_asn1.c
+${SOURCE_PATH}/crypto/evp/p_ec.c
+${SOURCE_PATH}/crypto/evp/p_ec_asn1.c
+${SOURCE_PATH}/crypto/evp/p_ed25519.c
+${SOURCE_PATH}/crypto/evp/p_ed25519_asn1.c
+${SOURCE_PATH}/crypto/evp/p_rsa.c
+${SOURCE_PATH}/crypto/evp/p_rsa_asn1.c
+${SOURCE_PATH}/crypto/evp/pbkdf.c
+${SOURCE_PATH}/crypto/evp/print.c
+${SOURCE_PATH}/crypto/evp/scrypt.c
+${SOURCE_PATH}/crypto/evp/sign.c
+)
+source_group(evp FILES ${${PROJECT_NAME}_evp_SOURCE})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_evp_SOURCE})
+
 #add_subdirectory(hkdf)
 file(GLOB ${PROJECT_NAME}_hkdf_SOURCE ${SOURCE_PATH}/crypto/hkdf/hkdf.c)
 source_group(hkdf FILES ${${PROJECT_NAME}_hkdf_SOURCE})
@@ -375,11 +400,116 @@ source_group(pem FILES ${${PROJECT_NAME}_pem_SOURCE})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_pem_SOURCE})
 
 #add_subdirectory(x509)
+file(GLOB ${PROJECT_NAME}_x509_SOURCE 
+${SOURCE_PATH}/crypto/x509/a_digest.c
+${SOURCE_PATH}/crypto/x509/a_sign.c
+${SOURCE_PATH}/crypto/x509/a_strex.c
+${SOURCE_PATH}/crypto/x509/a_verify.c
+${SOURCE_PATH}/crypto/x509/algorithm.c
+${SOURCE_PATH}/crypto/x509/asn1_gen.c
+${SOURCE_PATH}/crypto/x509/by_dir.c
+${SOURCE_PATH}/crypto/x509/by_file.c
+${SOURCE_PATH}/crypto/x509/i2d_pr.c
+${SOURCE_PATH}/crypto/x509/rsa_pss.c
+${SOURCE_PATH}/crypto/x509/t_crl.c
+${SOURCE_PATH}/crypto/x509/t_req.c
+${SOURCE_PATH}/crypto/x509/t_x509.c
+${SOURCE_PATH}/crypto/x509/t_x509a.c
+${SOURCE_PATH}/crypto/x509/x509.c
+${SOURCE_PATH}/crypto/x509/x509_att.c
+${SOURCE_PATH}/crypto/x509/x509_cmp.c
+${SOURCE_PATH}/crypto/x509/x509_d2.c
+${SOURCE_PATH}/crypto/x509/x509_def.c
+${SOURCE_PATH}/crypto/x509/x509_ext.c
+${SOURCE_PATH}/crypto/x509/x509_lu.c
+${SOURCE_PATH}/crypto/x509/x509_obj.c
+${SOURCE_PATH}/crypto/x509/x509_r2x.c
+${SOURCE_PATH}/crypto/x509/x509_req.c
+${SOURCE_PATH}/crypto/x509/x509_set.c
+${SOURCE_PATH}/crypto/x509/x509_trs.c
+${SOURCE_PATH}/crypto/x509/x509_txt.c
+${SOURCE_PATH}/crypto/x509/x509_v3.c
+${SOURCE_PATH}/crypto/x509/x509_vfy.c
+${SOURCE_PATH}/crypto/x509/x509_vpm.c
+${SOURCE_PATH}/crypto/x509/x509cset.c
+${SOURCE_PATH}/crypto/x509/x509name.c
+${SOURCE_PATH}/crypto/x509/x509rset.c
+${SOURCE_PATH}/crypto/x509/x509spki.c
+${SOURCE_PATH}/crypto/x509/x_algor.c
+${SOURCE_PATH}/crypto/x509/x_all.c
+${SOURCE_PATH}/crypto/x509/x_attrib.c
+${SOURCE_PATH}/crypto/x509/x_crl.c
+${SOURCE_PATH}/crypto/x509/x_exten.c
+${SOURCE_PATH}/crypto/x509/x_info.c
+${SOURCE_PATH}/crypto/x509/x_name.c
+${SOURCE_PATH}/crypto/x509/x_pkey.c
+${SOURCE_PATH}/crypto/x509/x_pubkey.c
+${SOURCE_PATH}/crypto/x509/x_req.c
+${SOURCE_PATH}/crypto/x509/x_sig.c
+${SOURCE_PATH}/crypto/x509/x_spki.c
+${SOURCE_PATH}/crypto/x509/x_val.c
+${SOURCE_PATH}/crypto/x509/x_x509.c
+${SOURCE_PATH}/crypto/x509/x_x509a.c
+)
+source_group(x509 FILES ${${PROJECT_NAME}_x509_SOURCE})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_x509_SOURCE})
+
 #add_subdirectory(x509v3)
+file(GLOB ${PROJECT_NAME}_x509v3_SOURCE 
+${SOURCE_PATH}/crypto/x509v3/pcy_cache.c
+${SOURCE_PATH}/crypto/x509v3/pcy_data.c
+${SOURCE_PATH}/crypto/x509v3/pcy_lib.c
+${SOURCE_PATH}/crypto/x509v3/pcy_map.c
+${SOURCE_PATH}/crypto/x509v3/pcy_node.c
+${SOURCE_PATH}/crypto/x509v3/pcy_tree.c
+${SOURCE_PATH}/crypto/x509v3/v3_akey.c
+${SOURCE_PATH}/crypto/x509v3/v3_akeya.c
+${SOURCE_PATH}/crypto/x509v3/v3_alt.c
+${SOURCE_PATH}/crypto/x509v3/v3_bcons.c
+${SOURCE_PATH}/crypto/x509v3/v3_bitst.c
+${SOURCE_PATH}/crypto/x509v3/v3_conf.c
+${SOURCE_PATH}/crypto/x509v3/v3_cpols.c
+${SOURCE_PATH}/crypto/x509v3/v3_crld.c
+${SOURCE_PATH}/crypto/x509v3/v3_enum.c
+${SOURCE_PATH}/crypto/x509v3/v3_extku.c
+${SOURCE_PATH}/crypto/x509v3/v3_genn.c
+${SOURCE_PATH}/crypto/x509v3/v3_ia5.c
+${SOURCE_PATH}/crypto/x509v3/v3_info.c
+${SOURCE_PATH}/crypto/x509v3/v3_int.c
+${SOURCE_PATH}/crypto/x509v3/v3_lib.c
+${SOURCE_PATH}/crypto/x509v3/v3_ncons.c
+${SOURCE_PATH}/crypto/x509v3/v3_pci.c
+${SOURCE_PATH}/crypto/x509v3/v3_pcia.c
+${SOURCE_PATH}/crypto/x509v3/v3_pcons.c
+${SOURCE_PATH}/crypto/x509v3/v3_pku.c
+${SOURCE_PATH}/crypto/x509v3/v3_pmaps.c
+${SOURCE_PATH}/crypto/x509v3/v3_prn.c
+${SOURCE_PATH}/crypto/x509v3/v3_purp.c
+${SOURCE_PATH}/crypto/x509v3/v3_skey.c
+${SOURCE_PATH}/crypto/x509v3/v3_sxnet.c
+${SOURCE_PATH}/crypto/x509v3/v3_utl.c
+)
+source_group(x509v3 FILES ${${PROJECT_NAME}_x509v3_SOURCE})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_x509v3_SOURCE})
 
 # Level 4
+
 #add_subdirectory(pkcs7)
+file(GLOB ${PROJECT_NAME}_pkcs7_SOURCE 
+${SOURCE_PATH}/crypto/pkcs7/pkcs7.c
+${SOURCE_PATH}/crypto/pkcs7/pkcs7_x509.c
+)
+source_group(pkcs7 FILES ${${PROJECT_NAME}_pkcs7_SOURCE})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_pkcs7_SOURCE})
+
 #add_subdirectory(pkcs8)
+file(GLOB ${PROJECT_NAME}_pkcs8_SOURCE 
+${SOURCE_PATH}/crypto/pkcs8/pkcs8.c
+${SOURCE_PATH}/crypto/pkcs8/pkcs8_x509.c
+${SOURCE_PATH}/crypto/pkcs8/p5_pbev2.c
+)
+source_group(pkcs8 FILES ${${PROJECT_NAME}_pkcs8_SOURCE})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_pkcs8_SOURCE})
 
 # Test support code
 #add_subdirectory(test)
@@ -435,6 +565,13 @@ ${SOURCE_PATH}/crypto/thread_win.c
 )
 source_group(base FILES ${${PROJECT_NAME}_crypto_base_SOURCE})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_crypto_base_SOURCE})
+
+
+#add_subdirectory(third_party/fiat)
+file(GLOB ${PROJECT_NAME}_fiat_SOURCE ${SOURCE_PATH}/third_party/fiat/curve25519.c)
+source_group(fiat FILES ${${PROJECT_NAME}_fiat_SOURCE})
+list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_fiat_SOURCE})
+
 
 ###############################################
 # build library of crypto 
