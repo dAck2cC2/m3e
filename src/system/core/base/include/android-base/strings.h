@@ -33,10 +33,12 @@ namespace base {
 // The string is split at each occurrence of a character in delimiters.
 //
 // The empty string is not a valid delimiter list.
+ANDROID_API_BASE // M3E: MSVC export
 std::vector<std::string> Split(const std::string& s,
                                const std::string& delimiters);
 
 // Trims whitespace off both ends of the given string.
+ANDROID_API_BASE // M3E: MSVC export
 std::string Trim(const std::string& s);
 
 // Joins a container of things into a single string, using the given separator.
@@ -55,10 +57,10 @@ std::string Join(const ContainerT& things, SeparatorT separator) {
 }
 
 // We instantiate the common cases in strings.cpp.
-extern template std::string Join(const std::vector<std::string>&, char);
-extern template std::string Join(const std::vector<const char*>&, char);
-extern template std::string Join(const std::vector<std::string>&, const std::string&);
-extern template std::string Join(const std::vector<const char*>&, const std::string&);
+/* M3E: extern */ template std::string Join(const std::vector<std::string>&, char);
+/* M3E: extern */ template std::string Join(const std::vector<const char*>&, char);
+/* M3E: extern */ template std::string Join(const std::vector<std::string>&, const std::string&);
+/* M3E: extern */ template std::string Join(const std::vector<const char*>&, const std::string&);
 
 // Tests whether 's' starts with 'prefix'.
 // TODO: string_view

@@ -105,8 +105,10 @@ using LogFunction = std::function<void(LogId, LogSeverity, const char*, const ch
 using AbortFunction = std::function<void(const char*)>;
 
 void KernelLogger(LogId, LogSeverity, const char*, const char*, unsigned int, const char*);
+ANDROID_API_BASE // M3E: MSVC export
 void StderrLogger(LogId, LogSeverity, const char*, const char*, unsigned int, const char*);
 
+ANDROID_API_BASE // M3E: MSVC export
 void DefaultAborter(const char* abort_message);
 
 std::string GetDefaultTag();
@@ -140,6 +142,7 @@ class LogdLogger {
 #else
 #define INIT_LOGGING_DEFAULT_LOGGER StderrLogger
 #endif
+ANDROID_API_BASE // M3E: MSVC export
 void InitLogging(char* argv[],
                  LogFunction&& logger = INIT_LOGGING_DEFAULT_LOGGER,
                  AbortFunction&& aborter = DefaultAborter);
