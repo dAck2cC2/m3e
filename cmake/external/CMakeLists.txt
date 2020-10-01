@@ -97,5 +97,7 @@ if (ENABLE_GLFW)
 endif(ENABLE_GLFW)
 
 if (ENABLE_HIDL_GEN)
+    add_subdirectory(aidl)
     add_subdirectory(hidl)
+    add_subdirectory(boringssl)
 endif(ENABLE_HIDL_GEN)

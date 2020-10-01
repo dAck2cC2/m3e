@@ -1,0 +1,97 @@
+diff --git a/aidl_language.cpp b/aidl_language.cpp
+index bbe305b..2763a20 100644
+--- a/aidl_language.cpp
++++ b/aidl_language.cpp
+@@ -12,12 +12,20 @@
+ #include "aidl_language_y.h"
+ #include "logging.h"
+ 
++#if 0 // M3E:
+ #ifdef _WIN32
+ int isatty(int  fd)
+ {
+     return (fd == 0);
+ }
+ #endif
++#endif
++
++#if defined(_MSC_VER) // M3E:
++#if defined(interface)
++#undef interface
++#endif
++#endif
+ 
+ using android::aidl::IoDelegate;
+ using android::base::Join;
+@@ -27,8 +35,14 @@ using std::endl;
+ using std::string;
+ using std::unique_ptr;
+ 
++#if 0 // M3E:
+ void yylex_init(void **);
+ void yylex_destroy(void *);
++#else
++typedef void* yyscan_t;
++int yylex_init(yyscan_t* scanner);
++int yylex_destroy(yyscan_t yyscanner);
++#endif
+ void yyset_in(FILE *f, void *);
+ int yyparse(Parser*);
+ YY_BUFFER_STATE yy_scan_buffer(char *, size_t, void *);
+diff --git a/ast_cpp.cpp b/ast_cpp.cpp
+index 783b0f3..fdd65f1 100644
+--- a/ast_cpp.cpp
++++ b/ast_cpp.cpp
+@@ -42,7 +42,15 @@ ClassDecl::ClassDecl(const std::string& name, const std::string& parent,
+       private_members_(std::move(private_members)) {}
+ 
+ void ClassDecl::Write(CodeWriter* to) const {
++#if defined(_MSC_VER) // M3E:
++  to->Write("#ifndef EXPORT_%s\n", name_.c_str());
++  to->Write("#define EXPORT_%s  __declspec(dllimport)\n", name_.c_str());
++  to->Write("#endif\n\n");
++  to->Write("class EXPORT_%s %s ", name_.c_str(), name_.c_str());
++#else
++
+   to->Write("class %s ", name_.c_str());
++#endif
+ 
+   if (parent_.length() > 0)
+       to->Write(": public %s ", parent_.c_str());
+diff --git a/generate_java.cpp b/generate_java.cpp
+index afa188a..f64b67a 100644
+--- a/generate_java.cpp
++++ b/generate_java.cpp
+@@ -57,6 +57,7 @@ namespace java {
+ int generate_java(const string& filename, const string& originalSrc,
+                   AidlInterface* iface, JavaTypeNamespace* types,
+                   const IoDelegate& io_delegate, const JavaOptions& options) {
++#if 0 // M3E: we don't need java currently
+   Class* cl = generate_binder_interface_class(iface, types, options);
+ 
+   Document* document = new Document(
+@@ -67,6 +68,7 @@ int generate_java(const string& filename, const string& originalSrc,
+ 
+   CodeWriterPtr code_writer = io_delegate.GetCodeWriter(filename);
+   document->Write(code_writer.get());
++#endif
+ 
+   return 0;
+ }
+diff --git a/type_namespace.h b/type_namespace.h
+index 7defd24..42c969c 100644
+--- a/type_namespace.h
++++ b/type_namespace.h
+@@ -27,6 +27,12 @@
+ #include "aidl_language.h"
+ #include "logging.h"
+ 
++#if defined(_MSC_VER) // M3E:
++#if defined(interface)
++#undef interface
++#endif
++#endif
++
+ namespace android {
+ namespace aidl {
+ 

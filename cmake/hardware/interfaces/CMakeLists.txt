@@ -437,7 +437,7 @@ ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/InputSurfaceConnect
 source_group(hardware.google.media.c2@1.0 FILES ${HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES})
 
 if (NOT MSVC)
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES})
+    list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES})
 endif()
 
 #add_custom_command(

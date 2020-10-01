@@ -109,6 +109,12 @@ endif()
 if(NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH})
     exec_program("mkdir ${HIDL_SOURCE_PATH}" ${TMP_PATH})
 endif()
+if(NOT EXISTS ${TMP_PATH}/${AIDL_HEADER_PATH})
+    exec_program("mkdir ${AIDL_HEADER_PATH}" ${TMP_PATH})
+endif()
+if(NOT EXISTS ${TMP_PATH}/${AIDL_SOURCE_PATH})
+    exec_program("mkdir ${AIDL_SOURCE_PATH}" ${TMP_PATH})
+endif()
 
 # create the configure header file
 #if(NOT EXISTS ${M3E_CFG_PATH})

@@ -12,6 +12,47 @@ if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl)
 endif()
 
 ###############################################################################
+# create default package path
+# refer to hidl/main.cpp (addDefaultPackagePath)
+
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root)
+  exec_program("mkdir hidl_root" ${M3E_SOURCE_DIR}/${EXT_PATH})
+endif()
+
+# hardware/interfaces
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware)
+  exec_program("mkdir hardware" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root)
+endif()
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/interfaces)
+  message(STATUS Download\t hardware/interfaces)
+  exec_program("git clone ${EXT_LINK}/hardware/interfaces" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware)
+  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/interfaces)
+endif()
+
+# hardware/google/interfaces
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/google)
+  exec_program("mkdir google" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware)
+endif()
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/google/interfaces)
+message(STATUS Download\t hardware/google/interfaces)
+  exec_program("git clone ${EXT_LINK}/hardware/google/interfaces" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/google)
+  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/google/interfaces)
+endif()
+
+# system/libhidl/transport
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/system)
+  exec_program("mkdir system" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root)
+endif()
+if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/system/libhidl)
+  message(STATUS Download\t system/libhidl/transport)
+  exec_program("git clone ${EXT_LINK}/system/libhidl" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/system)
+  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/system/libhidl)
+endif()
+
+# frameworks/hardware/interfaces
+# system/hardware/interfaces
+
+###############################################################################
 # Generate and store the source code to src/external/hidl/
 # It will not request additional tool of bison and flex then.
 
@@ -37,10 +78,11 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
-
+include(${M3E_SOURCE_DIR}/cmake/external/boringssl/include.cmake)
 
 set(${PROJECT_NAME}_DEPLIB
 base
+crypto
 )
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl )

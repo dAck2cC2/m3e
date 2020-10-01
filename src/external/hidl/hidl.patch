@@ -120,23 +120,6 @@ index ead64ba7..d9b411bd 100644
      const std::string storageType = scalarType->getCppStackType();
  
      out << "enum class "
-diff --git a/Hash.cpp b/Hash.cpp
-index 7eb315b4..5b9bcb18 100644
---- a/Hash.cpp
-+++ b/Hash.cpp
-@@ -24,7 +24,12 @@
- #include <sstream>
- 
- #include <android-base/logging.h>
-+#if ENABLE_OPENSSL
- #include <openssl/sha.h>
-+#else
-+#define SHA256_DIGEST_LENGTH 32
-+#define SHA256(a, b, c) 
-+#endif
- 
- namespace android {
- 
 diff --git a/HidlTypeAssertion.cpp b/HidlTypeAssertion.cpp
 index 4522f15a..40708ecc 100644
 --- a/HidlTypeAssertion.cpp

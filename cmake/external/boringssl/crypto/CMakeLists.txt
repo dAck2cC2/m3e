@@ -577,4 +577,5 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${${PROJECT_NAME}_fiat_SOURCE})
 # build library of crypto 
 ###############################################
 
+set(LIB_TYPE SHARED)
 ADD_LIB(crypto)

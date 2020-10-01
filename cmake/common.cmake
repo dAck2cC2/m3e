@@ -4,7 +4,7 @@ set(BUILD_PATH    ${M3E_BINARY_DIR}/build)
 set(MSVC_PATH     ${M3E_SOURCE_DIR}/src/system/msvc)
 set(GENERIC_PATH  ${M3E_SOURCE_DIR}/src/system/generic)
 set(EXT_PATH      external)
-set(TMP_PATH      ${M3E_BINARY_DIR}/intermediate)
+set(TMP_PATH      ${M3E_BINARY_DIR}/intermediates)
 #set(M3E_CFG_PATH  ${BUILD_PATH}/header)
 set(TOOL_PATH     ${M3E_SOURCE_DIR}/tool/build)
 
@@ -13,9 +13,17 @@ if(MSVC)
 else()
     set(BIN_HIDL_GEN  ${M3E_SOURCE_DIR}/tool/build/hidl-gen)
 endif()
-set(HIDL_HEADER_PATH  genc++_headers)
-set(HIDL_SOURCE_PATH  genc++)
-set(HIDL_ROOT_PATH    ${M3E_SOURCE_DIR}/src)
+set(HIDL_HEADER_PATH  hidlc++_headers)
+set(HIDL_SOURCE_PATH  hidlc++)
+set(HIDL_ROOT_PATH    ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root)
+
+if(MSVC)
+    set(BIN_AIDL_CPP  ${M3E_SOURCE_DIR}/tool/build/aidl-cpp.exe)
+else()
+    set(BIN_AIDL_CPP  ${M3E_SOURCE_DIR}/tool/build/aidl-cpp)
+endif()
+set(AIDL_HEADER_PATH  aidlc++_headers)
+set(AIDL_SOURCE_PATH  aidlc++)
 
 
 # refer to 
@@ -48,7 +56,6 @@ boringssl
 )
 
 # moudles which are going to be updated
-#boringssl
 #aac
 #dng_sdk
 #expat
