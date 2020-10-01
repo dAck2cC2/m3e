@@ -57,10 +57,22 @@ std::string Join(const ContainerT& things, SeparatorT separator) {
 }
 
 // We instantiate the common cases in strings.cpp.
-/* M3E: extern */ template std::string Join(const std::vector<std::string>&, char);
-/* M3E: extern */ template std::string Join(const std::vector<const char*>&, char);
-/* M3E: extern */ template std::string Join(const std::vector<std::string>&, const std::string&);
-/* M3E: extern */ template std::string Join(const std::vector<const char*>&, const std::string&);
+#if !defined(_MSC_VER) // M3E:
+extern
+#endif
+template std::string Join(const std::vector<std::string>&, char);
+#if !defined(_MSC_VER) // M3E:
+extern
+#endif
+template std::string Join(const std::vector<const char*>&, char);
+#if !defined(_MSC_VER) // M3E:
+extern
+#endif
+template std::string Join(const std::vector<std::string>&, const std::string&);
+#if !defined(_MSC_VER) // M3E:
+extern
+#endif
+template std::string Join(const std::vector<const char*>&, const std::string&);
 
 // Tests whether 's' starts with 'prefix'.
 // TODO: string_view
