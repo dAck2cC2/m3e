@@ -7,7 +7,12 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/system/hwbinder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
+
+if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/interfaces)
+    message( FATAL_ERROR "Please firstly execute cmake of ${M3E_SOURCE_DIR}/tool which will download the source code")
+endif()
 
 include_directories(AFTER ${TMP_PATH}/${HIDL_HEADER_PATH})
 
@@ -22,8 +27,11 @@ if(MSVC)
     add_definitions(-DNOMINMAX)
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/libhidl/ )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/libhidl/ )
+#set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/libhidl/ )
+#set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/libhidl/ )
+
+set( HEADER_PATH ${HIDL_ROOT_PATH}/system/libhidl/ )
+set( SOURCE_PATH ${HIDL_ROOT_PATH}/system/libhidl/ )
 
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES
