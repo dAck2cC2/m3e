@@ -8,7 +8,12 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/system/hwbinder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
+
+if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/interfaces)
+    message( FATAL_ERROR "Please firstly execute cmake of ${M3E_SOURCE_DIR}/tool which will download the source code")
+endif()
 
 set(${PROJECT_NAME}_DEPLIB
 log
@@ -24,12 +29,16 @@ elseif(MSVC)
     add_definitions(-DNOMINMAX=1)
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/interfaces/ )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/interfaces/ )
+set( HEADER_PATH ${HIDL_ROOT_PATH}/hardware/interfaces/ )
+set( SOURCE_PATH ${HIDL_ROOT_PATH}/hardware/interfaces/ )
 
 # header files
 file(GLOB ${PROJECT_NAME}_HEADER_FILES
 ${HEADER_PATH}/configstore/utils/include/configstore/*.h
+${HEADER_PATH}/audio/common/all-versions/default/include/*.h
+${HEADER_PATH}/audio/common/all-versions/util/include/*.h
+${HEADER_PATH}/audio/common/2.0/default/*.h
+${HEADER_PATH}/audio/common/4.0/default/*.h
 )
 
 # source files
