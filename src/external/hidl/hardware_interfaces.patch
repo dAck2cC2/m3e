@@ -1,0 +1,28 @@
+diff --git a/configstore/utils/ConfigStoreUtils.cpp b/configstore/utils/ConfigStoreUtils.cpp
+index 5a1fb42e2..9813a5d23 100644
+--- a/configstore/utils/ConfigStoreUtils.cpp
++++ b/configstore/utils/ConfigStoreUtils.cpp
+@@ -24,15 +24,23 @@ namespace hardware {
+ namespace details {
+ 
+ bool wouldLogInfo() {
++#if TODO /* M3E: */
+     return WOULD_LOG(INFO);
++#else
++	return false;
++#endif
+ }
+ 
+ void logAlwaysInfo(const std::string& message) {
++#if TODO /* M3E: */
+     LOG(INFO) << message;
++#endif
+ }
+ 
+ void logAlwaysError(const std::string& message) {
++#if TODO /* M3E: */
+     LOG(ERROR) << message;
++#endif
+ }
+ 
+ }  // namespace details

@@ -1,8 +1,19 @@
 diff --git a/Coordinator.cpp b/Coordinator.cpp
-index 96c96582..a5ad756f 100644
+index 96c96582..3eba4a82 100644
 --- a/Coordinator.cpp
 +++ b/Coordinator.cpp
-@@ -49,9 +49,16 @@ const std::string &Coordinator::getRootPath() const {
+@@ -31,6 +31,10 @@
+ #include "Interface.h"
+ #include "hidl-gen_l.h"
+ 
++#if defined(__linux__)
++#include <cstring>
++#endif
++
+ static bool existdir(const char *name) {
+     DIR *dir = opendir(name);
+     if (dir == NULL) {
+@@ -49,9 +53,16 @@ const std::string &Coordinator::getRootPath() const {
  void Coordinator::setRootPath(const std::string &rootPath) {
      mRootPath = rootPath;
  
@@ -19,7 +30,7 @@ index 96c96582..a5ad756f 100644
  }
  
  void Coordinator::setOutputPath(const std::string& outputPath) {
-@@ -390,7 +397,11 @@ const Coordinator::PackageRoot* Coordinator::findPackageRoot(const FQName& fqNam
+@@ -390,7 +401,11 @@ const Coordinator::PackageRoot* Coordinator::findPackageRoot(const FQName& fqNam
  }
  
  std::string Coordinator::makeAbsolute(const std::string& path) const {
@@ -31,7 +42,7 @@ index 96c96582..a5ad756f 100644
          return path;
      }
  
-@@ -430,12 +441,20 @@ status_t Coordinator::getPackagePath(const FQName& fqName, bool relative, bool s
+@@ -430,12 +445,20 @@ status_t Coordinator::getPackagePath(const FQName& fqName, bool relative, bool s
  
      std::vector<std::string> components;
      if (!relative) {
@@ -52,7 +63,7 @@ index 96c96582..a5ad756f 100644
      return OK;
  }
  
-@@ -518,11 +537,20 @@ status_t Coordinator::convertPackageRootToPath(const FQName& fqName, std::string
+@@ -518,11 +541,20 @@ status_t Coordinator::convertPackageRootToPath(const FQName& fqName, std::string
      status_t err = getPackageRoot(fqName, &packageRoot);
      if (err != OK) return err;
  
@@ -73,7 +84,7 @@ index 96c96582..a5ad756f 100644
  
      *path = packageRoot;  // now converted to a path
      return OK;
-@@ -897,7 +925,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
+@@ -897,7 +929,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
  
      size_t start = 1;  // Ignore leading '/'
      size_t slashPos;
@@ -85,7 +96,7 @@ index 96c96582..a5ad756f 100644
          std::string partial = path.substr(0, slashPos);
  
          struct stat st;
-@@ -906,7 +938,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
+@@ -906,7 +942,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
                  return false;
              }
  
@@ -98,10 +109,21 @@ index 96c96582..a5ad756f 100644
                  return false;
              }
 diff --git a/EnumType.cpp b/EnumType.cpp
-index ead64ba7..d9b411bd 100644
+index ead64ba7..728a522f 100644
 --- a/EnumType.cpp
 +++ b/EnumType.cpp
-@@ -238,6 +238,18 @@ void EnumType::emitTypeDeclarations(Formatter& out) const {
+@@ -25,6 +25,10 @@
+ #include "Location.h"
+ #include "ScalarType.h"
+ 
++#if defined(__linux__)
++#include <algorithm>
++#endif
++
+ namespace android {
+ 
+ EnumType::EnumType(const char* localName, const FQName& fullName, const Location& location,
+@@ -238,6 +242,18 @@ void EnumType::emitTypeDeclarations(Formatter& out) const {
      const ScalarType *scalarType = mStorageType->resolveToScalarType();
      CHECK(scalarType != nullptr);
  
@@ -121,14 +143,14 @@ index ead64ba7..d9b411bd 100644
  
      out << "enum class "
 diff --git a/HidlTypeAssertion.cpp b/HidlTypeAssertion.cpp
-index 4522f15a..40708ecc 100644
+index 4522f15a..4319f36f 100644
 --- a/HidlTypeAssertion.cpp
 +++ b/HidlTypeAssertion.cpp
 @@ -21,6 +21,10 @@
  #include <string>
  #include <vector>
  
-+#if defined(_MSC_VER)
++#if defined(_MSC_VER) || defined(__linux__)
 +#include <algorithm>
 +#endif
 +
@@ -285,22 +307,40 @@ index fa2a3ca5..067052ae 100644
          }
          out.unindent();
          out << "}\n\n";
-diff --git a/main.cpp b/main.cpp
-index dabbdaa4..9541b5fb 100644
---- a/main.cpp
-+++ b/main.cpp
-@@ -31,6 +31,10 @@
- #include <string>
- #include <vector>
+diff --git a/hidl-gen_y.yy b/hidl-gen_y.yy
+index f445199c..154fda49 100644
+--- a/hidl-gen_y.yy
++++ b/hidl-gen_y.yy
+@@ -38,6 +38,10 @@
+ #include <hidl-util/StringHelper.h>
+ #include <stdio.h>
  
-+#if defined(_MSC_VER)
++#if defined(__linux__) // M3E:
 +#include <algorithm>
 +#endif
 +
  using namespace android;
  
+ extern int yylex(yy::parser::semantic_type*, yy::parser::location_type*, void*, Scope** const);
+diff --git a/main.cpp b/main.cpp
+index dabbdaa4..a90ead4f 100644
+--- a/main.cpp
++++ b/main.cpp
+@@ -31,6 +31,13 @@
+ #include <string>
+ #include <vector>
+ 
++#if defined(_MSC_VER) || defined(__linux__) // M3E:
++#include <algorithm>
++#endif
++#if defined(__linux__)
++#include <cstring>
++#endif
++
+ using namespace android;
+ 
  enum class OutputMode {
-@@ -1341,9 +1345,15 @@ int main(int argc, char **argv) {
+@@ -1341,9 +1348,15 @@ int main(int argc, char **argv) {
              }
  
              if (outputFormat->mOutputMode == OutputMode::NEEDS_DIR) {
@@ -316,7 +356,7 @@ index dabbdaa4..9541b5fb 100644
              }
              break;
          }
-@@ -1351,9 +1361,15 @@ int main(int argc, char **argv) {
+@@ -1351,9 +1364,15 @@ int main(int argc, char **argv) {
              if (outputPath.empty()) {
                  outputPath = coordinator.getRootPath();
              }
@@ -332,7 +372,7 @@ index dabbdaa4..9541b5fb 100644
  
              break;
          }
-@@ -1365,10 +1381,17 @@ int main(int argc, char **argv) {
+@@ -1365,10 +1384,17 @@ int main(int argc, char **argv) {
  
      coordinator.setOutputPath(outputPath);
  

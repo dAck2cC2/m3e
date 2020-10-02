@@ -20,33 +20,39 @@ if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root)
 endif()
 
 # hardware/interfaces
-if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware)
-  exec_program("mkdir hardware" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root)
+if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware)
+  exec_program("mkdir hardware" ${HIDL_ROOT_PATH})
 endif()
-if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/interfaces)
+if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/interfaces)
   message(STATUS Download\t hardware/interfaces)
-  exec_program("git clone ${EXT_LINK}/hardware/interfaces" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware)
-  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/interfaces)
+  exec_program("git clone ${EXT_LINK}/hardware/interfaces" ${HIDL_ROOT_PATH}/hardware)
+  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${HIDL_ROOT_PATH}/hardware/interfaces)
+
+  # apply patch
+  exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl/hardware_interfaces.patch" ${HIDL_ROOT_PATH}/hardware/interfaces)
 endif()
 
 # hardware/google/interfaces
-if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/google)
-  exec_program("mkdir google" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware)
+if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/google)
+  exec_program("mkdir google" ${HIDL_ROOT_PATH}/hardware)
 endif()
-if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/google/interfaces)
-message(STATUS Download\t hardware/google/interfaces)
-  exec_program("git clone ${EXT_LINK}/hardware/google/interfaces" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/google)
-  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/hardware/google/interfaces)
+if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/google/interfaces)
+  message(STATUS Download\t hardware/google/interfaces)
+  exec_program("git clone ${EXT_LINK}/hardware/google/interfaces" ${HIDL_ROOT_PATH}/hardware/google)
+  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${HIDL_ROOT_PATH}/hardware/google/interfaces)
 endif()
 
 # system/libhidl/transport
-if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/system)
-  exec_program("mkdir system" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root)
+if (NOT EXISTS ${HIDL_ROOT_PATH}/system)
+  exec_program("mkdir system" ${HIDL_ROOT_PATH})
 endif()
-if (NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/system/libhidl)
+if (NOT EXISTS ${HIDL_ROOT_PATH}/system/libhidl)
   message(STATUS Download\t system/libhidl/transport)
-  exec_program("git clone ${EXT_LINK}/system/libhidl" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/system)
-  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${M3E_SOURCE_DIR}/${EXT_PATH}/hidl_root/system/libhidl)
+  exec_program("git clone ${EXT_LINK}/system/libhidl" ${HIDL_ROOT_PATH}/system)
+  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${HIDL_ROOT_PATH}/system/libhidl)
+
+  # apply patch
+  exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl/system_libhidl.patch" ${HIDL_ROOT_PATH}/system/libhidl)
 endif()
 
 # frameworks/hardware/interfaces

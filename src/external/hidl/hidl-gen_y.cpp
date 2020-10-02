@@ -78,6 +78,10 @@
 #include <hidl-util/StringHelper.h>
 #include <stdio.h>
 
+#if defined(__linux__) // M3E:
+#include <algorithm>
+#endif
+
 using namespace android;
 
 extern int yylex(yy::parser::semantic_type*, yy::parser::location_type*, void*, Scope** const);
@@ -238,7 +242,7 @@ bool isValidTypeName(const std::string& identifier, std::string *errorMsg) {
 
 
 /* Line 171 of glr.c  */
-#line 242 "hidl-gen_y.cpp"
+#line 246 "hidl-gen_y.cpp"
 
 
 
@@ -272,12 +276,12 @@ static YYSTYPE yyval_default;
 /* Copy the second part of user declarations.  */
 
 /* Line 242 of glr.c  */
-#line 276 "hidl-gen_y.cpp"
+#line 280 "hidl-gen_y.cpp"
 
 static void yyerror (yy::parser::location_type *yylocationp, yy::parser& yyparser, void* scanner, android::AST* const ast, android::Scope** const scope, const char* msg);
 
 /* Line 242 of glr.c  */
-#line 281 "hidl-gen_y.cpp"
+#line 285 "hidl-gen_y.cpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -498,20 +502,20 @@ static const signed char yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const unsigned short int yyrline[] =
 {
-       0,   330,   330,   331,   335,   336,   341,   349,   361,   374,
-     377,   385,   393,   396,   403,   408,   416,   420,   427,   432,
-     436,   441,   449,   454,   458,   463,   471,   479,   481,   488,
-     498,   511,   515,   522,   534,   543,   551,   559,   563,   565,
-     569,   570,   573,   575,   588,   613,   615,   616,   620,   625,
-     629,   648,   649,   650,   651,   656,   655,   716,   729,   738,
-     750,   754,   755,   756,   757,   758,   759,   760,   761,   762,
-     763,   764,   765,   766,   767,   768,   769,   770,   771,   772,
-     773,   774,   775,   776,   777,   786,   791,   797,   798,   807,
-     816,   834,   837,   846,   858,   862,   877,   878,   883,   882,
-     901,   905,   906,   918,   923,   926,   927,   940,   958,   967,
-     968,   972,   973,   976,   978,   983,   982,  1010,  1014,  1019,
-    1023,  1027,  1035,  1036,  1041,  1046,  1053,  1063,  1064,  1069,
-    1078,  1082,  1090,  1091,  1092,  1100,  1101
+       0,   334,   334,   335,   339,   340,   345,   353,   365,   378,
+     381,   389,   397,   400,   407,   412,   420,   424,   431,   436,
+     440,   445,   453,   458,   462,   467,   475,   483,   485,   492,
+     502,   515,   519,   526,   538,   547,   555,   563,   567,   569,
+     573,   574,   577,   579,   592,   617,   619,   620,   624,   629,
+     633,   652,   653,   654,   655,   660,   659,   720,   733,   742,
+     754,   758,   759,   760,   761,   762,   763,   764,   765,   766,
+     767,   768,   769,   770,   771,   772,   773,   774,   775,   776,
+     777,   778,   779,   780,   781,   790,   795,   801,   802,   811,
+     820,   838,   841,   850,   862,   866,   881,   882,   887,   886,
+     905,   909,   910,   922,   927,   930,   931,   944,   962,   971,
+     972,   976,   977,   980,   982,   987,   986,  1014,  1018,  1023,
+    1027,  1031,  1039,  1040,  1045,  1050,  1057,  1067,  1068,  1073,
+    1082,  1086,  1094,  1095,  1096,  1104,  1105
 };
 #endif
 
@@ -1389,14 +1393,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
         case 4:
 
 /* Line 936 of glr.c  */
-#line 335 "hidl-gen_y.yy"
+#line 339 "hidl-gen_y.yy"
     { ((*yyvalp).docComment) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.docComment); }
     break;
 
   case 5:
 
 /* Line 936 of glr.c  */
-#line 337 "hidl-gen_y.yy"
+#line 341 "hidl-gen_y.yy"
     {
         (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.docComment)->merge((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.docComment));
         ((*yyvalp).docComment) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.docComment);
@@ -1406,7 +1410,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 6:
 
 /* Line 936 of glr.c  */
-#line 342 "hidl-gen_y.yy"
+#line 346 "hidl-gen_y.yy"
     {
         std::cerr << "ERROR: Doc comments must preceed what they describe at " << (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yyloc) << "\n";
         YYERROR;
@@ -1416,7 +1420,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 7:
 
 /* Line 936 of glr.c  */
-#line 350 "hidl-gen_y.yy"
+#line 354 "hidl-gen_y.yy"
     {
         std::string errorMsg;
         if (!isValidIdentifier((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str), &errorMsg)) {
@@ -1430,7 +1434,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 8:
 
 /* Line 936 of glr.c  */
-#line 362 "hidl-gen_y.yy"
+#line 366 "hidl-gen_y.yy"
     {
         std::string errorMsg;
         if (!isValidTypeName((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str), &errorMsg)) {
@@ -1444,7 +1448,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 9:
 
 /* Line 936 of glr.c  */
-#line 374 "hidl-gen_y.yy"
+#line 378 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotations) = new std::vector<Annotation *>;
       }
@@ -1453,7 +1457,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 10:
 
 /* Line 936 of glr.c  */
-#line 378 "hidl-gen_y.yy"
+#line 382 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotations) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.annotations);
           ((*yyvalp).annotations)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.annotation));
@@ -1463,7 +1467,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 11:
 
 /* Line 936 of glr.c  */
-#line 386 "hidl-gen_y.yy"
+#line 390 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotation) = new Annotation((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.str), (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.annotationParams));
       }
@@ -1472,7 +1476,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 12:
 
 /* Line 936 of glr.c  */
-#line 393 "hidl-gen_y.yy"
+#line 397 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotationParams) = new AnnotationParamVector;
       }
@@ -1481,7 +1485,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 13:
 
 /* Line 936 of glr.c  */
-#line 397 "hidl-gen_y.yy"
+#line 401 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotationParams) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.annotationParams);
       }
@@ -1490,7 +1494,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 14:
 
 /* Line 936 of glr.c  */
-#line 404 "hidl-gen_y.yy"
+#line 408 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotationParams) = new AnnotationParamVector;
           ((*yyvalp).annotationParams)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.annotationParam));
@@ -1500,7 +1504,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 15:
 
 /* Line 936 of glr.c  */
-#line 409 "hidl-gen_y.yy"
+#line 413 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotationParams) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.annotationParams);
           ((*yyvalp).annotationParams)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.annotationParam));
@@ -1510,7 +1514,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 16:
 
 /* Line 936 of glr.c  */
-#line 417 "hidl-gen_y.yy"
+#line 421 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotationParam) = new StringAnnotationParam((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.str), (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.stringVec));
       }
@@ -1519,7 +1523,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 17:
 
 /* Line 936 of glr.c  */
-#line 421 "hidl-gen_y.yy"
+#line 425 "hidl-gen_y.yy"
     {
           ((*yyvalp).annotationParam) = new ConstantExpressionAnnotationParam((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.str), (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constExprVec));
       }
@@ -1528,7 +1532,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 18:
 
 /* Line 936 of glr.c  */
-#line 428 "hidl-gen_y.yy"
+#line 432 "hidl-gen_y.yy"
     {
           ((*yyvalp).stringVec) = new std::vector<std::string>;
           ((*yyvalp).stringVec)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str));
@@ -1538,14 +1542,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 19:
 
 /* Line 936 of glr.c  */
-#line 432 "hidl-gen_y.yy"
+#line 436 "hidl-gen_y.yy"
     { ((*yyvalp).stringVec) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.stringVec); }
     break;
 
   case 20:
 
 /* Line 936 of glr.c  */
-#line 437 "hidl-gen_y.yy"
+#line 441 "hidl-gen_y.yy"
     {
           ((*yyvalp).stringVec) = new std::vector<std::string>;
           ((*yyvalp).stringVec)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str));
@@ -1555,7 +1559,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 21:
 
 /* Line 936 of glr.c  */
-#line 442 "hidl-gen_y.yy"
+#line 446 "hidl-gen_y.yy"
     {
           ((*yyvalp).stringVec) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.stringVec);
           ((*yyvalp).stringVec)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.str));
@@ -1565,7 +1569,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 22:
 
 /* Line 936 of glr.c  */
-#line 450 "hidl-gen_y.yy"
+#line 454 "hidl-gen_y.yy"
     {
           ((*yyvalp).constExprVec) = new std::vector<ConstantExpression *>;
           ((*yyvalp).constExprVec)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.constantExpression));
@@ -1575,14 +1579,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 23:
 
 /* Line 936 of glr.c  */
-#line 454 "hidl-gen_y.yy"
+#line 458 "hidl-gen_y.yy"
     { ((*yyvalp).constExprVec) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.constExprVec); }
     break;
 
   case 24:
 
 /* Line 936 of glr.c  */
-#line 459 "hidl-gen_y.yy"
+#line 463 "hidl-gen_y.yy"
     {
           ((*yyvalp).constExprVec) = new std::vector<ConstantExpression *>;
           ((*yyvalp).constExprVec)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.constantExpression));
@@ -1592,7 +1596,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 25:
 
 /* Line 936 of glr.c  */
-#line 464 "hidl-gen_y.yy"
+#line 468 "hidl-gen_y.yy"
     {
           ((*yyvalp).constExprVec) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constExprVec);
           ((*yyvalp).constExprVec)->push_back((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression));
@@ -1602,7 +1606,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 26:
 
 /* Line 936 of glr.c  */
-#line 472 "hidl-gen_y.yy"
+#line 476 "hidl-gen_y.yy"
     {
       ((*yyvalp).str) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.str);
       ast->addSyntaxError();
@@ -1612,7 +1616,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 28:
 
 /* Line 936 of glr.c  */
-#line 481 "hidl-gen_y.yy"
+#line 485 "hidl-gen_y.yy"
     {
           std::cerr << "ERROR: missing ; at " << (*yylocp) << "\n";
           ast->addSyntaxError();
@@ -1622,7 +1626,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 29:
 
 /* Line 936 of glr.c  */
-#line 489 "hidl-gen_y.yy"
+#line 493 "hidl-gen_y.yy"
     {
           ((*yyvalp).fqName) = new FQName();
           if(!FQName::parse((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str), ((*yyvalp).fqName))) {
@@ -1637,7 +1641,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 30:
 
 /* Line 936 of glr.c  */
-#line 499 "hidl-gen_y.yy"
+#line 503 "hidl-gen_y.yy"
     {
           ((*yyvalp).fqName) = new FQName();
           if(!FQName::parse((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str), ((*yyvalp).fqName))) {
@@ -1652,7 +1656,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 31:
 
 /* Line 936 of glr.c  */
-#line 512 "hidl-gen_y.yy"
+#line 516 "hidl-gen_y.yy"
     {
           ((*yyvalp).referenceToType) = new Reference<Type>(*(((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.fqName), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yyloc)));
       }
@@ -1661,7 +1665,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 32:
 
 /* Line 936 of glr.c  */
-#line 516 "hidl-gen_y.yy"
+#line 520 "hidl-gen_y.yy"
     {
           ((*yyvalp).referenceToType) = new Reference<Type>((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.type), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yyloc)));
       }
@@ -1670,7 +1674,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 33:
 
 /* Line 936 of glr.c  */
-#line 523 "hidl-gen_y.yy"
+#line 527 "hidl-gen_y.yy"
     {
           if (!ast->setPackage((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.str))) {
               std::cerr << "ERROR: Malformed package identifier '"
@@ -1687,7 +1691,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 34:
 
 /* Line 936 of glr.c  */
-#line 535 "hidl-gen_y.yy"
+#line 539 "hidl-gen_y.yy"
     {
       std::cerr << "ERROR: Package statement must be at the beginning of the file (" << (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yyloc) << ")\n";
       ((*yyvalp).str) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str);
@@ -1698,7 +1702,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 35:
 
 /* Line 936 of glr.c  */
-#line 544 "hidl-gen_y.yy"
+#line 548 "hidl-gen_y.yy"
     {
           if (!ast->addImport((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.str))) {
               std::cerr << "ERROR: Unable to import '" << (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.str) << "' at " << (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yyloc)
@@ -1711,7 +1715,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 36:
 
 /* Line 936 of glr.c  */
-#line 552 "hidl-gen_y.yy"
+#line 556 "hidl-gen_y.yy"
     {
           if (!ast->addImport((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.str))) {
               std::cerr << "ERROR: Unable to import '" << (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.str) << "' at " << (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yyloc)
@@ -1724,21 +1728,21 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 40:
 
 /* Line 936 of glr.c  */
-#line 569 "hidl-gen_y.yy"
+#line 573 "hidl-gen_y.yy"
     { ((*yyvalp).referenceToType) = nullptr; }
     break;
 
   case 41:
 
 /* Line 936 of glr.c  */
-#line 570 "hidl-gen_y.yy"
+#line 574 "hidl-gen_y.yy"
     { ((*yyvalp).referenceToType) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.referenceToType); }
     break;
 
   case 43:
 
 /* Line 936 of glr.c  */
-#line 576 "hidl-gen_y.yy"
+#line 580 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isInterface());
 
@@ -1756,7 +1760,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 44:
 
 /* Line 936 of glr.c  */
-#line 589 "hidl-gen_y.yy"
+#line 593 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isInterface());
 
@@ -1784,7 +1788,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 48:
 
 /* Line 936 of glr.c  */
-#line 621 "hidl-gen_y.yy"
+#line 625 "hidl-gen_y.yy"
     {
         (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.type)->setDocComment((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.docComment));
         ((*yyvalp).type) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.type);
@@ -1794,14 +1798,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 49:
 
 /* Line 936 of glr.c  */
-#line 625 "hidl-gen_y.yy"
+#line 629 "hidl-gen_y.yy"
     { ((*yyvalp).type) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.type); }
     break;
 
   case 50:
 
 /* Line 936 of glr.c  */
-#line 630 "hidl-gen_y.yy"
+#line 634 "hidl-gen_y.yy"
     {
           if (!(((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.type)->isTypeDef()) {
               CHECK((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.type)->isScope());
@@ -1822,7 +1826,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 55:
 
 /* Line 936 of glr.c  */
-#line 656 "hidl-gen_y.yy"
+#line 660 "hidl-gen_y.yy"
     {
           Reference<Type>* superType = (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.referenceToType);
           bool isIBase = ast->package().package() == gIBaseFqName.package();
@@ -1874,7 +1878,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 56:
 
 /* Line 936 of glr.c  */
-#line 703 "hidl-gen_y.yy"
+#line 707 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isInterface());
 
@@ -1890,7 +1894,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 57:
 
 /* Line 936 of glr.c  */
-#line 717 "hidl-gen_y.yy"
+#line 721 "hidl-gen_y.yy"
     {
           // The reason we wrap the given type in a TypeDef is simply to suppress
           // emitting any type definitions later on, since this is just an alias
@@ -1905,7 +1909,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 58:
 
 /* Line 936 of glr.c  */
-#line 729 "hidl-gen_y.yy"
+#line 733 "hidl-gen_y.yy"
     {
           ((*yyvalp).constantExpression) = LiteralConstantExpression::tryParse((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str));
 
@@ -1920,7 +1924,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 59:
 
 /* Line 936 of glr.c  */
-#line 739 "hidl-gen_y.yy"
+#line 743 "hidl-gen_y.yy"
     {
           if(!(((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.fqName)->isValidValueName()) {
               std::cerr << "ERROR: '" << (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.fqName)->string()
@@ -1937,7 +1941,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 60:
 
 /* Line 936 of glr.c  */
-#line 751 "hidl-gen_y.yy"
+#line 755 "hidl-gen_y.yy"
     {
           ((*yyvalp).constantExpression) = new TernaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (5))].yystate.yysemantics.yysval.constantExpression), (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (5))].yystate.yysemantics.yysval.constantExpression), (((yyGLRStackItem const *)yyvsp)[YYFILL ((5) - (5))].yystate.yysemantics.yysval.constantExpression));
       }
@@ -1946,168 +1950,168 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 61:
 
 /* Line 936 of glr.c  */
-#line 754 "hidl-gen_y.yy"
+#line 758 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "||", (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 62:
 
 /* Line 936 of glr.c  */
-#line 755 "hidl-gen_y.yy"
+#line 759 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "&&", (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 63:
 
 /* Line 936 of glr.c  */
-#line 756 "hidl-gen_y.yy"
+#line 760 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "|" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 64:
 
 /* Line 936 of glr.c  */
-#line 757 "hidl-gen_y.yy"
+#line 761 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "^" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 65:
 
 /* Line 936 of glr.c  */
-#line 758 "hidl-gen_y.yy"
+#line 762 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "&" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 66:
 
 /* Line 936 of glr.c  */
-#line 759 "hidl-gen_y.yy"
+#line 763 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "==", (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 67:
 
 /* Line 936 of glr.c  */
-#line 760 "hidl-gen_y.yy"
+#line 764 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "!=", (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 68:
 
 /* Line 936 of glr.c  */
-#line 761 "hidl-gen_y.yy"
+#line 765 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "<" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 69:
 
 /* Line 936 of glr.c  */
-#line 762 "hidl-gen_y.yy"
+#line 766 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), ">" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 70:
 
 /* Line 936 of glr.c  */
-#line 763 "hidl-gen_y.yy"
+#line 767 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "<=", (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 71:
 
 /* Line 936 of glr.c  */
-#line 764 "hidl-gen_y.yy"
+#line 768 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), ">=", (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 72:
 
 /* Line 936 of glr.c  */
-#line 765 "hidl-gen_y.yy"
+#line 769 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "<<", (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 73:
 
 /* Line 936 of glr.c  */
-#line 766 "hidl-gen_y.yy"
+#line 770 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), ">>", (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 74:
 
 /* Line 936 of glr.c  */
-#line 767 "hidl-gen_y.yy"
+#line 771 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "+" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 75:
 
 /* Line 936 of glr.c  */
-#line 768 "hidl-gen_y.yy"
+#line 772 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "-" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 76:
 
 /* Line 936 of glr.c  */
-#line 769 "hidl-gen_y.yy"
+#line 773 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "*" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 77:
 
 /* Line 936 of glr.c  */
-#line 770 "hidl-gen_y.yy"
+#line 774 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "/" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 78:
 
 /* Line 936 of glr.c  */
-#line 771 "hidl-gen_y.yy"
+#line 775 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new BinaryConstantExpression((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.constantExpression), "%" , (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 79:
 
 /* Line 936 of glr.c  */
-#line 772 "hidl-gen_y.yy"
+#line 776 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new UnaryConstantExpression("+", (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 80:
 
 /* Line 936 of glr.c  */
-#line 773 "hidl-gen_y.yy"
+#line 777 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new UnaryConstantExpression("-", (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 81:
 
 /* Line 936 of glr.c  */
-#line 774 "hidl-gen_y.yy"
+#line 778 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new UnaryConstantExpression("!", (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 82:
 
 /* Line 936 of glr.c  */
-#line 775 "hidl-gen_y.yy"
+#line 779 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = new UnaryConstantExpression("~", (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.constantExpression)); }
     break;
 
   case 83:
 
 /* Line 936 of glr.c  */
-#line 776 "hidl-gen_y.yy"
+#line 780 "hidl-gen_y.yy"
     { ((*yyvalp).constantExpression) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.constantExpression); }
     break;
 
   case 84:
 
 /* Line 936 of glr.c  */
-#line 778 "hidl-gen_y.yy"
+#line 782 "hidl-gen_y.yy"
     {
         ast->addSyntaxError();
         // to avoid segfaults
@@ -2118,7 +2122,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 85:
 
 /* Line 936 of glr.c  */
-#line 787 "hidl-gen_y.yy"
+#line 791 "hidl-gen_y.yy"
     {
         if ((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.method) != nullptr) (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.method)->setDocComment((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.docComment));
         ((*yyvalp).method) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.method);
@@ -2128,7 +2132,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 86:
 
 /* Line 936 of glr.c  */
-#line 792 "hidl-gen_y.yy"
+#line 796 "hidl-gen_y.yy"
     {
         ((*yyvalp).method) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.method);
       }
@@ -2137,14 +2141,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 87:
 
 /* Line 936 of glr.c  */
-#line 797 "hidl-gen_y.yy"
+#line 801 "hidl-gen_y.yy"
     { ((*yyvalp).method) = nullptr; }
     break;
 
   case 88:
 
 /* Line 936 of glr.c  */
-#line 799 "hidl-gen_y.yy"
+#line 803 "hidl-gen_y.yy"
     {
           ((*yyvalp).method) = new Method((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (6))].yystate.yysemantics.yysval.str) /* name */,
                           (((yyGLRStackItem const *)yyvsp)[YYFILL ((4) - (6))].yystate.yysemantics.yysval.typedVars) /* args */,
@@ -2158,7 +2162,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 89:
 
 /* Line 936 of glr.c  */
-#line 808 "hidl-gen_y.yy"
+#line 812 "hidl-gen_y.yy"
     {
           ((*yyvalp).method) = new Method((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (7))].yystate.yysemantics.yysval.str) /* name */,
                           (((yyGLRStackItem const *)yyvsp)[YYFILL ((5) - (7))].yystate.yysemantics.yysval.typedVars) /* args */,
@@ -2172,7 +2176,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 90:
 
 /* Line 936 of glr.c  */
-#line 817 "hidl-gen_y.yy"
+#line 821 "hidl-gen_y.yy"
     {
           if ((((yyGLRStackItem const *)yyvsp)[YYFILL ((8) - (10))].yystate.yysemantics.yysval.typedVars)->empty()) {
               std::cerr << "ERROR: generates clause used without result at " << (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (10))].yystate.yyloc) << "\n";
@@ -2191,7 +2195,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 91:
 
 /* Line 936 of glr.c  */
-#line 834 "hidl-gen_y.yy"
+#line 838 "hidl-gen_y.yy"
     {
           ((*yyvalp).typedVars) = new TypedVarVector();
       }
@@ -2200,7 +2204,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 92:
 
 /* Line 936 of glr.c  */
-#line 838 "hidl-gen_y.yy"
+#line 842 "hidl-gen_y.yy"
     {
           ((*yyvalp).typedVars) = new TypedVarVector();
           if (!((*yyvalp).typedVars)->add((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.typedVar))) {
@@ -2214,7 +2218,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 93:
 
 /* Line 936 of glr.c  */
-#line 847 "hidl-gen_y.yy"
+#line 851 "hidl-gen_y.yy"
     {
           ((*yyvalp).typedVars) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.typedVars);
           if (!((*yyvalp).typedVars)->add((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.typedVar))) {
@@ -2228,7 +2232,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 94:
 
 /* Line 936 of glr.c  */
-#line 859 "hidl-gen_y.yy"
+#line 863 "hidl-gen_y.yy"
     {
           ((*yyvalp).typedVar) = new NamedReference<Type>((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.str), *(((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.referenceToType), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yyloc)));
       }
@@ -2237,7 +2241,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 95:
 
 /* Line 936 of glr.c  */
-#line 863 "hidl-gen_y.yy"
+#line 867 "hidl-gen_y.yy"
     {
           ((*yyvalp).typedVar) = new NamedReference<Type>("", *(((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.referenceToType), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yyloc)));
 
@@ -2253,21 +2257,21 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 96:
 
 /* Line 936 of glr.c  */
-#line 877 "hidl-gen_y.yy"
+#line 881 "hidl-gen_y.yy"
     { ((*yyvalp).compoundStyle) = CompoundType::STYLE_STRUCT; }
     break;
 
   case 97:
 
 /* Line 936 of glr.c  */
-#line 878 "hidl-gen_y.yy"
+#line 882 "hidl-gen_y.yy"
     { ((*yyvalp).compoundStyle) = CompoundType::STYLE_UNION; }
     break;
 
   case 98:
 
 /* Line 936 of glr.c  */
-#line 883 "hidl-gen_y.yy"
+#line 887 "hidl-gen_y.yy"
     {
           CompoundType *container = new CompoundType(
               (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.compoundStyle), (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.str), ast->makeFullName((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.str), *scope), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yyloc)), *scope);
@@ -2278,7 +2282,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 99:
 
 /* Line 936 of glr.c  */
-#line 889 "hidl-gen_y.yy"
+#line 893 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isCompoundType());
           CompoundType *container = static_cast<CompoundType *>(*scope);
@@ -2293,21 +2297,21 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 100:
 
 /* Line 936 of glr.c  */
-#line 901 "hidl-gen_y.yy"
+#line 905 "hidl-gen_y.yy"
     { ((*yyvalp).fields) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (3))].yystate.yysemantics.yysval.fields); }
     break;
 
   case 101:
 
 /* Line 936 of glr.c  */
-#line 905 "hidl-gen_y.yy"
+#line 909 "hidl-gen_y.yy"
     { ((*yyvalp).fields) = new std::vector<NamedReference<Type>*>; }
     break;
 
   case 102:
 
 /* Line 936 of glr.c  */
-#line 907 "hidl-gen_y.yy"
+#line 911 "hidl-gen_y.yy"
     {
           ((*yyvalp).fields) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.fields);
 
@@ -2321,7 +2325,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 103:
 
 /* Line 936 of glr.c  */
-#line 919 "hidl-gen_y.yy"
+#line 923 "hidl-gen_y.yy"
     {
       if ((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.field) != nullptr) (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.field)->setDocComment((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.docComment));
       ((*yyvalp).field) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.field);
@@ -2331,21 +2335,21 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 104:
 
 /* Line 936 of glr.c  */
-#line 923 "hidl-gen_y.yy"
+#line 927 "hidl-gen_y.yy"
     { ((*yyvalp).field) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.field); }
     break;
 
   case 105:
 
 /* Line 936 of glr.c  */
-#line 926 "hidl-gen_y.yy"
+#line 930 "hidl-gen_y.yy"
     { ((*yyvalp).field) = nullptr; }
     break;
 
   case 106:
 
 /* Line 936 of glr.c  */
-#line 928 "hidl-gen_y.yy"
+#line 932 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isCompoundType());
 
@@ -2363,7 +2367,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 107:
 
 /* Line 936 of glr.c  */
-#line 941 "hidl-gen_y.yy"
+#line 945 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isCompoundType());
 
@@ -2383,7 +2387,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 108:
 
 /* Line 936 of glr.c  */
-#line 959 "hidl-gen_y.yy"
+#line 963 "hidl-gen_y.yy"
     {
           CHECK((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.type)->isScope());
           static_cast<Scope*>((((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.type))->setAnnotations((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.annotations));
@@ -2394,35 +2398,35 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 109:
 
 /* Line 936 of glr.c  */
-#line 967 "hidl-gen_y.yy"
+#line 971 "hidl-gen_y.yy"
     { ((*yyvalp).type) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.type); }
     break;
 
   case 110:
 
 /* Line 936 of glr.c  */
-#line 968 "hidl-gen_y.yy"
+#line 972 "hidl-gen_y.yy"
     { ((*yyvalp).type) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.type); }
     break;
 
   case 111:
 
 /* Line 936 of glr.c  */
-#line 972 "hidl-gen_y.yy"
+#line 976 "hidl-gen_y.yy"
     { ((*yyvalp).referenceToType) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.referenceToType); }
     break;
 
   case 112:
 
 /* Line 936 of glr.c  */
-#line 973 "hidl-gen_y.yy"
+#line 977 "hidl-gen_y.yy"
     { ((*yyvalp).referenceToType) = nullptr; }
     break;
 
   case 115:
 
 /* Line 936 of glr.c  */
-#line 983 "hidl-gen_y.yy"
+#line 987 "hidl-gen_y.yy"
     {
           auto storageType = (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.referenceToType);
 
@@ -2443,7 +2447,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 116:
 
 /* Line 936 of glr.c  */
-#line 999 "hidl-gen_y.yy"
+#line 1003 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isEnum());
           EnumType* enumType = static_cast<EnumType*>(*scope);
@@ -2457,14 +2461,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 117:
 
 /* Line 936 of glr.c  */
-#line 1010 "hidl-gen_y.yy"
+#line 1014 "hidl-gen_y.yy"
     { ((*yyvalp).enumValues) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (4))].yystate.yysemantics.yysval.enumValues); }
     break;
 
   case 118:
 
 /* Line 936 of glr.c  */
-#line 1015 "hidl-gen_y.yy"
+#line 1019 "hidl-gen_y.yy"
     {
         (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.enumValue)->setDocComment((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (2))].yystate.yysemantics.yysval.docComment));
         ((*yyvalp).enumValue) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((2) - (2))].yystate.yysemantics.yysval.enumValue);
@@ -2474,14 +2478,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 119:
 
 /* Line 936 of glr.c  */
-#line 1019 "hidl-gen_y.yy"
+#line 1023 "hidl-gen_y.yy"
     { ((*yyvalp).enumValue) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.enumValue); }
     break;
 
   case 120:
 
 /* Line 936 of glr.c  */
-#line 1024 "hidl-gen_y.yy"
+#line 1028 "hidl-gen_y.yy"
     {
           ((*yyvalp).enumValue) = new EnumValue((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.str) /* name */, nullptr /* value */, convertYYLoc((*yylocp)));
       }
@@ -2490,7 +2494,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 121:
 
 /* Line 936 of glr.c  */
-#line 1028 "hidl-gen_y.yy"
+#line 1032 "hidl-gen_y.yy"
     {
           ((*yyvalp).enumValue) = new EnumValue((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (3))].yystate.yysemantics.yysval.str) /* name */, (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.constantExpression) /* value */, convertYYLoc((*yylocp)));
       }
@@ -2499,14 +2503,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 122:
 
 /* Line 936 of glr.c  */
-#line 1035 "hidl-gen_y.yy"
+#line 1039 "hidl-gen_y.yy"
     { /* do nothing */ }
     break;
 
   case 123:
 
 /* Line 936 of glr.c  */
-#line 1037 "hidl-gen_y.yy"
+#line 1041 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isEnum());
           static_cast<EnumType *>(*scope)->addValue((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.enumValue));
@@ -2516,7 +2520,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 124:
 
 /* Line 936 of glr.c  */
-#line 1042 "hidl-gen_y.yy"
+#line 1046 "hidl-gen_y.yy"
     {
           CHECK((*scope)->isEnum());
           static_cast<EnumType *>(*scope)->addValue((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (3))].yystate.yysemantics.yysval.enumValue));
@@ -2526,7 +2530,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 125:
 
 /* Line 936 of glr.c  */
-#line 1047 "hidl-gen_y.yy"
+#line 1051 "hidl-gen_y.yy"
     {
           ast->addSyntaxError();
 
@@ -2538,7 +2542,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 126:
 
 /* Line 936 of glr.c  */
-#line 1054 "hidl-gen_y.yy"
+#line 1058 "hidl-gen_y.yy"
     {
           ast->addSyntaxError();
 
@@ -2550,14 +2554,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 127:
 
 /* Line 936 of glr.c  */
-#line 1063 "hidl-gen_y.yy"
+#line 1067 "hidl-gen_y.yy"
     { ((*yyvalp).referenceToType) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.referenceToType); }
     break;
 
   case 128:
 
 /* Line 936 of glr.c  */
-#line 1065 "hidl-gen_y.yy"
+#line 1069 "hidl-gen_y.yy"
     {
           (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (4))].yystate.yysemantics.yysval.templatedType)->setElementType(*(((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (4))].yystate.yysemantics.yysval.referenceToType));
           ((*yyvalp).referenceToType) = new Reference<Type>((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (4))].yystate.yysemantics.yysval.templatedType), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (4))].yystate.yyloc)));
@@ -2567,7 +2571,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 129:
 
 /* Line 936 of glr.c  */
-#line 1070 "hidl-gen_y.yy"
+#line 1074 "hidl-gen_y.yy"
     {
           (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (6))].yystate.yysemantics.yysval.templatedType)->setElementType(*(((yyGLRStackItem const *)yyvsp)[YYFILL ((5) - (6))].yystate.yysemantics.yysval.referenceToType));
           (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (6))].yystate.yysemantics.yysval.templatedType)->setElementType(Reference<Type>((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (6))].yystate.yysemantics.yysval.templatedType), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (6))].yystate.yyloc))));
@@ -2578,7 +2582,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 130:
 
 /* Line 936 of glr.c  */
-#line 1079 "hidl-gen_y.yy"
+#line 1083 "hidl-gen_y.yy"
     {
           ((*yyvalp).arrayType) = new ArrayType(*(((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (4))].yystate.yysemantics.yysval.referenceToType), (((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (4))].yystate.yysemantics.yysval.constantExpression), *scope);
       }
@@ -2587,7 +2591,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 131:
 
 /* Line 936 of glr.c  */
-#line 1083 "hidl-gen_y.yy"
+#line 1087 "hidl-gen_y.yy"
     {
           ((*yyvalp).arrayType) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (4))].yystate.yysemantics.yysval.arrayType);
           ((*yyvalp).arrayType)->appendDimension((((yyGLRStackItem const *)yyvsp)[YYFILL ((3) - (4))].yystate.yysemantics.yysval.constantExpression));
@@ -2597,21 +2601,21 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 132:
 
 /* Line 936 of glr.c  */
-#line 1090 "hidl-gen_y.yy"
+#line 1094 "hidl-gen_y.yy"
     { ((*yyvalp).referenceToType) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.referenceToType); }
     break;
 
   case 133:
 
 /* Line 936 of glr.c  */
-#line 1091 "hidl-gen_y.yy"
+#line 1095 "hidl-gen_y.yy"
     { ((*yyvalp).referenceToType) = new Reference<Type>((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.arrayType), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yyloc))); }
     break;
 
   case 134:
 
 /* Line 936 of glr.c  */
-#line 1093 "hidl-gen_y.yy"
+#line 1097 "hidl-gen_y.yy"
     {
           // "interface" is a synonym of android.hidl.base@1.0::IBase
           ((*yyvalp).referenceToType) = new Reference<Type>(gIBaseFqName, convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yyloc)));
@@ -2621,14 +2625,14 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   case 135:
 
 /* Line 936 of glr.c  */
-#line 1100 "hidl-gen_y.yy"
+#line 1104 "hidl-gen_y.yy"
     { ((*yyvalp).referenceToType) = (((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.referenceToType); }
     break;
 
   case 136:
 
 /* Line 936 of glr.c  */
-#line 1102 "hidl-gen_y.yy"
+#line 1106 "hidl-gen_y.yy"
     {
           ((*yyvalp).referenceToType) = new Reference<Type>((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yysemantics.yysval.type), convertYYLoc((((yyGLRStackItem const *)yyvsp)[YYFILL ((1) - (1))].yystate.yyloc)));
       }
@@ -2637,7 +2641,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
 
 
 /* Line 936 of glr.c  */
-#line 2641 "hidl-gen_y.cpp"
+#line 2645 "hidl-gen_y.cpp"
       default: break;
     }
 
@@ -4060,7 +4064,7 @@ yyparse (yy::parser& yyparser, void* scanner, android::AST* const ast, android::
   /* User initialization code.  */
   
 /* Line 2331 of glr.c  */
-#line 200 "hidl-gen_y.yy"
+#line 204 "hidl-gen_y.yy"
 {
     // Initialize the initial location.
     yylloc.begin.filename = yylloc.end.filename =
@@ -4068,7 +4072,7 @@ yyparse (yy::parser& yyparser, void* scanner, android::AST* const ast, android::
 }
 
 /* Line 2331 of glr.c  */
-#line 4072 "hidl-gen_y.cpp"
+#line 4076 "hidl-gen_y.cpp"
 
   if (! yyinitGLRStack (yystackp, YYINITDEPTH))
     goto yyexhaustedlab;
@@ -4367,7 +4371,7 @@ yypdumpstack (yyGLRStack* yystackp)
 
 
 /* Line 2634 of glr.c  */
-#line 1107 "hidl-gen_y.yy"
+#line 1111 "hidl-gen_y.yy"
 
 
 void yy::parser::error(
@@ -4378,7 +4382,7 @@ void yy::parser::error(
 
 
 /* Line 2634 of glr.c  */
-#line 4382 "hidl-gen_y.cpp"
+#line 4386 "hidl-gen_y.cpp"
 /*------------------.
 | Report an error.  |
 `------------------*/
@@ -4398,7 +4402,7 @@ yyerror (yy::parser::location_type *yylocationp, yy::parser& yyparser, void* sca
 namespace yy {
 
 /* Line 2634 of glr.c  */
-#line 4402 "hidl-gen_y.cpp"
+#line 4406 "hidl-gen_y.cpp"
   /// Build a parser object.
   parser::parser (void* scanner_yyarg, android::AST* const ast_yyarg, android::Scope** const scope_yyarg)
     :
@@ -4483,7 +4487,7 @@ namespace yy {
 } // yy
 
 /* Line 2634 of glr.c  */
-#line 4487 "hidl-gen_y.cpp"
+#line 4491 "hidl-gen_y.cpp"
 
 
 
