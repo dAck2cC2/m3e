@@ -205,7 +205,7 @@ if (${ARCH} STREQUAL "x86_64")
   set(CIPHER_ARCH_SOURCES
   ${SOURCE_PATH}/../${OS_NAME}-${ARCH}/crypto/cipher_extra/aes128gcmsiv-x86_64.${ASM_EXT}
   )
-  if (APPLE)
+  if (APPLE OR LINUX)
     list(APPEND CIPHER_ARCH_SOURCES
     ${SOURCE_PATH}/../${OS_NAME}-${ARCH}/crypto/cipher_extra/chacha20_poly1305_x86_64.${ASM_EXT}
     )
