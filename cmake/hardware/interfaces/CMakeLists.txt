@@ -378,7 +378,8 @@ ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxNodeAll.cpp
 ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxBufferSourceAll.cpp
 ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxStoreAll.cpp
 ${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxAll.cpp
-${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxAll.cpp
+${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/OmxObserverAll.cpp
+${TMP_PATH}/${HIDL_SOURCE_PATH}/android/hardware/media/omx/1.0/GraphicBufferSourceAll.cpp
 )
 source_group(android.hardware.media.omx@1.0 FILES ${ANDROID_HARDWARE_MEDIA_OMX_10_SOURCES})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_HARDWARE_MEDIA_OMX_10_SOURCES})
