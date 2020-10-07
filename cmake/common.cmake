@@ -143,3 +143,84 @@ macro(ADD_LIB name)
     add_library(${name} ${LIB_TYPE} ${${PROJECT_NAME}_SOURCE_FILES} ${${PROJECT_NAME}_HEADER_FILES})
     target_link_libraries(${name} ${${PROJECT_NAME}_DEPLIB})
 endmacro()
+
+###############################################################################
+# generate source code of HIDL interface
+macro(ADD_HIDL_SOURCE  package_name)
+    string(REPLACE "@" ";" _name_list ${package_name})
+    list(GET _name_list 0 _base_name)
+    list(GET _name_list 1 _version)
+
+    string(REPLACE "." "/" _path_name ${_base_name})
+    string(APPEND _path_name "/${_version}")
+    #message(STATUS "hidl path : ${_path_name}")
+
+    string(REPLACE "." "_" _lib_name ${_base_name})
+    string(REPLACE "." "_" _lib_ver ${_version})
+    string(APPEND _lib_name "_${_lib_ver}")
+    #message(STATUS "hidl lib  : ${_lib_name}")
+
+    if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/${_path_name})
+        exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers ${package_name}")
+    endif()
+    if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/${_path_name})
+        exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources ${package_name}")
+    endif()
+
+    file(GLOB ANDROID_${_lib_name}_SOURCES
+        ${TMP_PATH}/${HIDL_HEADER_PATH}/${_path_name}/*.h
+        ${TMP_PATH}/${HIDL_SOURCE_PATH}/${_path_name}/*.cpp
+    )
+    source_group(${package_name} FILES ${ANDROID_${_lib_name}_SOURCES})
+    list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_${_lib_name}_SOURCES})
+endmacro()
+
+###############################################################################
+# generate source code of AIDL interface
+macro(ADD_AIDL_SOURCE file_name)
+    string(TOLOWER ${PROJECT_NAME} _path_name)
+
+    if(NOT EXISTS ${TMP_PATH}/${AIDL_HEADER_PATH}/${_path_name})
+        exec_program("mkdir ${_path_name}" ${TMP_PATH}/${AIDL_HEADER_PATH})
+    endif()
+    if(NOT EXISTS ${TMP_PATH}/${AIDL_SOURCE_PATH}/${_path_name})
+        exec_program("mkdir ${_path_name}" ${TMP_PATH}/${AIDL_SOURCE_PATH})
+    endif()
+
+    string(REPLACE "/" ";" _name_list ${file_name})
+    list(GET _name_list -1 _aidl_name)
+    string(REPLACE "aidl" "cpp" _cpp_name ${_aidl_name})
+    #message(STATUS "aidl cpp : ${_path_name}/${_cpp_name}")
+
+    if (NOT EXISTS ${TMP_PATH}/${AIDL_SOURCE_PATH}/${_path_name}/${_cpp_name})
+        exec_program("${BIN_AIDL_CPP} \
+        -I${SOURCE_PATH}/aidl \
+        ${SOURCE_PATH}/aidl/${file_name} \
+        ${TMP_PATH}/${AIDL_HEADER_PATH}/${_path_name} \
+        ${TMP_PATH}/${AIDL_SOURCE_PATH}/${_path_name}/${_cpp_name}"
+        )
+    endif()
+
+    list(REMOVE_AT _name_list -1)
+    string(REPLACE ";" "/" _aidl_path "${_name_list}")
+    #message(STATUS "aidl header path : ${_aidl_path}")
+
+    string(REPLACE ".aidl" "" _aidl_interface ${_aidl_name})
+    string(REGEX REPLACE "I([^ ]*)" "\\1" _aidl_base ${_aidl_interface})
+    #message(STATUS "aidl base : ${_aidl_interface} -> ${_aidl_base}")
+
+    set(ANDROID_${_aidl_base}_SOURCES
+    ${TMP_PATH}/${AIDL_HEADER_PATH}/${_path_name}/${_aidl_path}/I${_aidl_base}.h
+    ${TMP_PATH}/${AIDL_HEADER_PATH}/${_path_name}/${_aidl_path}/Bp${_aidl_base}.h
+    ${TMP_PATH}/${AIDL_HEADER_PATH}/${_path_name}/${_aidl_path}/Bn${_aidl_base}.h
+    ${TMP_PATH}/${AIDL_SOURCE_PATH}/${_path_name}/${_cpp_name}
+    )
+    source_group(${_aidl_name} FILES ${ANDROID_${_aidl_base}_SOURCES})
+    list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ANDROID_${_aidl_base}_SOURCES})
+
+    if (MSVC)
+        add_definitions(-DEXPORT_I${_aidl_base}=__declspec\(dllexport\))
+        add_definitions(-DEXPORT_Bp${_aidl_base}=__declspec\(dllexport\))
+        add_definitions(-DEXPORT_Bn${_aidl_base}=__declspec\(dllexport\))
+    endif(MSVC)
+endmacro()
