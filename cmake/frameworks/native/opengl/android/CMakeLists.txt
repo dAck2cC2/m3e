@@ -37,6 +37,8 @@ elseif(MSVC)
 
     add_definitions(-DEGLAPI=__declspec\(dllexport\))
     add_definitions(-DGL_API=__declspec\(dllexport\))
+elseif(LINUX)
+    add_definitions(-D_CAST=reinterpret_cast)
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/opengl/include )

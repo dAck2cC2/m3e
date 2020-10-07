@@ -70,11 +70,11 @@ public:
     status_t            setData(const uint8_t* buffer, size_t len);
 
     // Writes the RPC header.
-    status_t            writeInterfaceToken(const char* interface);
+    status_t            writeInterfaceToken(const char* _interface /* M3E: */);
 
     // Parses the RPC header, returning true if the interface name
     // in the header matches the expected interface from the caller.
-    bool                enforceInterface(const char* interface) const;
+    bool                enforceInterface(const char* _interface /* M3E: */) const;
     bool                checkInterface(IBinder*) const;
 
     void                freeData();
@@ -103,7 +103,9 @@ public:
     status_t            writeDouble(double val);
     status_t            writeCString(const char* str);
     status_t            writeString16(const String16& str);
+#if !defined(__linux__) // M3E: 
     status_t            writeString16(const std::unique_ptr<String16>& str);
+#endif
     status_t            writeString16(const char16_t* str, size_t len);
     status_t            writeStrongBinder(const sp<IBinder>& val);
     status_t            writeWeakBinder(const wp<IBinder>& val);
@@ -159,7 +161,9 @@ public:
     const char*         readCString() const;
     String16            readString16() const;
     status_t            readString16(String16* pArg) const;
+#if !defined(__linux__) // M3E: 
     status_t            readString16(std::unique_ptr<String16>* pArg) const;
+#endif
     const char16_t*     readString16Inplace(size_t* outLen) const;
     sp<IBinder>         readStrongBinder() const;
     status_t            readStrongBinder(sp<IBinder>* val) const;

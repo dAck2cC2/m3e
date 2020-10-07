@@ -812,7 +812,7 @@ EGLSurface eglCreatePixmapSurface(  EGLDisplay dpy, EGLConfig config,
         // now select a corresponding sRGB format if needed
         EGLint colorSpace = EGL_UNKNOWN;
         std::vector<EGLint> strippedAttribList;
-        if (!processAttributes(dp, nullptr, format, attrib_list, &colorSpace,
+        if (!processAttributes(dp, (NativeWindowType)(nullptr), format, attrib_list, &colorSpace,
                                &strippedAttribList)) {
             ALOGE("error invalid colorspace: %d", colorSpace);
             return setError(EGL_BAD_ATTRIBUTE, EGL_NO_SURFACE);
@@ -846,7 +846,7 @@ EGLSurface eglCreatePbufferSurface( EGLDisplay dpy, EGLConfig config,
         // Select correct colorspace based on user's attribute list
         EGLint colorSpace = EGL_UNKNOWN;
         std::vector<EGLint> strippedAttribList;
-        if (!processAttributes(dp, nullptr, format, attrib_list, &colorSpace,
+        if (!processAttributes(dp, (NativeWindowType)(nullptr), format, attrib_list, &colorSpace,
                                &strippedAttribList)) {
             ALOGE("error invalid colorspace: %d", colorSpace);
             return setError(EGL_BAD_ATTRIBUTE, EGL_NO_SURFACE);

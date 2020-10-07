@@ -13,8 +13,8 @@
 #include <utils/Mutex.h>
 
 #define GLFW_INCLUDE_NONE
-#include <glfw/glfw3.h>
-#include <glfw/glfw3native.h>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 
 #if defined(__APPLE__)
 #define glfwGetNativeWindow(h)  glfwGetCocoaLayer(h)
@@ -250,7 +250,11 @@ struct ComposerClientGLFW : public ComposerClientDefault {
             glfwShowWindow(win);
         }
         
+#if defined(__linux__)
+        uint64_t handle = static_cast<uint64_t>(glfwGetNativeWindow(win));
+#else
         uint64_t handle = reinterpret_cast<uint64_t>(glfwGetNativeWindow(win));
+#endif
         LayerToNative layerN;
         layerN.win = win;
         layerN.fbW = fbWidth;

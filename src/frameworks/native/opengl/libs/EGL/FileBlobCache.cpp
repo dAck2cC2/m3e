@@ -22,6 +22,9 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
+#if defined(__linux__)
+#include <string.h> // memcpy strerror
+#endif // __linux__
 
 // Cache file header
 static const char* cacheFileMagic = "EGL$";

@@ -25,6 +25,12 @@
 
 __BEGIN_DECLS
 
+#if defined(__linux__)
+    #if defined(None)
+        #undef None
+    #endif // None
+#endif // __linux__
+
 /*
  * Enums
  *

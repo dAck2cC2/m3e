@@ -25,6 +25,10 @@
 #include <log/log.h>
 #include <chrono>
 
+#if defined(__linux__)
+#include <string.h> // memcpy
+#endif // __linux__
+
 namespace android {
 
 // BlobCache::Header::mMagicNumber value
