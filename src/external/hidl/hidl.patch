@@ -176,83 +176,56 @@ index 1c66b315..e9820d1c 100644
              out << "return ::android::hardware::Void();\n";
          } } }, /* cppImpl */
          { { IMPL_INTERFACE, [this, digestType, chainType](auto &out) {
-diff --git a/generateCpp.cpp b/generateCpp.cpp
-index fa2a3ca5..067052ae 100644
---- a/generateCpp.cpp
-+++ b/generateCpp.cpp
-@@ -140,15 +140,25 @@ static void implementGetService(Formatter &out,
-     const std::string interfaceName = fqName.getInterfaceName();
-     const std::string functionName = isTry ? "tryGetService" : "getService";
+diff --git a/TypeDef.cpp b/TypeDef.cpp
+index dcefc57d..b0abfcdc 100644
+--- a/TypeDef.cpp
++++ b/TypeDef.cpp
+@@ -74,6 +74,13 @@ bool TypeDef::resultNeedsDeref() const {
+ }
  
-+#if 1 // M3E:
-+    if (interfaceName == "IComposer") {
-+        return;
+ void TypeDef::emitTypeDeclarations(Formatter& out) const {
++#if defined(__linux__)
++    if (localName() == "Status") {
++        out << "#if defined(Status) \n"
++            << "#undef Status\n"
++            << "#endif\n";
 +    }
 +#endif
+     out << "typedef "
+         << mReferencedType->getCppStackType()
+         << " "
+diff --git a/generateCpp.cpp b/generateCpp.cpp
+index fa2a3ca5..52ad4b72 100644
+--- a/generateCpp.cpp
++++ b/generateCpp.cpp
+@@ -242,8 +242,16 @@ void AST::generateInterfaceHeader(Formatter& out) const {
+     out << "\n";
+ 
+     if (iface) {
++#if defined(_MSC_VER) // M3E: MSVC export
++        std::vector<std::string> nameComponents;
++        StringHelper::SplitString(mPackage.package(), '.', &nameComponents);
++        std::string component = StringHelper::Uppercase(nameComponents[1]);
 +
-     out << "// static\n"
-         << "::android::sp<" << interfaceName << "> " << interfaceName << "::" << functionName << "("
-         << "const std::string &serviceName, const bool getStub) ";
-     out.block([&] {
-+#if 0 // M3E:
-         out << "return ::android::hardware::details::getServiceInternal<"
-             << fqName.getInterfaceProxyName()
-             << ">(serviceName, "
-             << (!isTry ? "true" : "false") // retry
-             << ", getStub);\n";
++        out << "struct EXPORT_" << component << "  " << ifaceName;
 +#else
-+        out << "return nullptr;\n";
-+#endif
-     }).endl().endl();
- }
- 
-@@ -160,6 +170,7 @@ static void implementServiceManagerInteractions(Formatter &out,
-     implementGetService(out, fqName, true /* isTry */);
-     implementGetService(out, fqName, false /* isTry */);
- 
-+#if 0 // M3E:
-     out << "::android::status_t " << interfaceName << "::registerAsService("
-         << "const std::string &serviceName) ";
-     out.block([&] {
-@@ -202,6 +213,7 @@ static void implementServiceManagerInteractions(Formatter &out,
-         });
-         out << "return success.isOk() && success;\n";
-     }).endl().endl();
-+#endif
- }
- 
- void AST::generateInterfaceHeader(Formatter& out) const {
-@@ -786,6 +798,7 @@ void AST::generateCppSource(Formatter& out) const {
-         // This is a no-op for IServiceManager itself.
-         out << "#include <android/hidl/manager/1.0/IServiceManager.h>\n";
- 
-+#if 0 // M3E:
-         generateCppPackageInclude(out, mPackage, iface->getProxyName());
-         generateCppPackageInclude(out, mPackage, iface->getStubName());
-         generateCppPackageInclude(out, mPackage, iface->getPassthroughName());
-@@ -795,6 +808,9 @@ void AST::generateCppSource(Formatter& out) const {
-                                       superType->fqName(),
-                                       superType->fqName().getInterfaceProxyName());
-         }
-+#else
-+        generateCppPackageInclude(out, mPackage, "I" + iface->getBaseName());
+         out << "struct "
+             << ifaceName;
 +#endif
  
-         out << "#include <hidl/ServiceManagement.h>\n";
-     } else {
-@@ -807,8 +823,10 @@ void AST::generateCppSource(Formatter& out) const {
+         const Interface *superType = iface->superType();
+ 
+@@ -807,7 +815,9 @@ void AST::generateCppSource(Formatter& out) const {
      enterLeaveNamespace(out, true /* enter */);
      out << "\n";
  
 +#if 0 // M3E:
      generateTypeSource(out, iface ? iface->localName() : "");
--
 +#endif
-+    
+ 
      if (iface) {
          const Interface* iface = mRootScope.getInterface();
- 
-@@ -818,6 +836,8 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -818,6 +828,8 @@ void AST::generateCppSource(Formatter& out) const {
              << "::descriptor(\""
              << iface->fqName().string()
              << "\");\n\n";
@@ -261,7 +234,7 @@ index fa2a3ca5..067052ae 100644
          out << "__attribute__((constructor)) ";
          out << "static void static_constructor() {\n";
          out.indent([&] {
-@@ -864,11 +884,14 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -864,11 +876,14 @@ void AST::generateCppSource(Formatter& out) const {
                  << "::descriptor);\n";
          });
          out << "};\n\n";
@@ -276,7 +249,7 @@ index fa2a3ca5..067052ae 100644
  
          if (isIBase()) {
              out << "// skipped getService, registerAsService, registerForNotifications\n";
-@@ -880,7 +903,9 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -880,7 +895,9 @@ void AST::generateCppSource(Formatter& out) const {
          }
      }
  
@@ -286,27 +259,6 @@ index fa2a3ca5..067052ae 100644
      out << "\n";
  
      enterLeaveNamespace(out, false /* enter */);
-@@ -1734,6 +1759,7 @@ void AST::generateInterfaceSource(Formatter& out) const {
-         if (iface == superType) {
-             out << "return parent;\n";
-         } else {
-+#if 0 // M3E:
-             out << "return ::android::hardware::details::castInterface<";
-             out << iface->localName() << ", "
-                 << superType->fqName().cppName() << ", "
-@@ -1744,8 +1770,12 @@ void AST::generateInterfaceSource(Formatter& out) const {
-             out << "parent, \""
-                 << iface->fqName().string()
-                 << "\", emitError);\n";
-+
-             out.unindent();
-             out.unindent();
-+#else
-+            out << "return nullptr;\n";
-+#endif
-         }
-         out.unindent();
-         out << "}\n\n";
 diff --git a/hidl-gen_y.yy b/hidl-gen_y.yy
 index f445199c..154fda49 100644
 --- a/hidl-gen_y.yy

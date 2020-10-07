@@ -80,10 +80,18 @@ index 1ba91c3..35b5836 100644
          return *this;
      }
 diff --git a/base/include/hidl/HidlInternal.h b/base/include/hidl/HidlInternal.h
-index ed9f02c..ce0bef0 100644
+index ed9f02c..1047e59 100644
 --- a/base/include/hidl/HidlInternal.h
 +++ b/base/include/hidl/HidlInternal.h
-@@ -145,6 +145,7 @@ struct HidlInstrumentor {
+@@ -42,6 +42,7 @@ struct bs_tag {};
+ 
+ //Templated classes can use the below method
+ //to avoid creating dependencies on liblog.
++ANDROID_API_HIDL
+ void logAlwaysFatal(const char *message);
+ 
+ // Returns vndk version from "ro.vndk.version" with '-' as a prefix.
+@@ -145,6 +146,7 @@ struct HidlInstrumentor {
          PASSTHROUGH_EXIT,
      };
  
@@ -91,11 +99,10 @@ index ed9f02c..ce0bef0 100644
      // Signature of the instrumentation callback function.
      using InstrumentationCallback = std::function<void(
              const InstrumentationEvent event,
-@@ -153,7 +154,15 @@ struct HidlInstrumentor {
+@@ -153,6 +155,15 @@ struct HidlInstrumentor {
              const char *interface,
              const char *method,
              std::vector<void *> *args)>;
--
 +#else
 +	typedef void (* InstrumentationCallback)(
 +		const InstrumentationEvent event,
@@ -105,27 +112,56 @@ index ed9f02c..ce0bef0 100644
 +		const char *method,
 +		std::vector<void *> *args);
 +#endif
+ 
      explicit HidlInstrumentor(
              const std::string &package,
-             const std::string &insterface);
 diff --git a/base/include/hidl/HidlSupport.h b/base/include/hidl/HidlSupport.h
-index f8f79a5..08d0ae6 100644
+index f8f79a5..7f28d42 100644
 --- a/base/include/hidl/HidlSupport.h
 +++ b/base/include/hidl/HidlSupport.h
-@@ -33,6 +33,12 @@
+@@ -33,6 +33,23 @@
  #include <utils/StrongPointer.h>
  #include <vector>
  
 +/* M3E: Add */
 +#include <stdint.h>
-+#ifndef __attribute
-+#define __attribute __attribute__
-+#endif
++#if !defined(__attribute)
++    #define  __attribute  __attribute__
++#endif //    __attribute
++#if defined(_MSC_VER)
++    #if !defined(EXPORT_HIDL)
++        #define  EXPORT_HIDL      __declspec(dllimport)
++    #endif //    EXPORT_HIDL
++    #if !defined(EXPORT_HARDWARE)
++        #define  EXPORT_HARDWARE  __declspec(dllimport)
++    #endif //    EXPORT_HARDWARE
++#else  // _MSC_VER
++    #define EXPORT_HIDL 
++    #define EXPORT_HARDWARE  
++#endif // _MSC_VER
 +
  namespace android {
  
  // this file is included by all hidl interface, so we must forward declare the
-@@ -317,7 +323,9 @@ protected:
+@@ -84,7 +101,7 @@ struct hidl_death_recipient : public virtual RefBase {
+ //    // copy and its enclosed file descriptors will remain valid here.
+ // 3) The move constructor does what you would expect; it only owns the handle if the
+ //    original did.
+-struct hidl_handle {
++struct ANDROID_API_HIDL hidl_handle {
+     hidl_handle();
+     ~hidl_handle();
+ 
+@@ -119,7 +136,7 @@ private:
+     bool mOwnsHandle __attribute ((aligned(8)));
+ };
+ 
+-struct hidl_string {
++struct ANDROID_API_HIDL hidl_string {
+     hidl_string();
+     ~hidl_string();
+ 
+@@ -317,7 +334,9 @@ protected:
  template<typename T>
  struct hidl_vec {
      hidl_vec() {
@@ -135,7 +171,7 @@ index f8f79a5..08d0ae6 100644
  
          memset(this, 0, sizeof(*this));
          // mSize is 0
-@@ -909,7 +917,11 @@ std::string arrayToString(const Array &a, size_t size);
+@@ -909,7 +928,11 @@ std::string arrayToString(const Array &a, size_t size);
  
  template<size_t SIZE1>
  std::string arraySizeToString() {
@@ -148,7 +184,7 @@ index f8f79a5..08d0ae6 100644
  
  template<size_t SIZE1, size_t SIZE2, size_t... SIZES>
 diff --git a/base/include/hidl/Status.h b/base/include/hidl/Status.h
-index 1a2ef6d..7f936c4 100644
+index 1a2ef6d..7d189a2 100644
 --- a/base/include/hidl/Status.h
 +++ b/base/include/hidl/Status.h
 @@ -27,6 +27,12 @@
@@ -164,9 +200,12 @@ index 1a2ef6d..7f936c4 100644
  // An object similar in function to a status_t except that it understands
  // how exceptions are encoded in the prefix of a Parcel. Used like:
  //
-@@ -134,7 +140,9 @@ template<typename T> class Return;
+@@ -132,9 +138,11 @@ std::ostream& operator<< (std::ostream& stream, const Status& s);
+ template<typename T> class Return;
+ 
  namespace details {
-     class return_status {
+-    class return_status {
++    class ANDROID_API_HIDL return_status {
      private:
 +#if ENABLE_RETURN_CHECK /* M3E: remove return check */
          Status mStatus {};
@@ -174,7 +213,7 @@ index 1a2ef6d..7f936c4 100644
          mutable bool mCheckedStatus = false;
  
          template <typename T, typename U>
-@@ -143,8 +151,12 @@ namespace details {
+@@ -143,8 +151,11 @@ namespace details {
          void assertOk() const;
      public:
          return_status() {}
@@ -185,11 +224,10 @@ index 1a2ef6d..7f936c4 100644
 +        : mStatus(s)
 +#endif
 +        {}
-+        
          return_status(const return_status &) = delete;
          return_status &operator=(const return_status &) = delete;
  
-@@ -156,20 +168,31 @@ namespace details {
+@@ -156,19 +167,31 @@ namespace details {
          ~return_status();
  
          bool isOkUnchecked() const {
@@ -215,13 +253,12 @@ index 1a2ef6d..7f936c4 100644
          bool isDeadObject() const {
 +#if ENABLE_RETURN_CHECK /* M3E: remove return check */
              bool dead = mStatus.transactionError() == DEAD_OBJECT;
--
 +#else
 +            bool dead = false;
 +#endif
+ 
              // This way, if you only check isDeadObject your process will
              // only be killed for more serious unchecked errors
-             if (dead) {
 @@ -181,8 +204,12 @@ namespace details {
  
          // For debugging purposes only
@@ -235,6 +272,33 @@ index 1a2ef6d..7f936c4 100644
          }
      };
  }  // namespace details
+@@ -265,10 +292,14 @@ namespace details {
+ // Return<T> must have an error status and have it checked.
+ template <typename T, typename U>
+ Return<U> StatusOf(const Return<T> &other) {
++#if ENABLE_RETURN_CHECK /* M3E: remove return check */
+     if (other.mStatus.isOk() || !other.mCheckedStatus) {
+         details::logAlwaysFatal("cannot call statusOf on an OK Status or an unchecked status");
+     }
+     return Return<U>{other.mStatus};
++#else
++    return Return<U>(nullptr);
++#endif
+ }
+ }  // namespace details
+ 
+diff --git a/libhidlmemory/include/hidlmemory/mapping.h b/libhidlmemory/include/hidlmemory/mapping.h
+index 352cbaf..a9bb810 100644
+--- a/libhidlmemory/include/hidlmemory/mapping.h
++++ b/libhidlmemory/include/hidlmemory/mapping.h
+@@ -28,6 +28,7 @@ namespace hardware {
+  * Note, this method call is relatively expensive and does not cache conversions.
+  * It should only be done when initializing a buffer and not on every buffer read.
+  */
++ANDROID_API_HIDL
+ sp<android::hidl::memory::V1_0::IMemory> mapMemory(const hidl_memory &memory);
+ 
+ }  // namespace hardware
 diff --git a/libhidlmemory/mapping.cpp b/libhidlmemory/mapping.cpp
 index 8f0bcf4..1a178b1 100644
 --- a/libhidlmemory/mapping.cpp
@@ -251,6 +315,136 @@ index 8f0bcf4..1a178b1 100644
      if (mapper != nullptr) {
          gMappersByName[name] = mapper;
      }
+diff --git a/transport/HidlTransportUtils.cpp b/transport/HidlTransportUtils.cpp
+index 4e952eb..e9eea75 100644
+--- a/transport/HidlTransportUtils.cpp
++++ b/transport/HidlTransportUtils.cpp
+@@ -24,8 +24,8 @@ namespace details {
+ 
+ using ::android::hidl::base::V1_0::IBase;
+ 
+-Return<bool> canCastInterface(IBase* interface, const char* castTo, bool emitError) {
+-    if (interface == nullptr) {
++Return<bool> canCastInterface(IBase* _interface, const char* castTo, bool emitError) {
++    if (_interface == nullptr) {
+         return false;
+     }
+ 
+@@ -36,7 +36,7 @@ Return<bool> canCastInterface(IBase* interface, const char* castTo, bool emitErr
+     }
+ 
+     bool canCast = false;
+-    auto chainRet = interface->interfaceChain([&](const hidl_vec<hidl_string> &types) {
++    auto chainRet = _interface->interfaceChain([&](const hidl_vec<hidl_string> &types) {
+         for (size_t i = 0; i < types.size(); i++) {
+             if (types[i] == castTo) {
+                 canCast = true;
+@@ -55,9 +55,9 @@ Return<bool> canCastInterface(IBase* interface, const char* castTo, bool emitErr
+     return canCast;
+ }
+ 
+-std::string getDescriptor(IBase* interface) {
++std::string getDescriptor(IBase* _interface) {
+     std::string myDescriptor{};
+-    auto ret = interface->interfaceDescriptor([&](const hidl_string &types) {
++    auto ret = _interface->interfaceDescriptor([&](const hidl_string &types) {
+         myDescriptor = types.c_str();
+     });
+     ret.isOk(); // ignored, return empty string if not isOk()
+diff --git a/transport/include/hidl/HidlTransportSupport.h b/transport/include/hidl/HidlTransportSupport.h
+index cdcb03e..16f5aa7 100644
+--- a/transport/include/hidl/HidlTransportSupport.h
++++ b/transport/include/hidl/HidlTransportSupport.h
+@@ -138,11 +138,13 @@ Return<sp<IChild>> castInterface(sp<IParent> parent, const char* childIndicator,
+     if (!canCastRet) {
+         return sp<IChild>(nullptr); // cast failed.
+     }
++#if 0 // M3E: no support of remote currently
+     // TODO b/32001926 Needs to be fixed for socket mode.
+     if (parent->isRemote()) {
+         // binderized mode. Got BpChild. grab the remote and wrap it.
+         return sp<IChild>(new BpChild(toBinder<IParent>(parent)));
+     }
++#endif
+     // Passthrough mode. Got BnChild or BsChild.
+     return sp<IChild>(static_cast<IChild *>(parent.get()));
+ }
+@@ -159,10 +161,12 @@ sp<IType> getServiceInternal(const std::string& instance, bool retry, bool getSt
+         return nullptr;
+     }
+ 
++#if 0 // M3E: no support of remote currently
+     if (base->isRemote()) {
+         // getRawServiceInternal guarantees we get the proper class
+         return sp<IType>(new BpType(toBinder<IBase>(base)));
+     }
++#endif
+ 
+     return IType::castFrom(base);
+ }
+diff --git a/transport/include/hidl/HidlTransportUtils.h b/transport/include/hidl/HidlTransportUtils.h
+index 5afb9a6..e070262 100644
+--- a/transport/include/hidl/HidlTransportUtils.h
++++ b/transport/include/hidl/HidlTransportUtils.h
+@@ -28,10 +28,12 @@ namespace details {
+  * @param emitError if emitError is false, return Return<bool>{false} on error; if emitError
+  * is true, the Return<bool> object contains the actual error.
+  */
+-Return<bool> canCastInterface(::android::hidl::base::V1_0::IBase* interface,
++ANDROID_API_HIDL
++Return<bool> canCastInterface(::android::hidl::base::V1_0::IBase* _interface /* M3E: */,
+         const char* castTo, bool emitError = false);
+ 
+-std::string getDescriptor(::android::hidl::base::V1_0::IBase* interface);
++ANDROID_API_HIDL
++std::string getDescriptor(::android::hidl::base::V1_0::IBase* _interface /* M3E: */);
+ 
+ }   // namespace details
+ }   // namespace hardware
+diff --git a/transport/include/hidl/ServiceManagement.h b/transport/include/hidl/ServiceManagement.h
+index 4df156b..0caf5e4 100644
+--- a/transport/include/hidl/ServiceManagement.h
++++ b/transport/include/hidl/ServiceManagement.h
+@@ -39,13 +39,16 @@ namespace hardware {
+ 
+ namespace details {
+ // e.x.: android.hardware.foo@1.0, IFoo, default
++ANDROID_API_HIDL // M3E: MSVC export
+ void onRegistration(const std::string &packageName,
+                     const std::string &interfaceName,
+                     const std::string &instanceName);
+ 
+ // e.x.: android.hardware.foo@1.0::IFoo, default
+-void waitForHwService(const std::string &interface, const std::string &instanceName);
++ANDROID_API_HIDL  // M3E: MSVC export
++void waitForHwService(const std::string &_interface /* M3E: */, const std::string &instanceName);
+ 
++ANDROID_API_HIDL  // M3E: MSVC export
+ void preloadPassthroughService(const std::string &descriptor);
+ 
+ // Returns a service with the following constraints:
+@@ -54,6 +57,7 @@ void preloadPassthroughService(const std::string &descriptor);
+ // TODO(b/65843592)
+ // If the service is a remote service, this function returns BpBase. If the service is
+ // a passthrough service, this function returns the appropriately wrapped Bs child object.
++ANDROID_API_HIDL  // M3E: MSVC export
+ sp<::android::hidl::base::V1_0::IBase> getRawServiceInternal(const std::string& descriptor,
+                                                              const std::string& instance,
+                                                              bool retry, bool getStub);
+@@ -61,9 +65,13 @@ sp<::android::hidl::base::V1_0::IBase> getRawServiceInternal(const std::string&
+ 
+ // These functions are for internal use by hidl. If you want to get ahold
+ // of an interface, the best way to do this is by calling IFoo::getService()
++ANDROID_API_HIDL  // M3E: MSVC export
+ sp<::android::hidl::manager::V1_0::IServiceManager> defaultServiceManager();
++ANDROID_API_HIDL  // M3E: MSVC export
+ sp<::android::hidl::manager::V1_1::IServiceManager> defaultServiceManager1_1();
++ANDROID_API_HIDL  // M3E: MSVC export
+ sp<::android::hidl::manager::V1_0::IServiceManager> getPassthroughServiceManager();
++ANDROID_API_HIDL  // M3E: MSVC export
+ sp<::android::hidl::manager::V1_1::IServiceManager> getPassthroughServiceManager1_1();
+ 
+ /**
 diff --git a/transport/token/1.0/utils/HybridInterface.cpp b/transport/token/1.0/utils/HybridInterface.cpp
 index 106ad4e..bc463fc 100644
 --- a/transport/token/1.0/utils/HybridInterface.cpp
@@ -266,15 +460,19 @@ index 106ad4e..bc463fc 100644
          ALOGE("Cannot retrieve TokenManager.");
          return true;
 diff --git a/transport/token/1.0/utils/include/hidl/HybridInterface.h b/transport/token/1.0/utils/include/hidl/HybridInterface.h
-index 984555e..0d9947f 100644
+index 984555e..da72fb4 100644
 --- a/transport/token/1.0/utils/include/hidl/HybridInterface.h
 +++ b/transport/token/1.0/utils/include/hidl/HybridInterface.h
-@@ -103,7 +103,7 @@ constexpr uint32_t DEFAULT_GET_HAL_TOKEN_TRANSACTION_CODE =
+@@ -102,8 +102,11 @@ typedef ::android::hidl::base::V1_0::IBase HInterface;
+ constexpr uint32_t DEFAULT_GET_HAL_TOKEN_TRANSACTION_CODE =
          B_PACK_CHARS('_', 'G', 'H', 'T');
  
++ANDROID_API_HIDL
  sp<HInterface> retrieveHalInterface(const HalToken& token);
 -bool createHalToken(const sp<HInterface>& interface, HalToken* token);
++ANDROID_API_HIDL
 +bool createHalToken(const sp<HInterface>& _interface, HalToken* token); /* M3E: */
++ANDROID_API_HIDL
  bool deleteHalToken(const HalToken& token);
  
  template <

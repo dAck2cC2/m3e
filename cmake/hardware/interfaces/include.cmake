@@ -1,3 +1,5 @@
+# define
+DLL_PUBLIC(INTERFACES)
 
 # include
 include_directories(AFTER ${HIDL_ROOT_PATH}/hardware/interfaces/configstore/utils/include)

@@ -1,3 +1,16 @@
+diff --git a/audio/common/all-versions/default/include/common/all-versions/default/HidlUtils.h b/audio/common/all-versions/default/include/common/all-versions/default/HidlUtils.h
+index f9a569741..90fd66bc1 100644
+--- a/audio/common/all-versions/default/include/common/all-versions/default/HidlUtils.h
++++ b/audio/common/all-versions/default/include/common/all-versions/default/HidlUtils.h
+@@ -37,7 +37,7 @@ namespace audio {
+ namespace common {
+ namespace AUDIO_HAL_VERSION {
+ 
+-class HidlUtils {
++class ANDROID_API_INTERFACES HidlUtils {
+    public:
+     static void audioConfigFromHal(const audio_config_t& halConfig, AudioConfig* config);
+     static void audioConfigToHal(const AudioConfig& config, audio_config_t* halConfig);
 diff --git a/configstore/utils/ConfigStoreUtils.cpp b/configstore/utils/ConfigStoreUtils.cpp
 index 5a1fb42e2..9813a5d23 100644
 --- a/configstore/utils/ConfigStoreUtils.cpp

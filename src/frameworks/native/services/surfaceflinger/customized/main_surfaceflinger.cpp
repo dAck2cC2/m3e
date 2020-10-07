@@ -12,6 +12,9 @@
 #include "Layer.h"
 #include <gui/BufferItem.h>
 
+#include <composer/2.0/ComposerClient.h>
+using IComposer2_1 = android::hardware::graphics::composer::V2_1::IComposer;
+
 #include "initrc_if.h"
 
 namespace android {
@@ -130,6 +133,7 @@ namespace android {
 static android::sp<android::NATIVE::SurfaceFlinger>   gSurfaceFlinger;
 static android::sp<android::SurfaceFlingerService>    gService;
 static android::sp<android::SurfaceFlingerMainWindow> gMainWindow;
+static android::sp<IComposer2_1>                      gComposer;
 
 static int open_surfaceflinger(const struct hw_module_t* module, const char* id,
                         struct hw_device_t** device);
@@ -166,6 +170,15 @@ struct hw_device_t DEV = {
 int open_surfaceflinger(const struct hw_module_t* module, const char* id,
                         struct hw_device_t** device)
 {
+	if (gComposer == NULL) {
+		gComposer = ::android::hardware::graphics::composer::V2_1::defaultComposer();
+		LOG_ALWAYS_FATAL_IF((gComposer == NULL), "Cannot create graphic composer !");
+
+		if (gComposer->registerAsService() != ::android::OK) {
+			LOG_ALWAYS_FATAL("Cannot register graphic composer. ");
+		}
+	}
+
     if (gSurfaceFlinger == NULL) {
         gSurfaceFlinger = new android::NATIVE::SurfaceFlinger();
         gSurfaceFlinger->init();
@@ -187,6 +200,10 @@ int open_surfaceflinger(const struct hw_module_t* module, const char* id,
 
 int close_surfaceflinger(struct hw_device_t* device)
 {
+	gComposer = NULL;
+
+	gMainWindow     = NULL;
+	gService        = NULL;
     gSurfaceFlinger = NULL;
     
     return android::OK;

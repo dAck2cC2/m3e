@@ -1,3 +1,5 @@
+# define
+DLL_PUBLIC(HIDL)
 
 # include
 include_directories(AFTER ${HIDL_ROOT_PATH}/system/libhidl/base/include)
