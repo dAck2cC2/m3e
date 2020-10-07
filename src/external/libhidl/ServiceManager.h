@@ -37,7 +37,7 @@ public:
 
 		::android::hardware::hidl_string fqName;
 		service->interfaceChain(
-			[&](const auto& descriptors)
+			[&](const ::android::hardware::hidl_vec<::android::hardware::hidl_string>& descriptors)
 			{
 				/* for DEBUG
 				for (::android::hardware::hidl_string desc : descriptors) {

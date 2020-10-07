@@ -82,40 +82,43 @@ foreach(module ${HIDL_MODULES})
     ADD_HIDL_SOURCE(${module})
 endforeach()
 
-###############################################################################
-# generate hardware.google.media.c2@1.0
-if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/hardware/google/media/c2/1.0)
-    exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers -r hardware.google:hardware/google/interfaces hardware.google.media.c2@1.0")
-endif()
-if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0)
-    exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources -r hardware.google:hardware/google/interfaces hardware.google.media.c2@1.0")
-endif()
+set(ENABLE_GOOGLE_MEDIA_C2  FALSE)
+if (ENABLE_GOOGLE_MEDIA_C2)
+    ###############################################################################
+    # generate hardware.google.media.c2@1.0
+    if (NOT EXISTS ${TMP_PATH}/${HIDL_HEADER_PATH}/hardware/google/media/c2/1.0)
+        exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headers -r hardware.google:hardware/google/interfaces hardware.google.media.c2@1.0")
+    endif()
+    if (NOT EXISTS ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0)
+        exec_program("${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources -r hardware.google:hardware/google/interfaces hardware.google.media.c2@1.0")
+    endif()
 
-file(GLOB HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES
-${TMP_PATH}/${HIDL_HEADER_PATH}/hardware/google/media/c2/1.0/*.h
-)
-list(APPEND HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES
-${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ComponentAll.cpp
-${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ComponentStoreAll.cpp
-${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ComponentInterfaceAll.cpp
-${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ComponentListenerAll.cpp
-${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ConfigurableAll.cpp
-${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/InputSurfaceAll.cpp
-${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/InputSurfaceConnectionAll.cpp
-)
-source_group(hardware.google.media.c2@1.0 FILES ${HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES})
+    file(GLOB HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES
+    ${TMP_PATH}/${HIDL_HEADER_PATH}/hardware/google/media/c2/1.0/*.h
+    )
+    list(APPEND HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES
+    ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ComponentAll.cpp
+    ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ComponentStoreAll.cpp
+    ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ComponentInterfaceAll.cpp
+    ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ComponentListenerAll.cpp
+    ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/ConfigurableAll.cpp
+    ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/InputSurfaceAll.cpp
+    ${TMP_PATH}/${HIDL_SOURCE_PATH}/hardware/google/media/c2/1.0/InputSurfaceConnectionAll.cpp
+    )
+    source_group(hardware.google.media.c2@1.0 FILES ${HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES})
 
-if (NOT MSVC)
-    list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES})
-endif()
+    if (NOT MSVC)
+        list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${HARDWARE_GOOGLE_MEDIA_C2_10_SOURCES})
+    endif()
 
-#add_custom_command(
-#    OUTPUT "${HARDWARE_GOOGLE_MEDIA_C2_SOURCES}"
-#    COMMAND "${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headres -r hardware.google:hardware/google/interfaces hardware.google.media.c2@1.0"
-#    COMMAND "${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources -r hardware.google:hardware/google/interfaces hardware.google.media.c2@1.0"
-#    DEPENDS "${BIN_HIDL_GEN}" 
-#    VERBATIM
-#)
+    #add_custom_command(
+    #    OUTPUT "${HARDWARE_GOOGLE_MEDIA_C2_SOURCES}"
+    #    COMMAND "${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_HEADER_PATH} -L c++-headres -r hardware.google:hardware/google/interfaces hardware.google.media.c2@1.0"
+    #    COMMAND "${BIN_HIDL_GEN} -p ${HIDL_ROOT_PATH} -o ${TMP_PATH}/${HIDL_SOURCE_PATH} -L c++-sources -r hardware.google:hardware/google/interfaces hardware.google.media.c2@1.0"
+    #    DEPENDS "${BIN_HIDL_GEN}" 
+    #    VERBATIM
+    #)
+endif(ENABLE_GOOGLE_MEDIA_C2)
 
 ###############################################################################
 # target files

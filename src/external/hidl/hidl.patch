@@ -195,7 +195,7 @@ index dcefc57d..b0abfcdc 100644
          << mReferencedType->getCppStackType()
          << " "
 diff --git a/generateCpp.cpp b/generateCpp.cpp
-index fa2a3ca5..52ad4b72 100644
+index fa2a3ca5..7075fd87 100644
 --- a/generateCpp.cpp
 +++ b/generateCpp.cpp
 @@ -242,8 +242,16 @@ void AST::generateInterfaceHeader(Formatter& out) const {
@@ -215,7 +215,17 @@ index fa2a3ca5..52ad4b72 100644
  
          const Interface *superType = iface->superType();
  
-@@ -807,7 +815,9 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -788,7 +796,9 @@ void AST::generateCppSource(Formatter& out) const {
+ 
+         generateCppPackageInclude(out, mPackage, iface->getProxyName());
+         generateCppPackageInclude(out, mPackage, iface->getStubName());
++#if !defined(__APPLE__) // M3E: it is using auto which is not supported by Apple
+         generateCppPackageInclude(out, mPackage, iface->getPassthroughName());
++#endif
+ 
+         for (const Interface *superType : iface->superTypeChain()) {
+             generateCppPackageInclude(out,
+@@ -807,7 +817,9 @@ void AST::generateCppSource(Formatter& out) const {
      enterLeaveNamespace(out, true /* enter */);
      out << "\n";
  
@@ -225,7 +235,7 @@ index fa2a3ca5..52ad4b72 100644
  
      if (iface) {
          const Interface* iface = mRootScope.getInterface();
-@@ -818,6 +828,8 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -818,6 +830,8 @@ void AST::generateCppSource(Formatter& out) const {
              << "::descriptor(\""
              << iface->fqName().string()
              << "\");\n\n";
@@ -234,7 +244,7 @@ index fa2a3ca5..52ad4b72 100644
          out << "__attribute__((constructor)) ";
          out << "static void static_constructor() {\n";
          out.indent([&] {
-@@ -864,11 +876,14 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -864,11 +878,14 @@ void AST::generateCppSource(Formatter& out) const {
                  << "::descriptor);\n";
          });
          out << "};\n\n";
@@ -249,7 +259,7 @@ index fa2a3ca5..52ad4b72 100644
  
          if (isIBase()) {
              out << "// skipped getService, registerAsService, registerForNotifications\n";
-@@ -880,7 +895,9 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -880,7 +897,9 @@ void AST::generateCppSource(Formatter& out) const {
          }
      }
  

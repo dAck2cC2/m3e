@@ -32,15 +32,19 @@ if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/interfaces)
   exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl/hardware_interfaces.patch" ${HIDL_ROOT_PATH}/hardware/interfaces)
 endif()
 
+#
+# No need of google codec2
+#
 # hardware/google/interfaces
-if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/google)
-  exec_program("mkdir google" ${HIDL_ROOT_PATH}/hardware)
-endif()
-if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/google/interfaces)
-  message(STATUS Download\t hardware/google/interfaces)
-  exec_program("git clone ${EXT_LINK}/hardware/google/interfaces" ${HIDL_ROOT_PATH}/hardware/google)
-  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${HIDL_ROOT_PATH}/hardware/google/interfaces)
-endif()
+#
+#if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/google)
+#  exec_program("mkdir google" ${HIDL_ROOT_PATH}/hardware)
+#endif()
+#if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/google/interfaces)
+#  message(STATUS Download\t hardware/google/interfaces)
+#  exec_program("git clone ${EXT_LINK}/hardware/google/interfaces" ${HIDL_ROOT_PATH}/hardware/google)
+#  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${HIDL_ROOT_PATH}/hardware/google/interfaces)
+#endif()
 
 # system/libhidl/transport
 if (NOT EXISTS ${HIDL_ROOT_PATH}/system)
