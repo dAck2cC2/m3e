@@ -8,4 +8,4 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libaudioclie
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/include)
 
 # for IAudioRecord.h
-include_directories(AFTER ${TMP_PATH}/${AIDL_HEADER_PATH}/libaudioclient)
+include_directories(AFTER ${TMP_PATH}/${AIDL_HEADER_PATH}/audioclient)

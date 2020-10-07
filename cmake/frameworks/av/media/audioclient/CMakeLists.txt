@@ -79,63 +79,13 @@ ${SOURCE_PATH}/TrackPlayerBase.cpp
 )
 
 # generate aidl cpp files
-if(NOT EXISTS ${TMP_PATH}/${AIDL_HEADER_PATH}/libaudioclient)
-    exec_program("mkdir libaudioclient" ${TMP_PATH}/${AIDL_HEADER_PATH})
-endif()
-if(NOT EXISTS ${TMP_PATH}/${AIDL_SOURCE_PATH}/libaudioclient)
-    exec_program("mkdir libaudioclient" ${TMP_PATH}/${AIDL_SOURCE_PATH})
-endif()
-
-set(AIDL_GEN_HEADER_PATH ${TMP_PATH}/${AIDL_HEADER_PATH}/libaudioclient/android/media)
-set(AIDL_GEN_SOURCE_PATH ${TMP_PATH}/${AIDL_SOURCE_PATH}/libaudioclient/)
-
-# IAudioRecord.aidl
-if (NOT EXISTS ${TMP_PATH}/${AIDL_SOURCE_PATH}/libaudioclient/IAudioRecord.cpp)
-    exec_program("${BIN_AIDL_CPP} \
-    -I${SOURCE_PATH}/aidl \
-    ${SOURCE_PATH}/aidl/android/media/IAudioRecord.aidl \
-    ${TMP_PATH}/${AIDL_HEADER_PATH}/libaudioclient \
-    ${TMP_PATH}/${AIDL_SOURCE_PATH}/libaudioclient/IAudioRecord.cpp"
-    )
-endif()
-if (MSVC)
-    add_definitions(-DEXPORT_IAudioRecord=__declspec\(dllexport\))
-    add_definitions(-DEXPORT_BpAudioRecord=__declspec\(dllexport\))
-    add_definitions(-DEXPORT_BnAudioRecord=__declspec\(dllexport\))
-endif(MSVC)
-
-list(APPEND ${PROJECT_NAME}_HEADER_FILES 
-${AIDL_GEN_HEADER_PATH}/IAudioRecord.h
-${AIDL_GEN_HEADER_PATH}/BpAudioRecord.h
-${AIDL_GEN_HEADER_PATH}/BnAudioRecord.h
+set(AIDL_MODULES
+android/media/IAudioRecord.aidl
+android/media/IPlayer.aidl
 )
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-${AIDL_GEN_SOURCE_PATH}/IAudioRecord.cpp
-)
-
-# IPlayer.aidl
-if (NOT EXISTS ${TMP_PATH}/${AIDL_SOURCE_PATH}/libaudioclient/IPlayer.cpp)
-    exec_program("${BIN_AIDL_CPP} \
-    -I${SOURCE_PATH}/aidl \
-    ${SOURCE_PATH}/aidl/android/media/IPlayer.aidl \
-    ${TMP_PATH}/${AIDL_HEADER_PATH}/libaudioclient \
-    ${TMP_PATH}/${AIDL_SOURCE_PATH}/libaudioclient/IPlayer.cpp"
-    )
-endif()
-if (MSVC)
-    add_definitions(-DEXPORT_IPlayer=__declspec\(dllexport\))
-    add_definitions(-DEXPORT_BpPlayer=__declspec\(dllexport\))
-    add_definitions(-DEXPORT_BnPlayer=__declspec\(dllexport\))
-endif(MSVC)
-
-list(APPEND ${PROJECT_NAME}_HEADER_FILES 
-${AIDL_GEN_HEADER_PATH}/IPlayer.h
-${AIDL_GEN_HEADER_PATH}/BpPlayer.h
-${AIDL_GEN_HEADER_PATH}/BnPlayer.h
-)
-list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-${AIDL_GEN_SOURCE_PATH}/IPlayer.cpp
-)
+foreach(module ${AIDL_MODULES})
+    ADD_AIDL_SOURCE(${module})
+endforeach()
 
 # target files
 set(LIB_TYPE SHARED)
