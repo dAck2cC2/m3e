@@ -67,6 +67,8 @@ if (ENABLE_AV_UTILS)
     add_subdirectory(sonic) 
     add_subdirectory(sonivox) 
     add_subdirectory(vpx) 
+
+    add_subdirectory(hidlservice)
 endif(ENABLE_AV_UTILS)
 
 if(ENABLE_AV_CODEC)

@@ -33,8 +33,8 @@ elseif(APPLE)
     add_definitions(-Denable_if_t=enable_if)
 endif()
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidlservice/hwcomposer )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidlservice/hwcomposer )
 
 include_directories(AFTER ${HEADER_PATH})
 include_directories(AFTER ${HEADER_PATH}/include)

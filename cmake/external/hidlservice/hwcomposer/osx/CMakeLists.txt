@@ -21,8 +21,8 @@ ${OPENGL_DEPLIB}
 find_library(APPKIT_LIBRARY AppKit)
 list(APPEND ${PROJECT_NAME}_DEPLIB ${APPKIT_LIBRARY})
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/hardware/hwcomposer )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidlservice/hwcomposer )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidlservice/hwcomposer )
 
 include_directories(AFTER ${HEADER_PATH})
 include_directories(AFTER ${HEADER_PATH}/angle)

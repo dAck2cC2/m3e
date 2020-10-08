@@ -18,7 +18,7 @@ struct ImplServiceManager : public IServiceManager
 public:
 	virtual ::android::hardware::Return<::android::sp<::android::hidl::base::V1_0::IBase>> get(const ::android::hardware::hidl_string& fqName, const ::android::hardware::hidl_string& name) override
 	{
-		LOG_ALWAYS_FATAL_IF((name != "default"), "We just support default currently !");
+		ALOGI("Get service : %s, %s", fqName.c_str(), name.c_str());
 
 		::android::AutoMutex _l(mLockAPI);
 
@@ -32,7 +32,6 @@ public:
 
 	virtual ::android::hardware::Return<bool> add(const ::android::hardware::hidl_string& name, const ::android::sp<::android::hidl::base::V1_0::IBase>& service) override
 	{
-		LOG_ALWAYS_FATAL_IF((name != "default"),  "We just support default currently !");
 		LOG_ALWAYS_FATAL_IF((service == nullptr), "Invalid service !");
 
 		::android::hardware::hidl_string fqName;
@@ -49,6 +48,8 @@ public:
 			});
 
 		::android::AutoMutex _l(mLockAPI);
+
+		LOG_ALWAYS_FATAL_IF((mServices.indexOfKey(fqName) >= 0), "service of %s already exists", fqName.c_str());
 
 		if (mServices.add(fqName, service) < 0) {
 			LOG_ALWAYS_FATAL("failed to add service");
