@@ -47,18 +47,17 @@ endif(MSVC)
 set(EXT_LINK https://android.googlesource.com/platform)
 set(EXT_TAG android-8.1.0_r52)
 set(EXT_TAG_UPDATE android-9.0.0_r56)
-set(EXT_TAG_LEGACY android-7.1.2_r36)
 
 set(EXT_UPDATE 
 safe-iop
 zlib
 boringssl
+expat
 )
 
 # moudles which are going to be updated
 #aac
 #dng_sdk
-#expat
 #flac
 #giflib
 #libgsm
@@ -75,12 +74,6 @@ boringssl
 #webp
 #libyuv
 
-# modules which have been removed from latest android release
-set(EXT_LEGACY
-gtest
-)
-
-
 ###############################################################################
 # download module
 macro(GET_ANDROID_MODULE name)
@@ -89,11 +82,7 @@ macro(GET_ANDROID_MODULE name)
             set(EXT_TAG ${EXT_TAG_UPDATE})
         endif()
     endforeach()
-    foreach(legacy_name ${EXT_LEGACY})
-        if (${name} MATCHES ${legacy_name})
-            set(EXT_TAG ${EXT_TAG_LEGACY})
-        endif()
-    endforeach()    
+
     if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/${name})
         message(STATUS "Download\t ${name}")
         exec_program("git clone ${EXT_LINK}/${EXT_PATH}/${name}" ${M3E_SOURCE_DIR}/${EXT_PATH})

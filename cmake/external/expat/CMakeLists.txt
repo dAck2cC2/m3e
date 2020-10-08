@@ -12,6 +12,7 @@ include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/expat)
 
 add_definitions(-DHAVE_EXPAT_CONFIG_H)
 add_definitions(-DXML_BUILDING_EXPAT)
+add_definitions(-UWIN32_LEAN_AND_MEAN)
 
 if(MSVC)
     add_definitions(-D_WINIOCTL_=1)
@@ -29,6 +30,7 @@ ${HEADER_PATH}/*.h
 )
 
 set(EXPAT_SOURCE_FILES 
+${SOURCE_PATH}/loadlibrary.c
 ${SOURCE_PATH}/xmlparse.c
 ${SOURCE_PATH}/xmlrole.c
 ${SOURCE_PATH}/xmltok.c
