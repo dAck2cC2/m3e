@@ -8,4 +8,6 @@ elseif(MSVC)
     add_definitions(-D_HAS_TR1_NAMESPACE=1)
 endif()
 
-include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include)
+set(GTEST_MAIN_CC ${M3E_SOURCE_DIR}/${EXT_PATH}/googletest/googletest/src/gtest_main.cc)
+
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/googletest/googletest/include)

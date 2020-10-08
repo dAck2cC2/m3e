@@ -33,7 +33,7 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/binder/tests )
 
 # main source
 set(TEST_BINDER_SOURCE_FILES
-${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
+${GTEST_MAIN_CC}
 )
 
 list(APPEND TEST_BINDER_SOURCE_FILES

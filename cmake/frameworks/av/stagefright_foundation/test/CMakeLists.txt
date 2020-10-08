@@ -32,7 +32,7 @@ ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation/test/*.cpp
 # main source
 
 set(TEST_FOUNDATION_SOURCE_FILES ${TEST_FOUNDATION_SOURCE_FILES}
-${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
+${GTEST_MAIN_CC}
 )
 
 # project

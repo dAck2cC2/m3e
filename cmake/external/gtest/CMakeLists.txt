@@ -5,20 +5,27 @@ project(GTEST)
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/gtest/include.cmake)
 
-GET_ANDROID_MODULE(gtest)
+if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/googletest)
+  message(STATUS "Download\t googletest")
+  exec_program("git clone https://github.com/google/googletest.git" ${M3E_SOURCE_DIR}/${EXT_PATH})
+  exec_program("git checkout release-1.10.0" ${M3E_SOURCE_DIR}/${EXT_PATH}/googletest)
+endif()
+
+set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/googletest/googletest/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/googletest/googletest )
 
 include_directories(AFTER
-${M3E_SOURCE_DIR}/${EXT_PATH}/gtest
-${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include
+${HEADER_PATH}
+${SOURCE_PATH}
 )
 
 file(GLOB LIBGTEST_HEADER_FILES
-${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include/gtest/*.h
-${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/include/gtest/internal/*.h
+${HEADER_PATH}/gtest/*.h
+${HEADER_PATH}/gtest/internal/*.h
 )
 
 set(LIBGTEST_SOURCE_FILES 
-${M3E_SOURCE_DIR}/${EXT_PATH}/gtest/src/gtest-all.cc
+${SOURCE_PATH}/src/gtest-all.cc
 )
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

@@ -38,7 +38,7 @@ ${HEADER_PATH}/*.h
 # main source
 
 set(${PROJECT_NAME}_SOURCE_FILES
-#${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
+#${GTEST_MAIN_CC}
 )
 
 # test file

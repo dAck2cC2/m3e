@@ -25,7 +25,7 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils/tests )
 # main source
 
 set(TEST_CUTILS_SOURCE_FILES
-${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
+${GTEST_MAIN_CC}
 )
 
 # test file

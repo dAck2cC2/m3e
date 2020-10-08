@@ -28,7 +28,7 @@ include_directories(AFTER ${HEADER_PATH})
 # main source
 
 set(TEST_LOG_SOURCE_FILES 
-${M3E_SOURCE_DIR}/src/external/gtest/main.cpp
+${GTEST_MAIN_CC}
 )
 
 # test log
