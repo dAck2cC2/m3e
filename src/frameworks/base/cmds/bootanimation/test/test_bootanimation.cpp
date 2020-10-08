@@ -3,7 +3,7 @@
 
 int main(int argc, char** argv)
 {
-    InitRC_set("run.start.bootanim", "true");
+    InitRC_set(M_PROPERTY_BOOT_ANIMATION_TIME_SEC, "3");
 
 	InitRC_entry(argc, argv);
 

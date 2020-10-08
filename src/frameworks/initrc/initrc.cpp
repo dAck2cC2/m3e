@@ -13,6 +13,8 @@ PROPERTY_DEFINE(M_PROPERTY_DISPLAY_NAME,   "native.display.name");
 PROPERTY_DEFINE(M_PROPERTY_DISPLAY_WIDTH,  "native.display.width");
 PROPERTY_DEFINE(M_PROPERTY_DISPLAY_HEIGHT, "native.display.height");
 
+PROPERTY_DEFINE(M_PROPERTY_BOOT_ANIMATION_TIME_SEC, "service.bootanim.time");
+
 namespace android {
 
 class InitRCImpl : public RefBase
@@ -20,6 +22,7 @@ class InitRCImpl : public RefBase
 public:
 	enum {
 		SERVICE_SM = 0,
+        SERVICE_HIDL,
 		SERVICE_SF,
 		SERVICE_AF,
 		SERVICE_AP,
@@ -54,6 +57,7 @@ static struct {
 }
 gServiceList[InitRCImpl::SERVICE_CNT] = {
     {"servicemanager",        NULL},
+    {"hidlservice",           NULL},
     {"surfaceflinger",        NULL},
 	{"audioflinger",          NULL},
 	{"audiopolicy",           NULL},
@@ -84,6 +88,9 @@ void InitRCImpl::ResetProperties()
     property_set("native.display.width",  "800");
     property_set("native.display.height", "600");
     
+    // boot animation time    
+    property_set("service.bootanim.time", "0");
+
     // libraries of service
     property_set("ro.hardware", "local");
 #if defined(__APPLE__)
@@ -132,6 +139,7 @@ void InitRCImpl::StartService(int index)
 int InitRCImpl::Entry(int argc, char** argv)
 {
     if (!mHasInited) {
+        StartService(SERVICE_HIDL);
         StartService(SERVICE_SF);
         StartService(SERVICE_AF);
         StartService(SERVICE_AP);
@@ -140,7 +148,7 @@ int InitRCImpl::Entry(int argc, char** argv)
         StartService(SERVICE_MEDIA_CODEC);
         StartService(SERVICE_MEDIA_EXTRACTOR);
         
-        if (property_get_bool("run.start.bootanim", 0)) {
+        if (property_get_int32("service.bootanim.time", 0) > 0) {
             StartService(SERVICE_BOOT_ANIM);
         }
         

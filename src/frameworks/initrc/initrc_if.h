@@ -13,6 +13,14 @@ protected:
 	virtual ~InitRCMainWindow() {};
 };
 
+class InitRCAnimationStatus : public virtual RefBase {
+public:
+	virtual void wait() = 0;
+
+protected:
+	virtual ~InitRCAnimationStatus() {};
 };
+
+} // namespace android
 
 #endif // _ANDROID_INIT_RC_IF_H
