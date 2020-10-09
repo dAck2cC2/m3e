@@ -32,14 +32,12 @@
 
 #include "NdkMediaError.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if __ANDROID_API__ >= 21
+__BEGIN_DECLS
 
 struct AMediaFormat;
 typedef struct AMediaFormat AMediaFormat;
+
+#if __ANDROID_API__ >= 21
 
 MEDIANDK_API
 AMediaFormat *AMediaFormat_new();
@@ -95,24 +93,49 @@ void AMediaFormat_setBuffer(AMediaFormat*, const char* name, void* data, size_t 
 /**
  * XXX should these be ints/enums that we look up in a table as needed?
  */
+extern const char* AMEDIAFORMAT_KEY_AAC_DRC_ATTENUATION_FACTOR;
+extern const char* AMEDIAFORMAT_KEY_AAC_DRC_BOOST_FACTOR;
+extern const char* AMEDIAFORMAT_KEY_AAC_DRC_HEAVY_COMPRESSION;
+extern const char* AMEDIAFORMAT_KEY_AAC_DRC_TARGET_REFERENCE_LEVEL;
+extern const char* AMEDIAFORMAT_KEY_AAC_ENCODED_TARGET_LEVEL;
+extern const char* AMEDIAFORMAT_KEY_AAC_MAX_OUTPUT_CHANNEL_COUNT;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_PROFILE;
+extern const char* AMEDIAFORMAT_KEY_AAC_SBR_MODE;
+extern const char* AMEDIAFORMAT_KEY_AUDIO_SESSION_ID;
+extern const char* AMEDIAFORMAT_KEY_BITRATE_MODE;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_BIT_RATE;
+extern const char* AMEDIAFORMAT_KEY_CAPTURE_RATE;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CHANNEL_COUNT;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CHANNEL_MASK;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_COLOR_FORMAT;
+extern const char* AMEDIAFORMAT_KEY_COLOR_RANGE;
+extern const char* AMEDIAFORMAT_KEY_COLOR_STANDARD;
+extern const char* AMEDIAFORMAT_KEY_COLOR_TRANSFER;
+extern const char* AMEDIAFORMAT_KEY_COMPLEXITY;
+extern const char* AMEDIAFORMAT_KEY_CSD;
+extern const char* AMEDIAFORMAT_KEY_CSD_0;
+extern const char* AMEDIAFORMAT_KEY_CSD_1;
+extern const char* AMEDIAFORMAT_KEY_CSD_2;
+extern const char* AMEDIAFORMAT_KEY_DISPLAY_CROP;
+extern const char* AMEDIAFORMAT_KEY_DISPLAY_HEIGHT;
+extern const char* AMEDIAFORMAT_KEY_DISPLAY_WIDTH;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_DURATION;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_FLAC_COMPRESSION_LEVEL;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_FRAME_RATE;
+extern const char* AMEDIAFORMAT_KEY_GRID_COLUMNS;
+extern const char* AMEDIAFORMAT_KEY_GRID_ROWS;
+extern const char* AMEDIAFORMAT_KEY_HDR_STATIC_INFO;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_HEIGHT;
+extern const char* AMEDIAFORMAT_KEY_INTRA_REFRESH_PERIOD;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_IS_ADTS;
 MEDIANDK_API
@@ -125,6 +148,8 @@ MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_I_FRAME_INTERVAL;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_LANGUAGE;
+extern const char* AMEDIAFORMAT_KEY_LATENCY;
+extern const char* AMEDIAFORMAT_KEY_LEVEL;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_MAX_HEIGHT;
 MEDIANDK_API
@@ -133,21 +158,44 @@ MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_MAX_WIDTH;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_MIME;
+extern const char* AMEDIAFORMAT_KEY_MPEG_USER_DATA;
+extern const char* AMEDIAFORMAT_KEY_OPERATING_RATE;
+extern const char* AMEDIAFORMAT_KEY_PCM_ENCODING;
+extern const char* AMEDIAFORMAT_KEY_PRIORITY;
+extern const char* AMEDIAFORMAT_KEY_PROFILE;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_PUSH_BLANK_BUFFERS_ON_STOP;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_REPEAT_PREVIOUS_FRAME_AFTER;
+extern const char* AMEDIAFORMAT_KEY_ROTATION;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_SAMPLE_RATE;
+extern const char* AMEDIAFORMAT_KEY_SEI;
+extern const char* AMEDIAFORMAT_KEY_SLICE_HEIGHT;
+extern const char* AMEDIAFORMAT_KEY_STRIDE;
+extern const char* AMEDIAFORMAT_KEY_TEMPORAL_LAYER_ID;
+extern const char* AMEDIAFORMAT_KEY_TEMPORAL_LAYERING;
+extern const char* AMEDIAFORMAT_KEY_TILE_HEIGHT;
+extern const char* AMEDIAFORMAT_KEY_TILE_WIDTH;
+extern const char* AMEDIAFORMAT_KEY_TIME_US;
+extern const char* AMEDIAFORMAT_KEY_TRACK_ID;
+extern const char* AMEDIAFORMAT_KEY_TRACK_INDEX;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_WIDTH;
-MEDIANDK_API
-extern const char* AMEDIAFORMAT_KEY_STRIDE;
 
 #endif /* __ANDROID_API__ >= 21 */
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+#if __ANDROID_API__ >= 28
+bool AMediaFormat_getDouble(AMediaFormat*, const char *name, double *out);
+bool AMediaFormat_getRect(AMediaFormat*, const char *name,
+                          int32_t *left, int32_t *top, int32_t *right, int32_t *bottom);
+
+void AMediaFormat_setDouble(AMediaFormat*, const char* name, double value);
+void AMediaFormat_setSize(AMediaFormat*, const char* name, size_t value);
+void AMediaFormat_setRect(AMediaFormat*, const char* name,
+                          int32_t left, int32_t top, int32_t right, int32_t bottom);
+#endif /* __ANDROID_API__ >= 28 */
+
+__END_DECLS
 
 #endif // _NDK_MEDIA_FORMAT_H

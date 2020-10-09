@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,40 +25,39 @@
  * Do not #include files that aren't part of the NDK.
  */
 
-#ifndef _NDK_MEDIA_CRYPTO_H
-#define _NDK_MEDIA_CRYPTO_H
+#ifndef _NDK_MEDIA_DATASOURCE_PRIV_H
+#define _NDK_MEDIA_DATASOURCE_PRIV_H
 
 #include <sys/cdefs.h>
 #include <sys/types.h>
-#include <stdbool.h>
 
-// M3E: add
-#include "NdkMediaError.h"
-#include <stdint.h>
+#include <media/DataSource.h>
+#include <media/NdkMediaDataSource.h>
+#include <utils/Mutex.h>
+#include <utils/String8.h>
 
-__BEGIN_DECLS
+using namespace android;
 
-struct AMediaCrypto;
-typedef struct AMediaCrypto AMediaCrypto;
+struct NdkDataSource : public DataSource {
 
-typedef uint8_t AMediaUUID[16];
+    NdkDataSource(AMediaDataSource *);
 
-#if __ANDROID_API__ >= 21
+    virtual status_t initCheck() const;
+    virtual ssize_t readAt(off64_t offset, void *data, size_t size);
+    virtual status_t getSize(off64_t *);
+    virtual String8 toString();
+    virtual String8 getMIMEType() const;
+    virtual void close();
 
-MEDIANDK_API
-bool AMediaCrypto_isCryptoSchemeSupported(const AMediaUUID uuid);
+protected:
+    virtual ~NdkDataSource();
 
-MEDIANDK_API
-bool AMediaCrypto_requiresSecureDecoderComponent(const char *mime);
+private:
 
-MEDIANDK_API
-AMediaCrypto* AMediaCrypto_new(const AMediaUUID uuid, const void *initData, size_t initDataSize);
+    Mutex mLock;
+    AMediaDataSource *mDataSource;
 
-MEDIANDK_API
-void AMediaCrypto_delete(AMediaCrypto* crypto);
+};
 
-#endif /* __ANDROID_API__ >= 21 */
+#endif // _NDK_MEDIA_DATASOURCE_PRIV_H
 
-__END_DECLS
-
-#endif // _NDK_MEDIA_CRYPTO_H

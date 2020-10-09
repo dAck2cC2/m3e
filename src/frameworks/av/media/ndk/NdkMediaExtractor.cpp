@@ -20,6 +20,7 @@
 
 #include <media/NdkMediaError.h>
 #include <media/NdkMediaExtractor.h>
+#include "NdkMediaDataSourcePriv.h"
 #include "NdkMediaFormatPriv.h"
 
 
@@ -32,17 +33,24 @@
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/NuMediaExtractor.h>
 #include <media/IMediaHTTPService.h>
-//#include <android_runtime/AndroidRuntime.h>
-//#include <android_util_Binder.h>
+#if ENABLE_ANDROID_RT
+#include <android_runtime/AndroidRuntime.h>
+#include <android_util_Binder.h>
 
-//#include <jni.h>
+#include <jni.h>
+#endif
 
 using namespace android;
 
 static media_status_t translate_error(status_t err) {
     if (err == OK) {
         return AMEDIA_OK;
+    } else if (err == ERROR_END_OF_STREAM) {
+        return AMEDIA_ERROR_END_OF_STREAM;
+    } else if (err == ERROR_IO) {
+        return AMEDIA_ERROR_IO;
     }
+
     ALOGE("sf error code: %d", err);
     return AMEDIA_ERROR_UNKNOWN;
 }
@@ -50,7 +58,6 @@ static media_status_t translate_error(status_t err) {
 struct AMediaExtractor {
     sp<NuMediaExtractor> mImpl;
     sp<ABuffer> mPsshBuf;
-
 };
 
 extern "C" {
@@ -81,6 +88,7 @@ EXPORT
 media_status_t AMediaExtractor_setDataSource(AMediaExtractor *mData, const char *location) {
     ALOGV("setDataSource(%s)", location);
     // TODO: add header support
+
 #if ENABLE_ANDROID_RT
     JNIEnv *env = AndroidRuntime::getJNIEnv();
     jobject service = NULL;
@@ -121,6 +129,18 @@ media_status_t AMediaExtractor_setDataSource(AMediaExtractor *mData, const char 
 #else
 	return AMEDIA_ERROR_UNSUPPORTED;
 #endif
+}
+
+EXPORT
+media_status_t AMediaExtractor_setDataSourceCustom(AMediaExtractor* mData, AMediaDataSource *src) {
+    return translate_error(mData->mImpl->setDataSource(new NdkDataSource(src)));
+}
+
+EXPORT
+AMediaFormat* AMediaExtractor_getFileFormat(AMediaExtractor *mData) {
+    sp<AMessage> format;
+    mData->mImpl->getFileFormat(&format);
+    return AMediaFormat_fromMsg(&format);
 }
 
 EXPORT
@@ -182,6 +202,16 @@ ssize_t AMediaExtractor_readSampleData(AMediaExtractor *mData, uint8_t *buffer, 
         return tmp->size();
     }
     return -1;
+}
+
+EXPORT
+ssize_t AMediaExtractor_getSampleSize(AMediaExtractor *mData) {
+    size_t sampleSize;
+    status_t err = mData->mImpl->getSampleSize(&sampleSize);
+    if (err != OK) {
+        return -1;
+    }
+    return sampleSize;
 }
 
 EXPORT
@@ -382,6 +412,80 @@ AMediaCodecCryptoInfo *AMediaExtractor_getSampleCryptoInfo(AMediaExtractor *ex) 
             (size_t*) crypteddata);
 }
 
+EXPORT
+int64_t AMediaExtractor_getCachedDuration(AMediaExtractor *ex) {
+    bool eos;
+    int64_t durationUs;
+    if (ex->mImpl->getCachedDuration(&durationUs, &eos)) {
+        return durationUs;
+    }
+    return -1;
+}
+
+EXPORT
+media_status_t AMediaExtractor_getSampleFormat(AMediaExtractor *ex, AMediaFormat *fmt) {
+    if (fmt == NULL) {
+        return AMEDIA_ERROR_INVALID_PARAMETER;
+    }
+
+    sp<MetaData> sampleMeta;
+    status_t err = ex->mImpl->getSampleMeta(&sampleMeta);
+    if (err != OK) {
+        return translate_error(err);
+    }
+
+    sp<AMessage> meta;
+    AMediaFormat_getFormat(fmt, &meta);
+    meta->clear();
+
+    int32_t layerId;
+    if (sampleMeta->findInt32(kKeyTemporalLayerId, &layerId)) {
+        meta->setInt32(AMEDIAFORMAT_KEY_TEMPORAL_LAYER_ID, layerId);
+    }
+
+    size_t trackIndex;
+    err = ex->mImpl->getSampleTrackIndex(&trackIndex);
+    if (err == OK) {
+        meta->setInt32(AMEDIAFORMAT_KEY_TRACK_INDEX, trackIndex);
+        sp<AMessage> trackFormat;
+        AString mime;
+        err = ex->mImpl->getTrackFormat(trackIndex, &trackFormat);
+        if (err == OK
+                && trackFormat != NULL
+                && trackFormat->findString(AMEDIAFORMAT_KEY_MIME, &mime)) {
+            meta->setString(AMEDIAFORMAT_KEY_MIME, mime);
+        }
+    }
+
+    int64_t durationUs;
+    if (sampleMeta->findInt64(kKeyDuration, &durationUs)) {
+        meta->setInt64(AMEDIAFORMAT_KEY_DURATION, durationUs);
+    }
+
+    uint32_t dataType; // unused
+    const void *seiData;
+    size_t seiLength;
+    if (sampleMeta->findData(kKeySEI, &dataType, &seiData, &seiLength)) {
+        sp<ABuffer> sei = ABuffer::CreateAsCopy(seiData, seiLength);;
+        meta->setBuffer(AMEDIAFORMAT_KEY_SEI, sei);
+    }
+
+    const void *mpegUserDataPointer;
+    size_t mpegUserDataLength;
+    if (sampleMeta->findData(
+            kKeyMpegUserData, &dataType, &mpegUserDataPointer, &mpegUserDataLength)) {
+        sp<ABuffer> mpegUserData = ABuffer::CreateAsCopy(mpegUserDataPointer, mpegUserDataLength);
+        meta->setBuffer(AMEDIAFORMAT_KEY_MPEG_USER_DATA, mpegUserData);
+    }
+
+    return AMEDIA_OK;
+}
+
+EXPORT
+media_status_t AMediaExtractor_disconnect(AMediaExtractor * ex) {
+    ex->mImpl->disconnect();
+    return AMEDIA_OK;
+}
 
 } // extern "C"
 

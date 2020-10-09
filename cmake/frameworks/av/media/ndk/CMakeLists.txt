@@ -19,8 +19,12 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaextractor/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
+
+include(${M3E_SOURCE_DIR}/cmake/nativehelper/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation/include/media/stagefright)
 
@@ -54,6 +58,7 @@ ${HEADER_PATH}/*.h
 set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/NdkMediaCodec.cpp
 ${SOURCE_PATH}/NdkMediaCrypto.cpp
+${SOURCE_PATH}/NdkMediaDataSource.cpp
 ${SOURCE_PATH}/NdkMediaExtractor.cpp
 ${SOURCE_PATH}/NdkMediaFormat.cpp
 ${SOURCE_PATH}/NdkMediaMuxer.cpp

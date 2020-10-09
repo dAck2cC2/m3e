@@ -27,13 +27,14 @@
 #include <utils/StrongPointer.h>
 #include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/foundation/AMessage.h>
-#include <media/stagefright/MetaData.h>
 #include <media/stagefright/MediaMuxer.h>
 #include <media/IMediaHTTPService.h>
-//#include <android_runtime/AndroidRuntime.h>
-//#include <android_util_Binder.h>
+/* M3E:
+#include <android_runtime/AndroidRuntime.h>
+#include <android_util_Binder.h>
 
-//#include <jni.h>
+#include <jni.h>
+*/
 
 #include <media/stagefright/MediaAdapter.h>
 
