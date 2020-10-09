@@ -41,8 +41,10 @@
 #include <gui/Surface.h>
 #include <ui/DisplayInfo.h>
 
+// M3E: add
+#if defined(_MSC_VER)
 #include <media/AudioTrack.h>
-
+#endif
 #include <initrc/initrc.h>
 
 static void usage(const char *me) {
@@ -351,7 +353,8 @@ int main(int argc, char **argv) {
 
     int res;
 
-	InitRC_entry(argc, argv);
+    // M3E: init
+    InitRC_entry(argc, argv);
 
     while ((res = getopt(argc, argv, "havpSDRT")) >= 0) {
         switch (res) {
@@ -414,6 +417,7 @@ int main(int argc, char **argv) {
     sp<SurfaceControl> control;
     sp<Surface> surface;
 
+    // M3E: do not play video for now
     if ((playback && useVideo) || (useSurface && useVideo)) {
         composerClient = new SurfaceComposerClient;
         CHECK_EQ(composerClient->initCheck(), (status_t)OK);
@@ -451,13 +455,14 @@ int main(int argc, char **argv) {
         looper->registerHandler(player);
 
         player->setDataSource(argv[0]);
-		if (useVideo) {
-			player->setSurface(surface->getIGraphicBufferProducer());
-		}
+        // M3E: no video for now
+	if (useVideo) {
+        player->setSurface(surface->getIGraphicBufferProducer());
+	}
         player->start();
-		for (;;) {
-			sleep(60);
-		}
+	for (;;) {
+        sleep(60);
+	}
         player->stop();
         player->reset();
     } else {
@@ -465,6 +470,7 @@ int main(int argc, char **argv) {
                 useTimestamp);
     }
 
+    // M3E: exclude video
     if ((playback && useVideo) || (useSurface && useVideo)) {
         composerClient->dispose();
     }

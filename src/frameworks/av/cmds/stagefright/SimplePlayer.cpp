@@ -33,8 +33,6 @@
 #include <media/stagefright/MediaErrors.h>
 #include <media/stagefright/NuMediaExtractor.h>
 
-#include <utils/NativeHandle.h>
-
 namespace android {
 
 SimplePlayer::SimplePlayer()
@@ -110,7 +108,7 @@ void SimplePlayer::onMessageReceived(const sp<AMessage> &msg) {
     switch (msg->what()) {
         case kWhatSetDataSource:
         {
-            status_t err = OK;
+            status_t err = OK; // M3E: 
             if (mState != UNINITIALIZED) {
                 err = INVALID_OPERATION;
             } else {

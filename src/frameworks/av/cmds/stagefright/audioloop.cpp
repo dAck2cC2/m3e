@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#define LOG_NDEBUG 0
+#define LOG_TAG "audioloop"
+#include <utils/Log.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -29,24 +33,24 @@
 #include <media/stagefright/AudioSource.h>
 #include <media/stagefright/MediaCodecSource.h>
 #include <media/stagefright/MediaDefs.h>
-#include <media/stagefright/MetaData.h>
 #include <media/stagefright/SimpleDecodingSource.h>
 #include "SineSource.h"
 
+// M3E: add
 #include <cutils/threads.h>
-
 #include <initrc/initrc.h>
 
 using namespace android;
 
 static void usage(const char* name)
 {
-    fprintf(stderr, "Usage: %s [-d du.ration] [-m] [-w] [<output-file>]\n", name);
+    fprintf(stderr, "Usage: %s [-d du.ration] [-m] [-w] [-N name] [<output-file>]\n", name);
     fprintf(stderr, "Encodes either a sine wave or microphone input to AMR format\n");
     fprintf(stderr, "    -d    duration in seconds, default 5 seconds\n");
     fprintf(stderr, "    -m    use microphone for input, default sine source\n");
     fprintf(stderr, "    -w    use AMR wideband (default narrowband)\n");
-	fprintf(stderr, "    -s    play source to speaker directly\n");
+    fprintf(stderr, "    -N    name of the encoder; must be set with -M\n");
+    fprintf(stderr, "    -M    media type of the encoder; must be set with -N\n");
     fprintf(stderr, "    <output-file> output file for AMR encoding,"
             " if unspecified, decode to speaker.\n");
 }
@@ -58,13 +62,16 @@ int main(int argc, char* argv[])
     bool useMic = false;
     bool outputWBAMR = false;
     bool playToSpeaker = true;
-	bool playSource = false;
+    bool playSource = false; // M3E: add
     const char* fileOut = NULL;
+    AString name;
+    AString mediaType;
 
-	InitRC_entry(argc, argv);
+    // M3E: init
+    InitRC_entry(argc, argv);
 
     int ch;
-    while ((ch = getopt(argc, argv, "d:mws")) != -1) {
+    while ((ch = getopt(argc, argv, "d:mwN:M:")) != -1) {
         switch (ch) {
         case 'd':
             duration = atoi(optarg);
@@ -75,9 +82,16 @@ int main(int argc, char* argv[])
         case 'w':
             outputWBAMR = true;
             break;
-		case 's':
-			playSource = true;
-			break;
+        case 'N':
+            name.setTo(optarg);
+            break;
+        case 'M':
+            mediaType.setTo(optarg);
+            break;
+        // M3E: add 
+        case 's':
+            playSource = true;
+            break;
         default:
             usage(argv[0]);
             return -1;
@@ -88,35 +102,50 @@ int main(int argc, char* argv[])
     if (argc == 1) {
         fileOut = argv[0];
     }
-    const int32_t kSampleRate = outputWBAMR ? 16000 : 8000;
-    const int32_t kBitRate = outputWBAMR ? 16000 : 8000;
+    if ((name.empty() && !mediaType.empty()) || (!name.empty() && mediaType.empty())) {
+        fprintf(stderr, "-N and -M must be set together\n");
+        usage(argv[0]);
+        return -1;
+    }
+    if (!name.empty() && fileOut != NULL) {
+        fprintf(stderr, "-N and -M cannot be used with <output file>\n");
+        usage(argv[0]);
+        return -1;
+    }
+    int32_t sampleRate = !name.empty() ? 44100 : outputWBAMR ? 16000 : 8000;
+    int32_t bitRate = sampleRate;
 
     android::ProcessState::self()->startThreadPool();
     sp<MediaSource> source;
 
     if (useMic) {
-#if ENABLE_RECODER
+#if ENABLE_RECODER // M3E: not supported yet
         // talk into the appropriate microphone for the duration
         source = new AudioSource(
                 AUDIO_SOURCE_MIC,
                 String16(),
-                kSampleRate,
+                sampleRate,
                 channels);
 #endif
     } else {
         // use a sine source at 500 hz.
-        source = new SineSource(kSampleRate, channels);
+        source = new SineSource(sampleRate, channels);
     }
 
     sp<AMessage> meta = new AMessage;
-    meta->setString(
-            "mime",
-            outputWBAMR ? MEDIA_MIMETYPE_AUDIO_AMR_WB
-                    : MEDIA_MIMETYPE_AUDIO_AMR_NB);
+    if (name.empty()) {
+        meta->setString(
+                "mime",
+                outputWBAMR ? MEDIA_MIMETYPE_AUDIO_AMR_WB
+                        : MEDIA_MIMETYPE_AUDIO_AMR_NB);
+    } else {
+        meta->setString("mime", mediaType);
+        meta->setString("testing-name", name);
+    }
 
     meta->setInt32("channel-count", channels);
-    meta->setInt32("sample-rate", kSampleRate);
-    meta->setInt32("bitrate", kBitRate);
+    meta->setInt32("sample-rate", sampleRate);
+    meta->setInt32("bitrate", bitRate);
     int32_t maxInputSize;
     if (source->getFormat()->findInt32(kKeyMaxInputSize, &maxInputSize)) {
         meta->setInt32("max-input-size", maxInputSize);
@@ -126,7 +155,8 @@ int main(int argc, char* argv[])
     looper->setName("audioloop");
     looper->start();
 
-    sp<IMediaSource> encoder = MediaCodecSource::Create(looper, meta, source);
+    sp<MediaSource> encoder = MediaCodecSource::Create(looper, meta, source);
+    // M3E: add checking
     if (encoder == NULL) {
         return 0;
     }
@@ -134,7 +164,7 @@ int main(int argc, char* argv[])
     if (fileOut != NULL) {
         // target file specified, write encoded AMR output
         int fd = open(fileOut, O_CREAT
-#if defined(O_LARGEFILE)
+#if defined(O_LARGEFILE) // M3E: add
 			| O_LARGEFILE 
 #endif 
 			| O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
@@ -149,23 +179,25 @@ int main(int argc, char* argv[])
         writer->stop();
     } else {
         // otherwise decode to speaker
-        sp<IMediaSource> decoder = SimpleDecodingSource::Create(encoder);
+        sp<MediaSource> decoder = SimpleDecodingSource::Create(encoder);
 
         if (playToSpeaker) {
-            AudioPlayer *player = new AudioPlayer(NULL);
-			if (playSource) {
-				player->setSource(source);
-			} else {
-				player->setSource(decoder);
-			}
-            player->start();
+            AudioPlayer player(NULL);
+            // M3E: add
+	    if (playSource) {
+	    player.setSource(source);
+	    } else {
+            player.setSource(decoder);
+	    }
+            player.start();
             sleep(duration);
 
+ALOGI("Line: %d", __LINE__);
             decoder.clear(); // must clear |decoder| otherwise delete player will hang.
-            delete player; // there is no player->stop()...
+ALOGI("Line: %d", __LINE__);
         } else {
             CHECK_EQ(decoder->start(), (status_t)OK);
-            MediaBuffer* buffer;
+            MediaBufferBase* buffer;
             while (decoder->read(&buffer) == OK) {
                 // do something with buffer (save it eventually?)
                 // need to stop after some count though...
@@ -176,6 +208,7 @@ int main(int argc, char* argv[])
             }
             CHECK_EQ(decoder->stop(), (status_t)OK);
         }
+ALOGI("Line: %d", __LINE__);
     }
 
     return 0;
