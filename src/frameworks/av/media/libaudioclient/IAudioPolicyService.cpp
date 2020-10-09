@@ -950,7 +950,9 @@ status_t BnAudioPolicyService::onTransact(
             break;
     }
 
+#if 0 // M3E: this timeout may affect break point debug
     TimeCheck check("IAudioPolicyService");
+#endif
 
     switch (code) {
         case SET_DEVICE_CONNECTION_STATE: {

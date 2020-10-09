@@ -953,7 +953,7 @@ status_t BnAudioFlinger::onTransact(
             break;
     }
 
-#if 1 // M3E: this timeout may affect break point debug
+#if 0 // M3E: this timeout may affect break point debug
     TimeCheck check("IAudioFlinger");
 #endif
 
