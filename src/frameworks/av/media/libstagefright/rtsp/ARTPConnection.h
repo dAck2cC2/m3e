@@ -92,7 +92,7 @@ private:
     DISALLOW_EVIL_CONSTRUCTORS(ARTPConnection);
 };
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 struct ARTPConnection::StreamInfo {
 	int mRTPSocket;
 	int mRTCPSocket;

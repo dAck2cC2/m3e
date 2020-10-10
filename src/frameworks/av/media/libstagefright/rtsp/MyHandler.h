@@ -43,7 +43,7 @@
 #include <media/stagefright/Utils.h>
 
 #include <arpa/inet.h>
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
 #include <sys/socket.h>
 #include <netdb.h>
 #endif
@@ -349,6 +349,7 @@ struct MyHandler : public AHandler {
 
                 return false;
             }
+
 #if defined(_MSC_VER)
 			addr.sin_addr.s_addr = (ULONG)ent->h_addr;
 #else

@@ -52,7 +52,7 @@ static uint64_t u64at(const uint8_t *data) {
 // static
 const int64_t ARTPConnection::kSelectTimeoutUs = 1000ll;
 
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
 struct ARTPConnection::StreamInfo {
     int mRTPSocket;
     int mRTCPSocket;
