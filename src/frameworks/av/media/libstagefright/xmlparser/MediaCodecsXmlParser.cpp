@@ -28,6 +28,7 @@
 #include <cctype>
 #include <algorithm>
 
+// M3E:
 #include <utils/Compat.h> // OS_PATH_SEPARATOR
 
 namespace android {
@@ -56,7 +57,7 @@ bool findFileInDirs(
         const char *fileName,
         std::string *outPath) {
     for (; *searchDirs != nullptr; ++searchDirs) {
-        *outPath = std::string(*searchDirs) + OS_PATH_SEPARATOR + fileName;
+        *outPath = std::string(*searchDirs) + OS_PATH_SEPARATOR + fileName; // M3E: cross-platform
         struct stat fileStat;
         if (stat(outPath->c_str(), &fileStat) == 0 &&
                 S_ISREG(fileStat.st_mode)) {
@@ -141,7 +142,7 @@ bool MediaCodecsXmlParser::parseTopLevelXMLFile(
         const char *codecs_xml,
         bool ignore_errors) {
     // get href_base
-    const char *href_base_end = strrchr(codecs_xml, OS_PATH_SEPARATOR);
+    const char *href_base_end = strrchr(codecs_xml, OS_PATH_SEPARATOR); // M3E: cross-platform
     if (href_base_end != nullptr) {
         mHrefBase = std::string(codecs_xml, href_base_end - codecs_xml + 1);
     }
