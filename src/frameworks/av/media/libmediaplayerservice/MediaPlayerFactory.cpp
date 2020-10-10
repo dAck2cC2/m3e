@@ -20,8 +20,8 @@
 #include <utils/Log.h>
 
 #include <cutils/properties.h>
+#include <media/DataSource.h>
 #include <media/IMediaPlayer.h>
-#include <media/stagefright/DataSource.h>
 #include <media/stagefright/FileSource.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <utils/Errors.h>
@@ -75,7 +75,7 @@ void MediaPlayerFactory::unregisterFactory(player_type type) {
     Mutex::Autolock lock_(&sLock);
     sFactoryMap.removeItem(type);
 }
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 
 #define GET_PLAYER_TYPE_IMPL_2(a, b)                      \
     Mutex::Autolock lock_(&sLock);                      \
@@ -204,8 +204,7 @@ player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
 
 sp<MediaPlayerBase> MediaPlayerFactory::createPlayer(
         player_type playerType,
-        const wp<IMediaPlayer> &client,
-        notify_callback_f notifyFunc,
+        const sp<MediaPlayerBase::Listener> &listener,
         pid_t pid) {
     sp<MediaPlayerBase> p;
     IFactory* factory;
@@ -230,7 +229,7 @@ sp<MediaPlayerBase> MediaPlayerFactory::createPlayer(
 
     init_result = p->initCheck();
     if (init_result == NO_ERROR) {
-        p->setNotifyCallback(client, notifyFunc);
+        p->setNotifyCallback(listener);
     } else {
         ALOGE("Failed to create player object of type %d, initCheck failed"
               " (res = %d)", playerType, init_result);

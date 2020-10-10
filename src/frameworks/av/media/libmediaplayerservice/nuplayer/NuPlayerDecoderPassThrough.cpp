@@ -33,6 +33,7 @@
 
 #include "ATSParser.h"
 
+// M3E: add
 #include <CasManager.h>
 #include <android/hardware/cas/native/1.0/IDescrambler.h>
 

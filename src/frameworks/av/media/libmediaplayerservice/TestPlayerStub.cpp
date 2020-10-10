@@ -134,6 +134,7 @@ status_t TestPlayerStub::setDataSource(
 #else
     ::dlerror();  // Clears any pending error.
 #endif
+
     // Load the test player from the url. dlopen will fail if the lib
     // is not there. dls are under /system/lib
     // None of the entry points should be NULL.
@@ -166,6 +167,7 @@ status_t TestPlayerStub::setDataSource(
         resetInternal();
         return UNKNOWN_ERROR;
     }
+
 #if defined(_MSC_VER)
 	mDeletePlayer = reinterpret_cast<DELETE_PLAYER>(GetProcAddress((HMODULE)mHandle,
 		"deletePlayer"));

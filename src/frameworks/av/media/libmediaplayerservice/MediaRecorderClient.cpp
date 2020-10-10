@@ -415,6 +415,25 @@ void MediaRecorderClient::ServiceDeathNotifier::unlinkToDeath() {
     }
 }
 
+MediaRecorderClient::AudioDeviceUpdatedNotifier::AudioDeviceUpdatedNotifier(
+        const sp<IMediaRecorderClient>& listener) {
+    mListener = listener;
+}
+
+MediaRecorderClient::AudioDeviceUpdatedNotifier::~AudioDeviceUpdatedNotifier() {
+}
+
+void MediaRecorderClient::AudioDeviceUpdatedNotifier::onAudioDeviceUpdate(
+        audio_io_handle_t audioIo,
+        audio_port_handle_t deviceId) {
+    sp<IMediaRecorderClient> listener = mListener.promote();
+    if (listener != NULL) {
+        listener->notify(MEDIA_RECORDER_AUDIO_ROUTING_CHANGED, audioIo, deviceId);
+    } else {
+        ALOGW("listener for process %d death is gone", MEDIA_RECORDER_AUDIO_ROUTING_CHANGED);
+    }
+}
+
 void MediaRecorderClient::clearDeathNotifiers_l() {
     if (mCameraDeathListener != nullptr) {
         mCameraDeathListener->unlinkToDeath();
@@ -454,29 +473,19 @@ status_t MediaRecorderClient::setListener(const sp<IMediaRecorderClient>& listen
     }
     sCameraChecked = true;
 
-    if (property_get_bool("persist.media.treble_omx", true)) {
 #if TODO
-        // Treble IOmx
-        sp<IOmx> omx = IOmx::getService();
-        if (omx == nullptr) {
-            ALOGE("Treble IOmx not available");
-            return NO_INIT;
-        }
-        mCodecDeathListener = new ServiceDeathNotifier(omx, listener,
-                MediaPlayerService::MEDIACODEC_PROCESS_DEATH);
-        omx->linkToDeath(mCodecDeathListener, 0);
-#endif
-    } else {
-        // Legacy IOMX
-        binder = sm->getService(String16("media.codec"));
-        if (binder == NULL) {
-           ALOGE("Unable to connect to media codec service");
-           return NO_INIT;
-        }
-        mCodecDeathListener = new ServiceDeathNotifier(binder, listener,
-                MediaPlayerService::MEDIACODEC_PROCESS_DEATH);
-        binder->linkToDeath(mCodecDeathListener);
+    sp<IOmx> omx = IOmx::getService();
+    if (omx == nullptr) {
+        ALOGE("IOmx service is not available");
+        return NO_INIT;
     }
+    mCodecDeathListener = new ServiceDeathNotifier(omx, listener,
+            MediaPlayerService::MEDIACODEC_PROCESS_DEATH);
+    omx->linkToDeath(mCodecDeathListener, 0);
+#endif
+
+    mAudioDeviceUpdatedNotifier = new AudioDeviceUpdatedNotifier(listener);
+    mRecorder->setAudioDeviceCallback(mAudioDeviceUpdatedNotifier);
 
     return OK;
 }
@@ -498,4 +507,40 @@ status_t MediaRecorderClient::dump(int fd, const Vector<String16>& args) {
     return OK;
 }
 
+status_t MediaRecorderClient::setInputDevice(audio_port_handle_t deviceId) {
+    ALOGV("setInputDevice(%d)", deviceId);
+    Mutex::Autolock lock(mLock);
+    if (mRecorder != NULL) {
+        return mRecorder->setInputDevice(deviceId);
+    }
+    return NO_INIT;
+}
+
+status_t MediaRecorderClient::getRoutedDeviceId(audio_port_handle_t* deviceId) {
+    ALOGV("getRoutedDeviceId");
+    Mutex::Autolock lock(mLock);
+    if (mRecorder != NULL) {
+        return mRecorder->getRoutedDeviceId(deviceId);
+    }
+    return NO_INIT;
+}
+
+status_t MediaRecorderClient::enableAudioDeviceCallback(bool enabled) {
+    ALOGV("enableDeviceCallback: %d", enabled);
+    Mutex::Autolock lock(mLock);
+    if (mRecorder != NULL) {
+        return mRecorder->enableAudioDeviceCallback(enabled);
+    }
+    return NO_INIT;
+}
+
+status_t MediaRecorderClient::getActiveMicrophones(
+        std::vector<media::MicrophoneInfo>* activeMicrophones) {
+    ALOGV("getActiveMicrophones");
+    Mutex::Autolock lock(mLock);
+    if (mRecorder != NULL) {
+        return mRecorder->getActiveMicrophones(activeMicrophones);
+    }
+    return NO_INIT;
+}
 }; // namespace android

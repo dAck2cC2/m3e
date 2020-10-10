@@ -15,6 +15,8 @@
 ** limitations under the License.
 */
 
+#define ENABLE_REMOTEDISPLAY 1
+
 // Proxy for media player implementations
 
 //#define LOG_NDEBUG 0
@@ -57,6 +59,7 @@
 #include <media/Metadata.h>
 #include <media/AudioTrack.h>
 #include <media/MemoryLeakTrackUtil.h>
+#include <media/stagefright/InterfaceUtils.h>
 #include <media/stagefright/MediaCodecList.h>
 #include <media/stagefright/MediaErrors.h>
 #include <media/stagefright/Utils.h>
@@ -66,6 +69,7 @@
 #if ENABLE_BATTERY
 #include <mediautils/BatteryNotifier.h>
 #endif
+
 #if ENABLE_MEMUNREACHABLE
 #include <memunreachable/memunreachable.h>
 #endif
@@ -82,14 +86,10 @@
 #include "TestPlayerStub.h"
 #include "nuplayer/NuPlayerDriver.h"
 
-#include <media/stagefright/omx/OMX.h>
-
-#include "HDCP.h"
 #include "HTTPBase.h"
-#include "RemoteDisplay.h"
 
+// M3E: add
 #include <algorithm>
-
 #include <media/stagefright/omx/OMXNodeInstance.h>
 
 static const int kDumpLockRetries = 50;
@@ -102,6 +102,7 @@ using android::OK;
 using android::BAD_VALUE;
 using android::NOT_ENOUGH_DATA;
 using android::Parcel;
+using android::media::VolumeShaper;
 
 // Max number of entries in the filter.
 const int kMaxFilterSize = 64;  // I pulled that out of thin air.
@@ -277,6 +278,7 @@ static bool checkPermission(const char* permissionString) {
 /* static */ int MediaPlayerService::AudioOutput::mMinBufferCount = 4;
 /* static */ bool MediaPlayerService::AudioOutput::mIsOnEmulator = false;
 
+// M3E:
 sp<MediaPlayerService> MediaPlayerService::instantiate() {
     sp<MediaPlayerService> player = new MediaPlayerService();
     defaultServiceManager()->addService(
@@ -364,34 +366,16 @@ sp<IMediaCodecList> MediaPlayerService::getCodecList() const {
     return MediaCodecList::getLocalInstance();
 }
 
-sp<IOMX> MediaPlayerService::getOMX() {
-    ALOGI("MediaPlayerService::getOMX");
-    Mutex::Autolock autoLock(mLock);
-
-    if (mOMX.get() == NULL) {
-        mOMX = new OMX;
-    }
-
-    return mOMX;
-}
-
-sp<IHDCP> MediaPlayerService::makeHDCP(bool createEncryptionModule) {
-    return new HDCP(createEncryptionModule);
-}
-
-sp<IRemoteDisplay> MediaPlayerService::listenForRemoteDisplay(
-        const String16 &opPackageName,
-        const sp<IRemoteDisplayClient>& client, const String8& iface) {
 #if ENABLE_REMOTEDISPLAY
-    if (!checkPermission("android.permission.CONTROL_WIFI_DISPLAY")) {
-        return NULL;
-    }
+sp<IRemoteDisplay> MediaPlayerService::listenForRemoteDisplay(
+        const String16 &/*opPackageName*/,
+        const sp<IRemoteDisplayClient>& /*client*/,
+        const String8& /*iface*/) {
+    ALOGE("listenForRemoteDisplay is no longer supported!");
 
-    return new RemoteDisplay(opPackageName, client, iface.string());
-#else
     return NULL;
-#endif
 }
+#endif
 
 status_t MediaPlayerService::AudioOutput::dump(int fd, const Vector<String16>& args) const
 {
@@ -526,6 +510,7 @@ status_t MediaPlayerService::dump(int fd, const Vector<String16>& args)
             result.append(buffer);
             result.append("\n");
         }
+
 #if !defined(_MSC_VER)
         snprintf(buffer, SIZE, "/proc/%d/fd", getpid());
         DIR *d = opendir(buffer);
@@ -574,6 +559,7 @@ status_t MediaPlayerService::dump(int fd, const Vector<String16>& args)
             result.append("\n");
         }
 #endif // _MSC_VER
+
         gLooperRoster.dump(fd, args);
 
         bool dumpMem = false;
@@ -625,7 +611,6 @@ bool MediaPlayerService::hasClient(wp<Client> client)
 #endif
 }
 
-
 MediaPlayerService::Client::Client(
         const sp<MediaPlayerService>& service, pid_t pid,
         int32_t connId, const sp<IMediaPlayerClient>& client,
@@ -642,10 +627,11 @@ MediaPlayerService::Client::Client(
     mUid = uid;
     mRetransmitEndpointValid = false;
     mAudioAttributes = NULL;
+    mListener = new Listener(this);
 
 #if CALLBACK_ANTAGONIZER
     ALOGD("create Antagonizer");
-    mAntagonizer = new Antagonizer(notify, this);
+    mAntagonizer = new Antagonizer(mListener);
 #endif
 }
 
@@ -660,6 +646,7 @@ MediaPlayerService::Client::~Client()
         free(mAudioAttributes);
     }
     clearDeathNotifiers_l();
+    mAudioDeviceUpdatedListener.clear();
 }
 
 void MediaPlayerService::Client::disconnect()
@@ -679,7 +666,7 @@ void MediaPlayerService::Client::disconnect()
     // and reset the player. We assume the player will serialize
     // access to itself if necessary.
     if (p != 0) {
-        p->setNotifyCallback(0, 0);
+        p->setNotifyCallback(0);
 #if CALLBACK_ANTAGONIZER
         ALOGD("kill Antagonizer");
         mAntagonizer->kill();
@@ -704,7 +691,7 @@ sp<MediaPlayerBase> MediaPlayerService::Client::createPlayer(player_type playerT
         p.clear();
     }
     if (p == NULL) {
-        p = MediaPlayerFactory::createPlayer(playerType, this, notify, mPid);
+        p = MediaPlayerFactory::createPlayer(playerType, mListener, mPid);
     }
 
     if (p != NULL) {
@@ -767,6 +754,17 @@ void MediaPlayerService::Client::ServiceDeathNotifier::unlinkToDeath() {
     }
 }
 
+void MediaPlayerService::Client::AudioDeviceUpdatedNotifier::onAudioDeviceUpdate(
+        audio_io_handle_t audioIo,
+        audio_port_handle_t deviceId) {
+    sp<MediaPlayerBase> listener = mListener.promote();
+    if (listener != NULL) {
+        listener->sendEvent(MEDIA_AUDIO_ROUTING_CHANGED, audioIo, deviceId);
+    } else {
+        ALOGW("listener for process %d death is gone", MEDIA_AUDIO_ROUTING_CHANGED);
+    }
+}
+
 void MediaPlayerService::Client::clearDeathNotifiers_l() {
     if (mExtractorDeathListener != nullptr) {
         mExtractorDeathListener->unlinkToDeath();
@@ -799,38 +797,29 @@ sp<MediaPlayerBase> MediaPlayerService::Client::setDataSource_pre(
             new ServiceDeathNotifier(binder, p, MEDIAEXTRACTOR_PROCESS_DEATH);
     binder->linkToDeath(extractorDeathListener);
 
-    sp<ServiceDeathNotifier> codecDeathListener;
-    if (property_get_bool("persist.media.treble_omx", true)) {
 #if TODO
-        // Treble IOmx
-        sp<IOmx> omx = IOmx::getService();
-        if (omx == nullptr) {
-            ALOGE("Treble IOmx not available");
-            return NULL;
-        }
-        codecDeathListener = new ServiceDeathNotifier(omx, p, MEDIACODEC_PROCESS_DEATH);
-        omx->linkToDeath(codecDeathListener, 0);
-#endif
-    } else {
-        // Legacy IOMX
-        binder = sm->getService(String16("media.codec"));
-        if (binder == NULL) {
-            ALOGE("codec service not available");
-            return NULL;
-        }
-        codecDeathListener = new ServiceDeathNotifier(binder, p, MEDIACODEC_PROCESS_DEATH);
-        binder->linkToDeath(codecDeathListener);
+    sp<IOmx> omx = IOmx::getService();
+    if (omx == nullptr) {
+        ALOGE("IOmx service is not available");
+        return NULL;
     }
+    sp<ServiceDeathNotifier> codecDeathListener =
+            new ServiceDeathNotifier(omx, p, MEDIACODEC_PROCESS_DEATH);
+    omx->linkToDeath(codecDeathListener, 0);
+#else
+    sp<ServiceDeathNotifier> codecDeathListener;
+#endif
 
     Mutex::Autolock lock(mLock);
 
     clearDeathNotifiers_l();
     mExtractorDeathListener = extractorDeathListener;
     mCodecDeathListener = codecDeathListener;
+    mAudioDeviceUpdatedListener = new AudioDeviceUpdatedNotifier(p);
 
     if (!p->hardwareOutput()) {
         mAudioOutput = new AudioOutput(mAudioSessionId, IPCThreadState::self()->getCallingUid(),
-                mPid, mAudioAttributes);
+                mPid, mAudioAttributes, mAudioDeviceUpdatedListener);
         static_cast<MediaPlayerInterface*>(p.get())->setAudioSink(mAudioOutput);
     }
 
@@ -960,7 +949,7 @@ status_t MediaPlayerService::Client::setDataSource(
 
 status_t MediaPlayerService::Client::setDataSource(
         const sp<IDataSource> &source) {
-    sp<DataSource> dataSource = DataSource::CreateFromIDataSource(source);
+    sp<DataSource> dataSource = CreateDataSourceFromIDataSource(source);
     player_type playerType = MediaPlayerFactory::getPlayerType(this, dataSource);
     sp<MediaPlayerBase> p = setDataSource_pre(playerType);
     if (p == NULL) {
@@ -1117,18 +1106,18 @@ status_t MediaPlayerService::Client::setBufferingSettings(
     return p->setBufferingSettings(buffering);
 }
 
-status_t MediaPlayerService::Client::getDefaultBufferingSettings(
+status_t MediaPlayerService::Client::getBufferingSettings(
         BufferingSettings* buffering /* nonnull */)
 {
     sp<MediaPlayerBase> p = getPlayer();
     // TODO: create mPlayer on demand.
     if (p == 0) return UNKNOWN_ERROR;
-    status_t ret = p->getDefaultBufferingSettings(buffering);
+    status_t ret = p->getBufferingSettings(buffering);
     if (ret == NO_ERROR) {
-        ALOGV("[%d] getDefaultBufferingSettings{%s}",
+        ALOGV("[%d] getBufferingSettings{%s}",
                 mConnId, buffering->toString().string());
     } else {
-        ALOGV("[%d] getDefaultBufferingSettings returned %d", mConnId, ret);
+        ALOGE("[%d] getBufferingSettings returned %d", mConnId, ret);
     }
     return ret;
 }
@@ -1282,9 +1271,9 @@ status_t MediaPlayerService::Client::setNextPlayer(const sp<IMediaPlayer>& playe
     return OK;
 }
 
-media::VolumeShaper::Status MediaPlayerService::Client::applyVolumeShaper(
-        const sp<media::VolumeShaper::Configuration>& configuration,
-        const sp<media::VolumeShaper::Operation>& operation) {
+VolumeShaper::Status MediaPlayerService::Client::applyVolumeShaper(
+        const sp<VolumeShaper::Configuration>& configuration,
+        const sp<VolumeShaper::Operation>& operation) {
     // for hardware output, call player instead
     ALOGV("Client::applyVolumeShaper(%p)", this);
     sp<MediaPlayerBase> p = getPlayer();
@@ -1292,16 +1281,16 @@ media::VolumeShaper::Status MediaPlayerService::Client::applyVolumeShaper(
         Mutex::Autolock l(mLock);
         if (p != 0 && p->hardwareOutput()) {
             // TODO: investigate internal implementation
-            return media::VolumeShaper::Status(INVALID_OPERATION);
+            return VolumeShaper::Status(INVALID_OPERATION);
         }
         if (mAudioOutput.get() != nullptr) {
             return mAudioOutput->applyVolumeShaper(configuration, operation);
         }
     }
-    return media::VolumeShaper::Status(INVALID_OPERATION);
+    return VolumeShaper::Status(INVALID_OPERATION);
 }
 
-sp<media::VolumeShaper::State> MediaPlayerService::Client::getVolumeShaperState(int id) {
+sp<VolumeShaper::State> MediaPlayerService::Client::getVolumeShaperState(int id) {
     // for hardware output, call player instead
     ALOGV("Client::getVolumeShaperState(%p)", this);
     sp<MediaPlayerBase> p = getPlayer();
@@ -1333,6 +1322,14 @@ status_t MediaPlayerService::Client::reset()
     sp<MediaPlayerBase> p = getPlayer();
     if (p == 0) return UNKNOWN_ERROR;
     return p->reset();
+}
+
+status_t MediaPlayerService::Client::notifyAt(int64_t mediaTimeUs)
+{
+    ALOGV("[%d] notifyAt(%lld)", mConnId, (long long)mediaTimeUs);
+    sp<MediaPlayerBase> p = getPlayer();
+    if (p == 0) return UNKNOWN_ERROR;
+    return p->notifyAt(mediaTimeUs);
 }
 
 status_t MediaPlayerService::Client::setAudioStreamType(audio_stream_type_t type)
@@ -1484,25 +1481,19 @@ status_t MediaPlayerService::Client::getRetransmitEndpoint(
 }
 
 void MediaPlayerService::Client::notify(
-        const wp<IMediaPlayer> &listener, int msg, int ext1, int ext2, const Parcel *obj)
+        int msg, int ext1, int ext2, const Parcel *obj)
 {
-    sp<IMediaPlayer> spListener = listener.promote();
-    if (spListener == NULL) {
-        return;
-    }
-    Client* client = static_cast<Client*>(spListener.get());
-
     sp<IMediaPlayerClient> c;
     sp<Client> nextClient;
     status_t errStartNext = NO_ERROR;
     {
-        Mutex::Autolock l(client->mLock);
-        c = client->mClient;
-        if (msg == MEDIA_PLAYBACK_COMPLETE && client->mNextClient != NULL) {
-            nextClient = client->mNextClient;
+        Mutex::Autolock l(mLock);
+        c = mClient;
+        if (msg == MEDIA_PLAYBACK_COMPLETE && mNextClient != NULL) {
+            nextClient = mNextClient;
 
-            if (client->mAudioOutput != NULL)
-                client->mAudioOutput->switchToNextOutput();
+            if (mAudioOutput != NULL)
+                mAudioOutput->switchToNextOutput();
 
             errStartNext = nextClient->start();
         }
@@ -1528,17 +1519,17 @@ void MediaPlayerService::Client::notify(
         MEDIA_INFO_METADATA_UPDATE == ext1) {
         const media::Metadata::Type metadata_type = ext2;
 
-        if(client->shouldDropMetadata(metadata_type)) {
+        if(shouldDropMetadata(metadata_type)) {
             return;
         }
 
         // Update the list of metadata that have changed. getMetadata
         // also access mMetadataUpdated and clears it.
-        client->addNewMetadataUpdate(metadata_type);
+        addNewMetadataUpdate(metadata_type);
     }
 
     if (c != NULL) {
-        ALOGV("[%d] notify (%p, %d, %d, %d)", client->mConnId, spListener.get(), msg, ext1, ext2);
+        ALOGV("[%d] notify (%d, %d, %d)", mConnId, msg, ext1, ext2);
         c->notify(msg, ext1, ext2, obj);
     }
 }
@@ -1593,11 +1584,47 @@ status_t MediaPlayerService::Client::releaseDrm()
     return ret;
 }
 
+status_t MediaPlayerService::Client::setOutputDevice(audio_port_handle_t deviceId)
+{
+    ALOGV("[%d] setOutputDevice", mConnId);
+    {
+        Mutex::Autolock l(mLock);
+        if (mAudioOutput.get() != nullptr) {
+            return mAudioOutput->setOutputDevice(deviceId);
+        }
+    }
+    return NO_INIT;
+}
+
+status_t MediaPlayerService::Client::getRoutedDeviceId(audio_port_handle_t* deviceId)
+{
+    ALOGV("[%d] getRoutedDeviceId", mConnId);
+    {
+        Mutex::Autolock l(mLock);
+        if (mAudioOutput.get() != nullptr) {
+            return mAudioOutput->getRoutedDeviceId(deviceId);
+        }
+    }
+    return NO_INIT;
+}
+
+status_t MediaPlayerService::Client::enableAudioDeviceCallback(bool enabled)
+{
+    ALOGV("[%d] enableAudioDeviceCallback, %d", mConnId, enabled);
+    {
+        Mutex::Autolock l(mLock);
+        if (mAudioOutput.get() != nullptr) {
+            return mAudioOutput->enableAudioDeviceCallback(enabled);
+        }
+    }
+    return NO_INIT;
+}
+
 #if CALLBACK_ANTAGONIZER
 const int Antagonizer::interval = 10000; // 10 msecs
 
-Antagonizer::Antagonizer(notify_callback_f cb, const wp<IMediaPlayer> &client) :
-    mExit(false), mActive(false), mClient(client), mCb(cb)
+Antagonizer::Antagonizer(const sp<MediaPlayerBase::Listener> &listener) :
+    mExit(false), mActive(false), mListener(listener)
 {
     createThread(callbackThread, this);
 }
@@ -1617,7 +1644,7 @@ int Antagonizer::callbackThread(void* user)
     while (!p->mExit) {
         if (p->mActive) {
             ALOGV("send event");
-            p->mCb(p->mClient, 0, 0, 0);
+            p->mListener->notify(0, 0, 0, 0);
         }
         usleep(interval);
     }
@@ -1631,7 +1658,7 @@ int Antagonizer::callbackThread(void* user)
 #undef LOG_TAG
 #define LOG_TAG "AudioSink"
 MediaPlayerService::AudioOutput::AudioOutput(audio_session_t sessionId, uid_t uid, int pid,
-        const audio_attributes_t* attr)
+        const audio_attributes_t* attr, const sp<AudioSystem::AudioDeviceCallback>& deviceCallback)
     : mCallback(NULL),
       mCallbackCookie(NULL),
       mCallbackData(NULL),
@@ -1648,7 +1675,11 @@ MediaPlayerService::AudioOutput::AudioOutput(audio_session_t sessionId, uid_t ui
       mSendLevel(0.0),
       mAuxEffectId(0),
       mFlags(AUDIO_OUTPUT_FLAG_NONE),
-      mVolumeHandler(new media::VolumeHandler())
+      mVolumeHandler(new media::VolumeHandler()),
+      mSelectedDeviceId(AUDIO_PORT_HANDLE_NONE),
+      mRoutedDeviceId(AUDIO_PORT_HANDLE_NONE),
+      mDeviceCallbackEnabled(false),
+      mDeviceCallback(deviceCallback)
 {
     ALOGV("AudioOutput(%d)", sessionId);
     if (attr != NULL) {
@@ -2034,7 +2065,9 @@ status_t MediaPlayerService::AudioOutput::open(
                     mUid,
                     mPid,
                     mAttributes,
-                    doNotReconnect);
+                    doNotReconnect,
+                    1.0f,  // default value for maxRequiredSpeed
+                    mSelectedDeviceId);
         } else {
             // TODO: Due to buffer memory concerns, we use a max target playback speed
             // based on mPlaybackRate at the time of open (instead of kMaxRequiredSpeed),
@@ -2061,7 +2094,8 @@ status_t MediaPlayerService::AudioOutput::open(
                     mPid,
                     mAttributes,
                     doNotReconnect,
-                    targetSpeed);
+                    targetSpeed,
+                    mSelectedDeviceId);
         }
 
         if ((t == 0) || (t->initCheck() != NO_ERROR)) {
@@ -2114,9 +2148,9 @@ status_t MediaPlayerService::AudioOutput::open(
 
     // Restore VolumeShapers for the MediaPlayer in case the track was recreated
     // due to an output sink error (e.g. offload to non-offload switch).
-    mVolumeHandler->forall([&t](const media::VolumeShaper &shaper) -> media::VolumeShaper::Status {
-        sp<media::VolumeShaper::Operation> operationToEnd =
-                new media::VolumeShaper::Operation(shaper.mOperation);
+    mVolumeHandler->forall([&t](const VolumeShaper &shaper) -> VolumeShaper::Status {
+        sp<VolumeShaper::Operation> operationToEnd =
+                new VolumeShaper::Operation(shaper.mOperation);
         // TODO: Ideally we would restore to the exact xOffset position
         // as returned by getVolumeShaperState(), but we don't have that
         // information when restoring at the client unless we periodically poll
@@ -2154,6 +2188,10 @@ status_t MediaPlayerService::AudioOutput::updateTrack() {
             mTrack->setAuxEffectSendLevel(mSendLevel);
             res = mTrack->attachAuxEffect(mAuxEffectId);
         }
+    }
+    mTrack->setOutputDevice(mSelectedDeviceId);
+    if (mDeviceCallbackEnabled) {
+        mTrack->addAudioDeviceCallback(mDeviceCallback.promote());
     }
     ALOGV("updateTrack() DONE status %d", res);
     return res;
@@ -2370,16 +2408,55 @@ status_t MediaPlayerService::AudioOutput::attachAuxEffect(int effectId)
     return NO_ERROR;
 }
 
-media::VolumeShaper::Status MediaPlayerService::AudioOutput::applyVolumeShaper(
-                const sp<media::VolumeShaper::Configuration>& configuration,
-                const sp<media::VolumeShaper::Operation>& operation)
+status_t MediaPlayerService::AudioOutput::setOutputDevice(audio_port_handle_t deviceId)
+{
+    ALOGV("setOutputDevice(%d)", deviceId);
+    Mutex::Autolock lock(mLock);
+    mSelectedDeviceId = deviceId;
+    if (mTrack != 0) {
+        return mTrack->setOutputDevice(deviceId);
+    }
+    return NO_ERROR;
+}
+
+status_t MediaPlayerService::AudioOutput::getRoutedDeviceId(audio_port_handle_t* deviceId)
+{
+    ALOGV("getRoutedDeviceId");
+    Mutex::Autolock lock(mLock);
+    if (mTrack != 0) {
+        mRoutedDeviceId = mTrack->getRoutedDeviceId();
+    }
+    *deviceId = mRoutedDeviceId;
+    return NO_ERROR;
+}
+
+status_t MediaPlayerService::AudioOutput::enableAudioDeviceCallback(bool enabled)
+{
+    ALOGV("enableAudioDeviceCallback, %d", enabled);
+    Mutex::Autolock lock(mLock);
+    mDeviceCallbackEnabled = enabled;
+    if (mTrack != 0) {
+        status_t status;
+        if (enabled) {
+            status = mTrack->addAudioDeviceCallback(mDeviceCallback.promote());
+        } else {
+            status = mTrack->removeAudioDeviceCallback(mDeviceCallback.promote());
+        }
+        return status;
+    }
+    return NO_ERROR;
+}
+
+VolumeShaper::Status MediaPlayerService::AudioOutput::applyVolumeShaper(
+                const sp<VolumeShaper::Configuration>& configuration,
+                const sp<VolumeShaper::Operation>& operation)
 {
     Mutex::Autolock lock(mLock);
     ALOGV("AudioOutput::applyVolumeShaper");
 
     mVolumeHandler->setIdIfNecessary(configuration);
 
-    media::VolumeShaper::Status status;
+    VolumeShaper::Status status;
     if (mTrack != 0) {
         status = mTrack->applyVolumeShaper(configuration, operation);
         if (status >= 0) {
@@ -2394,7 +2471,7 @@ media::VolumeShaper::Status MediaPlayerService::AudioOutput::applyVolumeShaper(
         // We forward VolumeShaper operations that do not change configuration
         // to the new player so that unducking may occur as expected.
         // Unducking is an idempotent operation, same if applied back-to-back.
-        if (configuration->getType() == media::VolumeShaper::Configuration::TYPE_ID
+        if (configuration->getType() == VolumeShaper::Configuration::TYPE_ID
                 && mNextOutput != nullptr) {
             ALOGV("applyVolumeShaper: Attempting to forward missed operation: %s %s",
                     configuration->toString().c_str(), operation->toString().c_str());
@@ -2421,7 +2498,7 @@ media::VolumeShaper::Status MediaPlayerService::AudioOutput::applyVolumeShaper(
     return status;
 }
 
-sp<media::VolumeShaper::State> MediaPlayerService::AudioOutput::getVolumeShaperState(int id)
+sp<VolumeShaper::State> MediaPlayerService::AudioOutput::getVolumeShaperState(int id)
 {
     Mutex::Autolock lock(mLock);
     if (mTrack != 0) {
@@ -2613,6 +2690,7 @@ MediaPlayerService::BatteryTracker::BatteryTracker() {
     }
     // speaker is on by default
     mBatteryAudio.deviceOn[SPEAKER] = 1;
+
 #if ENABLE_BATTERY
     // reset battery stats
     // if the mediaserver has crashed, battery stats could be left

@@ -34,6 +34,7 @@ sp<IDrm> NuPlayerDrm::CreateDrm(status_t *pstatus)
     sp<IServiceManager> sm = defaultServiceManager();
     sp<IBinder> binder = sm->getService(String16("media.drm"));
     ALOGV("CreateDrm binder %p", (binder != NULL ? binder.get() : 0));
+
 #if TODO
     sp<IMediaDrmService> service = interface_cast<IMediaDrmService>(binder);
 #else
@@ -272,18 +273,13 @@ NuPlayerDrm::CryptoInfo *NuPlayerDrm::makeCryptoInfo(
     return ret;
 }
 
-NuPlayerDrm::CryptoInfo *NuPlayerDrm::getSampleCryptoInfo(sp<MetaData> meta)
+NuPlayerDrm::CryptoInfo *NuPlayerDrm::getSampleCryptoInfo(MetaDataBase &meta)
 {
     uint32_t type;
     const void *crypteddata;
     size_t cryptedsize;
 
-    if (meta == NULL) {
-        ALOGE("getSampleCryptoInfo: Unexpected. No meta data for sample.");
-        return NULL;
-    }
-
-    if (!meta->findData(kKeyEncryptedSizes, &type, &crypteddata, &cryptedsize)) {
+    if (!meta.findData(kKeyEncryptedSizes, &type, &crypteddata, &cryptedsize)) {
         return NULL;
     }
     size_t numSubSamples = cryptedsize / sizeof(size_t);
@@ -295,7 +291,7 @@ NuPlayerDrm::CryptoInfo *NuPlayerDrm::getSampleCryptoInfo(sp<MetaData> meta)
 
     const void *cleardata;
     size_t clearsize;
-    if (meta->findData(kKeyPlainSizes, &type, &cleardata, &clearsize)) {
+    if (meta.findData(kKeyPlainSizes, &type, &cleardata, &clearsize)) {
         if (clearsize != cryptedsize) {
             // The two must be of the same length.
             ALOGE("getSampleCryptoInfo mismatch cryptedsize: %zu != clearsize: %zu",
@@ -306,7 +302,7 @@ NuPlayerDrm::CryptoInfo *NuPlayerDrm::getSampleCryptoInfo(sp<MetaData> meta)
 
     const void *key;
     size_t keysize;
-    if (meta->findData(kKeyCryptoKey, &type, &key, &keysize)) {
+    if (meta.findData(kKeyCryptoKey, &type, &key, &keysize)) {
         if (keysize != kBlockSize) {
             ALOGE("getSampleCryptoInfo Keys must be %d bytes in length: %zu",
                     kBlockSize, keysize);
@@ -317,7 +313,7 @@ NuPlayerDrm::CryptoInfo *NuPlayerDrm::getSampleCryptoInfo(sp<MetaData> meta)
 
     const void *iv;
     size_t ivsize;
-    if (meta->findData(kKeyCryptoIV, &type, &iv, &ivsize)) {
+    if (meta.findData(kKeyCryptoIV, &type, &iv, &ivsize)) {
         if (ivsize != kBlockSize) {
             ALOGE("getSampleCryptoInfo IV must be %d bytes in length: %zu",
                     kBlockSize, ivsize);
@@ -327,7 +323,7 @@ NuPlayerDrm::CryptoInfo *NuPlayerDrm::getSampleCryptoInfo(sp<MetaData> meta)
     }
 
     int32_t mode;
-    if (!meta->findInt32(kKeyCryptoMode, &mode)) {
+    if (!meta.findInt32(kKeyCryptoMode, &mode)) {
         mode = CryptoPlugin::kMode_AES_CTR;
     }
 

@@ -23,6 +23,8 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmak
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaextractor/include.cmake)
+
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_omx/include.cmake)
@@ -87,7 +89,6 @@ ${SOURCE_PATH}/main_mediaplayerservice.cpp
 ${SOURCE_PATH}/MediaPlayerService.cpp
 ${SOURCE_PATH}/MediaPlayerFactory.cpp
 ${SOURCE_PATH}/TestPlayerStub.cpp
-${SOURCE_PATH}/HDCP.cpp
 ${SOURCE_PATH}/MetadataRetrieverClient.cpp
 ${SOURCE_PATH}/MediaRecorderClient.cpp
 ${SOURCE_PATH}/ActivityManager.cpp
@@ -105,17 +106,20 @@ if (ENABLE_NUPLAYER)
     ${HEADER_PATH}/nuplayer/*.h
     )
     list(APPEND ${PROJECT_NAME}_SOURCE_NUPLAYER
-    ${SOURCE_PATH}/nuplayer/NuPlayerDriver.cpp
-    ${SOURCE_PATH}/nuplayer/NuPlayer.cpp
-    ${SOURCE_PATH}/nuplayer/NuPlayerDecoderBase.cpp
-    ${SOURCE_PATH}/nuplayer/NuPlayerDecoder.cpp
-    ${SOURCE_PATH}/nuplayer/NuPlayerCCDecoder.cpp
-    ${SOURCE_PATH}/nuplayer/NuPlayerDecoderPassThrough.cpp
-    ${SOURCE_PATH}/nuplayer/NuPlayerRenderer.cpp
-    ${SOURCE_PATH}/nuplayer/StreamingSource.cpp
-    ${SOURCE_PATH}/nuplayer/NuPlayerStreamListener.cpp
-    ${SOURCE_PATH}/nuplayer/NuPlayerDrm.cpp
+    ${SOURCE_PATH}/nuplayer/AWakeLock.cpp
     ${SOURCE_PATH}/nuplayer/GenericSource.cpp
+    #${SOURCE_PATH}/nuplayer/HTTPLiveSsource.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayer.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerCCDecoder.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDecoder.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDecoderBase.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDecoderPassThrough.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDriver.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerDrm.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerRenderer.cpp
+    ${SOURCE_PATH}/nuplayer/NuPlayerStreamListener.cpp
+    #${SOURCE_PATH}/nuplayer/RTSPSource.cpp
+    ${SOURCE_PATH}/nuplayer/StreamingSource.cpp
     )
 
     if (ENABLE_RTSP_SOURCE)

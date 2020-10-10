@@ -18,7 +18,7 @@
 #define LOG_TAG "RTSPSource"
 #include <utils/Log.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <cutils/sockets.h>
 #endif
 
@@ -32,6 +32,7 @@
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MetaData.h>
 
+// M3E: add
 #include <CasManager.h>
 #include <android/hardware/cas/native/1.0/IDescrambler.h>
 #include "ARTPSource.h"
@@ -70,7 +71,8 @@ NuPlayer::RTSPSource::RTSPSource(
       mSeekGeneration(0),
       mEOSTimeoutAudio(0),
       mEOSTimeoutVideo(0) {
-    getDefaultBufferingSettings(&mBufferingSettings);
+    mBufferingSettings.mInitialMarkMs = kPrepareMarkMs;
+    mBufferingSettings.mResumePlaybackMarkMs = kOverflowMarkMs;
     if (headers) {
         mExtraHeaders = *headers;
 
@@ -92,32 +94,17 @@ NuPlayer::RTSPSource::~RTSPSource() {
     }
 }
 
-status_t NuPlayer::RTSPSource::getDefaultBufferingSettings(
+status_t NuPlayer::RTSPSource::getBufferingSettings(
             BufferingSettings* buffering /* nonnull */) {
-    buffering->mInitialBufferingMode = BUFFERING_MODE_TIME_ONLY;
-    buffering->mRebufferingMode = BUFFERING_MODE_TIME_ONLY;
-    buffering->mInitialWatermarkMs = kPrepareMarkMs;
-    buffering->mRebufferingWatermarkLowMs = kUnderflowMarkMs;
-    buffering->mRebufferingWatermarkHighMs = kOverflowMarkMs;
-
+    Mutex::Autolock _l(mBufferingSettingsLock);
+    *buffering = mBufferingSettings;
     return OK;
 }
 
 status_t NuPlayer::RTSPSource::setBufferingSettings(const BufferingSettings& buffering) {
-    if (mLooper == NULL) {
-        mBufferingSettings = buffering;
-        return OK;
-    }
-
-    sp<AMessage> msg = new AMessage(kWhatSetBufferingSettings, this);
-    writeToAMessage(msg, buffering);
-    sp<AMessage> response;
-    status_t err = msg->postAndAwaitResponse(&response);
-    if (err == OK && response != NULL) {
-        CHECK(response->findInt32("err", &err));
-    }
-
-    return err;
+    Mutex::Autolock _l(mBufferingSettingsLock);
+    mBufferingSettings = buffering;
+    return OK;
 }
 
 void NuPlayer::RTSPSource::prepareAsync() {
@@ -364,8 +351,17 @@ void NuPlayer::RTSPSource::checkBuffering(
         }
         int64_t bufferedDurationUs = src->getBufferedDurationUs(&finalResult);
 
+        int64_t initialMarkUs;
+        int64_t maxRebufferingMarkUs;
+        {
+            Mutex::Autolock _l(mBufferingSettingsLock);
+            initialMarkUs = mBufferingSettings.mInitialMarkMs * 1000ll;
+            // TODO: maxRebufferingMarkUs could be larger than
+            // mBufferingSettings.mResumePlaybackMarkMs * 1000ll.
+            maxRebufferingMarkUs = mBufferingSettings.mResumePlaybackMarkMs * 1000ll;
+        }
         // isFinished when duration is 0 checks for EOS result only
-        if (bufferedDurationUs > mBufferingSettings.mInitialWatermarkMs * 1000
+        if (bufferedDurationUs > initialMarkUs
                 || src->isFinished(/* duration */ 0)) {
             ++preparedCount;
         }
@@ -374,15 +370,15 @@ void NuPlayer::RTSPSource::checkBuffering(
             ++overflowCount;
             ++finishedCount;
         } else {
-            if (bufferedDurationUs < mBufferingSettings.mRebufferingWatermarkLowMs * 1000) {
+            // TODO: redefine kUnderflowMarkMs to a fair value,
+            if (bufferedDurationUs < kUnderflowMarkMs * 1000) {
                 ++underflowCount;
             }
-            if (bufferedDurationUs > mBufferingSettings.mRebufferingWatermarkHighMs * 1000) {
+            if (bufferedDurationUs > maxRebufferingMarkUs) {
                 ++overflowCount;
             }
             int64_t startServerMarkUs =
-                    (mBufferingSettings.mRebufferingWatermarkLowMs
-                        + mBufferingSettings.mRebufferingWatermarkHighMs) / 2 * 1000ll;
+                    (kUnderflowMarkMs * 1000ll + maxRebufferingMarkUs) / 2;
             if (bufferedDurationUs < startServerMarkUs) {
                 ++startCount;
             }
@@ -519,36 +515,6 @@ void NuPlayer::RTSPSource::onMessageReceived(const sp<AMessage> &msg) {
         return;
     } else if (msg->what() == kWhatSignalEOS) {
         onSignalEOS(msg);
-        return;
-    } else if (msg->what() == kWhatSetBufferingSettings) {
-        sp<AReplyToken> replyID;
-        CHECK(msg->senderAwaitsResponse(&replyID));
-
-        BufferingSettings buffering;
-        readFromAMessage(msg, &buffering);
-
-        status_t err = OK;
-        if (buffering.IsSizeBasedBufferingMode(buffering.mInitialBufferingMode)
-                || buffering.IsSizeBasedBufferingMode(buffering.mRebufferingMode)
-                || (buffering.mRebufferingWatermarkLowMs > buffering.mRebufferingWatermarkHighMs
-                    && buffering.IsTimeBasedBufferingMode(buffering.mRebufferingMode))) {
-            err = BAD_VALUE;
-        } else {
-            if (buffering.mInitialBufferingMode == BUFFERING_MODE_NONE) {
-                buffering.mInitialWatermarkMs = BufferingSettings::kNoWatermark;
-            }
-            if (buffering.mRebufferingMode == BUFFERING_MODE_NONE) {
-                buffering.mRebufferingWatermarkLowMs = BufferingSettings::kNoWatermark;
-                buffering.mRebufferingWatermarkHighMs = INT32_MAX;
-            }
-
-            mBufferingSettings = buffering;
-        }
-
-        sp<AMessage> response = new AMessage;
-        response->setInt32("err", err);
-        response->postReply(replyID);
-
         return;
     }
 

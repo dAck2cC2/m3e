@@ -24,13 +24,15 @@
 #include "AnotherPacketSource.h"
 #include "NuPlayerStreamListener.h"
 
+#include <media/MediaSource.h>
 #include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/AMessage.h>
-#include <media/stagefright/MediaSource.h>
+#include <media/stagefright/foundation/MediaKeys.h>
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/Utils.h>
 
+// M3E: add
 #include <CasManager.h>
 #include <android/hardware/cas/native/1.0/IDescrambler.h>
 
@@ -54,19 +56,14 @@ NuPlayer::StreamingSource::~StreamingSource() {
     }
 }
 
-status_t NuPlayer::StreamingSource::getDefaultBufferingSettings(
+status_t NuPlayer::StreamingSource::getBufferingSettings(
         BufferingSettings *buffering /* nonnull */) {
     *buffering = BufferingSettings();
     return OK;
 }
 
 status_t NuPlayer::StreamingSource::setBufferingSettings(
-        const BufferingSettings &buffering) {
-    if (buffering.mInitialBufferingMode != BUFFERING_MODE_NONE
-            || buffering.mRebufferingMode != BUFFERING_MODE_NONE) {
-        return BAD_VALUE;
-    }
-
+        const BufferingSettings & /* buffering */) {
     return OK;
 }
 
@@ -122,7 +119,7 @@ void NuPlayer::StreamingSource::onReadBuffer() {
             int32_t mask;
             if (extra != NULL
                     && extra->findInt32(
-                        IStreamListener::kKeyDiscontinuityMask, &mask)) {
+                        kIStreamListenerKeyDiscontinuityMask, &mask)) {
                 if (mask == 0) {
                     ALOGE("Client specified an illegal discontinuity type.");
                     setError(ERROR_UNSUPPORTED);
@@ -150,7 +147,7 @@ void NuPlayer::StreamingSource::onReadBuffer() {
                     int64_t mediaTimeUs;
                     memcpy(&mediaTimeUs, &buffer[2], sizeof(mediaTimeUs));
 
-                    extra->setInt64(IStreamListener::kKeyMediaTimeUs, mediaTimeUs);
+                    extra->setInt64(kATSParserKeyMediaTimeUs, mediaTimeUs);
                 }
 
                 mTSParser->signalDiscontinuity(
