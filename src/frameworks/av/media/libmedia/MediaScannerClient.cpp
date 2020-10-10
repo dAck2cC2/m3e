@@ -20,7 +20,8 @@
 
 #include <media/mediascanner.h>
 
-#if ENABLE_ICU
+#if ENABLE_ICU // M3E:
+
 #include <media/CharacterEncodingDetector.h>
 #endif
 #include <media/StringArray.h>

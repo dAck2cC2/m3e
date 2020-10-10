@@ -44,7 +44,7 @@ namespace media {
 //  data.updateLength();
 //
 
-class ANDROID_API_MEDIA Metadata {
+class ANDROID_API_MEDIA Metadata {  // M3E:
   public:
     typedef int32_t Type;
     typedef SortedVector<Type> Filter;

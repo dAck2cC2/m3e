@@ -53,7 +53,7 @@ using hardware::hidl_memory;
 
 // TODO: After complete HIDL transition, this class would be replaced by
 // CodecBuffer.
-class ANDROID_API_MEDIA OMXBuffer {
+class ANDROID_API_MEDIA OMXBuffer { // M3E:
 public:
     // sPreset is used in places where we are referring to a pre-registered
     // buffer on a port. It has type kBufferTypePreset and mRangeLength of 0.
@@ -91,6 +91,7 @@ public:
 
 private:
     friend struct OMXNodeInstance;
+    friend struct C2OMXNode;
 
     // This is needed temporarily for OMX HIDL transition.
     friend inline bool (::android::hardware::media::omx::V1_0::implementation::

@@ -19,6 +19,9 @@
 #define ANDROID_IMEDIARECORDER_H
 
 #include <binder/IInterface.h>
+#include <media/MicrophoneInfo.h>
+#include <system/audio.h>
+#include <vector>
 
 namespace android {
 
@@ -31,7 +34,7 @@ class IMediaRecorderClient;
 class IGraphicBufferProducer;
 struct PersistentSurface;
 
-class ANDROID_API_MEDIA IMediaRecorder: public IInterface
+class ANDROID_API_MEDIA IMediaRecorder: public IInterface // M3E:
 {
 public:
     DECLARE_META_INTERFACE(MediaRecorder);
@@ -64,11 +67,18 @@ public:
     virtual status_t release() = 0;
     virtual status_t setInputSurface(const sp<PersistentSurface>& surface) = 0;
     virtual sp<IGraphicBufferProducer> querySurfaceMediaSource() = 0;
+
+    virtual status_t setInputDevice(audio_port_handle_t deviceId) = 0;
+    virtual status_t getRoutedDeviceId(audio_port_handle_t *deviceId) = 0;
+    virtual status_t enableAudioDeviceCallback(bool enabled) = 0;
+    virtual status_t getActiveMicrophones(
+                        std::vector<media::MicrophoneInfo>* activeMicrophones) = 0;
+
 };
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnMediaRecorder: public BnInterface<IMediaRecorder>
+class ANDROID_API_MEDIA BnMediaRecorder: public BnInterface<IMediaRecorder> // M3E:
 {
 public:
     virtual status_t    onTransact( uint32_t code,

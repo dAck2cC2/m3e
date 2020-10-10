@@ -25,6 +25,7 @@
 #include <ui/GraphicBuffer.h>
 #include <utils/NativeHandle.h>
 
+// M3E:
 #include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/foundation/AMessage.h>
 

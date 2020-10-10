@@ -81,7 +81,9 @@ bool TimeCheck::TimeCheckThread::threadLoop()
             status = mCond.waitRelative(mMutex, waitTimeNs);
         }
     }
-    //LOG_ALWAYS_FATAL_IF(status != NO_ERROR, "TimeCheck timeout for %s", tag);
+#if 0 // M3E: it may affect break point debug.
+    LOG_ALWAYS_FATAL_IF(status != NO_ERROR, "TimeCheck timeout for %s", tag);
+#endif
     return true;
 }
 

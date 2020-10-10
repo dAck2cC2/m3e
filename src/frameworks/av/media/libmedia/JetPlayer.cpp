@@ -20,6 +20,8 @@
 #include <utils/Log.h>
 #include <media/JetPlayer.h>
 
+// M3E: add
+#include <cutils/threads.h> // gettid()
 
 namespace android
 {
@@ -36,6 +38,7 @@ JetPlayer::JetPlayer(void *javaJetPlayer, int maxTracks, int trackBufferSize) :
         mPaused(false),
         mMaxTracks(maxTracks),
         mEasData(NULL),
+        mIoWrapper(NULL),
         mTrackBufferSize(trackBufferSize)
 {
     ALOGV("JetPlayer constructor");
@@ -50,7 +53,6 @@ JetPlayer::~JetPlayer()
 {
     ALOGV("~JetPlayer");
     release();
-
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -138,7 +140,8 @@ int JetPlayer::release()
         JET_Shutdown(mEasData);
         EAS_Shutdown(mEasData);
     }
-    mIoWrapper.clear();
+    delete mIoWrapper;
+    mIoWrapper = NULL;
     if (mAudioTrack != 0) {
         mAudioTrack->stop();
         mAudioTrack->flush();
@@ -329,6 +332,7 @@ int JetPlayer::loadFromFile(const char* path)
 
     Mutex::Autolock lock(mMutex);
 
+    delete mIoWrapper;
     mIoWrapper = new MidiIoWrapper(path);
 
     EAS_RESULT result = JET_OpenFile(mEasData, mIoWrapper->getLocator());
@@ -347,6 +351,7 @@ int JetPlayer::loadFromFD(const int fd, const long long offset, const long long 
 
     Mutex::Autolock lock(mMutex);
 
+    delete mIoWrapper;
     mIoWrapper = new MidiIoWrapper(fd, offset, length);
 
     EAS_RESULT result = JET_OpenFile(mEasData, mIoWrapper->getLocator());

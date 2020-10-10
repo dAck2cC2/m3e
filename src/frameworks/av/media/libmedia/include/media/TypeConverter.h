@@ -119,7 +119,7 @@ static void collectionFromString(const std::string &str, typename Traits::Collec
 }
 
 template <class Traits>
-class ANDROID_API TypeConverter
+class ANDROID_API TypeConverter // M3E:
 {
 public:
     static bool toString(const typename Traits::Type &value, std::string &str);
@@ -137,7 +137,7 @@ public:
             uint32_t mask, std::string &str, const char *del = AudioParameter::valueListSeparator);
 
 protected:
-    struct ANDROID_API Table {
+    struct ANDROID_API Table { // M3E:
         const char *literal;
         typename Traits::Type value;
     };

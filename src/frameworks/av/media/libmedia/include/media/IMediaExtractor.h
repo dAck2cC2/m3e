@@ -18,8 +18,8 @@
 
 #define IMEDIA_EXTRACTOR_BASE_H_
 
+#include <media/DataSource.h>
 #include <media/IMediaSource.h>
-#include <media/stagefright/DataSource.h>
 #include <vector>
 
 namespace android {
@@ -27,7 +27,7 @@ namespace android {
 class MetaData;
 typedef std::vector<uint8_t> HInterfaceToken;
 
-class ANDROID_API_MEDIA IMediaExtractor : public IInterface {
+class ANDROID_API_MEDIA IMediaExtractor : public IInterface { // M3E:
 public:
     DECLARE_META_INTERFACE(MediaExtractor);
 
@@ -60,27 +60,21 @@ public:
     // CAN_SEEK_BACKWARD | CAN_SEEK_FORWARD | CAN_SEEK | CAN_PAUSE
     virtual uint32_t flags() const = 0;
 
-    // for DRM
-    virtual char* getDrmTrackInfo(size_t trackID, int *len)  = 0;
-
     virtual status_t setMediaCas(const HInterfaceToken &casToken) = 0;
 
-    virtual void setUID(uid_t uid)  = 0;
-
     virtual const char * name() = 0;
-
-    virtual void release() = 0;
 };
 
 
-class ANDROID_API_MEDIA BnMediaExtractor: public BnInterface<IMediaExtractor>
+class ANDROID_API_MEDIA BnMediaExtractor: public BnInterface<IMediaExtractor>  // M3E:
 {
 public:
     virtual status_t    onTransact(uint32_t code, const Parcel& data, Parcel* reply,
                                 uint32_t flags = 0);
 };
 
-void ANDROID_API_MEDIA registerMediaExtractor(
+ANDROID_API_MEDIA // M3E:
+void registerMediaExtractor(
         const sp<IMediaExtractor> &extractor,
         const sp<DataSource> &source,
         const char *mime);
@@ -89,7 +83,8 @@ void registerMediaSource(
         const sp<IMediaExtractor> &extractor,
         const sp<IMediaSource> &source);
 
-status_t ANDROID_API_MEDIA dumpExtractors(int fd, const Vector<String16>& args);
+ANDROID_API_MEDIA // M3E:
+status_t dumpExtractors(int fd, const Vector<String16>& args);
 
 
 }  // namespace android

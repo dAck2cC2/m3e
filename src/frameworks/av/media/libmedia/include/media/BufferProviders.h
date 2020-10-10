@@ -63,7 +63,7 @@ protected:
 // input data to a form acceptable by the mixer.
 // TODO: Make a ResamplerBufferProvider when integers are entirely removed from the
 // processing pipeline.
-class ANDROID_API_AUDIOPROCESSING CopyBufferProvider : public PassthruBufferProvider {
+class ANDROID_API_AUDIOPROCESSING CopyBufferProvider : public PassthruBufferProvider { // M3E:
 public:
     // Use a private buffer of bufferFrameCount frames (each frame is outputFrameSize bytes).
     // If bufferFrameCount is 0, no private buffer is created and in-place modification of
@@ -148,7 +148,7 @@ protected:
 
 // ReformatBufferProvider derives from CopyBufferProvider to convert the input data
 // to an acceptable mixer input format type.
-class ANDROID_API_AUDIOPROCESSING ReformatBufferProvider : public CopyBufferProvider {
+class ANDROID_API_AUDIOPROCESSING ReformatBufferProvider : public CopyBufferProvider { // M3E:
 public:
     ReformatBufferProvider(int32_t channelCount,
             audio_format_t inputFormat, audio_format_t outputFormat,

@@ -21,9 +21,11 @@
 
 #include "StringArray.h"
 
+#if ENABLE_ICU // M3E:
 #include "unicode/ucnv.h"
 #include "unicode/ucsdet.h"
 #include "unicode/ustring.h"
+#endif
 
 namespace android {
 
@@ -40,6 +42,7 @@ class CharacterEncodingDetector {
         status_t getTag(int index, const char **name, const char**value);
 
     private:
+#if ENABLE_ICU // M3E:
         const UCharsetMatch *getPreferred(
                 const char *input, size_t len,
                 const UCharsetMatch** ucma, size_t matches,
@@ -54,6 +57,7 @@ class CharacterEncodingDetector {
         StringArray     mValues;
 
         UConverter*     mUtf8Conv;
+#endif
 };
 
 

@@ -47,7 +47,7 @@ struct omx_message;
 
 using hardware::media::omx::V1_0::IOmxNode;
 
-class ANDROID_API_MEDIA IOMX : public IInterface {
+class ANDROID_API_MEDIA IOMX : public IInterface { // M3E:
 public:
     DECLARE_META_INTERFACE(OMX);
 
@@ -86,7 +86,7 @@ public:
             sp<IGraphicBufferSource> *bufferSource) = 0;
 };
 
-class ANDROID_API_MEDIA IOMXNode : public IInterface {
+class ANDROID_API_MEDIA IOMXNode : public IInterface { // M3E:
 public:
     DECLARE_HYBRID_META_INTERFACE(OMXNode, IOmxNode);
 
@@ -215,7 +215,7 @@ struct omx_message {
     } u;
 };
 
-class ANDROID_API_MEDIA IOMXObserver : public IInterface {
+class ANDROID_API_MEDIA IOMXObserver : public IInterface { // M3E:
 public:
     DECLARE_META_INTERFACE(OMXObserver);
 
@@ -225,14 +225,14 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class ANDROID_API_MEDIA BnOMX : public BnInterface<IOMX> {
+class ANDROID_API_MEDIA BnOMX : public BnInterface<IOMX> { // M3E:
 public:
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,
             uint32_t flags = 0);
 };
 
-class ANDROID_API_MEDIA BnOMXNode : public BnInterface<IOMXNode> {
+class ANDROID_API_MEDIA BnOMXNode : public BnInterface<IOMXNode> { // M3E:
 public:
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,
@@ -245,7 +245,7 @@ protected:
     }
 };
 
-class ANDROID_API_MEDIA BnOMXObserver : public BnInterface<IOMXObserver> {
+class ANDROID_API_MEDIA BnOMXObserver : public BnInterface<IOMXObserver> { // M3E:
 public:
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,

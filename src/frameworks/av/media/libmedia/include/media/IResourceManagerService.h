@@ -30,7 +30,7 @@
 
 namespace android {
 
-class ANDROID_API_MEDIA IResourceManagerService: public IInterface
+class ANDROID_API_MEDIA IResourceManagerService: public IInterface // M3E:
 {
 public:
     DECLARE_META_INTERFACE(ResourceManagerService);
@@ -52,7 +52,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnResourceManagerService: public BnInterface<IResourceManagerService>
+class ANDROID_API_MEDIA BnResourceManagerService: public BnInterface<IResourceManagerService> // M3E:
 {
 public:
     virtual status_t onTransact(uint32_t code,

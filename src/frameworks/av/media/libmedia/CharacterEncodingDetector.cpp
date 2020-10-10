@@ -24,36 +24,49 @@
 #include <utils/Vector.h>
 #include <media/StringArray.h>
 
+#if ENABLE_ICU // M3E:
 #include <unicode/ucnv.h>
 #include <unicode/ucsdet.h>
 #include <unicode/ustring.h>
+#endif
 
 namespace android {
 
 CharacterEncodingDetector::CharacterEncodingDetector() {
 
+#if ENABLE_ICU
     UErrorCode status = U_ZERO_ERROR;
     mUtf8Conv = ucnv_open("UTF-8", &status);
     if (U_FAILURE(status)) {
         ALOGE("could not create UConverter for UTF-8");
         mUtf8Conv = NULL;
     }
+#endif
 }
 
 CharacterEncodingDetector::~CharacterEncodingDetector() {
+#if ENABLE_ICU
     ucnv_close(mUtf8Conv);
+#endif
 }
 
 void CharacterEncodingDetector::addTag(const char *name, const char *value) {
+#if ENABLE_ICU
     mNames.push_back(name);
     mValues.push_back(value);
+#endif
 }
 
 size_t CharacterEncodingDetector::size() {
+#if ENABLE_ICU
     return mNames.size();
+#else
+    return 0;
+#endif
 }
 
 status_t CharacterEncodingDetector::getTag(int index, const char **name, const char**value) {
+#if ENABLE_ICU
     if (index >= mNames.size()) {
         return BAD_VALUE;
     }
@@ -61,6 +74,9 @@ status_t CharacterEncodingDetector::getTag(int index, const char **name, const c
     *name = mNames.getEntry(index);
     *value = mValues.getEntry(index);
     return OK;
+#else
+    return BAD_VALUE;
+#endif
 }
 
 static bool isPrintableAscii(const char *value, size_t len) {
@@ -74,6 +90,7 @@ static bool isPrintableAscii(const char *value, size_t len) {
 
 void CharacterEncodingDetector::detectAndConvert() {
 
+#if ENABLE_ICU
     int size = mNames.size();
     ALOGV("%d tags before conversion", size);
     for (int i = 0; i < size; i++) {
@@ -278,8 +295,10 @@ void CharacterEncodingDetector::detectAndConvert() {
 
         ucsdet_close(csd);
     }
+#endif
 }
 
+#if ENABLE_ICU
 /*
  * When ICU detects multiple encoding matches, apply additional heuristics to determine
  * which one is the best match, since ICU can't always be trusted to make the right choice.
@@ -482,6 +501,7 @@ bool CharacterEncodingDetector::isFrequent(const uint16_t *values, uint32_t c) {
 
     return false;
 }
+#endif
 
 
 }  // namespace android

@@ -63,10 +63,10 @@ private:
     int32_t mSize;
     char mData[];
 
-public:
+public: // M3E:
     // You can't construct instances of this class directly because this is a
     // variable-sized object passed through the binder.
-	MediaAlbumArt() {};
+    MediaAlbumArt() {};
 } /*__packed*/;
 
 struct MediaScanner {

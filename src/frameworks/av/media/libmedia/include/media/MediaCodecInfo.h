@@ -40,7 +40,7 @@ typedef KeyedVector<AString, AString> CodecSettings;
 struct MediaCodecInfoWriter;
 struct MediaCodecListWriter;
 
-struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase {
+struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase { // M3E:
     struct ProfileLevel {
         uint32_t mProfile;
         uint32_t mLevel;
@@ -51,7 +51,7 @@ struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase {
 
     struct CapabilitiesWriter;
 
-    struct ANDROID_API_MEDIA Capabilities : public RefBase {
+    struct ANDROID_API_MEDIA Capabilities : public RefBase { // M3E:
         enum {
             // decoder flags
             kFlagSupportsAdaptivePlayback = 1 << 0,
@@ -96,7 +96,7 @@ struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase {
      * `MediaCodecInfoWriter::addMime()` or
      * `MediaCodecInfoWriter::updateMime()`.
      */
-    struct ANDROID_API_MEDIA CapabilitiesWriter {
+    struct ANDROID_API_MEDIA CapabilitiesWriter { // M3E:
         /**
          * Add a key-value pair to the list of details. If the key already
          * exists, the old value will be replaced.
@@ -170,6 +170,7 @@ struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase {
      * Currently, this is the "instance name" of the IOmx service.
      */
     const char *getOwnerName() const;
+    uint32_t rank() const;
 
     /**
      * Serialization over Binder
@@ -182,6 +183,7 @@ private:
     AString mOwner;
     bool mIsEncoder;
     KeyedVector<AString, sp<Capabilities> > mCaps;
+    uint32_t mRank;
 
     ssize_t getCapabilityIndex(const char *mime) const;
 
@@ -209,7 +211,7 @@ private:
  * `MediaCodecListWriter` object given as an input to
  * `MediaCodecListBuilderBase::buildMediaCodecList()`.
  */
-struct ANDROID_API_MEDIA MediaCodecInfoWriter {
+struct ANDROID_API_MEDIA MediaCodecInfoWriter { // M3E:
     /**
      * Set the name of the codec.
      *
@@ -252,6 +254,13 @@ struct ANDROID_API_MEDIA MediaCodecInfoWriter {
      * @return `true` if `mime` is removed; `false` if `mime` is not found.
      */
     bool removeMime(const char* mime);
+    /**
+     * Set rank of the codec. MediaCodecList will stable-sort the list according
+     * to rank in non-descending order.
+     *
+     * @param rank The rank of the component.
+     */
+    void setRank(uint32_t rank);
 private:
     /**
      * The associated `MediaCodecInfo`.

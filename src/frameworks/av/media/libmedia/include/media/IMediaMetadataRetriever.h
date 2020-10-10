@@ -28,7 +28,7 @@ class Parcel;
 class IDataSource;
 struct IMediaHTTPService;
 
-class ANDROID_API_MEDIA IMediaMetadataRetriever: public IInterface
+class ANDROID_API_MEDIA IMediaMetadataRetriever: public IInterface // M3E:
 {
 public:
     DECLARE_META_INTERFACE(MediaMetadataRetriever);
@@ -44,13 +44,20 @@ public:
             const sp<IDataSource>& dataSource, const char *mime) = 0;
     virtual sp<IMemory>     getFrameAtTime(
             int64_t timeUs, int option, int colorFormat, bool metaOnly) = 0;
+    virtual sp<IMemory>     getImageAtIndex(
+            int index, int colorFormat, bool metaOnly, bool thumbnail) = 0;
+    virtual sp<IMemory>     getImageRectAtIndex(
+            int index, int colorFormat, int left, int top, int right, int bottom) = 0;
+    virtual status_t        getFrameAtIndex(
+            std::vector<sp<IMemory> > *frames,
+            int frameIndex, int numFrames, int colorFormat, bool metaOnly) = 0;
     virtual sp<IMemory>     extractAlbumArt() = 0;
     virtual const char*     extractMetadata(int keyCode) = 0;
 };
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnMediaMetadataRetriever: public BnInterface<IMediaMetadataRetriever>
+class ANDROID_API_MEDIA BnMediaMetadataRetriever: public BnInterface<IMediaMetadataRetriever> // M3E:
 {
 public:
     virtual status_t    onTransact(uint32_t code,

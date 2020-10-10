@@ -686,7 +686,7 @@ status_t BnOMXNode::onTransact(
                 android_errorWriteLog(0x534e4554, "27207275");
             } else {
                 err = NO_MEMORY;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 				SYSTEM_INFO sysinfo;
 				GetSystemInfo(&sysinfo);
 				pageSize = sysinfo.dwPageSize;
@@ -728,7 +728,7 @@ status_t BnOMXNode::onTransact(
                                 ALOGE("mprotect failed: %s", strerror(errno));
                             } else
 #endif
-							{
+                            {
                                 switch (code) {
                                     case GET_PARAMETER:
                                         err = getParameter(index, params, size);

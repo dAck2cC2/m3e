@@ -16,6 +16,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaextractor/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
@@ -27,6 +28,8 @@ binder
 stagefright_foundation
 audioutils
 gui
+mediaextractor
+interfaces
 )
 
 # define
@@ -50,7 +53,6 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia/include/medi
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia )
 
 include_directories(AFTER ${HEADER_PATH})
-include_directories(AFTER ${SOURCE_PATH}/aidl)
 
 # header files
 file(GLOB MEDIA_HEADER_FILES 
@@ -62,16 +64,7 @@ ${M3E_SOURCE_DIR}/src/frameworks/av/include/private/media/*.h
 )
 
 # source files
-#file(GLOB MEDIA_SOURCE_FILES 
-#${M3E_SOURCE_DIR}/src/av/media/libmedia/*.cpp
-#)
 set(MEDIA_SOURCE_FILES
-${SOURCE_PATH}/AudioParameter.cpp
-${SOURCE_PATH}/IDataSource.cpp
-${SOURCE_PATH}/IMediaExtractor.cpp
-${SOURCE_PATH}/IMediaExtractorService.cpp
-${SOURCE_PATH}/IMediaSource.cpp
-${SOURCE_PATH}/MediaDefs.cpp
 )
 
 if(ENABLE_AV_CODEC)
@@ -86,54 +79,112 @@ if(ENABLE_AV_CODEC)
     include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright)
     include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/include/media)
     
-    list(APPEND MEDIA_DEPLIB
+    list(APPEND ${PROJECT_NAME}_DEPLIB
     ui
-    gui
     camera_client
-    sonivox
-    interfaces
     )
 
     list(APPEND MEDIA_SOURCE_FILES
-    ${SOURCE_PATH}/BufferingSettings.cpp
-    ${SOURCE_PATH}/IOMXStore.cpp
-    ${SOURCE_PATH}/OMXBuffer.cpp
-    ${SOURCE_PATH}/MediaCodecBuffer.cpp
-    ${SOURCE_PATH}/IOMX.cpp
-    ${SOURCE_PATH}/IMediaCodecList.cpp
-    ${SOURCE_PATH}/IMediaCodecService.cpp
-    ${SOURCE_PATH}/IResourceManagerClient.cpp
-    ${SOURCE_PATH}/IResourceManagerService.cpp
-    ${SOURCE_PATH}/MediaCodecInfo.cpp
-    ${SOURCE_PATH}/MediaResource.cpp
-    ${SOURCE_PATH}/MediaResourcePolicy.cpp
-    ${SOURCE_PATH}/IMediaPlayerService.cpp    
-    ${SOURCE_PATH}/IMediaPlayerClient.cpp 
-    ${SOURCE_PATH}/IMediaPlayer.cpp 
-    ${SOURCE_PATH}/IMediaMetadataRetriever.cpp
-    ${SOURCE_PATH}/IMediaRecorder.cpp
-    ${SOURCE_PATH}/IMediaRecorderClient.cpp
-    ${SOURCE_PATH}/IRemoteDisplay.cpp
-    ${SOURCE_PATH}/IRemoteDisplayClient.cpp
-    ${SOURCE_PATH}/IMediaHTTPService.cpp
-    ${SOURCE_PATH}/IMediaHTTPConnection.cpp
-    ${SOURCE_PATH}/IStreamSource.cpp
-    ${SOURCE_PATH}/IHDCP.cpp
-    ${SOURCE_PATH}/TimeCheck.cpp
-    ${SOURCE_PATH}/Metadata.cpp
-    ${SOURCE_PATH}/MediaScanner.cpp
-    ${SOURCE_PATH}/MediaScannerClient.cpp
-    ${SOURCE_PATH}/MidiIoWrapper.cpp
-    ${SOURCE_PATH}/TypeConverter.cpp
-    ${SOURCE_PATH}/IMediaDeathNotifier.cpp
-    ${SOURCE_PATH}/omx/1.0/WOmxNode.cpp
-    ${SOURCE_PATH}/omx/1.0/WOmxBufferSource.cpp
-    #${SOURCE_PATH}/omx/1.0/WOmx.cpp
-    ${SOURCE_PATH}/aidl/IGraphicBufferSource.cpp
-    ${SOURCE_PATH}/aidl/IOMXBufferSource.cpp
+    #${SOURCE_PATH}/IOMXStore.cpp
+    #${SOURCE_PATH}/IMediaCodecService.cpp
     )
 endif(ENABLE_AV_CODEC)
 
+###############################################################################
+# libmedia_helper
+set(MEDIA_HELPER_SOURCE
+${SOURCE_PATH}/AudioParameter.cpp
+${SOURCE_PATH}/TypeConverter.cpp
+${SOURCE_PATH}/TimeCheck.cpp
+)
+source_group(libmedia_helper FILES ${MEDIA_HELPER_SOURCE})
+list(APPEND MEDIA_SOURCE_FILES ${MEDIA_HELPER_SOURCE})
+
+
+###############################################################################
+# libmedia_omx
+ADD_AIDL_SOURCE(android/IGraphicBufferSource.aidl)
+ADD_AIDL_SOURCE(android/IOMXBufferSource.aidl)
+
+set(MEDIA_OMX_SOURCE
+#aidl/android/IGraphicBufferSource.aidl
+#aidl/android/IOMXBufferSource.aidl
+
+${SOURCE_PATH}/IMediaCodecList.cpp
+${SOURCE_PATH}/IOMX.cpp
+${SOURCE_PATH}/MediaCodecBuffer.cpp
+${SOURCE_PATH}/MediaCodecInfo.cpp
+${SOURCE_PATH}/OMXBuffer.cpp
+${SOURCE_PATH}/omx/1.0/WGraphicBufferSource.cpp
+${SOURCE_PATH}/omx/1.0/WOmx.cpp
+${SOURCE_PATH}/omx/1.0/WOmxBufferSource.cpp
+${SOURCE_PATH}/omx/1.0/WOmxNode.cpp
+${SOURCE_PATH}/omx/1.0/WOmxObserver.cpp
+)
+
+source_group(libmedia_omx FILES ${MEDIA_OMX_SOURCE})
+list(APPEND MEDIA_SOURCE_FILES ${MEDIA_OMX_SOURCE})
+
+###############################################################################
+# libmedia_midiiowrapper
+set(MEDIA_MIDIIOWRAPPER_SOURCE
+${SOURCE_PATH}/MidiIoWrapper.cpp
+)
+source_group(libmedia_midiiowrapper FILES ${MEDIA_MIDIIOWRAPPER_SOURCE})
+list(APPEND MEDIA_SOURCE_FILES ${MEDIA_MIDIIOWRAPPER_SOURCE})
+list(APPEND ${PROJECT_NAME}_DEPLIB sonivox)
+
+###############################################################################
+# libmedia
+ADD_AIDL_SOURCE(android/media/IMediaExtractorUpdateService.aidl)
+
+set(MEDIA_SOURCE
+#aidl/android/media/IMediaExtractorUpdateService.aidl
+
+${SOURCE_PATH}/IDataSource.cpp
+${SOURCE_PATH}/BufferingSettings.cpp
+#${SOURCE_PATH}/mediaplayer.cpp
+${SOURCE_PATH}/IMediaHTTPConnection.cpp
+${SOURCE_PATH}/IMediaHTTPService.cpp
+${SOURCE_PATH}/IMediaExtractor.cpp
+${SOURCE_PATH}/IMediaExtractorService.cpp
+${SOURCE_PATH}/IMediaPlayerService.cpp
+${SOURCE_PATH}/IMediaPlayerClient.cpp
+${SOURCE_PATH}/IMediaRecorderClient.cpp
+${SOURCE_PATH}/IMediaPlayer.cpp 
+${SOURCE_PATH}/IMediaRecorder.cpp 
+${SOURCE_PATH}/IMediaSource.cpp 
+${SOURCE_PATH}/IRemoteDisplay.cpp 
+${SOURCE_PATH}/IRemoteDisplayClient.cpp 
+${SOURCE_PATH}/IResourceManagerClient.cpp 
+${SOURCE_PATH}/IResourceManagerService.cpp 
+${SOURCE_PATH}/IStreamSource.cpp 
+#${SOURCE_PATH}/MediaUtils.cpp 
+${SOURCE_PATH}/Metadata.cpp 
+${SOURCE_PATH}/mediarecorder.cpp 
+${SOURCE_PATH}/IMediaMetadataRetriever.cpp 
+${SOURCE_PATH}/mediametadataretriever.cpp 
+${SOURCE_PATH}/MidiDeviceInfo.cpp 
+#${SOURCE_PATH}/JetPlayer.cpp 
+${SOURCE_PATH}/MediaScanner.cpp 
+${SOURCE_PATH}/MediaScannerClient.cpp 
+${SOURCE_PATH}/CharacterEncodingDetector.cpp 
+${SOURCE_PATH}/IMediaDeathNotifier.cpp 
+${SOURCE_PATH}/MediaProfiles.cpp 
+${SOURCE_PATH}/MediaResource.cpp 
+${SOURCE_PATH}/MediaResourcePolicy.cpp 
+#${SOURCE_PATH}/Visualizer.cpp 
+${SOURCE_PATH}/StringArray.cpp 
+)
+
+source_group(libmedia FILES ${MEDIA_SOURCE})
+list(APPEND MEDIA_SOURCE_FILES ${MEDIA_SOURCE})
+list(APPEND ${PROJECT_NAME}_DEPLIB 
+expat
+#audioclient
+)
+
+###############################################################################
 # target files
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(media SHARED ${MEDIA_SOURCE_FILES} ${MEDIA_HEADER_FILES})

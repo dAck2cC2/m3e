@@ -23,13 +23,14 @@
 
 namespace android {
 
-class ANDROID_API_MEDIA MediaResource {
+class ANDROID_API_MEDIA MediaResource { // M3E:
 public:
     enum Type {
         kUnspecified = 0,
         kSecureCodec,
         kNonSecureCodec,
-        kGraphicMemory
+        kGraphicMemory,
+        kCpuBoost,
     };
 
     enum SubType {
@@ -54,7 +55,7 @@ public:
     SubType mSubType;
     uint64_t mValue;
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E: add
 	bool operator<(const MediaResource &rhs) const { return (mValue < rhs.mValue); };
 #endif
 };

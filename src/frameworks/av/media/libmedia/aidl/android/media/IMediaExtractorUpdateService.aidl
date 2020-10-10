@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef PLUGIN_METRICS_REPORTING_H_
+package android.media;
 
-#define PLUGIN_METRICS_REPORTING_H_
-
-#include <utils/Errors.h>
-#include <utils/String8.h>
-
-namespace android {
-
-status_t reportDrmPluginMetrics(const std::string& b64EncodedMetrics,
-                                const String8& vendorName,
-                                const String8& description,
-                                const String8& appPackageName);
-
-}  // namespace android
-
-#endif  // PLUGIN_METRICS_REPORTING_H_
+/**
+ * Service to reload extractor plugins when update package is installed/uninstalled.
+ * @hide
+ */
+interface IMediaExtractorUpdateService {
+    void loadPlugins(@utf8InCpp String apkPath);
+}

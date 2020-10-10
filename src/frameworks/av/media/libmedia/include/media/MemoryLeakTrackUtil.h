@@ -16,7 +16,7 @@
 #ifndef MEMORY_LEAK_TRACK_UTIL_H
 #define MEMORY_LEAK_TRACK_UTIL_H
 
-#ifdef __APPLE__
+#ifdef __APPLE__  // M3E:
 #include <atomic>
 #endif
 
@@ -29,7 +29,7 @@ namespace android {
  *
  *    limit is the number of unique allocations to return.
  */
-ANDROID_API_MEDIAUTILS
+ANDROID_API_MEDIAUTILS  // M3E:
 extern std::string dumpMemoryAddresses(size_t limit);
 
 };

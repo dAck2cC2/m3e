@@ -6,4 +6,6 @@ endif()
 
 # include
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia/include)
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia/aidl/include)
+include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/av/media/libmedia/aidl)
+
+include_directories(AFTER ${TMP_PATH}/${AIDL_HEADER_PATH}/media)
