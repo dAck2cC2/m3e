@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef MEDIA_BUFFER_BASE_H_
-
-#define MEDIA_BUFFER_BASE_H_
+#include <media/stagefright/foundation/MediaKeys.h>
 
 namespace android {
 
-class MediaBufferBase {
-public:
-    MediaBufferBase() {}
-
-    virtual void release() = 0;
-    virtual void add_ref() = 0;
-
-protected:
-    virtual ~MediaBufferBase() {}
-
-private:
-    MediaBufferBase(const MediaBufferBase &);
-    MediaBufferBase &operator=(const MediaBufferBase &);
-};
+const char *const kIStreamListenerKeyDiscontinuityMask = "discontinuity-mask";
+const char *const kATSParserKeyResumeAtPTS = "resume-at-PTS";
+const char *const kATSParserKeyMediaTimeUs = "media-time-us";
+const char *const kATSParserKeyRecentMediaTimeUs = "recent-media-time-us";
 
 }  // namespace android
-
-#endif  // MEDIA_BUFFER_BASE_H_

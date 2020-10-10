@@ -13,6 +13,7 @@ include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/gui/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaextractor/include.cmake)
 
 set(STAGEFRIGHT_FOUNDATION_DEPLIB
 utils
@@ -55,16 +56,17 @@ ${SOURCE_PATH}/AHierarchicalStateMachine.cpp
 ${SOURCE_PATH}/ALooper.cpp
 ${SOURCE_PATH}/ALooperRoster.cpp
 ${SOURCE_PATH}/AMessage.cpp
+#${SOURCE_PATH}/ANetworkSession.cpp
 ${SOURCE_PATH}/AString.cpp
 ${SOURCE_PATH}/AStringUtils.cpp
+${SOURCE_PATH}/ByteUtils.cpp
 ${SOURCE_PATH}/ColorUtils.cpp
-${SOURCE_PATH}/MediaBuffer.cpp
-${SOURCE_PATH}/MediaBufferGroup.cpp
-${SOURCE_PATH}/MetaData.cpp
+${SOURCE_PATH}/MediaDefs.cpp
+${SOURCE_PATH}/MediaKeys.cpp
 ${SOURCE_PATH}/ParsedMessage.cpp
+${SOURCE_PATH}/avc_utils.cpp
 ${SOURCE_PATH}/base64.cpp
 ${SOURCE_PATH}/hexdump.cpp
-${SOURCE_PATH}/AWakeLock.cpp
 
 )
 

@@ -21,7 +21,7 @@
 
 namespace android {
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION AStringUtils {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION AStringUtils { // M3E:
     // similar to strncmp or strcasecmp, but case sensitivity is parametric
     static int Compare(const char *a, const char *b, size_t len, bool ignoreCase);
 

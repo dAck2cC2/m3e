@@ -24,7 +24,7 @@
 #include <media/stagefright/foundation/AString.h>
 #include <utils/Log.h>
 
-#ifndef __unused
+#ifndef __unused // M3E:
 #define __unused __attribute__((__unused__))
 #endif
 
@@ -86,6 +86,10 @@ MAKE_COMPARATOR(GE,>=)
 MAKE_COMPARATOR(LT,<)
 MAKE_COMPARATOR(GT,>)
 
+#ifdef CHECK_OP
+#undef CHECK_OP
+#endif
+
 #define CHECK_OP(x,y,suffix,op)                                         \
     do {                                                                \
         AString ___res = Compare_##suffix(x, y);                        \
@@ -115,10 +119,10 @@ MAKE_COMPARATOR(GT,>)
 #define CHECK_GE(x,y)   CHECK_OP(x,y,GE,>=)
 #define CHECK_GT(x,y)   CHECK_OP(x,y,GT,>)
 
-#define TRESPASS() \
+#define TRESPASS(...) \
         LOG_ALWAYS_FATAL(                                       \
             __FILE__ ":" LITERAL_TO_STRING(__LINE__)            \
-                " Should not be here.");
+                " Should not be here. " __VA_ARGS__);
 
 #ifdef NDEBUG
 #define CHECK_DBG CHECK
@@ -140,7 +144,7 @@ MAKE_COMPARATOR(GT,>)
 #define TRESPASS_DBG(...)
 #endif
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION ADebug {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ADebug { // M3E:
     enum Level {
         kDebugNone,             // no debug
         kDebugLifeCycle,        // lifecycle events: creation/deletion

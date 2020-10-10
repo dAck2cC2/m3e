@@ -24,7 +24,7 @@
 
 namespace android {
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION ALooperRoster {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ALooperRoster { // M3E:
     ALooperRoster();
 
     ALooper::handler_id registerHandler(

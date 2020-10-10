@@ -21,7 +21,7 @@
 #include <utils/Errors.h>
 #include <sys/types.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <stdint.h>
 #endif // _MSC_VER
 
@@ -30,7 +30,7 @@ namespace android {
 class String8;
 class Parcel;
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION AString {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION AString { // M3E:
     AString();
     AString(const char *s);  // NOLINT, implicit conversion
     AString(const char *s, size_t size);
@@ -106,7 +106,7 @@ private:
     void makeMutable();
 };
 
-ANDROID_API_STAGEFRIGHT_FOUNDATION 
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E:
 AString AStringPrintf(const char *format, ...);
 
 }  // namespace android

@@ -27,9 +27,8 @@
 namespace android {
 
 struct AMessage;
-class MediaBufferBase;
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION ABuffer : public RefBase {
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ABuffer : public RefBase { // M3E:
     explicit ABuffer(size_t capacity);
     ABuffer(void *data, size_t capacity);
 
@@ -49,16 +48,11 @@ struct ANDROID_API_STAGEFRIGHT_FOUNDATION ABuffer : public RefBase {
 
     sp<AMessage> meta();
 
-    MediaBufferBase *getMediaBufferBase();
-    void setMediaBufferBase(MediaBufferBase *mediaBuffer);
-
 protected:
     virtual ~ABuffer();
 
 private:
     sp<AMessage> mMeta;
-
-    MediaBufferBase *mMediaBufferBase;
 
     void *mData;
     size_t mCapacity;
