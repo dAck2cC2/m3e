@@ -116,7 +116,7 @@ int WebmElement::write(int fd, uint64_t& size) {
     off64_t off = ::lseek64(fd, (size - 1), SEEK_CUR) - (size - 1);
     ::write(fd, buf, 1); // extend file
 
-#if TODO
+#if TODO // M3E:
     off64_t curOff = off + size;
     off64_t alignedOff = off & ~(::sysconf(_SC_PAGE_SIZE) - 1);
     off64_t mapSize = curOff - alignedOff;
