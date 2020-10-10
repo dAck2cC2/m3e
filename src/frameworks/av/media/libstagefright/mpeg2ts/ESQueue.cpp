@@ -24,14 +24,14 @@
 #include <media/stagefright/foundation/ABitReader.h>
 #include <media/stagefright/foundation/ABuffer.h>
 #include <media/stagefright/foundation/AMessage.h>
+#include <media/stagefright/foundation/ByteUtils.h>
+#include <media/stagefright/foundation/avc_utils.h>
 #include <media/stagefright/MediaErrors.h>
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MetaData.h>
-#include <media/stagefright/Utils.h>
+#include <media/stagefright/MetaDataUtils.h>
 #include <media/cas/DescramblerAPI.h>
 #include <media/hardware/CryptoAPI.h>
-
-#include "include/avc_utils.h"
 
 #include <inttypes.h>
 #include <netinet/in.h>
@@ -633,7 +633,10 @@ sp<ABuffer> ElementaryStreamQueue::dequeueAccessUnit() {
         mBuffer->setRange(0, mBuffer->size() - info.mLength);
 
         if (mFormat == NULL) {
-            mFormat = MakeAVCCodecSpecificData(accessUnit);
+            mFormat = new MetaData;
+            if (!MakeAVCCodecSpecificData(*mFormat, accessUnit->data(), accessUnit->size())) {
+                mFormat.clear();
+            }
         }
 
         return accessUnit;
@@ -862,7 +865,8 @@ sp<ABuffer> ElementaryStreamQueue::dequeueAccessUnitAAC() {
             }
             bits.skipBits(2);  // original_copy, home
 
-            mFormat = MakeAACCodecSpecificData(
+            mFormat = new MetaData;
+            MakeAACCodecSpecificData(*mFormat,
                     profile, sampling_freq_index, channel_configuration);
 
             mFormat->setInt32(kKeyIsADTS, true);
@@ -917,7 +921,7 @@ sp<ABuffer> ElementaryStreamQueue::dequeueAccessUnitAAC() {
         // tracking the frame positions first then decrypt only if an accessUnit to be generated
         if (mSampleDecryptor != NULL) {
             ADTSPosition frame = {
-                /*.offset     =*/ offset,
+                /*.offset     =*/ offset, // M3E:
                 /*.headerSize =*/ headerSize,
                 /*.length     =*/ aac_frame_length
             };
@@ -1005,9 +1009,9 @@ sp<ABuffer> ElementaryStreamQueue::dequeueAccessUnitH264() {
             return NULL;
         }
         if (mFormat == NULL) {
-            mFormat = MakeAVCCodecSpecificData(mBuffer);
-            if (mFormat == NULL) {
-                ALOGI("Creating dummy AVC format for scrambled content");
+            mFormat = new MetaData;
+            if (!MakeAVCCodecSpecificData(*mFormat, mBuffer->data(), mBuffer->size())) {
+                ALOGW("Creating dummy AVC format for scrambled content");
                 mFormat = new MetaData;
                 mFormat->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_AVC);
                 mFormat->setInt32(kKeyWidth, 1280);
@@ -1167,7 +1171,12 @@ sp<ABuffer> ElementaryStreamQueue::dequeueAccessUnitH264() {
             }
 
             if (mFormat == NULL) {
-                mFormat = MakeAVCCodecSpecificData(accessUnit);
+                mFormat = new MetaData;
+                if (!MakeAVCCodecSpecificData(*mFormat,
+                        accessUnit->data(),
+                        accessUnit->size())) {
+                    mFormat.clear();
+                }
             }
 
             if (mSampleDecryptor != NULL && shrunkBytes > 0) {
@@ -1468,7 +1477,7 @@ sp<ABuffer> ElementaryStreamQueue::dequeueAccessUnitMPEGVideo() {
                                     mpegUserData->data() + i * sizeof(size_t),
                                     &userDataPositions[i], sizeof(size_t));
                         }
-                        accessUnit->meta()->setBuffer("mpegUserData", mpegUserData);
+                        accessUnit->meta()->setBuffer("mpeg-user-data", mpegUserData);
                     }
                 }
 

@@ -45,17 +45,21 @@ struct HlsSampleDecryptor : RefBase {
     size_t processNal(uint8_t *nalData, size_t nalSize);
     void processAAC(size_t adtsHdrSize, uint8_t *data, size_t size);
     void processAC3(uint8_t *data, size_t size);
+
 #if ENABLE_SSL
     static AString aesBlockToStr(uint8_t block[AES_BLOCK_SIZE]);
 #endif
+
 private:
     size_t unescapeStream(uint8_t *data, size_t limit) const;
     size_t findNextUnescapeIndex(uint8_t *data, size_t offset, size_t limit) const;
 #if ENABLE_SSL
     status_t decryptBlock(uint8_t *buffer, size_t size, uint8_t AESInitVec[AES_BLOCK_SIZE]);
 #endif
+
     static const int VIDEO_CLEAR_LEAD = 32;
     static const int AUDIO_CLEAR_LEAD = 16;
+
 #if ENABLE_SSL
     AES_KEY mAesKey;
     uint8_t mAESInitVec[AES_BLOCK_SIZE];

@@ -64,7 +64,7 @@ private:
     std::set<uint32_t> mCAPidSet;
 };
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 struct ATSParser::CasManager::ProgramCasManager : public RefBase {
 	ProgramCasManager(unsigned programNumber, const CADescriptor &descriptor);
 	ProgramCasManager(unsigned programNumber);

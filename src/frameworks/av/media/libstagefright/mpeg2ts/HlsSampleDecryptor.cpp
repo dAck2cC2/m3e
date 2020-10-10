@@ -47,6 +47,7 @@ void HlsSampleDecryptor::signalNewSampleAesKey(const sp<AMessage> &sampleAesKeyI
     sp<ABuffer> keyDataBuffer, initVecBuffer;
     sampleAesKeyItem->findBuffer("keyData", &keyDataBuffer);
     sampleAesKeyItem->findBuffer("initVec", &initVecBuffer);
+
 #if ENABLE_SSL
     if (keyDataBuffer != NULL && keyDataBuffer->size() == AES_BLOCK_SIZE &&
         initVecBuffer != NULL && initVecBuffer->size() == AES_BLOCK_SIZE) {
@@ -85,6 +86,7 @@ size_t HlsSampleDecryptor::processNal(uint8_t *nalData, size_t nalSize) {
         ALOGV("processNal[%d]: (%p)/%zu Skipping due to invalid key", nalType, nalData, nalSize);
         return nalSize;
     }
+
 #if ENABLE_SSL
     bool isEncrypted = (nalSize > VIDEO_CLEAR_LEAD + AES_BLOCK_SIZE);
     ALOGV("processNal[%d]: (%p)/%zu isEncrypted: %d", nalType, nalData, nalSize, isEncrypted);
@@ -140,6 +142,7 @@ size_t HlsSampleDecryptor::processNal(uint8_t *nalData, size_t nalSize) {
         ALOGV("processNal[%d]: Unencrypted NALU  (%p)/%zu", nalType, nalData, nalSize);
     }
 #endif
+
     return nalSize;
 }
 
@@ -153,6 +156,7 @@ void HlsSampleDecryptor::processAAC(size_t adtsHdrSize, uint8_t *data, size_t si
     // ADTS header is included in the size
     size_t offset = adtsHdrSize;
     size_t remainingBytes = size - adtsHdrSize;
+
 #if ENABLE_SSL
     bool isEncrypted = (remainingBytes >= AUDIO_CLEAR_LEAD + AES_BLOCK_SIZE);
     ALOGV("processAAC: header: %zu data: %p(%zu) isEncrypted: %d",
@@ -202,6 +206,7 @@ void HlsSampleDecryptor::processAAC(size_t adtsHdrSize, uint8_t *data, size_t si
               size, adtsHdrSize, remainingBytes);
     }
 #endif
+
 }
 
 void HlsSampleDecryptor::processAC3(uint8_t *data, size_t size) {
@@ -210,6 +215,7 @@ void HlsSampleDecryptor::processAC3(uint8_t *data, size_t size) {
         ALOGV("processAC3: (%p)/%zu Skipping due to invalid key", data, size);
         return;
     }
+
 #if ENABLE_SSL
     bool isEncrypted = (size >= AUDIO_CLEAR_LEAD + AES_BLOCK_SIZE);
     ALOGV("processAC3 %p(%zu) isEncrypted: %d", data, size, isEncrypted);
@@ -302,6 +308,7 @@ size_t HlsSampleDecryptor::findNextUnescapeIndex(uint8_t *data, size_t offset, s
     }
     return limit;
 }
+
 #if ENABLE_SSL
 status_t HlsSampleDecryptor::decryptBlock(uint8_t *buffer, size_t size,
         uint8_t AESInitVec[AES_BLOCK_SIZE]) {
@@ -335,5 +342,6 @@ AString HlsSampleDecryptor::aesBlockToStr(uint8_t block[AES_BLOCK_SIZE]) {
     return result;
 }
 #endif
+
 
 }  // namespace android

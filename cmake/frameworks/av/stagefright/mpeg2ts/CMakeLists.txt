@@ -1,4 +1,4 @@
-project(STAGEFRIGHT_MPEG2TS)
+project(STAGEFRIGHT_MPEG2SUPPORT)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
@@ -8,6 +8,8 @@ include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/media_plugin/include.cmake)
+
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaextractor/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioclient/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaplayerservice/include.cmake)
@@ -28,9 +30,7 @@ ${SOURCE_PATH}/AnotherPacketSource.cpp
 ${SOURCE_PATH}/ATSParser.cpp   
 ${SOURCE_PATH}/CasManager.cpp             
 ${SOURCE_PATH}/ESQueue.cpp               
-${SOURCE_PATH}/HlsSampleDecryptor.cpp 
-${SOURCE_PATH}/MPEG2PSExtractor.cpp      
-${SOURCE_PATH}/MPEG2TSExtractor.cpp      
+${SOURCE_PATH}/HlsSampleDecryptor.cpp     
 )
 
 # target files
@@ -39,7 +39,7 @@ if(LINUX)
 else()
     set(LIB_TYPE STATIC)
 endif()
-set(LIB_NAME stagefright_mpeg2ts)
+set(LIB_NAME stagefright_mpeg2support)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
 add_library(${LIB_NAME} ${LIB_TYPE} ${${PROJECT_NAME}_SOURCE_FILES} ${${PROJECT_NAME}_HEADER_FILES})
 target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_DEPLIB})
