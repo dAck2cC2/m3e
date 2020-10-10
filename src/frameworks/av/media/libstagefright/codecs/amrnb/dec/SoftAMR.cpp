@@ -24,6 +24,8 @@
 #include "pvamrwbdecoder.h"
 
 #include <media/stagefright/foundation/ADebug.h>
+
+// M3E: add
 #include <media/stagefright/foundation/AMessage.h>
 
 namespace android {

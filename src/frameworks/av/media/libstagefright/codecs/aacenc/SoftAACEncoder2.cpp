@@ -738,6 +738,7 @@ android::SoftOMXComponent *createSoftOMXComponent(
     return new android::SoftAACEncoder2(name, callbacks, appData, component);
 }
 
+// M3E:
 #if defined(_MSC_VER)
 #ifdef __cplusplus
 extern "C"

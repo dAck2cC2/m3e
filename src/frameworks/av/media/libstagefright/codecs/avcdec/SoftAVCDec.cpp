@@ -29,7 +29,7 @@
 #include <OMX_VideoExt.h>
 #include <inttypes.h>
 
-
+// M3E:
 #if defined(__APPLE__) || defined(_MSC_VER)
 #include <stdlib.h>
 #include <stdint.h>
@@ -116,7 +116,7 @@ static void ivd_aligned_free(void *ctxt, void *buf) {
 
 static size_t GetCPUCoreCount() {
     long cpuCoreCount = 1;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	// use default value of 1;
 #elif defined(_SC_NPROCESSORS_ONLN)
     cpuCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
@@ -184,7 +184,7 @@ status_t SoftAVC::setParams(size_t stride) {
 status_t SoftAVC::resetPlugin() {
     mIsInFlush = false;
     mReceivedEOS = false;
-    mInputOffset = 0;
+
     memset(mTimeStamps, 0, sizeof(mTimeStamps));
     memset(mTimeStampsValid, 0, sizeof(mTimeStampsValid));
 
@@ -317,7 +317,6 @@ status_t SoftAVC::initDecoder() {
 }
 
 status_t SoftAVC::deInitDecoder() {
-    size_t i;
     IV_API_CALL_STATUS_T status;
 
     if (mCodecCtx) {
@@ -347,6 +346,7 @@ void SoftAVC::onReset() {
     SoftVideoDecoderOMXComponent::onReset();
 
     mSignalledError = false;
+    mInputOffset = 0;
     resetDecoder();
     resetPlugin();
 }
@@ -463,7 +463,6 @@ void SoftAVC::onPortFlushCompleted(OMX_U32 portIndex) {
             ivd_video_decode_ip_t s_dec_ip;
             ivd_video_decode_op_t s_dec_op;
             IV_API_CALL_STATUS_T status;
-            size_t sizeY, sizeUV;
 
             setDecodeArgs(&s_dec_ip, &s_dec_op, NULL, NULL, 0);
 
@@ -478,7 +477,8 @@ void SoftAVC::onPortFlushCompleted(OMX_U32 portIndex) {
             free(mFlushOutBuffer);
             mFlushOutBuffer = NULL;
         }
-
+    } else {
+        mInputOffset = 0;
     }
 }
 
@@ -574,7 +574,6 @@ void SoftAVC::onQueueFilled(OMX_U32 portIndex) {
             ivd_video_decode_ip_t s_dec_ip;
             ivd_video_decode_op_t s_dec_op;
             nsecs_t timeDelay, timeTaken;
-            size_t sizeY, sizeUV;
 
             if (!setDecodeArgs(&s_dec_ip, &s_dec_op, inHeader, outHeader, timeStampIx)) {
                 ALOGE("Decoder arg setup failed");
@@ -737,6 +736,7 @@ android::SoftOMXComponent *createSoftOMXComponent(
     return new android::SoftAVC(name, callbacks, appData, component);
 }
 
+// M3E:
 #if defined(_MSC_VER)
 #ifdef __cplusplus
 extern "C"

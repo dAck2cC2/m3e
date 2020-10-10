@@ -25,6 +25,7 @@
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/hexdump.h>
 
+// M3E:
 #include <media/stagefright/foundation/AMessage.h>
 
 namespace android {
@@ -429,6 +430,7 @@ android::SoftOMXComponent *createSoftOMXComponent(
     return new android::SoftAMRNBEncoder(name, callbacks, appData, component);
 }
 
+// M3E:
 #if defined(_MSC_VER)
 #ifdef __cplusplus
 extern "C"

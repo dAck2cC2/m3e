@@ -25,6 +25,7 @@
 
 #include "include/pvmp3decoder_api.h"
 
+// M3E: add
 #include <media/stagefright/foundation/AMessage.h>
 
 namespace android {
@@ -492,6 +493,7 @@ android::SoftOMXComponent *createSoftOMXComponent(
     return new android::SoftMP3(name, callbacks, appData, component);
 }
 
+// M3E:
 #if defined(_MSC_VER)
 #ifdef __cplusplus
 extern "C"
