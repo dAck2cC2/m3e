@@ -34,7 +34,12 @@ static const struct {
     const char *mRole;
 
 } kComponents[] = {
+    // two choices for aac decoding.
+    // configurable in media/libstagefright/data/media_codecs_google_audio.xml
+    // default implementation
     { "OMX.google.aac.decoder", "aacdec", "audio_decoder.aac" },
+    // alternate implementation
+    { "OMX.google.xaac.decoder", "xaacdec", "audio_decoder.aac" },
     { "OMX.google.aac.encoder", "aacenc", "audio_encoder.aac" },
     { "OMX.google.amrnb.decoder", "amrdec", "audio_decoder.amrnb" },
     { "OMX.google.amrnb.encoder", "amrnbenc", "audio_encoder.amrnb" },
@@ -81,6 +86,12 @@ OMX_ERRORTYPE SoftOMXPlugin::makeComponentInstance(
             continue;
         }
 
+#if 0 // M3E:
+        AString libName = "libstagefright_soft_";
+        libName.append(kComponents[i].mLibNameSuffix);
+        libName.append(".so");
+#else // M3E:
+
 #if defined(__APPLE__)
         const char* prefix  = "libstagefright_soft_";
         const char* extname = ".dylib";
@@ -94,6 +105,8 @@ OMX_ERRORTYPE SoftOMXPlugin::makeComponentInstance(
         AString libName = prefix;
 		libName.append(kComponents[i].mLibNameSuffix);
 		libName.append(extname);
+
+#endif  // M3E:
 
         // RTLD_NODELETE means we keep the shared library around forever.
         // this eliminates thrashing during sequences like loading soundpools.
@@ -116,12 +129,12 @@ OMX_ERRORTYPE SoftOMXPlugin::makeComponentInstance(
 
             return OMX_ErrorComponentNotFound;
         }
-#if defined(_MSC_VER)
+
+#if defined(_MSC_VER) // M3E:
 		OMXComponent* androidOMXComponent = (OMXComponent *)GetProcAddress((HMODULE)libHandle, ANDROID_OMX_COMPOENET_SYM_AS_STR);
 		if (androidOMXComponent == NULL) {
 			dlclose(libHandle);
 			libHandle = NULL;
-
 			return OMX_ErrorComponentNotFound;
 		}
 		CreateSoftOMXComponentFunc createSoftOMXComponent = androidOMXComponent->create;
@@ -136,6 +149,7 @@ OMX_ERRORTYPE SoftOMXPlugin::makeComponentInstance(
                     "_Z22createSoftOMXComponentPKcPK16OMX_CALLBACKTYPE"
                     "PvPP17OMX_COMPONENTTYPE");
 #endif
+
         if (createSoftOMXComponent == NULL) {
             dlclose(libHandle);
             libHandle = NULL;

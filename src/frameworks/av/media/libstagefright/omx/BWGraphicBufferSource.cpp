@@ -24,6 +24,7 @@
 #include <media/OMXBuffer.h>
 #include <media/IOMX.h>
 
+// M3E: add
 #include <media/stagefright/foundation/AMessage.h>
 
 namespace android {
@@ -57,9 +58,9 @@ struct BWGraphicBufferSource::BWOmxNodeWrapper : public IOmxNodeWrapper {
 };
 
 struct BWGraphicBufferSource::BWOMXBufferSource : public BnOMXBufferSource {
-    sp<GraphicBufferSource> mSource;
+    sp<OmxGraphicBufferSource> mSource;
 
-    BWOMXBufferSource(const sp<GraphicBufferSource> &source): mSource(source) {
+    BWOMXBufferSource(const sp<OmxGraphicBufferSource> &source): mSource(source) {
     }
 
     Status onOmxExecuting() override {
@@ -85,7 +86,7 @@ struct BWGraphicBufferSource::BWOMXBufferSource : public BnOMXBufferSource {
 };
 
 BWGraphicBufferSource::BWGraphicBufferSource(
-        sp<GraphicBufferSource> const& base) :
+        sp<OmxGraphicBufferSource> const& base) :
     mBase(base),
     mOMXBufferSource(new BWOMXBufferSource(base)) {
 }
