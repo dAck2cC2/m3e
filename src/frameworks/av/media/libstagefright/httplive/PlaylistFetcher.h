@@ -19,7 +19,7 @@
 #define PLAYLIST_FETCHER_H_
 
 #include <media/stagefright/foundation/AHandler.h>
-#if ENABLE_SSL
+#if ENABLE_SSL // M3E:
 #include <openssl/aes.h>
 #endif
 

@@ -23,6 +23,7 @@
 #include <cutils/properties.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/AMessage.h>
+#include <media/stagefright/foundation/ByteUtils.h>
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MediaErrors.h>
 #include <media/stagefright/Utils.h>
@@ -486,6 +487,9 @@ static bool MakeURL(const char *baseURL, const char *url, AString *out) {
             && strncasecmp("https://", baseURL, 8)
             && strncasecmp("file://", baseURL, 7)) {
         // Base URL must be absolute
+        return false;
+    }
+    if (!strncasecmp("data:", url, 5)) {
         return false;
     }
     const size_t schemeEnd = (strstr(baseURL, "//") - baseURL) + 2;
