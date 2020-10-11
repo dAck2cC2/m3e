@@ -20,14 +20,19 @@ public:
 	{
 		ALOGI("Get service : %s, %s", fqName.c_str(), name.c_str());
 
+		::std::string strName(name.c_str());
+		::std::string strFQ(fqName.c_str());
+		::std::string strFull = strName + "@" + strFQ;
+		::android::hardware::hidl_string fullName(strFull.c_str());
+
 		::android::AutoMutex _l(mLockAPI);
 
-		if (mServices.indexOfKey(fqName) < 0) {
-			ALOGE("No service of %s", fqName.c_str());
+		if (mServices.indexOfKey(fullName) < 0) {
+			ALOGE("No service of %s", fullName.c_str());
 			return nullptr;
 		}
 
-		return mServices.valueFor(fqName);;
+		return mServices.valueFor(fullName);;
 	} // get
 
 	virtual ::android::hardware::Return<bool> add(const ::android::hardware::hidl_string& name, const ::android::sp<::android::hidl::base::V1_0::IBase>& service) override
@@ -47,11 +52,16 @@ public:
 				fqName = descriptors[0];
 			});
 
+		::std::string strName(name.c_str());
+		::std::string strFQ(fqName.c_str());
+		::std::string strFull = strName + "@" + strFQ;
+		::android::hardware::hidl_string fullName(strFull.c_str());
+
 		::android::AutoMutex _l(mLockAPI);
 
-		LOG_ALWAYS_FATAL_IF((mServices.indexOfKey(fqName) >= 0), "service of %s already exists", fqName.c_str());
+		LOG_ALWAYS_FATAL_IF((mServices.indexOfKey(fullName) >= 0), "service of %s already exists", fullName.c_str());
 
-		if (mServices.add(fqName, service) < 0) {
+		if (mServices.add(fullName, service) < 0) {
 			LOG_ALWAYS_FATAL("failed to add service");
 			return false;
 		}
