@@ -48,11 +48,9 @@ ${HEADER_PATH}/*.h
 )
 
 set(${PROJECT_NAME}_SOURCE_FILES
-${SOURCE_PATH}/MediaCodecService.cpp
 ${SOURCE_PATH}/main_mediacodecservice.cpp
 )
 
 # target files
 set(LIB_TYPE SHARED)
-set(LIB_NAME mediacodecservice_default)
 ADD_LIB(mediacodecservice_default)
