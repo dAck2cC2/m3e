@@ -13,6 +13,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaextractor/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
@@ -35,6 +36,7 @@ ${HEADER_PATH}/*.h
 
 set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/MediaExtractorService.cpp
+#${SOURCE_PATH}/MediaExtractorUpdateService.cpp
 ${SOURCE_PATH}/main_mediaextractorservice.cpp
 )
 
