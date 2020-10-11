@@ -48,12 +48,18 @@ source_group(android.hardware.graphics.composer@2.1 FILES ${HWCOMPOSER_SOURCE})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${HWCOMPOSER_SOURCE})
 
 # android.hidl.allocator@1.0
-file(GLOB ALLOCATOR_SOURCE ${SOURCE_PATH}/hidl/allocator/1.0/*.h)
+file(GLOB ALLOCATOR_SOURCE 
+${SOURCE_PATH}/hidl/allocator/1.0/*.h
+${SOURCE_PATH}/hidl/allocator/1.0/*.cpp
+)
 source_group(android.hidl.allocator@1.0 FILES ${ALLOCATOR_SOURCE})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${ALLOCATOR_SOURCE})
 
 # android.hidl.memroy@1.0
-file(GLOB MEMORY_SOURCE ${SOURCE_PATH}/hidl/memory/1.0/*.h)
+file(GLOB MEMORY_SOURCE 
+${SOURCE_PATH}/hidl/memory/1.0/*.h 
+${SOURCE_PATH}/hidl/memory/1.0/*.cpp
+)
 source_group(android.hidl.memroy@1.0 FILES ${MEMORY_SOURCE})
 list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${MEMORY_SOURCE})
 

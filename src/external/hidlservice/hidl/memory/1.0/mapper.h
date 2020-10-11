@@ -16,7 +16,7 @@ using ImplMemory1_0 = ::android::hidl::memory::V1_0::implement::Memory;
 struct Mapper : public IMapper {
     virtual ::android::hardware::Return<::android::sp<::android::hidl::memory::V1_0::IMemory>> mapMemory(const ::android::hardware::hidl_memory& mem) override
     {
-        return new ImplMemory1_0(mem.size());
+        return new ImplMemory1_0(mem);
     };
 }; // Mapper
 

@@ -299,22 +299,6 @@ index 352cbaf..a9bb810 100644
  sp<android::hidl::memory::V1_0::IMemory> mapMemory(const hidl_memory &memory);
  
  }  // namespace hardware
-diff --git a/libhidlmemory/mapping.cpp b/libhidlmemory/mapping.cpp
-index 8f0bcf4..1a178b1 100644
---- a/libhidlmemory/mapping.cpp
-+++ b/libhidlmemory/mapping.cpp
-@@ -43,7 +43,11 @@ static inline sp<IMapper> getMapperService(const std::string& name) {
-         return iter->second;
-     }
- 
-+#if 0 // M3E:
-     sp<IMapper> mapper = IMapper::getService(name, true /* getStub */);
-+#else
-+	sp<IMapper> mapper;
-+#endif
-     if (mapper != nullptr) {
-         gMappersByName[name] = mapper;
-     }
 diff --git a/transport/HidlTransportUtils.cpp b/transport/HidlTransportUtils.cpp
 index 4e952eb..e9eea75 100644
 --- a/transport/HidlTransportUtils.cpp

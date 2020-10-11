@@ -80,7 +80,7 @@ int open_hidlservice(const struct hw_module_t* module, const char* id,
 		gAllocator = new ImplAllocator1_0();
 		LOG_ALWAYS_FATAL_IF((gComposer == NULL), "Cannot create hidl alllocator !");
 
-		if (gAllocator->registerAsService() != ::android::OK) {
+		if (gAllocator->registerAsService("ashmem") != ::android::OK) {
 			LOG_ALWAYS_FATAL("Cannot register hidl allocator. ");
 		}
 	}
@@ -89,11 +89,15 @@ int open_hidlservice(const struct hw_module_t* module, const char* id,
 		gMapper = new ImplMapper1_0();
 		LOG_ALWAYS_FATAL_IF((gMapper == NULL), "Cannot create hidl alllocator !");
 
-		if (gMapper->registerAsService() != ::android::OK) {
+		if (gMapper->registerAsService("ashmem") != ::android::OK) {
 			LOG_ALWAYS_FATAL("Cannot register hidl allocator. ");
 		}
 	}
 
+    if (device != NULL) {
+        (*device) = &DEV;
+    }
+    
 	return OK;
 }
 

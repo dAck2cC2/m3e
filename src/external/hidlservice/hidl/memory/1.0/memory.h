@@ -13,21 +13,8 @@ using namespace ::android::hidl::memory::V1_0;
 
 struct Memory : public IMemory {
 public:
-	explicit Memory(uint64_t size) : mSize(size) , mPointer(nullptr)
-	{
-		if (mSize > 0) {
-			mPointer = new uint8_t[mSize];
-			memset(mPointer, 0x00, mSize);
-		}
-	};
-
-	virtual ~Memory()
-	{
-		if (mPointer) {
-			delete[] mPointer;
-			mPointer = nullptr;
-		}
-	};
+	explicit Memory(android::hardware::hidl_memory);
+	virtual ~Memory();
 
 	virtual ::android::hardware::Return<void> update() override 
 	{
@@ -64,8 +51,9 @@ public:
 		return mSize;
 	};
 private:
-	uint64_t mSize;
-	void* mPointer;
+    int       mToken;
+	uint64_t  mSize;
+	void*     mPointer;
 }; // Memory
 
 }  // namespace implement
