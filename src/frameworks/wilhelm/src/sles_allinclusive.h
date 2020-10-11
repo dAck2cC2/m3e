@@ -299,8 +299,8 @@ extern SLresult checkInterfaces(const ClassTable *clazz,
     const SLboolean *pInterfaceRequired, unsigned *pExposedMask, unsigned *pRequiredMask);
 extern IObject *construct(const ClassTable *clazz,
     unsigned exposedMask, SLEngineItf engine);
-LI_API extern const ClassTable *objectIDtoClass(SLuint32 objectID);
-LI_API extern const struct SLInterfaceID_ SL_IID_array[MPH_MAX];
+LI_API extern const ClassTable *objectIDtoClass(SLuint32 objectID); // M3E:
+LI_API extern const struct SLInterfaceID_ SL_IID_array[MPH_MAX]; // M3E:
 extern SLuint32 IObjectToObjectID(IObject *object);
 extern void IObject_Publish(IObject *thiz);
 extern void IObject_Destroy(SLObjectItf self);
@@ -385,7 +385,7 @@ extern void *sync_start(void *arg);
 #endif
 extern SLresult err_to_result(int err);
 
-#if defined(__GNUC__) || defined(_MSC_VER)
+#if defined(__GNUC__) || defined(_MSC_VER) // M3E:
 #define ctz __builtin_ctz
 #else
 extern unsigned ctz(unsigned);

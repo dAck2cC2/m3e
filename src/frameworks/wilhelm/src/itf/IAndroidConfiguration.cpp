@@ -21,7 +21,7 @@
 #include "sles_allinclusive.h"
 #include <SLES/OpenSLES_Android.h>
 
-#if ENABLE_ANDROID_RT
+#if ENABLE_ANDROID_RT // M3E:
 #include <android_runtime/AndroidRuntime.h>
 #endif
 
@@ -90,6 +90,7 @@ static SLresult IAndroidConfiguration_GetConfiguration(SLAndroidConfigurationItf
         case SL_OBJECTID_AUDIOPLAYER:
             result = android_audioPlayer_getConfig((CAudioPlayer *) thiz->mThis, configKey,
                     pValueSize, pConfigValue);
+            break;
         default:
             result = SL_RESULT_FEATURE_UNSUPPORTED;
             break;
@@ -149,7 +150,7 @@ static SLresult AllocPlayerRoutingProxy(IAndroidConfiguration* iConfig, jobject*
     IObject* configObj = iConfig->mThis;                // get corresponding object
     android::AudioTrack* pAudioTrack = ((CAudioPlayer*)configObj)->mTrackPlayer->mAudioTrack.get();
 
-#if ENABLE_ANDROID_RT
+#if ENABLE_ANDROID_RT // M3E:
     JNIEnv* j_env = android::AndroidRuntime::getJNIEnv();
 
     // Get the constructor for (Java) AudioTrackRoutingProxy
@@ -176,6 +177,7 @@ static SLresult AllocPlayerRoutingProxy(IAndroidConfiguration* iConfig, jobject*
         result = SL_RESULT_SUCCESS;
     }
 #endif
+
     return result;
 }
 
@@ -225,7 +227,8 @@ static SLresult AllocRecorderRoutingProxy(IAndroidConfiguration* iConfig, jobjec
 
     IObject* configObj = iConfig->mThis;                  // get corresponding object
     android::AudioRecord* pAudioRecord = ((CAudioRecorder*)configObj)->mAudioRecord.get();
-#if ENABLE_ANDROID_RT
+
+#if ENABLE_ANDROID_RT // M3E:
     JNIEnv* j_env = android::AndroidRuntime::getJNIEnv();
 
     // Get the constructor for (Java) AudioRecordRoutingProxy
@@ -250,6 +253,7 @@ static SLresult AllocRecorderRoutingProxy(IAndroidConfiguration* iConfig, jobjec
         result = SL_RESULT_SUCCESS;
     }
 #endif
+
     return result;
 }
 
@@ -332,7 +336,7 @@ static SLresult IAndroidConfiguration_ReleaseJavaProxy(SLAndroidConfigurationItf
         switch (objID) {
         case SL_OBJECTID_AUDIOPLAYER:
             {
-#if ENABLE_ANDROID_RT
+#if ENABLE_ANDROID_RT // M3E:
                 JNIEnv* j_env = android::AndroidRuntime::getJNIEnv();
 
                 // Get the release method for (Java) AudioTrackRoutingProxy
@@ -355,7 +359,7 @@ static SLresult IAndroidConfiguration_ReleaseJavaProxy(SLAndroidConfigurationItf
 
         case SL_OBJECTID_AUDIORECORDER:
             {
-#if ENABLE_ANDROID_RT
+#if ENABLE_ANDROID_RT // M3E:
                 JNIEnv* j_env = android::AndroidRuntime::getJNIEnv();
 
                 // Get the release method for (Java) AudioTrackRoutingProxy

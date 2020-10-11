@@ -22,10 +22,12 @@
 #include <media/IStreamSource.h>
 #include <media/IMediaPlayerService.h>
 #include <media/stagefright/foundation/ADebug.h>
+#include <media/stagefright/foundation/MediaKeys.h>
 #include <binder/IPCThreadState.h>
 
 #include <ATSParser.h>
 
+// M3E: add
 #include <CasManager.h>
 #include <android/hardware/cas/native/1.0/IDescrambler.h>
 
@@ -162,21 +164,21 @@ void StreamSourceAppProxy::pullFromBuffQueue() {
                 receivedCmd_l(IStreamListener::DISCONTINUITY);
             } else if (oldFront->mItems.mTsCmdData.mTsCmdCode & ANDROID_MP2TSEVENT_DISCON_NEWPTS) {
                 sp<AMessage> msg = new AMessage();
-                msg->setInt64(IStreamListener::kKeyResumeAtPTS,
+                msg->setInt64(kATSParserKeyResumeAtPTS,
                         (int64_t)oldFront->mItems.mTsCmdData.mPts);
                 receivedCmd_l(IStreamListener::DISCONTINUITY, msg /*msg*/);
             } else if (oldFront->mItems.mTsCmdData.mTsCmdCode
                     & ANDROID_MP2TSEVENT_FORMAT_CHANGE_FULL) {
                 sp<AMessage> msg = new AMessage();
                 msg->setInt32(
-                        IStreamListener::kKeyDiscontinuityMask,
+                        kIStreamListenerKeyDiscontinuityMask,
                         ATSParser::DISCONTINUITY_FORMATCHANGE);
                 receivedCmd_l(IStreamListener::DISCONTINUITY, msg /*msg*/);
             } else if (oldFront->mItems.mTsCmdData.mTsCmdCode
                     & ANDROID_MP2TSEVENT_FORMAT_CHANGE_VIDEO) {
                 sp<AMessage> msg = new AMessage();
                 msg->setInt32(
-                        IStreamListener::kKeyDiscontinuityMask,
+                        kIStreamListenerKeyDiscontinuityMask,
                         ATSParser::DISCONTINUITY_VIDEO_FORMAT);
                 receivedCmd_l(IStreamListener::DISCONTINUITY, msg /*msg*/);
             }

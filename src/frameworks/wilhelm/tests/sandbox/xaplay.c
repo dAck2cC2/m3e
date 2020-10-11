@@ -27,8 +27,11 @@
 #include <unistd.h>
 #include <OMXAL/OpenMAXAL.h>
 #include <OMXAL/OpenMAXAL_Android.h>
-//#include "nativewindow.h"
+#if 0 // M3E:
+#include "nativewindow.h"
+#endif
 
+// M3E: add
 #include "initrc/initrc.h"
 
 #define MPEG2TS_PACKET_SIZE 188  // MPEG-2 transport stream packet size in bytes
@@ -313,12 +316,13 @@ int main(int argc, char **argv)
     }
     const char *uri = argv[i];
 
-	InitRC_entry(argc, argv);
+    // M3E: init
+    InitRC_entry(argc, argv);
 
     // for AndroidBufferQueue, interpret URI as a filename and open
     int fd = -1;
     if (abq) {
-#if defined(__linux__)
+#if defined(__linux__) // M3E:
         fd = open(uri, O_RDONLY);
         if (fd < 0) {
             perror(uri);

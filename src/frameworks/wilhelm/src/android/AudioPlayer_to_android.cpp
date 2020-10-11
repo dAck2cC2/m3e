@@ -22,7 +22,7 @@
 #include "android/include/AacBqToPcmCbRenderer.h"
 #include "android/channels.h"
 
-#if ENABLE_ANDROID_RT
+#if ENABLE_ANDROID_RT // M3E:
 #include <android_runtime/AndroidRuntime.h>
 #endif
 #include <binder/IServiceManager.h>
@@ -37,7 +37,7 @@
 #include <system/audio.h>
 #include <SLES/OpenSLES_Android.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #define _USE_MATH_DEFINES
 #include <math.h>
 #endif
@@ -1721,7 +1721,8 @@ SLresult android_audioPlayer_realize(CAudioPlayer *pAudioPlayer, SLboolean async
 
         // This use case does not have a separate "prepare" step
         pAudioPlayer->mAndroidObjState = ANDROID_READY;
-#if ENABLE_ANDROID_RT
+
+#if ENABLE_ANDROID_RT // M3E:
         // If there is a JavaAudioRoutingProxy associated with this player, hook it up...
         JNIEnv* j_env = NULL;
         jclass clsAudioTrack = NULL;
@@ -1774,10 +1775,10 @@ SLresult android_audioPlayer_realize(CAudioPlayer *pAudioPlayer, SLboolean async
                     }
                     // attempt to open it as a file using the application's credentials
                     int fd = ::open(pathname, 
-#ifdef O_BINARY
+#ifdef O_BINARY // M3E:
 						O_BINARY |
 #endif
-						O_RDONLY );
+						O_RDONLY);
                     if (fd >= 0) {
                         // if open is successful, then check to see if it's a regular file
                         struct stat statbuf;
@@ -1814,7 +1815,8 @@ SLresult android_audioPlayer_realize(CAudioPlayer *pAudioPlayer, SLboolean async
         } else {
             pAudioPlayer->mPIId = pAudioPlayer->mObject.mEngine->mAudioManager->trackPlayer(
                     android::PLAYER_TYPE_SLES_AUDIOPLAYER_URI_FD,
-                    usageForStreamType(pAudioPlayer->mStreamType), AUDIO_CONTENT_TYPE_UNKNOWN, 0);
+                    usageForStreamType(pAudioPlayer->mStreamType), AUDIO_CONTENT_TYPE_UNKNOWN,
+                    pAudioPlayer->mTrackPlayer);
         }
         }
         break;

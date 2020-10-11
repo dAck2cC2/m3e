@@ -34,6 +34,7 @@
 #include "OpenSLESUT.h"
 #include <gtest/gtest.h>
 
+// M3E:
 #include <sys/time.h>
 #include <initrc/initrc.h>
 
@@ -462,7 +463,9 @@ TEST_F(TestBufferQueue, testStatePlayBuffer){
 }
 
 int main(int argc, char **argv) {
-	InitRC_entry(argc, argv);
+    // M3E: init
+    InitRC_entry(argc, argv);
+
     testing::InitGoogleTest(&argc, argv);
 #if 1   // temporary workaround if hardware volume control is not working
     const char *VOLUME = getenv("BufferQueue_test_VOLUME");

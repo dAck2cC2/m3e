@@ -19,6 +19,7 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 
+// M3E: add
 #include <cutils/threads.h> // gettid()
 
 //--------------------------------------------------------------------------------------------------

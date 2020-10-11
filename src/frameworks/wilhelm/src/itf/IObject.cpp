@@ -18,7 +18,7 @@
 
 #include "sles_allinclusive.h"
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #  if defined(interface)
 #    undef interface
 #  endif

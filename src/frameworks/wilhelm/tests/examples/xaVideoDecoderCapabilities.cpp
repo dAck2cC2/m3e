@@ -24,6 +24,7 @@
 #include <OMXAL/OpenMAXAL.h>
 #include <OMXAL/OpenMAXAL_Android.h> // for VP8 definitions
 
+// M3E:
 #include <initrc/initrc.h>
 
 #define NUM_ENGINE_INTERFACES 1
@@ -302,7 +303,8 @@ destroyRes:
 //-----------------------------------------------------------------
 int main(int argc __unused, char* const argv[])
 {
-	InitRC_entry(argc, (char**)argv);
+    // M3E: init	
+    InitRC_entry(argc, (char**)argv);
 
     fprintf(stdout, "OpenMAX AL test %s: exercises SLAudioDecoderCapabiltiesItf ", argv[0]);
     fprintf(stdout, "and displays the list of supported video decoders, and for each, lists the ");

@@ -79,7 +79,7 @@ bool android_videoCodec_expose() {
 
             sp<MediaCodecInfo> info = list->getCodecInfo(index);
             if (info == NULL || MediaCodecList::isSoftwareCodec(info->getCodecName())) {
-#if !TODO
+#if 1 // M3E:
 				// we only have SW codec currently
 				if (info == NULL)
 #endif

@@ -37,7 +37,7 @@ typedef union {
 typedef union {
     SLuint32 mFormatType;
     SLDataFormat_PCM mPCM;
-#ifdef ANDROID
+#ifdef ANDROID // M3E:
     SLAndroidDataFormat_PCM_EX mPCMEx;
 #endif
     SLDataFormat_MIME mMIME;

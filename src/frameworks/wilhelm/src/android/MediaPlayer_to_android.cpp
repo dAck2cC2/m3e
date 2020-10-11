@@ -25,7 +25,7 @@
 #include "android_LocAVPlayer.h"
 #include "android_StreamPlayer.h"
 
-#if defined(_MSC_VER) 
+#if defined(_MSC_VER) // M3E:
 #  if defined(NO_ERROR)
 #    undef NO_ERROR
 #  endif

@@ -16,6 +16,7 @@
 
 #include "sles_allinclusive.h"
 
+// M3E:
 #if defined(__linux__) || defined(__APPLE__)
 #define pthread_gettid_np(a) (-1)
 #endif

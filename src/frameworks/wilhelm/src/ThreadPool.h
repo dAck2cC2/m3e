@@ -80,7 +80,7 @@ typedef struct {
 #else // !ANDROID
 #define THREAD_TYPICAL 4
 #endif
-#if THREAD_TYPICAL
+#if THREAD_TYPICAL // M3E:
     pthread_t mThreadTypical[THREAD_TYPICAL];
 #else
 	pthread_t* mThreadTypical;

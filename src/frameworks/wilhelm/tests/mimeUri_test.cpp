@@ -41,7 +41,9 @@
 #define LOG_TAG "slesTestPlayUri"
 
 #include <utils/Log.h>
-//#include <getopt.h>
+#if 0 // M3E:
+#include <getopt.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,6 +52,7 @@
 #include <gtest/gtest.h>
 #include <SLES/OpenSLES.h>
 
+// M3E: init
 #include <initrc/initrc.h>
 
 #define MAX_NUMBER_INTERFACES 3
@@ -228,8 +231,8 @@ void TestPlayUri( SLObjectItf sl, const char* path)
     res = (*playItf)->SetPlayState( playItf, SL_PLAYSTATE_PLAYING );
     CheckErr(res);
 
-	/* Play for the song duration*/
-	usleep(MP3_DURATION * 1000);
+    /* Play for the song duration*/
+    usleep(MP3_DURATION * 1000);
 
     /* Validate the play position*/
     SLmillisecond currentPositionInMsec = SL_TIME_UNKNOWN;
@@ -318,7 +321,9 @@ TEST_F(MimeUri, testPlayfilePath){
 //-----------------------------------------------------------------
 int main(int argc, char **argv)
 {
-	InitRC_entry(argc, argv);
+    // M3E: init
+    InitRC_entry(argc, argv);
+
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

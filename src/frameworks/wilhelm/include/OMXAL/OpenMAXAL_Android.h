@@ -174,6 +174,7 @@ typedef struct XADataLocator_AndroidFD_ {
 #define XA_ANDROID_MIME_MP2TS              ((XAchar *) "video/mp2ts")
 
 
+// M3E: add
  /*---------------------------------------------------------------------------*/
  /* Android Native Window System                                      */
  /*---------------------------------------------------------------------------*/

@@ -16,7 +16,7 @@
 
 /* Engine implementation */
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) // M3E:
 #include <machine/endian.h>
 #else
 #include <endian.h>

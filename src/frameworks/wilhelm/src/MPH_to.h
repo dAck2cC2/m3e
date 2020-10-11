@@ -17,6 +17,7 @@
 #ifndef __MPH_to_H
 #define __MPH_to_H
 
+// M3E:
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS

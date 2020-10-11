@@ -23,7 +23,7 @@
 #include <system/audio.h>
 #include <SLES/OpenSLES_Android.h>
 
-#if ENABLE_ANDROID_RT
+#if ENABLE_ANDROID_RT // M3E:
 #include <android_runtime/AndroidRuntime.h>
 #endif
 
@@ -717,7 +717,7 @@ SLresult android_audioRecorder_realize(CAudioRecorder* ar, SLboolean async) {
     // update performance mode according to actual flags granted to AudioRecord
     checkAndSetPerformanceModePost(ar);
 
-#if ENABLE_ANDROD_RT
+#if ENABLE_ANDROD_RT // M3E:
     // If there is a JavaAudioRoutingProxy associated with this recorder, hook it up...
     JNIEnv* j_env = NULL;
     jclass clsAudioRecord = NULL;

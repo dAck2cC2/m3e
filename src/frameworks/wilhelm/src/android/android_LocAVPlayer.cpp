@@ -41,6 +41,7 @@ LocAVPlayer::~LocAVPlayer() {
 
 }
 
+// M3E:
 #define __BRILLO__  // avoid Java Layer
 
 //--------------------------------------------------
