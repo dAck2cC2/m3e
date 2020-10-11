@@ -18,7 +18,7 @@
 
 #define AUDIO_PLAYER_H_
 
-#include <media/IMediaSource.h>
+#include <media/MediaSource.h>
 #include <MediaPlayerInterface.h> // <media/MediaPlayerInterface.h>
 #include <media/stagefright/MediaBuffer.h>
 #include <utils/threads.h>
@@ -29,7 +29,7 @@ struct AudioPlaybackRate;
 class AudioTrack;
 struct AwesomePlayer;
 
-class ANDROID_API_STAGEFRIGHT AudioPlayer {
+class ANDROID_API_STAGEFRIGHT AudioPlayer { // M3E:
 public:
     enum {
         REACHED_EOS,
@@ -50,7 +50,7 @@ public:
     virtual ~AudioPlayer();
 
     // Caller retains ownership of "source".
-    void setSource(const sp<IMediaSource> &source);
+    void setSource(const sp<MediaSource> &source);
 
     status_t start(bool sourceAlreadyStarted = false);
 
@@ -66,10 +66,10 @@ public:
     status_t getPlaybackRate(AudioPlaybackRate *rate /* nonnull */);
 
 private:
-    sp<IMediaSource> mSource;
+    sp<MediaSource> mSource;
     sp<AudioTrack> mAudioTrack;
 
-    MediaBuffer *mInputBuffer;
+    MediaBufferBase *mInputBuffer;
 
     int mSampleRate;
     int64_t mLatencyUs;
@@ -91,7 +91,7 @@ private:
 
     bool mIsFirstBuffer;
     status_t mFirstBufferResult;
-    MediaBuffer *mFirstBuffer;
+    MediaBufferBase *mFirstBuffer;
 
     sp<MediaPlayerBase::AudioSink> mAudioSink;
 

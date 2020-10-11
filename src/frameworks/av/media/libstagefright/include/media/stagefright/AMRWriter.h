@@ -20,20 +20,17 @@
 
 #include <stdio.h>
 
-#include <media/IMediaSource.h>
 #include <media/stagefright/MediaWriter.h>
 #include <utils/threads.h>
 
 namespace android {
 
-class MetaData;
-
-struct ANDROID_API_STAGEFRIGHT AMRWriter : public MediaWriter {
+struct ANDROID_API_STAGEFRIGHT AMRWriter : public MediaWriter { // M3E:
     AMRWriter(int fd);
 
     status_t initCheck() const;
 
-    virtual status_t addSource(const sp<IMediaSource> &source);
+    virtual status_t addSource(const sp<MediaSource> &source);
     virtual bool reachedEOS();
     virtual status_t start(MetaData *params = NULL);
     virtual status_t stop() { return reset(); }
@@ -45,20 +42,21 @@ protected:
 private:
     int   mFd;
     status_t mInitCheck;
-    sp<IMediaSource> mSource;
+    sp<MediaSource> mSource;
     bool mStarted;
     volatile bool mPaused;
     volatile bool mResumed;
     volatile bool mDone;
     volatile bool mReachedEOS;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	thread_id_t mThread;
 #else
     pthread_t mThread;
 #endif
     int64_t mEstimatedSizeBytes;
     int64_t mEstimatedDurationUs;
-#if defined(_MSC_VER)
+
+#if defined(_MSC_VER) // M3E:
 	static int ThreadWrapper(void *);
 #else
     static void *ThreadWrapper(void *);

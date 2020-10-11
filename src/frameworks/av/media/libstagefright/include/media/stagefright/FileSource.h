@@ -20,14 +20,14 @@
 
 #include <stdio.h>
 
-#include <media/stagefright/DataSource.h>
+#include <media/DataSource.h>
 #include <media/stagefright/MediaErrors.h>
 #include <utils/threads.h>
 #include <drm/DrmManagerClient.h>
 
 namespace android {
 
-class ANDROID_API_STAGEFRIGHT FileSource : public DataSource {
+class ANDROID_API_STAGEFRIGHT FileSource : public DataSource { // M3E: MSVC export
 public:
     FileSource(const char *filename);
     // FileSource takes ownership and will close the fd
@@ -44,8 +44,6 @@ public:
     }
 
     virtual sp<DecryptHandle> DrmInitialization(const char *mime);
-
-    virtual void getDrmInfo(sp<DecryptHandle> &handle, DrmManagerClient **client);
 
     virtual String8 toString() {
         return mName;

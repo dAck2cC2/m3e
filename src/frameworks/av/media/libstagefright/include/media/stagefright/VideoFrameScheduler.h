@@ -26,7 +26,7 @@ namespace android {
 
 class ISurfaceComposer;
 
-struct ANDROID_API_STAGEFRIGHT VideoFrameScheduler : public RefBase {
+struct ANDROID_API_STAGEFRIGHT VideoFrameScheduler : public RefBase { // M3E: MSVC export
     VideoFrameScheduler();
 
     // (re)initialize scheduler

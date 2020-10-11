@@ -30,7 +30,7 @@
 #include <media/stagefright/foundation/AUtils.h>
 #include <media/stagefright/VideoFrameScheduler.h>
 
-#if defined(__linux__)
+#if defined(__linux__) // M3E:
 #include <climits>
 #endif
 

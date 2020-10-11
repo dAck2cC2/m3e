@@ -40,7 +40,8 @@ static bool FileHasAcceptableExtension(const char *extension) {
         ".mpeg", ".ogg", ".mid", ".smf", ".imy", ".wma", ".aac",
         ".wav", ".amr", ".midi", ".xmf", ".rtttl", ".rtx", ".ota",
         ".mkv", ".mka", ".webm", ".ts", ".fl", ".flac", ".mxmf",
-        ".avi", ".mpeg", ".mpg", ".awb", ".mpga", ".mov"
+        ".avi", ".mpeg", ".mpg", ".awb", ".mpga", ".mov",
+        ".m4v", ".oga"
     };
     static const size_t kNumValidExtensions =
         sizeof(kValidExtensions) / sizeof(kValidExtensions[0]);
@@ -62,6 +63,11 @@ MediaScanResult StagefrightMediaScanner::processFile(
     client.setLocale(locale());
     client.beginFile();
     MediaScanResult result = processFileInternal(path, mimeType, client);
+    ALOGV("result: %d", result);
+    if (mimeType == NULL && result != MEDIA_SCAN_RESULT_OK) {
+        ALOGW("media scan failed for %s", path);
+        client.setMimeType("application/octet-stream");
+    }
     client.endFile();
     return result;
 }
@@ -81,7 +87,11 @@ MediaScanResult StagefrightMediaScanner::processFileInternal(
 
     sp<MediaMetadataRetriever> mRetriever(new MediaMetadataRetriever);
 
-    int fd = open(path, O_RDONLY | O_LARGEFILE);
+    int fd = open(path, O_RDONLY
+#if defined(O_LARGEFILE) // M3E:
+                  | O_LARGEFILE
+#endif
+                  );
     status_t status;
     if (fd < 0) {
         // couldn't open it locally, maybe the media server can?

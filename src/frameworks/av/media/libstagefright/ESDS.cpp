@@ -18,13 +18,15 @@
 #define LOG_TAG "ESDS"
 #include <utils/Log.h>
 
-#include <media/stagefright/Utils.h>
+#include <media/stagefright/foundation/ByteUtils.h>
 
 #include "include/ESDS.h"
 
 #include <string.h>
 
+#if defined(_MSC_VER) // M3E:
 #include <media/stagefright/foundation/AMessage.h>
+#endif
 
 namespace android {
 

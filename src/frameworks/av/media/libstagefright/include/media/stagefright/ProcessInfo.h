@@ -23,7 +23,7 @@
 
 namespace android {
 
-struct ANDROID_API_MEDIAUTILS ProcessInfo : public ProcessInfoInterface {
+struct ANDROID_API_MEDIAUTILS ProcessInfo : public ProcessInfoInterface { // M3E: MSVC export
     ProcessInfo();
 
     virtual bool getPriority(int pid, int* priority);

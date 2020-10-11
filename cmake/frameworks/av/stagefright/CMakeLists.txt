@@ -7,6 +7,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/ziparchive/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
@@ -21,6 +22,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/audioprocessing/include.cmak
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaplayerservice/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediametrics/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/mediaextractor/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/xmlparser/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
@@ -71,53 +73,147 @@ set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/ )
 include_directories(AFTER ${HEADER_PATH})
 include_directories(AFTER ${SOURCE_PATH})
 
-# header files
+###############################################################################
+# libstagefright_esds
+set(${PROJECT_NAME}_HEADER_FILES )
+set(${PROJECT_NAME}_SOURCE_FILES )
+
+set(${PROJECT_NAME}_SOURCE_FILES 
+${SOURCE_PATH}/ESDS.cpp
+)
+ADD_LIB(stagefright_esds)
+
+###############################################################################
+# libstagefright_metadatautils
+set(${PROJECT_NAME}_HEADER_FILES )
+set(${PROJECT_NAME}_SOURCE_FILES )
+
+set(${PROJECT_NAME}_SOURCE_FILES 
+${SOURCE_PATH}/MetaDataUtils.cpp
+)
+ADD_LIB(stagefright_metadatautils)
+
+###############################################################################
+# libstagefright_codecbase
+set(${PROJECT_NAME}_HEADER_FILES )
+set(${PROJECT_NAME}_SOURCE_FILES )
+
+set(${PROJECT_NAME}_SOURCE_FILES 
+${SOURCE_PATH}/CodecBase.cpp
+${SOURCE_PATH}/FrameRenderTracker.cpp
+${SOURCE_PATH}/MediaCodecListWriter.cpp
+)
+ADD_LIB(stagefright_codecbase)
+
+###############################################################################
+# libstagefright
+set(${PROJECT_NAME}_HEADER_FILES )
+set(${PROJECT_NAME}_SOURCE_FILES )
+
 file(GLOB STAGEFRIGHT_HEADER_FILES 
 ${HEADER_PATH}/media/stagefright/*.h 
 ${HEADER_PATH}/*.h 
 ${SOURCE_PATH}/*.h 
 )
-
-# source files
-#file(GLOB STAGEFRIGHT_SOURCE_FILES 
-#  ${SOURCE_PATH}/*.cpp
-#)
-set(STAGEFRIGHT_SOURCE_FILES
-${SOURCE_PATH}/avc_utils.cpp
-${SOURCE_PATH}/CallbackDataSource.cpp
-${SOURCE_PATH}/DataSource.cpp
-${SOURCE_PATH}/DataURISource.cpp
-${SOURCE_PATH}/ESDS.cpp
-${SOURCE_PATH}/FileSource.cpp
-${SOURCE_PATH}/HevcUtils.cpp
-${SOURCE_PATH}/http/MediaHTTP.cpp
-${SOURCE_PATH}/HTTPBase.cpp
-${SOURCE_PATH}/NuCachedSource2.cpp
-${SOURCE_PATH}/Utils.cpp
-${SOURCE_PATH}/WAVExtractor.cpp
-${SOURCE_PATH}/MediaSource.cpp
-${SOURCE_PATH}/MediaExtractor_legacy.cpp
+set(${PROJECT_NAME}_SOURCE_FILES 
+${SOURCE_PATH}/ACodec.cpp
+${SOURCE_PATH}/ACodecBufferChannel.cpp
+${SOURCE_PATH}/AACWriter.cpp
+${SOURCE_PATH}/AMRWriter.cpp
 ${SOURCE_PATH}/AudioPlayer.cpp
+${SOURCE_PATH}/AudioPresentationInfo.cpp
+${SOURCE_PATH}/AudioSource.cpp
+${SOURCE_PATH}/BufferImpl.cpp
+${SOURCE_PATH}/CallbackDataSource.cpp
+${SOURCE_PATH}/CallbackMediaSource.cpp
+#${SOURCE_PATH}/CameraSource.cpp
+#${SOURCE_PATH}/CameraSourceTimeLapse.cpp
+${SOURCE_PATH}/DataConverter.cpp
+${SOURCE_PATH}/DataSourceFactory.cpp
+${SOURCE_PATH}/DataURISource.cpp
+${SOURCE_PATH}/FileSource.cpp
+${SOURCE_PATH}/FrameDecoder.cpp
+${SOURCE_PATH}/HTTPBase.cpp
+${SOURCE_PATH}/HevcUtils.cpp
+${SOURCE_PATH}/InterfaceUtils.cpp
+${SOURCE_PATH}/JPEGSource.cpp
+${SOURCE_PATH}/MPEG2TSWriter.cpp
+${SOURCE_PATH}/MPEG4Writer.cpp
+${SOURCE_PATH}/MediaAdapter.cpp
+${SOURCE_PATH}/MediaClock.cpp
+${SOURCE_PATH}/MediaCodec.cpp
+${SOURCE_PATH}/MediaCodecList.cpp
+${SOURCE_PATH}/MediaCodecListOverrides.cpp
+${SOURCE_PATH}/MediaCodecSource.cpp
+${SOURCE_PATH}/MediaExtractorFactory.cpp
+${SOURCE_PATH}/MediaSync.cpp
+${SOURCE_PATH}/http/MediaHTTP.cpp
+${SOURCE_PATH}/MediaMuxer.cpp
+${SOURCE_PATH}/NuCachedSource2.cpp
+${SOURCE_PATH}/NuMediaExtractor.cpp
+${SOURCE_PATH}/OMXClient.cpp
+${SOURCE_PATH}/OmxInfoBuilder.cpp
+${SOURCE_PATH}/RemoteMediaExtractor.cpp
+${SOURCE_PATH}/RemoteMediaSource.cpp
+${SOURCE_PATH}/SimpleDecodingSource.cpp
+${SOURCE_PATH}/SkipCutBuffer.cpp
+${SOURCE_PATH}/StagefrightMediaScanner.cpp
+${SOURCE_PATH}/StagefrightMetadataRetriever.cpp
+${SOURCE_PATH}/StagefrightPluginLoader.cpp
+${SOURCE_PATH}/SurfaceUtils.cpp
+${SOURCE_PATH}/Utils.cpp
+${SOURCE_PATH}/ThrottledSource.cpp
+${SOURCE_PATH}/VideoFrameScheduler.cpp
 )
+list(APPEND STAGEFRIGHT_DEPLIB
+expat
+stagefright_esds
+stagefright_metadatautils
+stagefright_codecbase
+stagefright_mediafilter
+stagefright_omx
+stagefright_color_conversion
+stagefright_id3
+stagefright_mpeg2support
+stagefright_webm
+FLAC 
+vorbisidec
+#stagefright_matroska
+webm
+mediametrics
+ziparchive
+mediaextractor
+#interfaces
+)
+set(LIB_NAME stagefright)
+set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
+add_library(${LIB_NAME} SHARED ${STAGEFRIGHT_SOURCE_FILES} ${STAGEFRIGHT_HEADER_FILES})
+target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_DEPLIB})
+
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E make_directory 
+$<TARGET_FILE_DIR:${LIB_NAME}>/etc/
+)
+
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory
+${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/data/ $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
+)
+
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy
+${M3E_SOURCE_DIR}/src/device/media_codecs.xml $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
+) 
+
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy
+${M3E_SOURCE_DIR}/src/device/media_codecs_performance.xml $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
+) 
+
 
 # codec selector
 if(ENABLE_AV_CODEC)
     #message(STATUS "ENABLE_AV_CODEC:${ENABLE_AV_CODEC}")
-
-    list(APPEND STAGEFRIGHT_DEPLIB
-    expat
-    stagefright_mediafilter
-    stagefright_omx
-    stagefright_color_conversion
-    stagefright_id3
-    stagefright_mpeg2ts
-    stagefright_webm
-    FLAC 
-    vorbisidec
-    stagefright_matroska
-    webm
-    mediametrics
-    )
 
     include(${M3E_SOURCE_DIR}/cmake/external/expat/include.cmake)
     include(${M3E_SOURCE_DIR}/cmake/external/flac/include.cmake)
@@ -183,47 +279,26 @@ if(ENABLE_AV_CODEC)
 endif(ENABLE_AV_CODEC)
 
 # target files
-set(LIB_NAME stagefright)
-set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(${LIB_NAME} SHARED ${STAGEFRIGHT_SOURCE_FILES} ${STAGEFRIGHT_HEADER_FILES})
-target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_DEPLIB})
-
-
-
-if(ENABLE_AV_CODEC)
-    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory 
-    $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
-    )
-
-    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/data/ $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
-    )
-
-    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${M3E_SOURCE_DIR}/src/device/media_codecs.xml $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
-    ) 
-
-    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${M3E_SOURCE_DIR}/src/device/media_codecs_performance.xml $<TARGET_FILE_DIR:${LIB_NAME}>/etc/
-    ) 
-endif(ENABLE_AV_CODEC)
-
-
+#set(LIB_NAME stagefright)
+#set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
+#add_library(${LIB_NAME} SHARED ${STAGEFRIGHT_SOURCE_FILES} ${STAGEFRIGHT_HEADER_FILES})
+#target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_DEPLIB})
 
 # sub module
-if(ENABLE_AV_CODEC)
-    add_subdirectory(colorconversion)
-    add_subdirectory(filters)
-    add_subdirectory(codecs) 
-    add_subdirectory(id3) 
-    add_subdirectory(mpeg2ts) 
-    add_subdirectory(matroska)
-    add_subdirectory(xmlparser)
-    add_subdirectory(flac)
-    add_subdirectory(timedtext)
-    add_subdirectory(webm)
-endif()
+add_subdirectory(codecs) 
+add_subdirectory(colorconversion)
+add_subdirectory(filters)
+add_subdirectory(flac)
+#foundation
+#add_subdirectory(http) 
+#add_subdirectory(httplive) 
+add_subdirectory(id3) 
+add_subdirectory(mpeg2ts) 
+#add_subdirectory(omx) 
+#add_subdirectory(rtsp) 
+#tests
+add_subdirectory(timedtext)
+add_subdirectory(webm)
+add_subdirectory(xmlparser)
+
+add_subdirectory(bqhelper)

@@ -28,7 +28,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#if defined(_MSC_VER) // M3E:
 #include <media/stagefright/foundation/AMessage.h>
+#endif
 
 namespace android {
 
@@ -48,7 +50,7 @@ FileSource::FileSource(const char *filename)
     }
     ALOGV("%s", filename);
     mFd = open(filename,
-#ifdef O_LARGEFILE
+#ifdef O_LARGEFILE // M3E:
 		O_LARGEFILE |
 #endif
 #ifdef O_BINARY
@@ -201,12 +203,6 @@ sp<DecryptHandle> FileSource::DrmInitialization(const char *mime) {
     }
 
     return mDecryptHandle;
-}
-
-void FileSource::getDrmInfo(sp<DecryptHandle> &handle, DrmManagerClient **client) {
-    handle = mDecryptHandle;
-
-    *client = mDrmManagerClient;
 }
 
 ssize_t FileSource::readAtDRM(off64_t offset, void *data, size_t size) {

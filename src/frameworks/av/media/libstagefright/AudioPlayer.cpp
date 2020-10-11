@@ -23,6 +23,7 @@
 
 #include <binder/IPCThreadState.h>
 #include <media/AudioTrack.h>
+#include <media/MediaSource.h>
 #include <media/openmax/OMX_Audio.h>
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/ALookup.h>
@@ -30,11 +31,12 @@
 #include <media/stagefright/AudioPlayer.h>
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MediaErrors.h>
-#include <media/stagefright/MediaSource.h>
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/Utils.h>
 
+#if defined(_MSC_VER) // M3E:
 #include <media/stagefright/foundation/AMessage.h>
+#endif
 
 namespace android {
 
@@ -69,7 +71,7 @@ AudioPlayer::~AudioPlayer() {
     }
 }
 
-void AudioPlayer::setSource(const sp<IMediaSource> &source) {
+void AudioPlayer::setSource(const sp<MediaSource> &source) {
     CHECK(mSource == NULL);
     mSource = source;
 }
@@ -240,7 +242,7 @@ status_t AudioPlayer::start(bool sourceAlreadyStarted) {
 
         mAudioTrack = new AudioTrack(
                 AUDIO_STREAM_MUSIC, mSampleRate, AUDIO_FORMAT_PCM_16_BIT, audioMask,
-                0 /*frameCount*/, AUDIO_OUTPUT_FLAG_NONE, &AudioPlayer::AudioCallback, this,
+                0 /*frameCount*/, AUDIO_OUTPUT_FLAG_NONE, &AudioCallback, this,
                 0 /*notificationFrames*/);
 
         if ((err = mAudioTrack->initCheck()) != OK) {
@@ -365,7 +367,7 @@ void AudioPlayer::reset() {
     // When offloading, the OMX component is not used so this hack
     // is not needed
     if (!useOffload()) {
-        wp<IMediaSource> tmp = mSource;
+        wp<MediaSource> tmp = mSource;
         mSource.clear();
         while (tmp.promote() != NULL) {
             usleep(1000);
@@ -545,7 +547,7 @@ size_t AudioPlayer::fillBuffer(void *data, size_t size) {
             }
 
             if(mInputBuffer->range_length() != 0) {
-                CHECK(mInputBuffer->meta_data()->findInt64(
+                CHECK(mInputBuffer->meta_data().findInt64(
                         kKeyTime, &mPositionTimeMediaUs));
             }
 

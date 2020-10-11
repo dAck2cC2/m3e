@@ -21,12 +21,13 @@
 #include "include/CallbackDataSource.h"
 
 #include <binder/IMemory.h>
+#include <binder/IPCThreadState.h>
 #include <media/IDataSource.h>
 #include <media/stagefright/foundation/ADebug.h>
 
 #include <algorithm>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #undef min
 #endif // _MSC_VER
 
@@ -38,7 +39,10 @@ CallbackDataSource::CallbackDataSource(
       mIsClosed(false) {
     // Set up the buffer to read into.
     mMemory = mIDataSource->getIMemory();
-    mName = String8::format("CallbackDataSource(%s)", mIDataSource->toString().string());
+    mName = String8::format("CallbackDataSource(%d->%d, %s)",
+            getpid(),
+            IPCThreadState::self()->getCallingPid(),
+            mIDataSource->toString().string());
 
 }
 

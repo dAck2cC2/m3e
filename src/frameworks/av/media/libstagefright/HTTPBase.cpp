@@ -26,11 +26,15 @@
 #include <cutils/properties.h>
 #include <cutils/qtaguid.h>
 
-//#include <NetdClient.h>
+#if ENABLE_NETDCLIENT // M3E:
+#include <NetdClient.h>
+#endif
 
+#if defined(_MSC_VER) // M3E:
 #include <media/stagefright/foundation/AMessage.h>
+#endif
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #define geteuid() 1000
 #endif
 
@@ -138,7 +142,9 @@ void HTTPBase::UnRegisterSocketUserTag(int sockfd) {
 
 // static
 void HTTPBase::RegisterSocketUserMark(int sockfd, uid_t uid) {
-    //setNetworkForUser(uid, sockfd);
+#if ENABLE_NETDCLIENT // M3E:
+    setNetworkForUser(uid, sockfd);
+#endif
 }
 
 // static

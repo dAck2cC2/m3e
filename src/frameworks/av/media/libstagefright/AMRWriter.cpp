@@ -16,7 +16,9 @@
 
 #include <fcntl.h>
 #include <inttypes.h>
-//#include <sys/prctl.h>
+#if ENABLE_PRCTL // M3E:
+#include <sys/prctl.h>
+#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -25,8 +27,8 @@
 #include <media/stagefright/MediaBuffer.h>
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MediaErrors.h>
-#include <media/stagefright/MediaSource.h>
 #include <media/stagefright/MetaData.h>
+#include <media/MediaSource.h>
 #include <media/mediarecorder.h>
 
 namespace android {
@@ -54,7 +56,7 @@ status_t AMRWriter::initCheck() const {
     return mInitCheck;
 }
 
-status_t AMRWriter::addSource(const sp<IMediaSource> &source) {
+status_t AMRWriter::addSource(const sp<MediaSource> &source) {
     if (mInitCheck != OK) {
         return mInitCheck;
     }
@@ -118,20 +120,22 @@ status_t AMRWriter::start(MetaData * /* params */) {
         return err;
     }
 
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 #endif
+
     mReachedEOS = false;
     mDone = false;
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	createThreadEtc(ThreadWrapper, this, "AMRWriter", PRIORITY_DEFAULT, 0, &mThread);
 #else
     pthread_create(&mThread, &attr, ThreadWrapper, this);
     pthread_attr_destroy(&attr);
 #endif
+
     mStarted = true;
 
     return OK;
@@ -152,7 +156,7 @@ status_t AMRWriter::reset() {
 
     mDone = true;
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	joinThread(mThread);
 	status_t err = OK;
 #else
@@ -188,7 +192,7 @@ bool AMRWriter::exceedsFileDurationLimit() {
 }
 
 // static
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 int AMRWriter::ThreadWrapper(void *me) {
 	return (int)(uintptr_t) static_cast<AMRWriter *>(me)->threadFunc();
 }
@@ -197,6 +201,7 @@ void *AMRWriter::ThreadWrapper(void *me) {
     return (void *)(uintptr_t) static_cast<AMRWriter *>(me)->threadFunc();
 }
 #endif
+
 status_t AMRWriter::threadFunc() {
     mEstimatedDurationUs = 0;
     mEstimatedSizeBytes = 0;
@@ -205,9 +210,11 @@ status_t AMRWriter::threadFunc() {
     int64_t maxTimestampUs = 0;
     status_t err = OK;
 
-    //prctl(PR_SET_NAME, (unsigned long)"AMRWriter", 0, 0, 0);
+#if ENABLE_PRCTL // M3E:
+    prctl(PR_SET_NAME, (unsigned long)"AMRWriter", 0, 0, 0);
+#endif
     while (!mDone) {
-        MediaBuffer *buffer;
+        MediaBufferBase *buffer;
         err = mSource->read(&buffer);
 
         if (err != OK) {
@@ -229,7 +236,7 @@ status_t AMRWriter::threadFunc() {
         }
 
         int64_t timestampUs;
-        CHECK(buffer->meta_data()->findInt64(kKeyTime, &timestampUs));
+        CHECK(buffer->meta_data().findInt64(kKeyTime, &timestampUs));
         if (timestampUs > mEstimatedDurationUs) {
             mEstimatedDurationUs = timestampUs;
         }

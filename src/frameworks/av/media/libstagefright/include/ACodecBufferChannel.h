@@ -29,8 +29,10 @@
 #include <media/IOMX.h>
 
 namespace android {
-
-using hardware::hidl_memory;
+namespace hardware {
+class HidlMemory;
+};
+using hardware::HidlMemory;
 
 /**
  * BufferChannelBase implementation for ACodec.
@@ -119,7 +121,7 @@ private:
     sp<MemoryDealer> mDealer;
     sp<IMemory> mDecryptDestination;
     int32_t mHeapSeqNum;
-    hidl_memory mHidlMemory;
+    sp<HidlMemory> mHidlMemory;
 
     // These should only be accessed via std::atomic_* functions.
     //
@@ -128,8 +130,8 @@ private:
     // obtained. Inside BufferInfo, mBufferId and mSharedEncryptedBuffer are
     // immutable objects. We write internal states of mClient/CodecBuffer when
     // the caller has given up the reference, so that access is also safe.
-    std::shared_ptr<const std::vector</*const*/ BufferInfo>> mInputBuffers;
-    std::shared_ptr<const std::vector</*const*/ BufferInfo>> mOutputBuffers;
+    std::shared_ptr<const std::vector</*const*/ BufferInfo>> mInputBuffers;  // M3E:
+    std::shared_ptr<const std::vector</*const*/ BufferInfo>> mOutputBuffers; // M3E:
 
     sp<MemoryDealer> makeMemoryDealer(size_t heapSize);
 

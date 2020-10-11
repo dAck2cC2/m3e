@@ -31,7 +31,9 @@
 #include <media/stagefright/MediaCodec.h>
 #include <media/stagefright/MediaCodecList.h>
 
+#if defined(_MSC_VER) // M3E:
 #include <media/stagefright/foundation/ABuffer.h>
+#endif
 
 namespace android {
 
@@ -224,7 +226,7 @@ void profileCodecs(
     AString supportMultipleSecureCodecs = "true";
     for (const auto& info : infos) {
         AString name = info->getCodecName();
-        if (name.startsWith("OMX.google.") ||
+        if (name.startsWith("OMX.google.") || name.startsWith("c2.android.") ||
                 // TODO: reenable below codecs once fixed
                 name == "OMX.Intel.VideoDecoder.VP9.hybrid") {
             continue;

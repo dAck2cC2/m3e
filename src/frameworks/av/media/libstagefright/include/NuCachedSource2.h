@@ -18,16 +18,16 @@
 
 #define NU_CACHED_SOURCE_2_H_
 
+#include <media/DataSource.h>
 #include <media/stagefright/foundation/ABase.h>
 #include <media/stagefright/foundation/AHandlerReflector.h>
-#include <media/stagefright/DataSource.h>
 
 namespace android {
 
 struct ALooper;
 struct PageCache;
 
-struct ANDROID_API_STAGEFRIGHT NuCachedSource2 : public DataSource {
+struct ANDROID_API_STAGEFRIGHT NuCachedSource2 : public DataSource { // M3E: MSVC export
     static sp<NuCachedSource2> Create(
             const sp<DataSource> &source,
             const char *cacheConfig = NULL,
@@ -43,7 +43,6 @@ struct ANDROID_API_STAGEFRIGHT NuCachedSource2 : public DataSource {
     virtual uint32_t flags();
 
     virtual sp<DecryptHandle> DrmInitialization(const char* mime);
-    virtual void getDrmInfo(sp<DecryptHandle> &handle, DrmManagerClient **client);
     virtual String8 getUri();
 
     virtual String8 getMIMEType() const;

@@ -18,6 +18,10 @@
 
 #define OMX_CLIENT_H_
 
+#if defined(interface) // M3E:
+#undef interface
+#endif
+
 namespace android {
 
 class IOMX;
@@ -27,16 +31,10 @@ public:
     OMXClient();
 
     status_t connect();
-    status_t connect(bool* trebleFlag);
-    status_t connect(const char* name, bool* trebleFlag = nullptr);
-
-    status_t connectLegacy();
-    status_t connectTreble(const char* name = "default");
+    status_t connect(const char* name);
     void disconnect();
 
-    sp<IOMX> _interface() {
-        return mOMX;
-    }
+    sp<IOMX> interface();
 
 private:
     sp<IOMX> mOMX;

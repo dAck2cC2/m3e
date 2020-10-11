@@ -27,6 +27,8 @@
 #include <ui/GraphicBuffer.h>
 
 #include <list>
+
+// M3E: add
 #include <limits.h> // SSIZE_MAX of Apple
 
 struct ANativeWindowBuffer;

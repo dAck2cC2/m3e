@@ -38,7 +38,7 @@ enum {
     MEDIA_ERROR_BASE        = -1000,
 
     ERROR_ALREADY_CONNECTED = MEDIA_ERROR_BASE,
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E:
     ERROR_NOT_CONNECTED     = MEDIA_ERROR_BASE - 1,
 #endif  // _MSC_VER
     ERROR_UNKNOWN_HOST      = MEDIA_ERROR_BASE - 2,

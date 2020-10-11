@@ -88,7 +88,7 @@ bool canOffloadStream(const sp<MetaData>& meta, bool hasVideo,
 ANDROID_API_STAGEFRIGHT
 AString uriDebugString(const AString &uri, bool incognito = false);
 
-struct ANDROID_API_STAGEFRIGHT HLSTime {
+struct ANDROID_API_STAGEFRIGHT HLSTime { // M3E: MSVC export
     int32_t mSeq;
     int64_t mTimeUs;
     sp<AMessage> mMeta;
