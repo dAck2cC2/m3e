@@ -27,19 +27,13 @@
 #include <utils/String16.h>
 #include <utils/Vector.h>
 #include <utils/Flattenable.h>
-//#include <linux/android/binder.h> /* M3E: */
-
-#include <binder/IInterface.h>
-#include <binder/Parcelable.h>
-#include <binder/Map.h>
-
-/* M3E: Add */
-#include <memory>
-#include <limits>
+#if 0 // M3E: place kernel defines here
+#include <linux/android/binder.h>
+#else
 
 // ---------------------------------------------------------------------------
-// linux/binder.h shoud define this, but we can't just include it from there
-// because we don't have binder driver.
+// linux/android/binder.h shoud define this, but we can't just include it from
+// there, because we don't have binder driver.
 
 struct flat_binder_object;
 #ifdef BINDER_IPC_32BIT
@@ -48,6 +42,15 @@ typedef uint32_t binder_size_t;
 typedef uint64_t binder_size_t;
 #endif
 
+#endif
+
+#include <binder/IInterface.h>
+#include <binder/Parcelable.h>
+#include <binder/Map.h>
+
+/* M3E: Add */
+#include <memory>
+#include <limits>
 
 // ---------------------------------------------------------------------------
 namespace android {
@@ -220,7 +223,7 @@ public:
     // valid for the lifetime of the parcel.
     // The Parcel does not take ownership of the given fd unless you ask it to.
     status_t            writeParcelFileDescriptor(int fd, bool takeOwnership = false);
-#if TODO /* M3E: */
+
     // Place a file descriptor into the parcel.  This will not affect the
     // semantics of the smart file descriptor. A new descriptor will be
     // created, and will be closed when the parcel is destroyed.
@@ -246,7 +249,7 @@ public:
     // This allows the client to send the same blob to multiple processes
     // as long as it keeps a dup of the blob file descriptor handy for later.
     status_t            writeDupImmutableBlobFileDescriptor(int fd);
-#endif
+
     status_t            writeObject(const flat_binder_object& val, bool nullMetaData);
 
     // Like Parcel.java's writeNoException().  Just writes a zero int32.
@@ -375,7 +378,7 @@ public:
     // Retrieve a Java "parcel file descriptor" from the parcel.  This returns the raw fd
     // in the parcel, which you do not own -- use dup() to get your own copy.
     int                 readParcelFileDescriptor() const;
-#if TODO /* M3E: */
+
     // Retrieve a smart file descriptor from the parcel.
     status_t            readUniqueFileDescriptor(
                             base::unique_fd* val) const;
@@ -390,7 +393,7 @@ public:
     // Reads a blob from the parcel.
     // The caller should call release() on the blob after reading its contents.
     status_t            readBlob(size_t len, ReadableBlob* outBlob) const;
-#endif
+
     const flat_binder_object* readObject(bool nullMetaData) const;
 
     // Explicitly close all file descriptors in the parcel.
@@ -418,7 +421,7 @@ public:
     void                print(TextOutput& to, uint32_t flags = 0) const;
 
 private:
-			 Parcel(const Parcel& o) {}; /* M3E: */
+                        Parcel(const Parcel& o) {}; /* M3E: */
     Parcel&             operator=(const Parcel& o);
     
     status_t            finishWrite(size_t len);

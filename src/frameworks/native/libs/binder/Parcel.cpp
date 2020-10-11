@@ -1207,7 +1207,6 @@ status_t Parcel::writeParcelFileDescriptor(int fd, bool takeOwnership)
     return writeFileDescriptor(fd, takeOwnership);
 }
 
-#if TODO /* M3E: */
 status_t Parcel::writeUniqueFileDescriptor(const base::unique_fd& fd) {
     return writeDupFileDescriptor(fd.get());
 }
@@ -1283,7 +1282,6 @@ status_t Parcel::writeDupImmutableBlobFileDescriptor(int fd)
     if (status) return status;
     return writeDupFileDescriptor(fd);
 }
-#endif
 
 status_t Parcel::write(const FlattenableHelperInterface& val)
 {
@@ -2265,7 +2263,6 @@ int Parcel::readParcelFileDescriptor() const
     return fd;
 }
 
-#if TODO /* M3E: */
 status_t Parcel::readUniqueFileDescriptor(base::unique_fd* val) const
 {
     int got = readFileDescriptor();
@@ -2323,7 +2320,6 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
     outBlob->init(fd, ptr, len, isMutable);
     return NO_ERROR;
 }
-#endif
 
 status_t Parcel::read(FlattenableHelperInterface& val) const
 {
