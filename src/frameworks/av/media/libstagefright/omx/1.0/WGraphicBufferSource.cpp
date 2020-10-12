@@ -26,6 +26,10 @@
 #include <media/openmax/OMX_Component.h>
 #include <media/openmax/OMX_IndexExt.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <media/stagefright/foundation/AMessage.h>
+#endif
+
 namespace android {
 namespace hardware {
 namespace media {

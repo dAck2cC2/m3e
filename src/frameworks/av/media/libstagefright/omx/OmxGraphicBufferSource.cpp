@@ -24,6 +24,10 @@
 #include <media/stagefright/bqhelper/GraphicBufferSource.h>
 #include <media/stagefright/omx/OmxGraphicBufferSource.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <media/stagefright/foundation/AMessage.h>
+#endif
+
 namespace android {
 
 namespace {

@@ -33,6 +33,20 @@
 #include <media/stagefright/omx/1.0/Conversion.h>
 #include <media/stagefright/omx/1.0/Omx.h>
 
+// M3E:
+// NOTE: For Windows, you must include logging.h after windows.h to allow the
+// following code to suppress the evil ERROR macro:
+#ifdef _WIN32
+// windows.h includes wingdi.h which defines an evil macro ERROR.
+#ifdef ERROR
+#undef ERROR
+#endif
+#endif
+
+#if defined(_MSC_VER) // M3E:
+#include <media/stagefright/foundation/AMessage.h>
+#endif
+
 namespace android {
 namespace hardware {
 namespace media {

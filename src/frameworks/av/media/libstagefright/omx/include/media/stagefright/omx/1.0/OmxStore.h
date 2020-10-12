@@ -41,7 +41,7 @@ using ::android::hardware::Void;
 using ::android::sp;
 using ::android::wp;
 
-struct OmxStore : public IOmxStore {
+struct ANDROID_API_STAGEFRIGHT_OMX OmxStore : public IOmxStore { // M3E: MSVC export
     OmxStore(
             const char* owner = "default",
             const char* const* searchDirs

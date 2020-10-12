@@ -54,7 +54,7 @@ using ::android::wp;
 using ::android::OMXMaster;
 using ::android::OMXNodeInstance;
 
-struct Omx : public IOmx, public hidl_death_recipient {
+struct ANDROID_API_STAGEFRIGHT_OMX Omx : public IOmx, public hidl_death_recipient {  // M3E: MSVC export
     Omx();
     virtual ~Omx();
 
