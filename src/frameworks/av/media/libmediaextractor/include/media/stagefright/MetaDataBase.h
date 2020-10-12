@@ -249,7 +249,7 @@ enum {
 
 class Parcel;
 
-class MetaDataBase {
+class ANDROID_API_MEDIAEXTRACTOR MetaDataBase {  // M3E: MSVC export
 public:
     MetaDataBase();
     MetaDataBase(const MetaDataBase &from);

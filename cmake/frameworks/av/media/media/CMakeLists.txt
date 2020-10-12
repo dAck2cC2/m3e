@@ -21,6 +21,8 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cma
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/drm/drmframework/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/audio_utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/external/expat/include.cmake)
+
 
 set(${PROJECT_NAME}_DEPLIB
 utils

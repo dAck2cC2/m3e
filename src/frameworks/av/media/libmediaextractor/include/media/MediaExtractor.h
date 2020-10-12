@@ -129,7 +129,11 @@ private:
 
 // purposely not defined anywhere so that this will fail to link if
 // expressions below are not evaluated at compile time
+#if !defined(_MSC_VER) // M3E:
 int invalid_uuid_string(const char *);
+#else
+inline int invalid_uuid_string(const char* msg) {LOG_ALWAYS_FATAL(msg); return 0;}
+#endif
 
 template <typename T, size_t N>
 constexpr uint8_t _digitAt_(const T (&s)[N], const size_t n) {
@@ -185,7 +189,11 @@ constexpr MediaExtractor::uuid_t constUUID(const char (&s) [N]) {
 //       {{0x7d, 0x61, 0x38, 0x58, 0x58, 0x37, 0x4a, 0x38,
 //         0x84, 0xc5, 0x33, 0x2d, 0x1c, 0xdd, 0xee, 0x27}})
 
+#if !defined(_MSC_VER)
 #define UUID(str) []{ constexpr MediaExtractor::uuid_t uuid = constUUID(str); return uuid; }()
+#else
+#define UUID(str) constUUID(str)
+#endif
 
 
 

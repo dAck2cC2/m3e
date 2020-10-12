@@ -35,7 +35,7 @@ private:
     MediaBufferObserver &operator=(const MediaBufferObserver &);
 };
 
-class MediaBufferBase {
+class ANDROID_API_MEDIAEXTRACTOR MediaBufferBase {  // M3E: MSVC export
 public:
     static MediaBufferBase *Create(size_t size);
 

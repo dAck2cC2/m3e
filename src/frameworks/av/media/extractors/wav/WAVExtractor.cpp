@@ -588,6 +588,9 @@ static MediaExtractor::CreatorFunc Sniff(
 }
 
 extern "C" {
+#if defined(_MSC_VER) // M3E:
+__declspec(dllexport)
+#endif
 // This is the only symbol that needs to be exported
 __attribute__ ((visibility ("default")))
 MediaExtractor::ExtractorDef GETEXTRACTORDEF() {

@@ -283,6 +283,7 @@ status_t MediaRecorder::setOutputFile(int fd)
         return INVALID_OPERATION;
     }
 
+#if !defined(_MSC_VER) // M3E:
     // It appears that if an invalid file descriptor is passed through
     // binder calls, the server-side of the inter-process function call
     // is skipped. As a result, the check at the server-side to catch
@@ -298,6 +299,7 @@ status_t MediaRecorder::setOutputFile(int fd)
         ALOGE("File descriptor is not in read-write mode or write-only mode");
         return BAD_VALUE;
     }
+#endif
 
     status_t ret = mMediaRecorder->setOutputFile(fd);
     if (OK != ret) {
@@ -317,6 +319,7 @@ status_t MediaRecorder::setNextOutputFile(int fd)
         return INVALID_OPERATION;
     }
 
+#if !defined(_MSC_VER) // M3E:
     // It appears that if an invalid file descriptor is passed through
     // binder calls, the server-side of the inter-process function call
     // is skipped. As a result, the check at the server-side to catch
@@ -332,6 +335,7 @@ status_t MediaRecorder::setNextOutputFile(int fd)
         ALOGE("File descriptor is not in read-write mode or write-only mode");
         return BAD_VALUE;
     }
+#endif
 
     status_t ret = mMediaRecorder->setNextOutputFile(fd);
     if (OK != ret) {

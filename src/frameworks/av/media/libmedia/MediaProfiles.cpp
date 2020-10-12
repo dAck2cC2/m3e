@@ -29,6 +29,10 @@
 #include <OMX_Video.h>
 #include <sys/stat.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <dirent.h> // S_ISREG
+#endif
+
 namespace android {
 
 constexpr char const * const MediaProfiles::xmlFiles[];

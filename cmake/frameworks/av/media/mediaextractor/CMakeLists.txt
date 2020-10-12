@@ -12,6 +12,12 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright_foundation/include.cma
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/media/include.cmake)
 
+if(MSVC)
+    add_definitions(-D__unused= )
+    add_definitions(-Dstrncasecmp=_strnicmp)
+    add_definitions(-Dstrcasecmp=_stricmp)
+endif()
+
 set( ${PROJECT_NAME}_DEPLIB
 log
 cutils

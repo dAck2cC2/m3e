@@ -42,7 +42,7 @@ public:
     }
 };
 
-struct MediaTrack
+struct ANDROID_API_MEDIAEXTRACTOR MediaTrack  // M3E: MSVC export
 //    : public SourceBaseAllocTracker
 {
     MediaTrack();
@@ -65,7 +65,7 @@ struct MediaTrack
     // Options that modify read() behaviour. The default is to
     // a) not request a seek
     // b) not be late, i.e. lateness_us = 0
-    struct ReadOptions {
+    struct ANDROID_API_MEDIAEXTRACTOR ReadOptions { // M3E: MSVC export
         enum SeekMode : int32_t {
             SEEK_PREVIOUS_SYNC,
             SEEK_NEXT_SYNC,

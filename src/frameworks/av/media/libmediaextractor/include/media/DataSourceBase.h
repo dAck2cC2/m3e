@@ -28,7 +28,7 @@ namespace android {
 
 class String8;
 
-class DataSourceBase {
+class ANDROID_API_MEDIAEXTRACTOR DataSourceBase { // M3E: MSVC export
 public:
     enum Flags {
         kWantsPrefetching      = 1,
