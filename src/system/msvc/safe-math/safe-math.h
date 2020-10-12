@@ -1055,7 +1055,7 @@ PSNIP_SAFE_DEFINE_UNSIGNED_MOD(psnip_uint64_t, uint64, 0xffffffffffffffffULL)
 #  define __builtin_umull_overflow(a, b, res)  psnip_safe_ulong_mul(res, a, b)
 #  define __builtin_umulll_overflow(a, b, res) psnip_safe_ullong_mul(res, a, b)
 #if defined(PSNIP_SAFE_HAVE_INTSAFE_H)
-#  define __builtin_szmul_overflow(a, b, res)   psnip_safe_size_mul(res, a, b)
+#  define __builtin_szmul_overflow(a, b, res)   psnip_safe_size_mul((size_t*)(res), a, b)
 #  define __builtin_mul_overflow __builtin_szmul_overflow
 #else
 #  define __builtin_mul_overflow __builtin_umul_overflow

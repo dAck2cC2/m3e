@@ -1240,6 +1240,7 @@ status_t Parcel::writeBlob(size_t len, bool mutableCopy, WritableBlob* outBlob)
         return NO_ERROR;
     }
 
+#if !defined(_MSC_VER) // M3E:
     ALOGV("writeBlob: write to ashmem");
     int fd = ashmem_create_region("Parcel Blob", len);
     if (fd < 0) return NO_MEMORY;
@@ -1271,6 +1272,7 @@ status_t Parcel::writeBlob(size_t len, bool mutableCopy, WritableBlob* outBlob)
         ::munmap(ptr, len);
     }
     ::close(fd);
+#endif // _MSC_VER
     return status;
 }
 
@@ -2308,6 +2310,7 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
         return NO_ERROR;
     }
 
+#if !defined(_MSC_VER) // M3E:
     ALOGV("readBlob: read from ashmem");
     bool isMutable = (blobType == BLOB_ASHMEM_MUTABLE);
     int fd = readFileDescriptor();
@@ -2318,6 +2321,7 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
     if (ptr == MAP_FAILED) return NO_MEMORY;
 
     outBlob->init(fd, ptr, len, isMutable);
+#endif // _MSC_VER
     return NO_ERROR;
 }
 

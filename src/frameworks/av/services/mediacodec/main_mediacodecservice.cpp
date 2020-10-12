@@ -3,6 +3,10 @@
 #include <media/stagefright/omx/1.0/Omx.h>
 #include <media/stagefright/omx/1.0/OmxStore.h>
 
+#if defined(_MSC_VER)
+#include <media/stagefright/omx/OMXNodeInstance.h>
+#endif
+
 // interface for initrc
 #include <cutils/compiler.h>
 #include <utils/Errors.h>

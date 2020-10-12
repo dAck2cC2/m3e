@@ -307,7 +307,7 @@ public:
     //              * the slot was enqueued without requesting a buffer
     //              * crop rect is out of bounds of the buffer dimensions
 
-    struct QueueBufferInput : public Flattenable<QueueBufferInput> {
+    struct ANDROID_API_GUI QueueBufferInput : public Flattenable<QueueBufferInput> {  // M3E: MSVC export
         friend class Flattenable<QueueBufferInput>;
         explicit inline QueueBufferInput(const Parcel& parcel);
 

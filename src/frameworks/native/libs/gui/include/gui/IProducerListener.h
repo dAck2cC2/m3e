@@ -44,13 +44,13 @@ public:
     virtual bool needsReleaseNotify() = 0;
 };
 
-class IProducerListener : public ProducerListener, public IInterface
+class ANDROID_API_GUI IProducerListener : public ProducerListener, public IInterface  // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(ProducerListener)
 };
 
-class BnProducerListener : public BnInterface<IProducerListener>
+class ANDROID_API_GUI BnProducerListener : public BnInterface<IProducerListener>  // M3E: MSVC export
 {
 public:
     virtual status_t onTransact(uint32_t code, const Parcel& data,
