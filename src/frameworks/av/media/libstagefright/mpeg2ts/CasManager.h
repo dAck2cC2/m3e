@@ -99,6 +99,6 @@ private:
 	CasSession mProgramCas;
 	KeyedVector<unsigned, CasSession> mStreamPidToCasMap;
 };
-#endif
+#endif // _MSC_VER
 
 }  // namespace android
