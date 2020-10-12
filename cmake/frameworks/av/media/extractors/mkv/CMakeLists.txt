@@ -18,6 +18,11 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/flac/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/flac/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/vpx/include.cmake)
 
+if(MSVC)
+    add_definitions(-Dstrncasecmp=_strnicmp)
+    add_definitions(-Dstrcasecmp=_stricmp)
+endif()
+
 set(${PROJECT_NAME}_DEPLIB
 mediaextractor
 stagefright_foundation
