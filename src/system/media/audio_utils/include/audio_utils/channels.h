@@ -43,6 +43,7 @@ __BEGIN_DECLS
  *   The out and sums buffers must either be completely separate (non-overlapping), or
  *   they must both start at the same address. Partially overlapping buffers are not supported.
  */
+ANDROID_API_AUDIO_UTILS
 size_t adjust_channels(const void* in_buff, size_t in_buff_chans,
                        void* out_buff, size_t out_buff_chans,
                        unsigned sample_size_in_bytes, size_t num_in_bytes);
@@ -67,6 +68,7 @@ size_t adjust_channels(const void* in_buff, size_t in_buff_chans,
  *   The out and in buffers must either be completely separate (non-overlapping), or
  *   they must both start at the same address. Partially overlapping buffers are not supported.
  */
+ANDROID_API_AUDIO_UTILS
 size_t adjust_selected_channels(const void* in_buff, size_t in_buff_chans,
                        void* out_buff, size_t out_buff_chans,
                        unsigned sample_size_in_bytes, size_t num_in_bytes);

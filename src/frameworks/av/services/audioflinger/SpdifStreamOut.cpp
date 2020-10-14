@@ -101,13 +101,13 @@ status_t SpdifStreamOut::open(
     return status;
 }
 
-status_t SpdifStreamOut::flush()
+status_t SpdifStreamOut::flush() // M3E:
 {
     mSpdifEncoder.reset();
     return AudioStreamOut::flush();
 }
 
-status_t SpdifStreamOut::standby()
+status_t SpdifStreamOut::standby() // M3E:
 {
     mSpdifEncoder.reset();
     return AudioStreamOut::standby();

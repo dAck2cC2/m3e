@@ -17,7 +17,7 @@
 #ifndef ANDROID_AUDIO_STATE_QUEUE_H
 #define ANDROID_AUDIO_STATE_QUEUE_H
 
-#include <cutils/stdatomic.h>
+#include <cutils/stdatomic.h> // M3E:
 
 // The state queue template class was originally driven by this use case / requirements:
 //  There are two threads: a fast mixer, and a normal mixer, and they share state.
