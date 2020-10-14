@@ -23,8 +23,9 @@
 #include <policy.h>
 
 // M3E: add
+#if defined(_MSC_VER)
 #include "IOProfile.h"
-
+#endif
 #if defined(__linux__)
 #include <climits>
 #endif
