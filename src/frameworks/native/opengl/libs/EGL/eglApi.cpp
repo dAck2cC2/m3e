@@ -27,7 +27,7 @@
 #include <EGL/eglext.h>
 
 #include <android/hardware_buffer.h>
-#ifndef __ANDROID_VNDK__
+#ifndef __ANDROID_VNDK__ // M3E:
 #include <private/android/AHardwareBufferHelpers.h>
 #endif
 
@@ -846,7 +846,7 @@ EGLSurface eglCreatePbufferSurface( EGLDisplay dpy, EGLConfig config,
         // Select correct colorspace based on user's attribute list
         EGLint colorSpace = EGL_UNKNOWN;
         std::vector<EGLint> strippedAttribList;
-        if (!processAttributes(dp, (NativeWindowType)(nullptr), format, attrib_list, &colorSpace,
+        if (!processAttributes(dp, (NativeWindowType)(nullptr), format, attrib_list, &colorSpace, // M3E:
                                &strippedAttribList)) {
             ALOGE("error invalid colorspace: %d", colorSpace);
             return setError(EGL_BAD_ATTRIBUTE, EGL_NO_SURFACE);

@@ -29,6 +29,7 @@ hardware
 base
 grallocusage
 hidl
+interfaces
 )
 
 if(MSVC)

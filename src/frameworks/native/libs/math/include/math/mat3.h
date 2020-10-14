@@ -24,7 +24,7 @@
 
 #define PURE __attribute__((pure))
 
-#if !defined(CONSTEXPR)
+#if !defined(CONSTEXPR) // M3E:
 #if __cplusplus >= 201402L || defined(_MSC_VER) 
 #define CONSTEXPR constexpr
 #else

@@ -68,8 +68,8 @@ public:
 class RefBase
 {
 public:
-            void            incStrong(const void* id) const {};
-            void            decStrong(const void* id) const {};
+            void            incStrong(const void* id) const {}; // M3E:
+            void            decStrong(const void* id) const {}; // M3E:
 
             void            forceIncStrong(const void* id) const;
 
@@ -141,10 +141,10 @@ protected:
         FIRST_INC_STRONG = 0x0001
     };
 
-    virtual void            onFirstRef() {};
-    virtual void            onLastStrongRef(const void* id) {};
-    virtual bool            onIncStrongAttempted(uint32_t flags, const void* id) { return false; };
-    virtual void            onLastWeakRef(const void* id) {};
+    virtual void            onFirstRef() {}; // M3E:
+    virtual void            onLastStrongRef(const void* id) {}; // M3E:
+    virtual bool            onIncStrongAttempted(uint32_t flags, const void* id) { return false; }; // M3E:
+    virtual void            onLastWeakRef(const void* id) {}; // M3E:
 
 private:
     friend class ReferenceMover;

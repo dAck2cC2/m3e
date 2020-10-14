@@ -74,19 +74,16 @@ void Mapper::preload() {
 
 Mapper::Mapper()
 {
-#if TODO /* M3E: */
     mMapper = hardware::graphics::mapper::V2_0::IMapper::getService();
-#endif
     if (mMapper == nullptr) {
         LOG_ALWAYS_FATAL("gralloc-mapper is missing");
     }
     if (mMapper->isRemote()) {
         LOG_ALWAYS_FATAL("gralloc-mapper must be in passthrough mode");
     }
-#if TODO /* M3E: */
+
     // IMapper 2.1 is optional
     mMapperV2_1 = IMapper::castFrom(mMapper);
-#endif
 }
 
 Gralloc2::Error Mapper::validateBufferDescriptorInfo(
@@ -323,9 +320,7 @@ int Mapper::unlock(buffer_handle_t bufferHandle) const
 Allocator::Allocator(const Mapper& mapper)
     : mMapper(mapper)
 {
-#if TODO /* M3E: */
     mAllocator = IAllocator::getService();
-#endif
     if (mAllocator == nullptr) {
         LOG_ALWAYS_FATAL("gralloc-alloc is missing");
     }

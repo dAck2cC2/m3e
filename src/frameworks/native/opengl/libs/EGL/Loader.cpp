@@ -38,7 +38,7 @@
 #include "egl_trace.h"
 #include "egldefs.h"
 
-#ifndef __ANDROID_VNDK__
+#ifndef __ANDROID_VNDK__ // M3E:
 extern "C" {
   android_namespace_t* android_get_exported_namespace(const char*);
 }
@@ -493,7 +493,7 @@ static const char* HAL_SUBNAME_KEY_PROPERTIES[2] = {
     "ro.board.platform",
 };
 
-#ifndef __ANDROID_VNDK__
+#ifndef __ANDROID_VNDK__ // M3E:
 static void* load_updated_driver(const char* kind, android_namespace_t* ns) {
 #if TODO // M3E:
     ATRACE_CALL();

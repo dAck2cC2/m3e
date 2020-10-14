@@ -239,4 +239,3 @@ private:
 }; // namespace android
 
 #endif // ANDROID_SF_HWCOMPOSER_H
-

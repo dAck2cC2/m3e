@@ -21,8 +21,6 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-//#include <EGL/egl.h>
-
 /*
  * NOTE: Make sure this file doesn't include  anything from <gl/ > or <gl2/ >
  */
@@ -302,20 +300,20 @@ public:
     // want to support color management to disable color management.
     static bool hasWideColorDisplay;
 
-    static char const* getServiceName() /*ANDROID_API*/ {
+    static char const* getServiceName() /*ANDROID_API*/ { // M3E:
         return "SurfaceFlinger";
     }
 
     struct SkipInitializationTag {};
     static /* constexpr */ SkipInitializationTag SkipInitialization; /* M3E: MSVC */
-    explicit SurfaceFlinger(SkipInitializationTag) /*ANDROID_API*/;
-    SurfaceFlinger() /*ANDROID_API*/;
+    explicit SurfaceFlinger(SkipInitializationTag) /*ANDROID_API*/; // M3E:
+    SurfaceFlinger() /*ANDROID_API*/; // M3E:
 
     // must be called before clients can connect
-    void init() /*ANDROID_API*/;
+    void init() /*ANDROID_API*/; // M3E:
 
     // starts SurfaceFlinger main loop in the current thread
-    void run() /*ANDROID_API*/;
+    void run() /*ANDROID_API*/; // M3E:
 
     enum {
         EVENT_VSYNC = HWC_EVENT_VSYNC
@@ -875,7 +873,7 @@ private:
     bool mBootFinished;
     bool mForceFullDamage;
     bool mPropagateBackpressure = true;
-#if ENABLE_INTERCEPTOR
+#if ENABLE_INTERCEPTOR // M3E:
     std::unique_ptr<SurfaceInterceptor> mInterceptor =
             std::make_unique<impl::SurfaceInterceptor>(this);
 #endif
@@ -921,7 +919,7 @@ private:
     // either AID_GRAPHICS or AID_SYSTEM.
     status_t CheckTransactCodeCredentials(uint32_t code);
 
-#if ENABLE_DVR
+#if ENABLE_DVR // M3E:
     std::unique_ptr<dvr::VrFlinger> mVrFlinger;
 #endif
     std::atomic<bool> mVrFlingerRequestsDisplay;

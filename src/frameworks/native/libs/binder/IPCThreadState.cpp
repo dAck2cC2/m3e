@@ -988,7 +988,7 @@ status_t IPCThreadState::writeTransactionData(int32_t cmd, uint32_t binderFlags,
         tr.flags |= TF_STATUS_CODE;
         *statusBuffer = err;
         tr.data_size = sizeof(status_t);
-        tr.data.ptr.buffer = reinterpret_cast<binder_uintptr_t>(statusBuffer);
+        tr.data.ptr.buffer = reinterpret_cast<binder_uintptr_t>(statusBuffer); // M3E:
         tr.offsets_size = 0;
         tr.data.ptr.offsets = 0;
     } else {

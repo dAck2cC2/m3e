@@ -22,7 +22,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#if defined(__linux__)
+#if defined(__linux__) // M3E:
 #include <string.h> // memcpy strerror
 #endif // __linux__
 
