@@ -25,7 +25,9 @@
 #include <media/IOMX.h>
 
 // M3E: add
+#if defined(_MSC_VER)
 #include <media/stagefright/foundation/AMessage.h>
+#endif
 
 namespace android {
 

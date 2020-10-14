@@ -25,10 +25,12 @@ namespace android {
 struct ABuffer;
 struct AString;
 
-ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E:
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 sp<ABuffer> decodeBase64(const AString &s);
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 void encodeBase64(const void *data, size_t size, AString *out);
 
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 void encodeBase64Url(const void *data, size_t size, AString *out);
 
 }  // namespace android

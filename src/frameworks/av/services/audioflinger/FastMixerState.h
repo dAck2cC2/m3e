@@ -24,6 +24,7 @@
 #include <media/nblog/NBLog.h>
 #include "FastThreadState.h"
 
+// M3E: add
 #include <cutils/threads.h>
 
 namespace android {

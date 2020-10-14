@@ -33,18 +33,21 @@ namespace android {
 // If this key is not present, only a time discontinuity is assumed.
 // The value should be a bitmask of values from
 // ATSParser::DiscontinuityType.
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 extern const char *const kIStreamListenerKeyDiscontinuityMask;
 
 // When signalling a discontinuity to ATSParser you can optionally
 // specify an int64_t PTS timestamp in "extra".
 // If present, rendering of data following the discontinuity
 // will be suppressed until media time reaches this timestamp.
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 extern const char *const kATSParserKeyResumeAtPTS;
 
 // When signalling a discontinuity to ATSParser you can optionally
 // specify an int64_t PTS timestamp in "extra".
 // It indicates the media time (in us) to be associated
 // with the next PTS occuring in the stream. The value is of type int64_t.
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 extern const char *const kATSParserKeyMediaTimeUs;
 
 // When signalling a discontinuity to ATSParser you can optionally
@@ -53,6 +56,7 @@ extern const char *const kATSParserKeyMediaTimeUs;
 // sample from the same content, and is used as a hint for the parser to
 // handle PTS wraparound. This is required when a new parser is created
 // to continue parsing content from the same timeline.
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 extern const char *const kATSParserKeyRecentMediaTimeUs;
 
 }  // namespace android

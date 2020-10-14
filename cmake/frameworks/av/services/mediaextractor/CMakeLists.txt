@@ -24,6 +24,7 @@ utils
 binder
 media
 stagefright
+mediaextractor
 )
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/services/mediaextractor )

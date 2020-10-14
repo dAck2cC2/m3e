@@ -28,7 +28,7 @@ namespace android {
 
 class MediaBufferBase;
 
-class ANDROID_API_MEDIAEXTRACTOR MediaBufferGroup : public MediaBufferObserver { // M3E:
+class ANDROID_API_MEDIAEXTRACTOR MediaBufferGroup : public MediaBufferObserver { // M3E: MSVC export
 public:
     MediaBufferGroup(size_t growthLimit = 0);
 

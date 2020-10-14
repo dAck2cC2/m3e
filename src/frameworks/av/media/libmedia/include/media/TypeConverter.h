@@ -256,35 +256,35 @@ template<> const UsageTypeConverter::Table UsageTypeConverter::mTable[];
 template<> const SourceTypeConverter::Table SourceTypeConverter::mTable[];
 #endif // _MSC_VER
 
-ANDROID_API_MEDIA
+ANDROID_API_MEDIA // M3E: MSVC export
 bool deviceFromString(const std::string& literalDevice, audio_devices_t& device);
 
-ANDROID_API_MEDIA
+ANDROID_API_MEDIA // M3E: MSVC export
 bool deviceToString(audio_devices_t device, std::string& literalDevice);
 
-ANDROID_API_MEDIA
+ANDROID_API_MEDIA // M3E: MSVC export
 SampleRateTraits::Collection samplingRatesFromString(
         const std::string &samplingRates, const char *del = AudioParameter::valueListSeparator);
 
-ANDROID_API_MEDIA
+ANDROID_API_MEDIA // M3E: MSVC export
 FormatTraits::Collection formatsFromString(
         const std::string &formats, const char *del = AudioParameter::valueListSeparator);
 
 audio_format_t formatFromString(
         const std::string &literalFormat, audio_format_t defaultFormat = AUDIO_FORMAT_DEFAULT);
 
-//ANDROID_API_MEDIA
+ANDROID_API_MEDIA // M3E: MSVC export
 audio_channel_mask_t channelMaskFromString(const std::string &literalChannels);
 
-ANDROID_API_MEDIA
+ANDROID_API_MEDIA // M3E: MSVC export
 ChannelTraits::Collection channelMasksFromString(
         const std::string &channels, const char *del = AudioParameter::valueListSeparator);
 
-ANDROID_API_MEDIA
+ANDROID_API_MEDIA // M3E: MSVC export
 InputChannelTraits::Collection inputChannelMasksFromString(
         const std::string &inChannels, const char *del = AudioParameter::valueListSeparator);
 
-ANDROID_API_MEDIA
+ANDROID_API_MEDIA // M3E: MSVC export
 OutputChannelTraits::Collection outputChannelMasksFromString(
         const std::string &outChannels, const char *del = AudioParameter::valueListSeparator);
 

@@ -30,6 +30,10 @@
 #include <media/stagefright/foundation/ALooper.h>
 #include <cutils/properties.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <media/stagefright/foundation/AMessage.h>
+#endif
+
 namespace android {
 
 static void AudioRecordCallbackFunction(int event, void *user, void *info) {

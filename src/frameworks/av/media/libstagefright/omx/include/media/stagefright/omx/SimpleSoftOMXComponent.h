@@ -34,7 +34,7 @@ struct CodecProfileLevel {
     OMX_U32 mLevel;
 };
 
-struct ANDROID_API_STAGEFRIGHT_OMX SimpleSoftOMXComponent : public SoftOMXComponent {
+struct ANDROID_API_STAGEFRIGHT_OMX SimpleSoftOMXComponent : public SoftOMXComponent { // M3E: MSVC export
     SimpleSoftOMXComponent(
             const char *name,
             const OMX_CALLBACKTYPE *callbacks,
@@ -49,7 +49,7 @@ protected:
     struct BufferInfo {
         OMX_BUFFERHEADERTYPE *mHeader;
         bool mOwnedByUs;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 	bool operator<(const BufferInfo &rhs) const { return (mHeader < rhs.mHeader); };
 #endif
     };

@@ -29,7 +29,7 @@ namespace android {
 class DataSource;
 struct ExtractorPlugin;
 
-class MediaExtractorFactory {
+class ANDROID_API_STAGEFRIGHT MediaExtractorFactory { // M3E: MSVC export
 public:
     static sp<IMediaExtractor> Create(
             const sp<DataSource> &source, const char *mime = NULL);

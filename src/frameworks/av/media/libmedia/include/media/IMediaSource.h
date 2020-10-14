@@ -38,7 +38,7 @@ namespace android {
 
 class MediaBufferGroup;
 
-class ANDROID_API_MEDIA IMediaSource : public IInterface { // M3E:
+class ANDROID_API_MEDIA IMediaSource : public IInterface { // M3E: MSVC export
 public:
     DECLARE_META_INTERFACE(MediaSource);
 
@@ -104,7 +104,7 @@ public:
     virtual status_t pause()  = 0;
 };
 
-class ANDROID_API_MEDIA BnMediaSource: public BnInterface<IMediaSource> // M3E:
+class ANDROID_API_MEDIA BnMediaSource: public BnInterface<IMediaSource> // M3E: MSVC export
 {
 public:
     BnMediaSource();

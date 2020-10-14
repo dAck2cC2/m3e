@@ -34,21 +34,26 @@ class IMediaExtractor;
 class IMediaSource;
 
 // Creates a DataSource which wraps the given IDataSource object.
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 sp<DataSource> CreateDataSourceFromIDataSource(const sp<IDataSource> &source);
 
 // creates an IDataSource wrapper to the DataSource.
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 sp<IDataSource> CreateIDataSourceFromDataSource(const sp<DataSource> &source);
 
 // Creates an IMediaExtractor wrapper to the given MediaExtractor.
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 sp<IMediaExtractor> CreateIMediaExtractorFromMediaExtractor(
         MediaExtractor *extractor,
         const sp<DataSource> &source,
         const sp<RefBase> &plugin);
 
 // Creates a MediaSource which wraps the given IMediaSource object.
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 sp<MediaSource> CreateMediaSourceFromIMediaSource(const sp<IMediaSource> &source);
 
 // Creates an IMediaSource wrapper to the given MediaSource.
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 sp<IMediaSource> CreateIMediaSourceFromMediaSourceBase(
         const sp<RemoteMediaExtractor> &extractor,
         MediaTrack *source, const sp<RefBase> &plugin);

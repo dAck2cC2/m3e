@@ -22,7 +22,7 @@
 namespace android {
 
 // PipeReader is safe for only a single thread
-class ANDROID_API_NBAIO PipeReader : public NBAIO_Source { // M3E:
+class ANDROID_API_NBAIO PipeReader : public NBAIO_Source { // M3E: MSVC export
 
 public:
 

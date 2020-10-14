@@ -921,9 +921,9 @@ sp<ABuffer> ElementaryStreamQueue::dequeueAccessUnitAAC() {
         // tracking the frame positions first then decrypt only if an accessUnit to be generated
         if (mSampleDecryptor != NULL) {
             ADTSPosition frame = {
-                /*.offset     =*/ offset, // M3E:
-                /*.headerSize =*/ headerSize,
-                /*.length     =*/ aac_frame_length
+                .offset     = offset,
+                .headerSize = headerSize,
+                .length     = aac_frame_length
             };
 
             frames.push(frame);

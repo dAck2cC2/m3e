@@ -28,7 +28,7 @@ namespace android {
 
 struct AMessage;
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION ABuffer : public RefBase { // M3E:
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ABuffer : public RefBase { // M3E: MSVC export
     explicit ABuffer(size_t capacity);
     ABuffer(void *data, size_t capacity);
 

@@ -250,6 +250,7 @@ AMediaFormat* AMediaCodec_getOutputFormat(AMediaCodec*);
  * Get format of the buffer. The specified buffer index must have been previously obtained from
  * dequeueOutputBuffer.
  */
+MEDIANDK_API
 AMediaFormat* AMediaCodec_getBufferFormat(AMediaCodec*, size_t index);
 
 /**
@@ -371,11 +372,13 @@ media_status_t AMediaCodec_signalEndOfInputStream(AMediaCodec *mData);
  * or createEncoderByType, what component is chosen is not known beforehand.
  * Caller shall call AMediaCodec_releaseName to free the returned pointer.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_getName(AMediaCodec*, char** out_name);
 
 /**
  * Free the memory pointed by name which is returned by AMediaCodec_getName.
  */
+MEDIANDK_API
 void AMediaCodec_releaseName(AMediaCodec*, char* name);
 
 /**
@@ -397,6 +400,7 @@ void AMediaCodec_releaseName(AMediaCodec*, char* name);
  * AMediaCodec_setAsyncNotifyCallback should not be called on the callback thread.
  * No heavy duty task should be performed on callback thread.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_setAsyncNotifyCallback(
         AMediaCodec*,
         AMediaCodecOnAsyncNotifyCallback callback,
@@ -405,6 +409,7 @@ media_status_t AMediaCodec_setAsyncNotifyCallback(
 /**
  * Release the crypto if applicable.
  */
+MEDIANDK_API
 media_status_t AMediaCodec_releaseCrypto(AMediaCodec*);
 
 /**
@@ -412,12 +417,14 @@ media_status_t AMediaCodec_releaseCrypto(AMediaCodec*);
  * format accepted by the codec. Do this to determine what optional configuration
  * parameters were supported by the codec.
  */
+MEDIANDK_API
 AMediaFormat* AMediaCodec_getInputFormat(AMediaCodec*);
 
 /**
  * Returns true if the codec cannot proceed further, but can be recovered by stopping,
  * configuring, and starting again.
  */
+MEDIANDK_API
 bool AMediaCodecActionCode_isRecoverable(int32_t actionCode);
 
 /**
@@ -425,6 +432,7 @@ bool AMediaCodecActionCode_isRecoverable(int32_t actionCode);
  * resource constraints, and that the method (or encoding/decoding) may be
  * retried at a later time.
  */
+MEDIANDK_API
 bool AMediaCodecActionCode_isTransient(int32_t actionCode);
 
 #endif /* __ANDROID_API__ >= 28 */

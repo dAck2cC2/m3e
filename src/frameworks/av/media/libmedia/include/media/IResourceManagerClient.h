@@ -24,7 +24,7 @@
 
 namespace android {
 
-class ANDROID_API_MEDIA IResourceManagerClient: public IInterface // M3E:
+class ANDROID_API_MEDIA IResourceManagerClient: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(ResourceManagerClient);
@@ -35,7 +35,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnResourceManagerClient: public BnInterface<IResourceManagerClient> // M3E:
+class ANDROID_API_MEDIA BnResourceManagerClient: public BnInterface<IResourceManagerClient> // M3E: MSVC export
 {
 public:
     virtual status_t onTransact(uint32_t code,

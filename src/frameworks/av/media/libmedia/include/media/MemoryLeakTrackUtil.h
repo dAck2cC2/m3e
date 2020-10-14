@@ -29,7 +29,7 @@ namespace android {
  *
  *    limit is the number of unique allocations to return.
  */
-ANDROID_API_MEDIAUTILS  // M3E:
+ANDROID_API_MEDIAUTILS  // M3E: MSVC export
 extern std::string dumpMemoryAddresses(size_t limit);
 
 };

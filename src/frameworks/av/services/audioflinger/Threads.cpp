@@ -7296,8 +7296,8 @@ void AudioFlinger::RecordThread::updateMetadata_l()
     for (const sp<RecordTrack> &track : mActiveTracks) {
         // No track is invalid as this is called after prepareTrack_l in the same critical section
         metadata.tracks.push_back({
-                /* .source = */ track->attributes().source, // M3E:
-                /* .gain = */ 1, // capture tracks do not have volumes
+                .source = track->attributes().source,
+                .gain = 1, // capture tracks do not have volumes
         });
     }
     mInput->stream->updateSinkMetadata(metadata);
@@ -8865,9 +8865,9 @@ void AudioFlinger::MmapPlaybackThread::updateMetadata_l()
     for (const sp<MmapTrack> &track : mActiveTracks) {
         // No track is invalid as this is called after prepareTrack_l in the same critical section
         metadata.tracks.push_back({
-                /* .usage = */ track->attributes().usage, // M3E:
-                /* .content_type = */ track->attributes().content_type,
-                /* .gain = */ mHalVolFloat, // TODO: propagate from aaudio pre-mix volume
+                .usage = track->attributes().usage,
+                .content_type = track->attributes().content_type,
+                .gain = mHalVolFloat, // TODO: propagate from aaudio pre-mix volume
         });
     }
     mOutput->stream->updateSourceMetadata(metadata);
@@ -8962,8 +8962,8 @@ void AudioFlinger::MmapCaptureThread::updateMetadata_l()
     for (const sp<MmapTrack> &track : mActiveTracks) {
         // No track is invalid as this is called after prepareTrack_l in the same critical section
         metadata.tracks.push_back({
-                /* .source = */ track->attributes().source, // M3E:
-                /* .gain = */ 1, // capture tracks do not have volumes
+                .source = track->attributes().source,
+                .gain = 1, // capture tracks do not have volumes
         });
     }
     mInput->stream->updateSinkMetadata(metadata);

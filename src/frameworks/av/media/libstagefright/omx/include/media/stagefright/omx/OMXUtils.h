@@ -36,21 +36,22 @@ static void InitOMXParams(T *params) {
     params->nVersion.s.nStep = 0;
 }
 
+ANDROID_API_STAGEFRIGHT_OMX // M3E: MSVC export
 status_t StatusFromOMXError(OMX_ERRORTYPE err);
 
-ANDROID_API_STAGEFRIGHT_OMX
+ANDROID_API_STAGEFRIGHT_OMX // M3E: MSVC export
 const char *GetComponentRole(bool isEncoder, const char *mime);
-ANDROID_API_STAGEFRIGHT_OMX
+ANDROID_API_STAGEFRIGHT_OMX // M3E: MSVC export
 status_t SetComponentRole(const sp<IOMXNode> &omxNode, const char *role);
 
 struct DescribeColorFormat2Params;
 
-ANDROID_API_STAGEFRIGHT_OMX
+ANDROID_API_STAGEFRIGHT_OMX // M3E: MSVC export
 bool IsFlexibleColorFormat(
         const sp<IOMXNode> &omxNode, uint32_t colorFormat,
         bool usingNativeBuffers, OMX_U32 *flexibleEquivalent);
 bool DescribeDefaultColorFormat(DescribeColorFormat2Params &describeParams);
-ANDROID_API_STAGEFRIGHT_OMX
+ANDROID_API_STAGEFRIGHT_OMX // M3E: MSVC export
 bool DescribeColorFormat(
         const sp<IOMXNode> &omxNode,
         DescribeColorFormat2Params &describeParams);

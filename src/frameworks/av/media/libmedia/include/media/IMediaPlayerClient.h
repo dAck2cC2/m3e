@@ -23,7 +23,7 @@
 
 namespace android {
 
-class ANDROID_API_MEDIA IMediaPlayerClient: public IInterface // M3E:
+class ANDROID_API_MEDIA IMediaPlayerClient: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(MediaPlayerClient);
@@ -33,7 +33,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnMediaPlayerClient: public BnInterface<IMediaPlayerClient> // M3E:
+class ANDROID_API_MEDIA BnMediaPlayerClient: public BnInterface<IMediaPlayerClient> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact( uint32_t code,

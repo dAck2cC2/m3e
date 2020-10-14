@@ -26,7 +26,7 @@
 
 namespace android {
 
-struct ANDROID_API_STAGEFRIGHT_OMX SoftOMXComponent : public RefBase {
+struct ANDROID_API_STAGEFRIGHT_OMX SoftOMXComponent : public RefBase { // M3E: MSVC export
     SoftOMXComponent(
             const char *name,
             const OMX_CALLBACKTYPE *callbacks,
@@ -192,7 +192,7 @@ bool isValidOMXParam(T *a) {
   return true;
 }
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E: MSVC export
 typedef SoftOMXComponent *(*CreateSoftOMXComponentFunc)(
 	const char *, const OMX_CALLBACKTYPE *,
 	OMX_PTR, OMX_COMPONENTTYPE **);

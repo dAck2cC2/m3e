@@ -29,7 +29,7 @@ struct AudioPlaybackRate;
 class AudioTrack;
 struct AwesomePlayer;
 
-class ANDROID_API_STAGEFRIGHT AudioPlayer { // M3E:
+class ANDROID_API_STAGEFRIGHT AudioPlayer { // M3E: MSVC export
 public:
     enum {
         REACHED_EOS,

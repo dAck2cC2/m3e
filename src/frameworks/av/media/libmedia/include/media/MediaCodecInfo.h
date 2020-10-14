@@ -40,7 +40,7 @@ typedef KeyedVector<AString, AString> CodecSettings;
 struct MediaCodecInfoWriter;
 struct MediaCodecListWriter;
 
-struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase { // M3E:
+struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase { // M3E: MSVC export
     struct ProfileLevel {
         uint32_t mProfile;
         uint32_t mLevel;
@@ -51,7 +51,7 @@ struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase { // M3E:
 
     struct CapabilitiesWriter;
 
-    struct ANDROID_API_MEDIA Capabilities : public RefBase { // M3E:
+    struct ANDROID_API_MEDIA Capabilities : public RefBase { // M3E: MSVC export
         enum {
             // decoder flags
             kFlagSupportsAdaptivePlayback = 1 << 0,
@@ -96,7 +96,7 @@ struct ANDROID_API_MEDIA MediaCodecInfo : public RefBase { // M3E:
      * `MediaCodecInfoWriter::addMime()` or
      * `MediaCodecInfoWriter::updateMime()`.
      */
-    struct ANDROID_API_MEDIA CapabilitiesWriter { // M3E:
+    struct ANDROID_API_MEDIA CapabilitiesWriter { // M3E: MSVC export
         /**
          * Add a key-value pair to the list of details. If the key already
          * exists, the old value will be replaced.
@@ -211,7 +211,7 @@ private:
  * `MediaCodecListWriter` object given as an input to
  * `MediaCodecListBuilderBase::buildMediaCodecList()`.
  */
-struct ANDROID_API_MEDIA MediaCodecInfoWriter { // M3E:
+struct ANDROID_API_MEDIA MediaCodecInfoWriter { // M3E: MSVC export
     /**
      * Set the name of the codec.
      *

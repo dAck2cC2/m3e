@@ -35,9 +35,9 @@ if(MSVC)
     add_definitions(-DZLIB_WINAPI)
 
     include(CheckCXXCompilerFlag)
-    CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_latest_flag_suppoted)
-    if (_cpp_latest_flag_suppoted)
-        add_compile_options("/std:c++17")
+    CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_flag_suppoted)
+    if (_cpp_flag_suppoted)
+        add_compile_options("/std:c++latest")
     endif()
 
     include(${M3E_SOURCE_DIR}/cmake/tool/FindWindowsSDK.cmake)

@@ -28,7 +28,7 @@
 #include <functional>
 #include <sys/time.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <media/stagefright/foundation/AMessage.h>
 #endif
 

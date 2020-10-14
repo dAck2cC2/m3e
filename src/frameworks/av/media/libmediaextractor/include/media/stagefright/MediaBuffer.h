@@ -35,7 +35,7 @@ class MediaBuffer;
 class MediaBufferObserver;
 class MetaDataBase;
 
-class ANDROID_API_MEDIAEXTRACTOR MediaBuffer : public MediaBufferBase { // M3E:
+class ANDROID_API_MEDIAEXTRACTOR MediaBuffer : public MediaBufferBase { // M3E: MSVC export
 public:
     // allocations larger than or equal to this will use shared memory.
     static const size_t kSharedMemThreshold = 64 * 1024;
@@ -47,11 +47,15 @@ public:
 
     explicit MediaBuffer(const sp<ABuffer> &buffer);
 
+#if !defined(_MSC_VER) // M3E: MSVC linking problem
     MediaBuffer(const sp<IMemory> &mem) :
         MediaBuffer((uint8_t *)mem->pointer() + sizeof(SharedControl), mem->size()) {
         // delegate and override mMemory
         mMemory = mem;
     }
+#else
+    MediaBuffer(const sp<IMemory>& mem);
+#endif
 
     // If MediaBufferGroup is set, decrement the local reference count;
     // if the local reference count drops to 0, return the buffer to the
@@ -120,10 +124,14 @@ public:
     // Sticky on enabling of shared memory MediaBuffers. By default we don't use
     // shared memory for MediaBuffers, but we enable this for those processes
     // that export MediaBuffers.
+#if !defined(_MSC_VER) // M3E: MSVC linking problem
     static void useSharedMemory() {
         std::atomic_store_explicit(
                 &mUseSharedMemory, (int_least32_t)1, std::memory_order_seq_cst);
     }
+#else
+    static void useSharedMemory();
+#endif
 
 protected:
     // true if MediaBuffer is observed (part of a MediaBufferGroup).

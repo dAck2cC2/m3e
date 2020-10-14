@@ -27,6 +27,10 @@
 #include <media/stagefright/MediaHTTP.h>
 #include <utils/String8.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <media/stagefright/foundation/AMessage.h>
+#endif
+
 namespace android {
 
 // static

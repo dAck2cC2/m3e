@@ -22,7 +22,7 @@
 
 namespace android {
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION AState : public RefBase { // M3E:
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION AState : public RefBase { // M3E: MSVC export
     AState(const sp<AState> &parentState = NULL);
 
     sp<AState> parentState();
@@ -43,7 +43,7 @@ private:
     DISALLOW_EVIL_CONSTRUCTORS(AState);
 };
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION AHierarchicalStateMachine { // M3E:
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION AHierarchicalStateMachine { // M3E: MSVC export
     AHierarchicalStateMachine();
 
 protected:

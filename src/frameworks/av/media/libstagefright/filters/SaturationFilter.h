@@ -19,7 +19,20 @@
 
 #include <RenderScript.h>
 
+#if 0  // M3E:
 #include "ScriptC_saturationARGB.h"
+#else
+namespace android {
+class ScriptC_saturationARGB : public RSC::RefBase {
+public:
+    ScriptC_saturationARGB(RSC::sp<RSC::RS>& RS) {};
+    void set_gSaturation(float f) {};
+    void forEach_root(RSC::sp<RSC::Allocation>& in, RSC::sp<RSC::Allocation>& out) {};
+protected:
+    ~ScriptC_saturationARGB() {};
+}; // ScriptC_saturationARGB
+}  // namespace android
+#endif
 #include "SimpleFilter.h"
 
 namespace android {

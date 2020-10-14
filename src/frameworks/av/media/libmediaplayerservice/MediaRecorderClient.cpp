@@ -473,7 +473,6 @@ status_t MediaRecorderClient::setListener(const sp<IMediaRecorderClient>& listen
     }
     sCameraChecked = true;
 
-#if TODO
     sp<IOmx> omx = IOmx::getService();
     if (omx == nullptr) {
         ALOGE("IOmx service is not available");
@@ -482,7 +481,6 @@ status_t MediaRecorderClient::setListener(const sp<IMediaRecorderClient>& listen
     mCodecDeathListener = new ServiceDeathNotifier(omx, listener,
             MediaPlayerService::MEDIACODEC_PROCESS_DEATH);
     omx->linkToDeath(mCodecDeathListener, 0);
-#endif
 
     mAudioDeviceUpdatedNotifier = new AudioDeviceUpdatedNotifier(listener);
     mRecorder->setAudioDeviceCallback(mAudioDeviceUpdatedNotifier);

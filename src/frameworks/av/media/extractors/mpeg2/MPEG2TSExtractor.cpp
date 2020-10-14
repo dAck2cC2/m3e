@@ -41,8 +41,10 @@
 #include <hidl/HybridInterface.h>
 #include <android/hardware/cas/1.0/ICas.h>
 
+#if defined(_MSC_VER) // M3E:
 #include "CasManager.h"
 #include <android/hardware/cas/native/1.0/IDescrambler.h>
+#endif
 
 namespace android {
 

@@ -31,7 +31,7 @@ class MediaBufferBase;
 /**
  * Buffers used by MediaCodec.
  */
-class ANDROID_API_MEDIA MediaCodecBuffer : public RefBase {
+class ANDROID_API_MEDIA MediaCodecBuffer : public RefBase { // M3E:  MSVC export
 public:
     MediaCodecBuffer(const sp<AMessage> &format, const sp<ABuffer> &buffer);
 

@@ -44,7 +44,7 @@ struct BufferingSettings;
 
 typedef MediaSource::ReadOptions::SeekMode MediaPlayerSeekMode;
 
-class ANDROID_API_MEDIA IMediaPlayer: public IInterface // M3E:
+class ANDROID_API_MEDIA IMediaPlayer: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(MediaPlayer);
@@ -140,7 +140,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnMediaPlayer: public BnInterface<IMediaPlayer> // M3E:
+class ANDROID_API_MEDIA BnMediaPlayer: public BnInterface<IMediaPlayer> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact( uint32_t code,

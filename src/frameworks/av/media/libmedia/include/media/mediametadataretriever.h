@@ -74,7 +74,7 @@ enum {
     // Add more here...
 };
 
-class MediaMetadataRetriever: public RefBase
+class ANDROID_API_MEDIA MediaMetadataRetriever: public RefBase  // M3E: MSVC export
 {
 public:
     MediaMetadataRetriever();

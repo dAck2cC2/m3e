@@ -236,10 +236,9 @@ status_t StreamOutHalLocal::updateSourceMetadata(const SourceMetadata& sourceMet
         return INVALID_OPERATION;
     }
     const source_metadata_t metadata {
-        // M3E:
-        /* .track_count = */ sourceMetadata.tracks.size(),
+        .track_count = sourceMetadata.tracks.size(),
         // const cast is fine as it is in a const structure
-        /* .tracks = */ const_cast<playback_track_metadata*>(sourceMetadata.tracks.data()),
+        .tracks = const_cast<playback_track_metadata*>(sourceMetadata.tracks.data()),
     };
     mStream->update_source_metadata(mStream, &metadata);
     return OK;
@@ -311,10 +310,9 @@ status_t StreamInHalLocal::updateSinkMetadata(const SinkMetadata& sinkMetadata) 
         return INVALID_OPERATION;
     }
     const sink_metadata_t metadata {
-        // M3E:
-        /* .track_count = */ sinkMetadata.tracks.size(),
+        .track_count = sinkMetadata.tracks.size(),
         // const cast is fine as it is in a const structure
-        /* .tracks = */ const_cast<record_track_metadata*>(sinkMetadata.tracks.data()),
+        .tracks = const_cast<record_track_metadata*>(sinkMetadata.tracks.data()),
     };
     mStream->update_sink_metadata(mStream, &metadata);
     return OK;

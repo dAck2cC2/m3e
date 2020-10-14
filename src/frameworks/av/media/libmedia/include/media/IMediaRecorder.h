@@ -34,7 +34,7 @@ class IMediaRecorderClient;
 class IGraphicBufferProducer;
 struct PersistentSurface;
 
-class ANDROID_API_MEDIA IMediaRecorder: public IInterface // M3E:
+class ANDROID_API_MEDIA IMediaRecorder: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(MediaRecorder);
@@ -78,7 +78,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnMediaRecorder: public BnInterface<IMediaRecorder> // M3E:
+class ANDROID_API_MEDIA BnMediaRecorder: public BnInterface<IMediaRecorder> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact( uint32_t code,

@@ -36,6 +36,7 @@
 #include <jni.h>
 */
 
+// M3E: add
 #include <media/stagefright/MediaAdapter.h>
 
 using namespace android;

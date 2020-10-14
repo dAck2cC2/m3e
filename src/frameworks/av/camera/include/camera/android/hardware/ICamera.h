@@ -33,7 +33,7 @@ namespace hardware {
 
 class ICameraClient;
 
-class ANDROID_API_CAMERA_CLIENT ICamera: public android::IInterface // M3E:
+class ANDROID_API_CAMERA_CLIENT ICamera: public android::IInterface // M3E: MSVC export
 {
     /**
      * Keep up-to-date with ICamera.aidl in frameworks/base

@@ -90,10 +90,11 @@ typedef ssize_t (*writeVia_t)(void *user, void *buffer, size_t count);
 typedef ssize_t (*readVia_t)(void *user, const void *buffer, size_t count);
 
 // Check whether an NBAIO_Format is valid
+ANDROID_API_NBAIO // M3E: MSVC export
 bool Format_isValid(const NBAIO_Format& format);
 
 // Compare two NBAIO_Format values
-ANDROID_API_NBAIO
+ANDROID_API_NBAIO // M3E: MSVC export
 bool Format_isEqual(const NBAIO_Format& format1, const NBAIO_Format& format2);
 
 // Abstract class (interface) representing a data port.

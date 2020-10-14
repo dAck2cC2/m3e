@@ -93,19 +93,29 @@ void AMediaFormat_setBuffer(AMediaFormat*, const char* name, void* data, size_t 
 /**
  * XXX should these be ints/enums that we look up in a table as needed?
  */
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_DRC_ATTENUATION_FACTOR;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_DRC_BOOST_FACTOR;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_DRC_HEAVY_COMPRESSION;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_DRC_TARGET_REFERENCE_LEVEL;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_ENCODED_TARGET_LEVEL;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_MAX_OUTPUT_CHANNEL_COUNT;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_PROFILE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AAC_SBR_MODE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_AUDIO_SESSION_ID;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_BITRATE_MODE;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_BIT_RATE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CAPTURE_RATE;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CHANNEL_COUNT;
@@ -113,16 +123,27 @@ MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CHANNEL_MASK;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_COLOR_FORMAT;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_COLOR_RANGE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_COLOR_STANDARD;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_COLOR_TRANSFER;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_COMPLEXITY;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CSD;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CSD_0;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CSD_1;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_CSD_2;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_DISPLAY_CROP;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_DISPLAY_HEIGHT;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_DISPLAY_WIDTH;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_DURATION;
@@ -130,11 +151,15 @@ MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_FLAC_COMPRESSION_LEVEL;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_FRAME_RATE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_GRID_COLUMNS;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_GRID_ROWS;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_HDR_STATIC_INFO;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_HEIGHT;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_INTRA_REFRESH_PERIOD;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_IS_ADTS;
@@ -148,7 +173,9 @@ MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_I_FRAME_INTERVAL;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_LANGUAGE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_LATENCY;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_LEVEL;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_MAX_HEIGHT;
@@ -158,27 +185,43 @@ MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_MAX_WIDTH;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_MIME;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_MPEG_USER_DATA;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_OPERATING_RATE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_PCM_ENCODING;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_PRIORITY;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_PROFILE;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_PUSH_BLANK_BUFFERS_ON_STOP;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_REPEAT_PREVIOUS_FRAME_AFTER;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_ROTATION;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_SAMPLE_RATE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_SEI;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_SLICE_HEIGHT;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_STRIDE;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_TEMPORAL_LAYER_ID;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_TEMPORAL_LAYERING;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_TILE_HEIGHT;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_TILE_WIDTH;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_TIME_US;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_TRACK_ID;
+MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_TRACK_INDEX;
 MEDIANDK_API
 extern const char* AMEDIAFORMAT_KEY_WIDTH;
@@ -186,12 +229,17 @@ extern const char* AMEDIAFORMAT_KEY_WIDTH;
 #endif /* __ANDROID_API__ >= 21 */
 
 #if __ANDROID_API__ >= 28
+MEDIANDK_API
 bool AMediaFormat_getDouble(AMediaFormat*, const char *name, double *out);
+MEDIANDK_API
 bool AMediaFormat_getRect(AMediaFormat*, const char *name,
                           int32_t *left, int32_t *top, int32_t *right, int32_t *bottom);
 
+MEDIANDK_API
 void AMediaFormat_setDouble(AMediaFormat*, const char* name, double value);
+MEDIANDK_API
 void AMediaFormat_setSize(AMediaFormat*, const char* name, size_t value);
+MEDIANDK_API
 void AMediaFormat_setRect(AMediaFormat*, const char* name,
                           int32_t left, int32_t top, int32_t right, int32_t bottom);
 #endif /* __ANDROID_API__ >= 28 */

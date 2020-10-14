@@ -27,7 +27,7 @@ namespace android {
 class MetaData;
 typedef std::vector<uint8_t> HInterfaceToken;
 
-class ANDROID_API_MEDIA IMediaExtractor : public IInterface { // M3E:
+class ANDROID_API_MEDIA IMediaExtractor : public IInterface { // M3E: MSVC export
 public:
     DECLARE_META_INTERFACE(MediaExtractor);
 
@@ -66,24 +66,25 @@ public:
 };
 
 
-class ANDROID_API_MEDIA BnMediaExtractor: public BnInterface<IMediaExtractor>  // M3E:
+class ANDROID_API_MEDIA BnMediaExtractor: public BnInterface<IMediaExtractor>  // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact(uint32_t code, const Parcel& data, Parcel* reply,
                                 uint32_t flags = 0);
 };
 
-ANDROID_API_MEDIA // M3E:
+ANDROID_API_MEDIA // M3E: MSVC export
 void registerMediaExtractor(
         const sp<IMediaExtractor> &extractor,
         const sp<DataSource> &source,
         const char *mime);
 
+ANDROID_API_MEDIA // M3E: MSVC export
 void registerMediaSource(
         const sp<IMediaExtractor> &extractor,
         const sp<IMediaSource> &source);
 
-ANDROID_API_MEDIA // M3E:
+ANDROID_API_MEDIA // M3E: MSVC export
 status_t dumpExtractors(int fd, const Vector<String16>& args);
 
 

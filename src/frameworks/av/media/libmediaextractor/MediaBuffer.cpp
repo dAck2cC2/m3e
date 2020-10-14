@@ -198,4 +198,17 @@ MediaBufferBase *MediaBuffer::clone() {
     return buffer;
 }
 
+#if defined(_MSC_VER) // M3E: MSVC linking problem
+MediaBuffer::MediaBuffer(const sp<IMemory>& mem) :
+    MediaBuffer((uint8_t*)mem->pointer() + sizeof(SharedControl), mem->size()) {
+    // delegate and override mMemory
+    mMemory = mem;
+}
+
+void MediaBuffer::useSharedMemory() {
+    std::atomic_store_explicit(
+        &mUseSharedMemory, (int_least32_t)1, std::memory_order_seq_cst);
+}
+#endif
+
 }  // namespace android

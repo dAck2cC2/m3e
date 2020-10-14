@@ -43,7 +43,7 @@ enum MediaScanResult {
     MEDIA_SCAN_RESULT_ERROR,
 };
 
-struct ANDROID_API_MEDIA MediaAlbumArt {
+struct ANDROID_API_MEDIA MediaAlbumArt { // M3E: MSVC export
 public:
     static MediaAlbumArt *fromData(int32_t size, const void* data);
 
@@ -69,7 +69,7 @@ public: // M3E:
     MediaAlbumArt() {};
 } /*__packed*/;
 
-struct MediaScanner {
+struct ANDROID_API_MEDIA MediaScanner { // M3E: MSVC export
     MediaScanner();
     virtual ~MediaScanner();
 
@@ -105,7 +105,7 @@ private:
     MediaScanner &operator=(const MediaScanner &);
 };
 
-class MediaScannerClient
+class ANDROID_API_MEDIA MediaScannerClient // M3E: MSVC export
 {
 public:
     MediaScannerClient();

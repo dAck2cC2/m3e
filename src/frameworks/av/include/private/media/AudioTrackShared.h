@@ -126,7 +126,7 @@ typedef SingleStateQueue<ExtendedTimestamp> ExtendedTimestampQueue;
 // ----------------------------------------------------------------------------
 
 // Important: do not add any virtual methods, including ~
-struct ANDROID_API_AUDIOCLIENT audio_track_cblk_t // M3E:
+struct ANDROID_API_AUDIOCLIENT audio_track_cblk_t // M3E: MSVC export
 {
                 // Since the control block is always located in shared memory, this constructor
                 // is only used for placement new().  It is never used for regular new() or stack.
@@ -235,7 +235,7 @@ protected:
 // ----------------------------------------------------------------------------
 
 // Proxy seen by AudioTrack client and AudioRecord client
-class ANDROID_API_AUDIOCLIENT ClientProxy : public Proxy { // M3E:
+class ANDROID_API_AUDIOCLIENT ClientProxy : public Proxy { // M3E: MSVC export
 public:
     ClientProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount, size_t frameSize,
             bool isOut, bool clientInServer);
@@ -355,7 +355,7 @@ private:
 // ----------------------------------------------------------------------------
 
 // Proxy used by AudioTrack client, which also includes AudioFlinger::PlaybackThread::OutputTrack
-class ANDROID_API_AUDIOCLIENT AudioTrackClientProxy : public ClientProxy { // M3E:
+class ANDROID_API_AUDIOCLIENT AudioTrackClientProxy : public ClientProxy { // M3E: MSVC export
 public:
     AudioTrackClientProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount,
             size_t frameSize, bool clientInServer = false)
@@ -490,7 +490,7 @@ public:
 // ----------------------------------------------------------------------------
 
 // Proxy used by AudioFlinger server
-class ANDROID_API_AUDIOCLIENT ServerProxy : public Proxy { // M3E:
+class ANDROID_API_AUDIOCLIENT ServerProxy : public Proxy { // M3E: MSVC export
 protected:
     ServerProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount, size_t frameSize,
             bool isOut, bool clientInServer);
@@ -565,7 +565,7 @@ protected:
 };
 
 // Proxy used by AudioFlinger for servicing AudioTrack
-class ANDROID_API_AUDIOCLIENT AudioTrackServerProxy : public ServerProxy { // M3E:
+class ANDROID_API_AUDIOCLIENT AudioTrackServerProxy : public ServerProxy { // M3E: MSVC export
 public:
     AudioTrackServerProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount,
             size_t frameSize, bool clientInServer = false, uint32_t sampleRate = 0)
@@ -642,7 +642,7 @@ private:
     std::atomic<bool>             mDrained; // is the track buffer drained
 };
 
-class ANDROID_API_AUDIOCLIENT StaticAudioTrackServerProxy : public AudioTrackServerProxy { // M3E:
+class ANDROID_API_AUDIOCLIENT StaticAudioTrackServerProxy : public AudioTrackServerProxy { // M3E: MSVC export
 public:
     StaticAudioTrackServerProxy(audio_track_cblk_t* cblk, void *buffers, size_t frameCount,
             size_t frameSize);

@@ -77,7 +77,7 @@ std::string dumpMemoryAddresses(size_t limit)
     oss << "  ABI: '" ABI_STRING "'" << "\n\n";
     if (count > limit) count = limit;
 
-#if TODO
+#if TODO // M3E:
     // The memory is sorted based on total size which is useful for finding
     // worst memory offenders. For diffs, sometimes it is preferable to sort
     // based on the backtrace.
@@ -100,7 +100,7 @@ std::string dumpMemoryAddresses(size_t limit)
     return oss.str();
 }
 
-#if !TODO
+#if !TODO // M3E:
 extern "C" void get_malloc_leak_info(uint8_t** info, size_t* overallSize,
 	size_t* infoSize, size_t* totalMemory, size_t* backtraceSize)
 {

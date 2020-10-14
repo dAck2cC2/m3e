@@ -185,13 +185,8 @@ void AudioInputDescriptor::setPatchHandle(audio_patch_handle_t handle)
 
 audio_config_base_t AudioInputDescriptor::getConfig() const
 {
-#if defined(_MSC_VER) // M3E:
-	const audio_config_base_t config = { /* .sample_rate = */ mSamplingRate, /*.channel_mask = */ mChannelMask,
-		/*.format = */ mFormat };
-#else
     const audio_config_base_t config = { .sample_rate = mSamplingRate, .channel_mask = mChannelMask,
             .format = mFormat };
-#endif
     return config;
 }
 

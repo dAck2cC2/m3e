@@ -1021,9 +1021,9 @@ void AudioFlinger::PlaybackThread::Track::setFinalVolume(float volume)
 void AudioFlinger::PlaybackThread::Track::copyMetadataTo(MetadataInserter& backInserter) const
 {
     *backInserter++ = {
-            /* .usage = */ mAttr.usage, // M3E:
-            /* .content_type = */ mAttr.content_type,
-            /* .gain = */ mFinalVolume,
+            .usage = mAttr.usage,
+            .content_type = mAttr.content_type,
+            .gain = mFinalVolume,
     };
 }
 
@@ -1888,7 +1888,7 @@ void AudioFlinger::RecordThread::RecordTrack::invalidate()
 #if _LINUX // M3E:
     // client is not in server, so FUTEX_WAKE is needed instead of FUTEX_WAKE_PRIVATE
     (void) syscall(__NR_futex, &cblk->mFutex, FUTEX_WAKE, INT_MAX);
-#endif // _MSC_VER
+#endif
 }
 
 

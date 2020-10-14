@@ -26,7 +26,7 @@ struct AMessage;
 class IMemory;
 struct IStreamListener;
 
-struct ANDROID_API_MEDIA IStreamSource : public IInterface { // M3E:
+struct ANDROID_API_MEDIA IStreamSource : public IInterface { // M3E: MSVC export
     DECLARE_META_INTERFACE(StreamSource);
 
     virtual void setListener(const sp<IStreamListener> &listener) = 0;
@@ -44,7 +44,7 @@ struct ANDROID_API_MEDIA IStreamSource : public IInterface { // M3E:
     virtual uint32_t flags() const { return 0; }
 };
 
-struct ANDROID_API_MEDIA IStreamListener : public IInterface { // M3E:
+struct ANDROID_API_MEDIA IStreamListener : public IInterface { // M3E: MSVC export
     DECLARE_META_INTERFACE(StreamListener);
 
     enum Command {
@@ -60,13 +60,13 @@ struct ANDROID_API_MEDIA IStreamListener : public IInterface { // M3E:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct ANDROID_API_MEDIA BnStreamSource : public BnInterface<IStreamSource> { // M3E:
+struct ANDROID_API_MEDIA BnStreamSource : public BnInterface<IStreamSource> { // M3E: MSVC export
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,
             uint32_t flags = 0);
 };
 
-struct ANDROID_API_MEDIA BnStreamListener : public BnInterface<IStreamListener> { // M3E:
+struct ANDROID_API_MEDIA BnStreamListener : public BnInterface<IStreamListener> { // M3E: MSVC export
     virtual status_t onTransact(
             uint32_t code, const Parcel &data, Parcel *reply,
             uint32_t flags = 0);

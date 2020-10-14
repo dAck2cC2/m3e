@@ -22,10 +22,14 @@
 #include "NdkImagePriv.h"
 #include "NdkImageReaderPriv.h"
 
-//#include <android_media_Utils.h>
-//#include <android_runtime/android_hardware_HardwareBuffer.h>
+#if 0 // M3E:
+#include <android_media_Utils.h>
+#include <android_runtime/android_hardware_HardwareBuffer.h>
+#endif
 #include <utils/Log.h>
-//#include "hardware/camera3.h"
+#if 0 // M3E:
+#include "hardware/camera3.h"
+#endif
 
 using namespace android;
 

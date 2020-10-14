@@ -28,7 +28,7 @@ namespace android {
 struct ICrypto;
 struct IDrm;
 
-class ANDROID_API_MEDIA IMediaDrmService: public IInterface // M3E:
+class ANDROID_API_MEDIA IMediaDrmService: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(MediaDrmService);
@@ -39,7 +39,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnMediaDrmService: public BnInterface<IMediaDrmService> // M3E:
+class ANDROID_API_MEDIA BnMediaDrmService: public BnInterface<IMediaDrmService> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact( uint32_t code,

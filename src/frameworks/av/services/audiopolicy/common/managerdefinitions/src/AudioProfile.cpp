@@ -209,7 +209,7 @@ status_t AudioProfile::checkCompatibleChannelMask(audio_channel_mask_t channelMa
 
 void AudioProfile::dump(int fd, int spaces) const
 {
-#if TODO
+#if TODO // M3E:
     const size_t SIZE = 256;
     char buffer[SIZE];
     String8 result;

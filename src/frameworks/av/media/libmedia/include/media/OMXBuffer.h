@@ -53,7 +53,7 @@ using hardware::hidl_memory;
 
 // TODO: After complete HIDL transition, this class would be replaced by
 // CodecBuffer.
-class ANDROID_API_MEDIA OMXBuffer { // M3E:
+class ANDROID_API_MEDIA OMXBuffer { // M3E: MSVC export
 public:
     // sPreset is used in places where we are referring to a pre-registered
     // buffer on a port. It has type kBufferTypePreset and mRangeLength of 0.

@@ -388,7 +388,11 @@ Return<Status> TWOmxNode::fillBuffer(
     return toStatus(mBase->fillBuffer(
             buffer,
             omxBuffer,
+#if !defined(_MSC_VER) // M3E: dup(-1) crashs on MSVC
             dup(native_handle_read_fd(fence))));
+#else
+            -1));
+#endif
 }
 
 Return<Status> TWOmxNode::emptyBuffer(
@@ -403,7 +407,11 @@ Return<Status> TWOmxNode::emptyBuffer(
             omxBuffer,
             flags,
             toOMXTicks(timestampUs),
+#if !defined(_MSC_VER) // M3E: dup(-1) crashs on MSVC
             dup(native_handle_read_fd(fence))));
+#else
+            -1));
+#endif
 }
 
 Return<void> TWOmxNode::getExtensionIndex(

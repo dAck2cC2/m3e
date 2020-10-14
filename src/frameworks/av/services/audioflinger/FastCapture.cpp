@@ -20,7 +20,7 @@
 #define ATRACE_TAG ATRACE_TAG_AUDIO
 
 #include "Configuration.h"
-#if ENABLE_FUTEX
+#if ENABLE_FUTEX // M3E:
 #include <linux/futex.h>
 #include <sys/syscall.h>
 #endif
@@ -174,7 +174,7 @@ void FastCapture::onWork()
         ATRACE_END();
         dumpState->mReadSequence++;
         if (framesRead >= 0) {
-            LOG_ALWAYS_FATAL_IF((size_t) framesRead > frameCount, "");
+            LOG_ALWAYS_FATAL_IF((size_t) framesRead > frameCount, "M3E"); // M3E:
             mTotalNativeFramesRead += framesRead;
             dumpState->mFramesRead = mTotalNativeFramesRead;
             mReadBufferState = framesRead;
@@ -205,7 +205,7 @@ void FastCapture::onWork()
                 cblk->mServer += framesWritten;
                 int32_t old = android_atomic_or(CBLK_FUTEX_WAKE, &cblk->mFutex);
                 if (!(old & CBLK_FUTEX_WAKE)) {
-#if ENABLE_FUTEX
+#if ENABLE_FUTEX // M3E:
                     // client is never in server process, so don't use FUTEX_WAKE_PRIVATE
                     (void) syscall(__NR_futex, &cblk->mFutex, FUTEX_WAKE, 1);
 #endif

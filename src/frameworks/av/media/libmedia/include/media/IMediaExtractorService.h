@@ -25,7 +25,7 @@
 
 namespace android {
 
-class ANDROID_API_MEDIA IMediaExtractorService: public IInterface // M3E:
+class ANDROID_API_MEDIA IMediaExtractorService: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(MediaExtractorService);
@@ -35,7 +35,7 @@ public:
     virtual sp<IDataSource> makeIDataSource(int fd, int64_t offset, int64_t length) = 0;
 };
 
-class ANDROID_API_MEDIA BnMediaExtractorService: public BnInterface<IMediaExtractorService> // M3E:
+class ANDROID_API_MEDIA BnMediaExtractorService: public BnInterface<IMediaExtractorService> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact(uint32_t code, const Parcel& data, Parcel* reply,

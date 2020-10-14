@@ -62,7 +62,9 @@ struct EocdRecord {
   // Length of the central directory comment.
   uint16_t comment_length;
 
+#if !defined(_MSC_VER) // M3E:
  private:
+#endif
   EocdRecord() = default;
   DISALLOW_COPY_AND_ASSIGN(EocdRecord);
 } __attribute__((packed));
@@ -117,7 +119,9 @@ struct CentralDirectoryRecord {
   // beginning of this archive.
   uint32_t local_file_header_offset;
 
+#if !defined(_MSC_VER) // M3E:
  private:
+#endif
   CentralDirectoryRecord() = default;
   DISALLOW_COPY_AND_ASSIGN(CentralDirectoryRecord);
 } __attribute__((packed));
@@ -156,7 +160,9 @@ struct LocalFileHeader {
   // will appear immediately after the entry file name.
   uint16_t extra_field_length;
 
+#if !defined(_MSC_VER) // M3E:
  private:
+#endif
   LocalFileHeader() = default;
   DISALLOW_COPY_AND_ASSIGN(LocalFileHeader);
 } __attribute__((packed));
@@ -172,7 +178,9 @@ struct DataDescriptor {
   // Uncompressed size of the entry.
   uint32_t uncompressed_size;
 
+#if !defined(_MSC_VER) // M3E:
  private:
+#endif
   DataDescriptor() = default;
   DISALLOW_COPY_AND_ASSIGN(DataDescriptor);
 } __attribute__((packed));

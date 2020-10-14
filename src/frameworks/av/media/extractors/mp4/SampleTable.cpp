@@ -29,7 +29,9 @@
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/ByteUtils.h>
 
+#if defined(_MSC_VER)
 #include <media/stagefright/foundation/AMessage.h>
+#endif
 
 /* TODO: remove after being merged into other branches */
 #ifndef UINT32_MAX

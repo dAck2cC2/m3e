@@ -20,17 +20,16 @@
 #define ATRACE_TAG ATRACE_TAG_AUDIO
 
 #include "Configuration.h"
-#if ENABLE_FUTEX
+#if ENABLE_FUTEX // M3E:
 #include <linux/futex.h>
 #include <sys/syscall.h>
 #endif
+#include <cutils/atomic.h>
 #include <utils/Log.h>
 #include <utils/Trace.h>
 #include "FastThread.h"
 #include "FastThreadDumpState.h"
 #include "TypedLogger.h"
-
-#include <cutils/atomic.h>
 
 #if defined(_MSC_VER) // M3E:
 #define strlcpy strncpy
@@ -110,7 +109,7 @@ bool FastThread::threadLoop()
                 const struct timespec req = {0, mSleepNs};
                 nanosleep(&req, NULL);
             } else {
-#if defined(__linux__)
+#if defined(__linux__) // M3E:
                 sched_yield();
 #endif
             }
@@ -179,7 +178,7 @@ bool FastThread::threadLoop()
                 int32_t *coldFutexAddr = mCurrent->mColdFutexAddr;
                 ALOG_ASSERT(coldFutexAddr != NULL);
                 int32_t old = android_atomic_dec(coldFutexAddr);
-#if ENABLE_FUTEX
+#if ENABLE_FUTEX // M3E:
                 if (old <= 0) {
                     syscall(__NR_futex, coldFutexAddr, FUTEX_WAIT_PRIVATE, old - 1, NULL);
                 }
@@ -211,7 +210,7 @@ bool FastThread::threadLoop()
             onExit();
             return false;
         default:
-            LOG_ALWAYS_FATAL_IF(!isSubClassCommand(mCommand), "");
+            LOG_ALWAYS_FATAL_IF(!isSubClassCommand(mCommand), "M3E"); // M3E:
             break;
         }
 
@@ -308,7 +307,8 @@ bool FastThread::threadLoop()
                     size_t i = mBounds & (mDumpState->mSamplingN - 1);
                     mBounds = (mBounds & 0xFFFF0000) | ((mBounds + 1) & 0xFFFF);
                     if (mFull) {
-                        mBounds += 0x10000;
+                        //mBounds += 0x10000;
+                        __builtin_add_overflow(mBounds, 0x10000, &mBounds);
                     } else if (!(mBounds & (mDumpState->mSamplingN - 1))) {
                         mFull = true;
                     }

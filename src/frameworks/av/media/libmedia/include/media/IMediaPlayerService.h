@@ -39,7 +39,7 @@ class IRemoteDisplay;
 class IRemoteDisplayClient;
 struct IStreamSource;
 
-class ANDROID_API_MEDIA IMediaPlayerService: public IInterface // M3E:
+class ANDROID_API_MEDIA IMediaPlayerService: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(MediaPlayerService);
@@ -87,7 +87,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnMediaPlayerService: public BnInterface<IMediaPlayerService> // M3E:
+class ANDROID_API_MEDIA BnMediaPlayerService: public BnInterface<IMediaPlayerService> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact( uint32_t code,

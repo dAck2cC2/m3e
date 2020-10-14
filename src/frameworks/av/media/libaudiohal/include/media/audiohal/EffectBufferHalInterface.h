@@ -27,7 +27,7 @@ namespace android {
 // a buffer that the effect chain doesn't own, or a buffer owned by
 // the effect chain.
 // Buffers are created from EffectsFactoryHalInterface
-class ANDROID_API_AUDIOHAL EffectBufferHalInterface : public RefBase // M3E:
+class ANDROID_API_AUDIOHAL EffectBufferHalInterface : public RefBase // M3E: MSVC export
 {
   public:
     virtual audio_buffer_t* audioBuffer() = 0;

@@ -28,8 +28,9 @@
 
 #include <list>
 
-// M3E: add
+#if defined(__APPLE__)// M3E: add
 #include <limits.h> // SSIZE_MAX of Apple
+#endif
 
 struct ANativeWindowBuffer;
 

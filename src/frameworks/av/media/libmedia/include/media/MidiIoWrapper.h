@@ -23,7 +23,7 @@
 
 namespace android {
 
-class ANDROID_API_MEDIA MidiIoWrapper { // M3E:
+class ANDROID_API_MEDIA MidiIoWrapper { // M3E: MSVC export
 public:
     explicit MidiIoWrapper(const char *path);
     explicit MidiIoWrapper(int fd, off64_t offset, int64_t size);

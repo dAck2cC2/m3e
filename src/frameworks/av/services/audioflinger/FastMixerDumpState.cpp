@@ -28,7 +28,7 @@
 #include <utils/Log.h>
 #include "FastMixerDumpState.h"
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #define dprintf(a, ...)  do { } while(0)
 #endif // _MSC_VER
 

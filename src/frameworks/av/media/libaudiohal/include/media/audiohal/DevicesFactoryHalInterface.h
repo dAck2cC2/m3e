@@ -23,7 +23,7 @@
 
 namespace android {
 
-class ANDROID_API_AUDIOHAL DevicesFactoryHalInterface : public RefBase // M3E:
+class ANDROID_API_AUDIOHAL DevicesFactoryHalInterface : public RefBase // M3E: MSVC export
 {
   public:
     // Opens a device with the specified name. To close the device, it is

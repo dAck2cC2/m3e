@@ -24,9 +24,11 @@
 
 #include <cutils/atomic.h>
 #include <utils/Log.h>
-//#include <android_media_Utils.h>
-//#include <android_runtime/android_view_Surface.h>
-//#include <android_runtime/android_hardware_HardwareBuffer.h>
+#if 0 // M3E:
+#include <android_media_Utils.h>
+#include <android_runtime/android_view_Surface.h>
+#include <android_runtime/android_hardware_HardwareBuffer.h>
+#endif
 #include <grallocusage/GrallocUsageConversion.h>
 
 using namespace android;

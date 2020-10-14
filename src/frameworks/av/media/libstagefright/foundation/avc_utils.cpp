@@ -28,6 +28,10 @@
 #include <media/stagefright/MetaData.h>
 #include <utils/misc.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <safe-math/safe-math.h>
+#endif
+
 namespace android {
 
 unsigned parseUE(ABitReader *br) {

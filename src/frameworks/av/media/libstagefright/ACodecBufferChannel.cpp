@@ -167,9 +167,9 @@ status_t ACodecBufferChannel::queueSecureInputBuffer(
         size_t size;
         it->mSharedEncryptedBuffer->getMemory(&offset, &size);
         hardware::cas::native::V1_0::SharedBuffer srcBuffer = {
-                /*.heapBase =*/ *mHidlMemory,
-                /*.offset =*/ (uint64_t) offset,
-                /*.size =*/ size
+                .heapBase = *mHidlMemory,
+                .offset = (uint64_t) offset,
+                .size = size
         };
 
         DestinationBuffer dstBuffer;

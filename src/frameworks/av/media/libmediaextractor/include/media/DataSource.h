@@ -32,7 +32,7 @@ namespace android {
 
 class String8;
 
-class ANDROID_API_MEDIAEXTRACTOR DataSource : public DataSourceBase, public virtual RefBase {
+class DataSource : public DataSourceBase, public virtual RefBase { // M3E: MSVC export
 public:
     DataSource() {}
 

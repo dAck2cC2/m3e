@@ -30,7 +30,7 @@ namespace android {
 class String8;
 class Parcel;
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION AString { // M3E:
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION AString { // M3E: MSVC export
     AString();
     AString(const char *s);  // NOLINT, implicit conversion
     AString(const char *s, size_t size);
@@ -106,7 +106,7 @@ private:
     void makeMutable();
 };
 
-ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E:
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 AString AStringPrintf(const char *format, ...);
 
 }  // namespace android

@@ -57,10 +57,11 @@ extern unsigned handler_OutputMix_gain(IObject *thiz);
 #define handler_OutputMix_gain          NULL
 #endif
 
+#if !defined(_MSC_VER) // M3E: need to include handlerTable 
 #ifdef __cplusplus
 }
 #endif
-
+#endif
 
 /* Table entry for an attribute update handler.
  *
@@ -78,6 +79,12 @@ extern unsigned handler_OutputMix_gain(IObject *thiz);
 typedef unsigned (*AttributeHandler)(IObject *thiz);
 
 extern const AttributeHandler handlerTable[][ATTR_INDEX_MAX];
+
+#if defined(_MSC_VER) // M3E: add
+#ifdef __cplusplus
+}
+#endif
+#endif
 
 #undef IObject
 

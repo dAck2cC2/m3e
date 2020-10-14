@@ -34,7 +34,7 @@ public:
 
     // Treblized media codec list will be located in /odm/etc or /vendor/etc.
     static constexpr char const* defaultSearchDirs[] =
-#if defined(ANDROID)
+#if 0 // M3E: use local path instead
             {"/odm/etc", "/vendor/etc", "/etc", nullptr};
 #else
 	{"etc", nullptr};

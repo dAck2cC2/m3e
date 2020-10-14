@@ -25,8 +25,9 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 
-// M3E: add
+#if defined(_MSC_VER)// M3E: add
 #include <media/stagefright/foundation/AMessage.h>
+#endif
 
 namespace android {
 
@@ -589,7 +590,7 @@ android::SoftOMXComponent *createSoftOMXComponent(
     return new android::SoftAMR(name, callbacks, appData, component);
 }
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E: export
 #ifdef __cplusplus
 extern "C"
 #endif

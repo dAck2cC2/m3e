@@ -103,7 +103,7 @@ bool findThumbnailInfo(
     return trackMeta->findInt32(kKeyThumbnailWidth, width)
         && trackMeta->findInt32(kKeyThumbnailHeight, height)
         && trackMeta->findData(kKeyThumbnailHVCC,
-                type ?: &dummyType, data ?: &dummyData, size ?: &dummySize);
+                type ? type : &dummyType, data ? data : &dummyData, size ? size : &dummySize); // M3E:
 }
 
 bool findGridInfo(const sp<MetaData> &trackMeta,

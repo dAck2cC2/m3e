@@ -99,8 +99,8 @@ private:
     };
     // These values allow for 10 hours of data allowing for a glitch and a peak
     // as often as every 3 seconds
-    static constexpr MaxLength kMaxLength = { /*.Hists =*/ 60, /*.Outliers =*/ 12000, // M3E:
-            /*.Peaks =*/ 12000, /*.HistTimespanMs =*/ 10 * kSecPerMin * kMsPerSec };
+    static constexpr MaxLength kMaxLength = {.Hists = 60, .Outliers = 12000,
+            .Peaks = 12000, .HistTimespanMs = 10 * kSecPerMin * kMsPerSec };
 
     // these variables ensure continuity while analyzing the timestamp
     // series one sample at a time.

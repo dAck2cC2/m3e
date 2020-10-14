@@ -23,12 +23,16 @@
 #include <utils/KeyedVector.h>
 #include <utils/RefBase.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <vector>
+#endif
+
 namespace android {
 class Parcel;
 class IDataSource;
 struct IMediaHTTPService;
 
-class ANDROID_API_MEDIA IMediaMetadataRetriever: public IInterface // M3E:
+class ANDROID_API_MEDIA IMediaMetadataRetriever: public IInterface // M3E: MSVC export
 {
 public:
     DECLARE_META_INTERFACE(MediaMetadataRetriever);
@@ -57,7 +61,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_MEDIA BnMediaMetadataRetriever: public BnInterface<IMediaMetadataRetriever> // M3E:
+class ANDROID_API_MEDIA BnMediaMetadataRetriever: public BnInterface<IMediaMetadataRetriever> // M3E: MSVC export
 {
 public:
     virtual status_t    onTransact(uint32_t code,

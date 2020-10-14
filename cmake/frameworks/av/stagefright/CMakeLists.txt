@@ -184,6 +184,7 @@ mediametrics
 ziparchive
 mediaextractor
 #interfaces
+hidl
 )
 set(LIB_NAME stagefright)
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

@@ -25,8 +25,9 @@
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/hexdump.h>
 
-// M3E:
+#if defined(_MSC_VER) // M3E:
 #include <media/stagefright/foundation/AMessage.h>
+#endif
 
 namespace android {
 

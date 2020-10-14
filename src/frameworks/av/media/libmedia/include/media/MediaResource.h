@@ -23,7 +23,7 @@
 
 namespace android {
 
-class ANDROID_API_MEDIA MediaResource { // M3E:
+class ANDROID_API_MEDIA MediaResource { // M3E: MSVC export
 public:
     enum Type {
         kUnspecified = 0,

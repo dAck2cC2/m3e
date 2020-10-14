@@ -33,7 +33,7 @@
 #include <media/stagefright/SimpleDecodingSource.h>
 #include <media/stagefright/Utils.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #include <media/stagefright/foundation/ABuffer.h>
 #endif
 

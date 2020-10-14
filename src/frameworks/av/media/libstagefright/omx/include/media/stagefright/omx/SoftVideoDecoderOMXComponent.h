@@ -31,7 +31,7 @@
 
 namespace android {
 
-struct ANDROID_API_STAGEFRIGHT_OMX SoftVideoDecoderOMXComponent : public SimpleSoftOMXComponent {
+struct ANDROID_API_STAGEFRIGHT_OMX SoftVideoDecoderOMXComponent : public SimpleSoftOMXComponent { // M3E: MSVC export
     SoftVideoDecoderOMXComponent(
             const char *name,
             const char *componentRole,

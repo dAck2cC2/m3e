@@ -29,7 +29,7 @@
 
 namespace android {
 
-class CharacterEncodingDetector {
+class ANDROID_API_MEDIA CharacterEncodingDetector { // M3E: MSVC export
 
     public:
     CharacterEncodingDetector();

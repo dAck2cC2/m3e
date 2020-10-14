@@ -24,7 +24,7 @@ namespace android {
 class StreamOutHalInterface;
 
 // not multi-thread safe
-class ANDROID_API_NBAIO AudioStreamOutSink : public NBAIO_Sink { // M3E:
+class ANDROID_API_NBAIO AudioStreamOutSink : public NBAIO_Sink { // M3E: MSVC export
 
 public:
     AudioStreamOutSink(sp<StreamOutHalInterface> stream);

@@ -64,11 +64,7 @@ EffectBufferHalHidl::~EffectBufferHalHidl() {
 }
 
 status_t EffectBufferHalHidl::init() {
-#if ENABLE_IALLOCATOR // M3E:
     sp<IAllocator> ashmem = IAllocator::getService("ashmem");
-#else
-    sp<IAllocator> ashmem;
-#endif
     if (ashmem == 0) {
         ALOGE("Failed to retrieve ashmem allocator service");
         return NO_INIT;

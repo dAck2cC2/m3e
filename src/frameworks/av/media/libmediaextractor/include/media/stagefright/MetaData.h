@@ -28,7 +28,7 @@
 
 namespace android {
 
-class ANDROID_API_MEDIAEXTRACTOR MetaData final : public MetaDataBase, public RefBase { // M3E:
+class ANDROID_API_MEDIAEXTRACTOR MetaData final : public MetaDataBase, public RefBase { // M3E: MSVC export
 public:
     MetaData();
     MetaData(const MetaData &from);

@@ -33,7 +33,7 @@
 
 #define CHANNEL_MASK_USE_CHANNEL_ORDER 0
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E:
 #if defined(WAVE_FORMAT_PCM)
 #undef WAVE_FORMAT_PCM
 #endif
@@ -588,7 +588,7 @@ static MediaExtractor::CreatorFunc Sniff(
 }
 
 extern "C" {
-#if defined(_MSC_VER) // M3E:
+#if defined(_MSC_VER) // M3E: MSVC export
 __declspec(dllexport)
 #endif
 // This is the only symbol that needs to be exported

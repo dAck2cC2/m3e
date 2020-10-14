@@ -229,9 +229,6 @@ private:
     sp<IOMXNode> mOMXNode;
     int32_t mNodeGeneration;
     sp<TAllocator> mAllocator[2];
-#if !TODO // M3E: Use MemoryDealer for now
-    sp<MemoryDealer> mDealer[2];
-#endif
 
     bool mUsingNativeWindow;
     sp<ANativeWindow> mNativeWindow;

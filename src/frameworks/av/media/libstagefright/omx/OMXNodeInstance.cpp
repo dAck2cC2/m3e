@@ -531,7 +531,7 @@ status_t OMXNodeInstance::freeNode() {
 
     Mutex::Autolock _l(mLock);
 
-    status_t err = 0; //mOwner->freeNode(this);
+    status_t err = mOwner->freeNode(this);
 
     mDispatcher.clear();
     mOMXBufferSource.clear();

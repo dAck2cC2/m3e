@@ -25,7 +25,7 @@
 
 namespace android {
 
-struct ANDROID_API_STAGEFRIGHT AMRWriter : public MediaWriter { // M3E:
+struct ANDROID_API_STAGEFRIGHT AMRWriter : public MediaWriter { // M3E: MSVC export
     AMRWriter(int fd);
 
     status_t initCheck() const;

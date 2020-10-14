@@ -20,6 +20,10 @@
 
 #include <arpa/inet.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <stdint.h>
+#endif
+
 namespace android {
 
 constexpr int FOURCC(unsigned char c1, unsigned char c2, unsigned char c3, unsigned char c4) {
@@ -37,17 +41,26 @@ constexpr int32_t FOURCC(const char (&s) [N]) {
 }
 
 
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 uint16_t U16_AT(const uint8_t *ptr);
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 uint32_t U32_AT(const uint8_t *ptr);
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 uint64_t U64_AT(const uint8_t *ptr);
 
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 uint16_t U16LE_AT(const uint8_t *ptr);
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 uint32_t U32LE_AT(const uint8_t *ptr);
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 uint64_t U64LE_AT(const uint8_t *ptr);
 
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 uint64_t ntoh64(uint64_t x);
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 uint64_t hton64(uint64_t x);
 
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 void MakeFourCCString(uint32_t x, char *s);
 
 }  // namespace android

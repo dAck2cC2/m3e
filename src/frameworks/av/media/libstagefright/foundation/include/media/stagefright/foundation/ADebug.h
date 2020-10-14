@@ -144,7 +144,7 @@ MAKE_COMPARATOR(GT,>)
 #define TRESPASS_DBG(...)
 #endif
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION ADebug { // M3E:
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ADebug { // M3E: MSVC export
     enum Level {
         kDebugNone,             // no debug
         kDebugLifeCycle,        // lifecycle events: creation/deletion

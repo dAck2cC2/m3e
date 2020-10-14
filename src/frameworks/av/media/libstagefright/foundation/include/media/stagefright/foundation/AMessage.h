@@ -59,7 +59,7 @@ private:
     status_t setReply(const sp<AMessage> &reply);
 };
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION AMessage : public RefBase { // M3E:
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION AMessage : public RefBase { // M3E: MSVC export
     AMessage();
     AMessage(uint32_t what, const sp<const AHandler> &handler);
 

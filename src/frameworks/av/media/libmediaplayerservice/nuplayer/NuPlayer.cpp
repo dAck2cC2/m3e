@@ -68,6 +68,10 @@
 #include <AnotherPacketSource.h>
 #include <PlaylistFetcher.h>
 
+#if defined(_MSC_VER) // M3E:
+#include <media/IMediaSource.h>
+#endif
+
 namespace android {
 
 #if !defined(_MSC_VER)

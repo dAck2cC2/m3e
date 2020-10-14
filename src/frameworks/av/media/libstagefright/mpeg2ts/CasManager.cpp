@@ -182,9 +182,7 @@ status_t ATSParser::CasManager::ProgramCasManager::initSession(
         goto l_fail;
     }
 
-#if TODO // M3E:
     descrambler = IDescrambler::castFrom(descramblerBase);
-#endif
     if (descrambler == NULL) {
         ALOGE("Failed to cast from IDescramblerBase to IDescrambler");
         goto l_fail;

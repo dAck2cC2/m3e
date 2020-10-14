@@ -27,7 +27,7 @@ struct MediaHTTPService;
 class String8;
 struct HTTPBase;
 
-class DataSourceFactory {
+class ANDROID_API_STAGEFRIGHT DataSourceFactory { // M3E: MSVC export
 public:
     static sp<DataSource> CreateFromURI(
             const sp<MediaHTTPService> &httpService,

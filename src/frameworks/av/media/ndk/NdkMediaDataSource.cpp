@@ -34,6 +34,10 @@
 #include "../../libstagefright/include/HTTPBase.h"
 #include "../../libstagefright/include/NuCachedSource2.h"
 
+#if defined(_MSC_VER) // M3E:
+#include <media/stagefright/foundation/AMessage.h>
+#endif
+
 using namespace android;
 
 struct AMediaDataSource {

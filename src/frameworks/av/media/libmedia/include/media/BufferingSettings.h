@@ -21,7 +21,7 @@
 
 namespace android {
 
-struct ANDROID_API_MEDIA BufferingSettings : public Parcelable { // M3E:
+struct ANDROID_API_MEDIA BufferingSettings : public Parcelable { // M3E: MSVC export
     static const int kNoMark = -1;
 
     int mInitialMarkMs;

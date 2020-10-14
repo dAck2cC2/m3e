@@ -29,7 +29,7 @@
 
 namespace android {
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION ColorUtils { // M3E:
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ColorUtils {ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
     /*
      * Media-platform color constants. MediaCodec uses (an extended version of) platform-defined
      * constants that are derived from HAL_DATASPACE, since these are directly exposed to the user.

@@ -58,7 +58,7 @@ using ::android::BnOMX;
  * - TW = Treble Wrapper --- It wraps a legacy object inside a Treble object.
  */
 
-struct LWOmx : public BnOMX {
+struct ANDROID_API_MEDIA LWOmx : public BnOMX { // M3E: MSVC export
     sp<IOmx> mBase;
     LWOmx(sp<IOmx> const& base);
     status_t listNodes(List<IOMX::ComponentInfo>* list) override;

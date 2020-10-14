@@ -900,9 +900,9 @@ status_t IpmaBox::parse(off64_t offset, size_t size) {
             size -= propIndexSize;
             uint16_t bitmask = (1 << (8 * propIndexSize - 1));
             AssociationEntry entry = {
-                    /*.itemId =*/ itemId, // M3E:
-                    /*.essential =*/ !!(propIndex & bitmask),
-                    /*.index =*/ (uint16_t) (propIndex & ~bitmask)
+                    .itemId = itemId,
+                    .essential = !!(propIndex & bitmask),
+                    .index = (uint16_t) (propIndex & ~bitmask)
             };
 
             ALOGV("item id %d associated to property %d (essential %d)",

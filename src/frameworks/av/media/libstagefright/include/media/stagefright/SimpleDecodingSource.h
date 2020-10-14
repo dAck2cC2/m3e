@@ -28,9 +28,11 @@ struct ANativeWindow;
 
 namespace android {
 
-#if defined(ERROR) // M3E:
+#if defined(_MSC_VER) // M3E:
+#if defined(ERROR)
 #undef ERROR
-#endif
+#endif // ERROR
+#endif // _MSC_VER
 
 struct ALooper;
 struct AMessage;

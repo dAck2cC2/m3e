@@ -24,7 +24,7 @@ namespace android {
 
 struct AString;
 
-ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E:
+ANDROID_API_STAGEFRIGHT_FOUNDATION // M3E: MSVC export
 void hexdump(
         const void *_data, size_t size,
         size_t indent = 0, AString *appendTo = NULL);

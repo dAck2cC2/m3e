@@ -38,7 +38,8 @@ struct ResourceInfo {
     sp<IResourceManagerClient> client;
     sp<IBinder::DeathRecipient> deathNotifier;
     Vector<MediaResource> resources;
-#if defined(_MSC_VER)
+    bool cpuBoost;
+#if defined(_MSC_VER) // M3E:
 	bool operator<(const ResourceInfo &rhs) const { return (clientId < rhs.clientId); };
 #endif
 };
@@ -115,6 +116,7 @@ private:
     PidResourceInfosMap mMap;
     bool mSupportsMultipleSecureCodecs;
     bool mSupportsSecureWithNonSecureCodec;
+    int32_t mCpuBoostCount;
 };
 
 // ----------------------------------------------------------------------------

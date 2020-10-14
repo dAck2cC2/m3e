@@ -1636,7 +1636,7 @@ bool SniffMatroska(
 
 
 extern "C" {
-#if defined(_MSC_VER) // M3E:
+#if defined(_MSC_VER) // M3E: MSVC export
 __declspec(dllexport)
 #endif
 // This is the only symbol that needs to be exported

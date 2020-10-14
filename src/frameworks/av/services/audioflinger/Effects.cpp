@@ -44,7 +44,7 @@
 #ifdef VERY_VERY_VERBOSE_LOGGING
 #define ALOGVV ALOGV
 #else
-#define ALOGVV(a, ...) do { } while(0)
+#define ALOGVV(a, ...) do { } while(0) // M3E:
 #endif
 
 #define min(a, b) ((a) < (b) ? (a) : (b))

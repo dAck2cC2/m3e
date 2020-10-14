@@ -31,15 +31,17 @@ struct HDRStaticInfo;
  * If |reconnect| is true, reconnects to the native window before hand.
  * @return first error encountered, or NO_ERROR on success.
  */
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 status_t setNativeWindowSizeFormatAndUsage(
         ANativeWindow *nativeWindow /* nonnull */,
         int width, int height, int format, int rotation, int usage, bool reconnect);
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 void setNativeWindowHdrMetadata(
         ANativeWindow *nativeWindow /* nonnull */, HDRStaticInfo *info /* nonnull */);
 status_t pushBlankBuffersToNativeWindow(ANativeWindow *nativeWindow /* nonnull */);
-ANDROID_API_STAGEFRIGHT
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 status_t nativeWindowConnect(ANativeWindow *surface, const char *reason);
-ANDROID_API_STAGEFRIGHT
+ANDROID_API_STAGEFRIGHT // M3E: MSVC export
 status_t nativeWindowDisconnect(ANativeWindow *surface, const char *reason);
 
 } // namespace android

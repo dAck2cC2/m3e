@@ -39,7 +39,7 @@ namespace android {
 
 class String8;
 
-class ANDROID_API_NBLOG NBLog { // M3E:
+class ANDROID_API_NBLOG NBLog { // M3E: MSVC export
 
 public:
 
@@ -297,7 +297,7 @@ public:
 
     // FIXME Timeline was intended to wrap Writer and Reader, but isn't actually used yet.
     // For now it is just a namespace for sharedSize().
-    class ANDROID_API_NBLOG Timeline : public RefBase { // M3E:
+    class ANDROID_API_NBLOG Timeline : public RefBase { // M3E: MSVC export
     public:
 #if 0
         Timeline(size_t size, void *shared = NULL);
@@ -323,7 +323,7 @@ public:
 
     // Writer is thread-safe with respect to Reader, but not with respect to multiple threads
     // calling Writer methods.  If you need multi-thread safety for writing, use LockedWriter.
-    class ANDROID_API_NBLOG Writer : public RefBase { // M3E:
+    class ANDROID_API_NBLOG Writer : public RefBase { // M3E: MSVC export
     public:
         Writer();                   // dummy nop implementation without shared memory
 

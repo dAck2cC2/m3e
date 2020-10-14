@@ -63,7 +63,7 @@ protected:
 // input data to a form acceptable by the mixer.
 // TODO: Make a ResamplerBufferProvider when integers are entirely removed from the
 // processing pipeline.
-class ANDROID_API_AUDIOPROCESSING CopyBufferProvider : public PassthruBufferProvider { // M3E:
+class ANDROID_API_AUDIOPROCESSING CopyBufferProvider : public PassthruBufferProvider { // M3E: MSVC export
 public:
     // Use a private buffer of bufferFrameCount frames (each frame is outputFrameSize bytes).
     // If bufferFrameCount is 0, no private buffer is created and in-place modification of

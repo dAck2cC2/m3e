@@ -74,6 +74,7 @@ media_status_t AMediaExtractor_setDataSource(AMediaExtractor*, const char *locat
 /**
  * Set the custom data source implementation from which the extractor will read.
  */
+MEDIANDK_API
 media_status_t AMediaExtractor_setDataSourceCustom(AMediaExtractor*, AMediaDataSource *src);
 
 #endif /* __ANDROID_API__ >= 28 */
@@ -192,6 +193,7 @@ enum {
  * This function will always return a format; however, the format could be empty
  * (no key-value pairs) if the media container does not provide format information.
  */
+MEDIANDK_API
 AMediaFormat* AMediaExtractor_getFileFormat(AMediaExtractor*);
 
 /**
@@ -204,6 +206,7 @@ AMediaFormat* AMediaExtractor_getFileFormat(AMediaExtractor*);
  * AMediaExtractor_readSampleData(ex, buf, sampleSize);
  *
  */
+MEDIANDK_API
 ssize_t AMediaExtractor_getSampleSize(AMediaExtractor*);
 
 /**
@@ -217,6 +220,7 @@ ssize_t AMediaExtractor_getSampleSize(AMediaExtractor*);
  * cached duration cannot be calculated (bitrate, duration, and file size information
  * not available).
  */
+MEDIANDK_API
 int64_t AMediaExtractor_getCachedDuration(AMediaExtractor *);
 
 /**
@@ -228,6 +232,7 @@ int64_t AMediaExtractor_getCachedDuration(AMediaExtractor *);
  * Existing key-value pairs in |fmt| would be removed if this API returns AMEDIA_OK.
  * The contents of |fmt| is undefined if this API returns AMEDIA_ERROR_*.
  */
+MEDIANDK_API
 media_status_t AMediaExtractor_getSampleFormat(AMediaExtractor *ex, AMediaFormat *fmt);
 
 #endif /* __ANDROID_API__ >= 28 */

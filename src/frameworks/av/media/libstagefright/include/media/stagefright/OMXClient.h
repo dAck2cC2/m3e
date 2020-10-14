@@ -18,9 +18,11 @@
 
 #define OMX_CLIENT_H_
 
-#if defined(interface) // M3E:
+#if defined(_MSC_VER) // M3E:
+#if defined(interface)
 #undef interface
-#endif
+#endif // interface
+#endif // _MSC_VER
 
 namespace android {
 

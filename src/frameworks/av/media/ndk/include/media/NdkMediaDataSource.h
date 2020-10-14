@@ -84,17 +84,20 @@ typedef void (*AMediaDataSourceClose)(void *userdata);
  * Create new media data source. Returns NULL if memory allocation
  * for the new data source object fails.
  */
+MEDIANDK_API
 AMediaDataSource* AMediaDataSource_new();
 
 /**
  * Delete a previously created media data source.
  */
+MEDIANDK_API
 void AMediaDataSource_delete(AMediaDataSource*);
 
 /**
  * Set an user provided opaque handle. This opaque handle is passed as
  * the first argument to the data source callbacks.
  */
+MEDIANDK_API
 void AMediaDataSource_setUserdata(
         AMediaDataSource*, void *userdata);
 
@@ -109,6 +112,7 @@ void AMediaDataSource_setUserdata(
  * Please refer to the definition of AMediaDataSourceReadAt for
  * additional details.
  */
+MEDIANDK_API
 void AMediaDataSource_setReadAt(
         AMediaDataSource*,
         AMediaDataSourceReadAt);
@@ -120,6 +124,7 @@ void AMediaDataSource_setReadAt(
  * Please refer to the definition of AMediaDataSourceGetSize for
  * additional details.
  */
+MEDIANDK_API
 void AMediaDataSource_setGetSize(
         AMediaDataSource*,
         AMediaDataSourceGetSize);
@@ -131,6 +136,7 @@ void AMediaDataSource_setGetSize(
  * Please refer to the definition of AMediaDataSourceClose for
  * additional details.
  */
+MEDIANDK_API
 void AMediaDataSource_setClose(
         AMediaDataSource*,
         AMediaDataSourceClose);

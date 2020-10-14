@@ -29,7 +29,7 @@ namespace android {
 
 class MemoryDealer;
 
-class ANDROID_API_SOUNDTRIGGER SoundTrigger : public BnSoundTriggerClient, // M3E:
+class ANDROID_API_SOUNDTRIGGER SoundTrigger : public BnSoundTriggerClient, // M3E: MSVC export
                         public IBinder::DeathRecipient
 {
 public:

@@ -32,7 +32,7 @@ struct AHandler;
 struct AMessage;
 struct AReplyToken;
 
-struct ANDROID_API_STAGEFRIGHT_FOUNDATION ALooper : public RefBase { // M3E:
+struct ANDROID_API_STAGEFRIGHT_FOUNDATION ALooper : public RefBase { // M3E: MSVC export
     typedef int32_t event_id;
     typedef int32_t handler_id;
 
