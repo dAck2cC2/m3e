@@ -24,7 +24,9 @@
 #include "HwModule.h"
 
 // M3E: add
+#if defined(_MSC_VER)
 #include "IOProfile.h"
+#endif
 
 namespace android {
 

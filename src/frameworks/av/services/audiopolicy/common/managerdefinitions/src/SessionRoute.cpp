@@ -24,7 +24,9 @@
 #include <utils/Log.h>
 
 // M3E:
+#if defined(_MSC_VER)
 #include "IOProfile.h"
+#endif
 
 namespace android {
 
