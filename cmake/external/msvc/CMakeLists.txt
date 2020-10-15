@@ -2,12 +2,12 @@
 project(MSVC_WRAP)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+include(${MSVC_INCLUDE})
 
 add_definitions(-DMSVC_WRAP_IMPLEMENTATION=1)
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/msvc/ )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/system/msvc/ )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/external/msvc/ )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/external/msvc/ )
 
 # header files
 file(GLOB MSVC_HEADER_FILES  

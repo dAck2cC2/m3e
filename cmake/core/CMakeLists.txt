@@ -1,10 +1,6 @@
 
 # the subdirectory
 
-if (MSVC)
-    add_subdirectory(msvc)
-endif(MSVC)
-
 add_subdirectory(log)
 add_subdirectory(cutils)
 add_subdirectory(utils)

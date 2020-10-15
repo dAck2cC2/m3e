@@ -31,7 +31,7 @@ if(MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-Dstrcasecmp=strcmp)
 
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND ANDROIDFW_DEPLIB ${LIB_MSVC_WRAP})
 endif(MSVC)
 

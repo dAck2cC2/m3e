@@ -6,7 +6,7 @@ add_definitions(-DLITTLE_ENDIAN=1)
 add_definitions(-DBIG_ENDIAN=2)
 
 if(MSVC)
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)
 elseif(APPLE)
     add_definitions(-DBYTE_ORDER=LITTLE_ENDIAN)

@@ -19,7 +19,7 @@ if (MSVC)
     add_definitions(-DNOMINMAX=1)
     add_definitions(-D__stdcall= )
 
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND UTILS_DEPLIB ${LIB_MSVC_WRAP})
 elseif (APPLE)
     # use safe-iop

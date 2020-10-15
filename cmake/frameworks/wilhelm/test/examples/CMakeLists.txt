@@ -18,7 +18,7 @@ initrc
 if(MSVC)
     #add_definitions(-D_USE_MATH_DEFINES=1)
 
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 endif()
 

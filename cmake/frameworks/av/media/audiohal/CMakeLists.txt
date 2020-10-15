@@ -38,7 +38,7 @@ if (MSVC)
     add_definitions(-D__unused= )
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
 
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 endif()
 

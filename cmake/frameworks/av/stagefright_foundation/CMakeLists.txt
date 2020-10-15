@@ -29,7 +29,7 @@ elseif(MSVC)
     add_definitions(-Dstrncasecmp=_strnicmp)
     add_definitions(-Dstrcasecmp=_stricmp)
 
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/foundation/include/media/stagefright/foundation )

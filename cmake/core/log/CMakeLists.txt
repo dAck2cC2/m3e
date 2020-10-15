@@ -8,7 +8,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 set(LOG_DEPLIB )
 
 if (MSVC)
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND LOG_DEPLIB ${LIB_MSVC_WRAP})
 endif(MSVC)
 

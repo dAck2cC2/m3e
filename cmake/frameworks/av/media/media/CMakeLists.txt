@@ -43,7 +43,7 @@ elseif(MSVC)
     add_definitions(-D__unused= )
     add_definitions(-Dtypeof=decltype)
 
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 
 elseif(LINUX)

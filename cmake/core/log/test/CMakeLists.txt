@@ -16,7 +16,7 @@ log
 
 if(MSVC)
     add_definitions(-D__STDC_LIMIT_MACROS)
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND TEST_LOG_DEPLIB ${LIB_MSVC_WRAP})
 endif(MSVC)
 

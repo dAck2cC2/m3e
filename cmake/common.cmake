@@ -1,7 +1,8 @@
 ###############################################################################
 # common definition
 set(BUILD_PATH    ${M3E_BINARY_DIR}/build)
-set(MSVC_PATH     ${M3E_SOURCE_DIR}/src/system/msvc)
+set(MSVC_PATH     ${M3E_SOURCE_DIR}/src/external/msvc)
+set(MSVC_INCLUDE  ${M3E_SOURCE_DIR}/cmake/external/msvc/include.cmake)
 set(GENERIC_PATH  ${M3E_SOURCE_DIR}/src/system/generic)
 set(EXT_PATH      external)
 set(TMP_PATH      ${M3E_BINARY_DIR}/intermediates)

@@ -17,7 +17,7 @@ if (MSVC)
     add_definitions(-Dstrncasecmp=_strnicmp)
     add_definitions(-Dstrcasecmp=_stricmp)
     
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND BASE_DEPLIB ${LIB_MSVC_WRAP})
 endif(MSVC)
 

@@ -7,7 +7,7 @@ if(MSVC)
     add_definitions(-DHAVE_WIN32_THREADS)
     add_definitions(-D__PRETTY_FUNCTION__=__FUNCTION__)
     add_definitions(-D__STDC_LIMIT_MACROS=1)
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
 
 elseif(APPLE)
     add_definitions(-D_MACOSX)

@@ -103,3 +103,7 @@ if (ENABLE_HIDL_GEN)
     add_subdirectory(hidl)
     add_subdirectory(boringssl)
 endif(ENABLE_HIDL_GEN)
+
+if (MSVC)
+    add_subdirectory(msvc)
+endif(MSVC)

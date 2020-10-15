@@ -18,7 +18,7 @@ if(MSVC)
     add_definitions(-D_WINIOCTL_=1)
     add_definitions(-DXMLIMPORT=__declspec\(dllexport\))
 
-    include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
+    include(${MSVC_INCLUDE})
     list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 endif()
 
