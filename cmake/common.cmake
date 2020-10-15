@@ -1,13 +1,15 @@
 ###############################################################################
 # common definition
-set(BUILD_PATH    ${M3E_BINARY_DIR}/build)
-set(MSVC_PATH     ${M3E_SOURCE_DIR}/src/external/msvc)
-set(MSVC_INCLUDE  ${M3E_SOURCE_DIR}/cmake/external/msvc/include.cmake)
-set(GENERIC_PATH  ${M3E_SOURCE_DIR}/src/system/generic)
-set(EXT_PATH      external)
-set(TMP_PATH      ${M3E_BINARY_DIR}/intermediates)
-#set(M3E_CFG_PATH  ${BUILD_PATH}/header)
-set(TOOL_PATH     ${M3E_SOURCE_DIR}/tool/build)
+set(BUILD_PATH      ${M3E_BINARY_DIR}/build)
+set(MSVC_PATH       ${M3E_SOURCE_DIR}/src/external/msvc)
+set(MSVC_INCLUDE    ${M3E_SOURCE_DIR}/cmake/external/msvc/include.cmake)
+set(INITRC_PATH     ${M3E_SOURCE_DIR}/src/external/initrc)
+set(INITRC_INCLUDE  ${M3E_SOURCE_DIR}/cmake/external/initrc/include.cmake)
+set(GENERIC_PATH    ${M3E_SOURCE_DIR}/src/system/generic)
+set(EXT_PATH        external)
+set(TMP_PATH        ${M3E_BINARY_DIR}/intermediates)
+#set(M3E_CFG_PATH    ${BUILD_PATH}/header)
+set(TOOL_PATH       ${M3E_SOURCE_DIR}/tool/build)
 
 if(MSVC)
     set(BIN_HIDL_GEN  ${M3E_SOURCE_DIR}/tool/build/hidl-gen.exe)

@@ -8,7 +8,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/wilhelm/openmaxal/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
+include(${INITRC_INCLUDE})
 
 set(${PROJECT_NAME}_DEPLIB
 OpenMAXAL

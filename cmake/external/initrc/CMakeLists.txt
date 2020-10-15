@@ -2,7 +2,7 @@
 project(INITRC)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
+include(${INITRC_INCLUDE})
 
 # dependency
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
@@ -23,8 +23,8 @@ if(MSVC)
 endif()
 
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/initrc/include/initrc )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/initrc )
+set( HEADER_PATH ${INITRC_PATH}/include/initrc )
+set( SOURCE_PATH ${INITRC_PATH} )
 
 # header files
 file(GLOB INITRC_HEADER_FILES  

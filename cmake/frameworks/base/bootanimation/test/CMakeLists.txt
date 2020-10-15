@@ -3,7 +3,7 @@
 project(TEST_BOOTANIMATION)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
+include(${INITRC_INCLUDE})
 
 set(DEMO_DEPLIBS
 initrc

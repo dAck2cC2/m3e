@@ -9,7 +9,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/base/android/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/nativewindow/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/arect/include.cmake)
 
-include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
+include(${INITRC_INCLUDE})
 
 set(DEMO_DEPLIBS
 raylib

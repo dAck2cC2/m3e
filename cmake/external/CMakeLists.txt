@@ -107,3 +107,7 @@ endif(ENABLE_HIDL_GEN)
 if (MSVC)
     add_subdirectory(msvc)
 endif(MSVC)
+
+if(ENABLE_HARDWARE)
+    add_subdirectory(initrc)
+endif(ENABLE_HARDWARE)

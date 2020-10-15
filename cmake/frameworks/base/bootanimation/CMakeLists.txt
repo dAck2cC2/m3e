@@ -19,7 +19,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/base/androidfw/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/external/skia_android/include.cmake)
 
 # private header of initrc_if.h
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/initrc)
+include_directories(AFTER ${INITRC_PATH})
 
 set(BOOTANIMATION_DEPLIB
 log

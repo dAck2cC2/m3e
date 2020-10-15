@@ -9,7 +9,7 @@ include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
+include(${INITRC_INCLUDE})
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/math/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/ui/include.cmake)
@@ -18,7 +18,7 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/native/opengl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/base/android/include.cmake)
 
 # private header of initrc_if.h
-include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/initrc)
+include_directories(AFTER ${INITRC_PATH})
 
 set( SURFACEFLINGER_DEPLIB
 log

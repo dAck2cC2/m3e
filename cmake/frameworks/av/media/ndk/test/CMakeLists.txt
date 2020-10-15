@@ -1,7 +1,7 @@
 project(TEST_MEDIANDK)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
-include(${M3E_SOURCE_DIR}/cmake/frameworks/initrc/include.cmake)
+include(${INITRC_INCLUDE})
 include(${M3E_SOURCE_DIR}/cmake/frameworks/av/media/ndk/include.cmake)
 
 set(${PROJECT_NAME}_DEPLIB
