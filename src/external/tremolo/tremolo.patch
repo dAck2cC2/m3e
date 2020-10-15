@@ -26,6 +26,22 @@ index 7811aba..8bbb0c6 100644
  
    /* discover our neighbors for decode where we don't use fit flags
       (that would push the neighbors outward) */
+diff --git a/Tremolo/misc.h b/Tremolo/misc.h
+index b75a6d8..aca8ad2 100644
+--- a/Tremolo/misc.h
++++ b/Tremolo/misc.h
+@@ -66,7 +66,11 @@ extern void _VDBG_free(void *ptr);
+ #ifndef  _LOW_ACCURACY_
+ /* 64 bit multiply */
+ 
++#if defined(__APPLE__) // M3E:
++#include <machine/endian.h>
++#else
+ #include <endian.h>
++#endif
+ #include <sys/types.h>
+ 
+ #if BYTE_ORDER==LITTLE_ENDIAN
 diff --git a/Tremolo/os_types.h b/Tremolo/os_types.h
 index 315227c..f73c578 100644
 --- a/Tremolo/os_types.h
