@@ -1,0 +1,24 @@
+diff --git a/config.h b/config.h
+index b0d07070..3ac30ca3 100644
+--- a/config.h
++++ b/config.h
+@@ -62,7 +62,9 @@
+ #define HAVE_BSWAP16 1
+ 
+ /* Compiler has the __builtin_bswap32 intrinsic */
++#if !defined(_MSC_VER)
+ #define HAVE_BSWAP32 1
++#endif
+ 
+ /* Define to 1 if you have the <byteswap.h> header file. */
+ #define HAVE_BYTESWAP_H 1
+@@ -122,7 +124,9 @@
+ #define HAVE_SYS_IOCTL_H 1
+ 
+ /* Define to 1 if you have the <sys/param.h> header file. */
++#if !defined(_MSC_VER)
+ #define HAVE_SYS_PARAM_H 1
++#endif
+ 
+ /* Define to 1 if you have the <sys/stat.h> header file. */
+ #define HAVE_SYS_STAT_H 1

@@ -8,6 +8,8 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/webp/src/dec )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/webp/src )
 
 include_directories(AFTER ${HEADER_PATH})
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/webp)
+
 
 set(WEBP_DEC_SRC
 ${SOURCE_PATH}/dec/alpha_dec.c 

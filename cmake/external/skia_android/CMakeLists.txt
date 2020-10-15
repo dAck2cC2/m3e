@@ -33,19 +33,26 @@ expat
 ${OPENGL_DEPLIB}
 )
 
-add_definitions(-D_FORTIFY_SOURCE=1)
-add_definitions(-DSKIA_IMPLEMENTATION=1)
-add_definitions(-D__BIG_ENDIAN=4321)
 add_definitions(-DATRACE_TAG=ATRACE_TAG_VIEW)
+add_definitions(-DSKIA_IMPLEMENTATION=1)
+add_definitions(-D_FORTIFY_SOURCE=1)
 
+add_definitions(-D__BIG_ENDIAN=4321)
 add_definitions(-D__LITTLE_ENDIAN=1234)
 
 if(MSVC)
     add_definitions(-DSKIA_DLL)
     add_definitions(-D__BYTE_ORDER=1234)
     add_definitions(-D__STDC_LIMIT_MACROS=1)
+    add_definitions(-DNOMINMAX=1)
 
     list(APPEND SKIA_DEPLIB FontSub)
+
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_flag_suppoted)
+    if (_cpp_flag_suppoted)
+        add_compile_options("/std:c++17")
+    endif()
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
     add_definitions(-D__BYTE_ORDER=1234)    
@@ -118,6 +125,8 @@ endmacro()
 # android
 ###############################################
 list(APPEND android_SOURCE
+${SOURCE_PATH}/android/SkAndroidFrameworkUtils.cpp
+${SOURCE_PATH}/android/SkAnimatedImage.cpp
 ${SOURCE_PATH}/android/SkBitmapRegionCodec.cpp
 ${SOURCE_PATH}/android/SkBitmapRegionDecoder.cpp
 )
@@ -186,7 +195,6 @@ ${SOURCE_PATH}/core/SkBitmapDevice.cpp
 ${SOURCE_PATH}/core/SkBitmapProcState.cpp 
 ${SOURCE_PATH}/core/SkBitmapProcState_matrixProcs.cpp 
 ${SOURCE_PATH}/core/SkBitmapProvider.cpp 
-${SOURCE_PATH}/core/SkBitmapScaler.cpp 
 ${SOURCE_PATH}/core/SkBlendMode.cpp 
 ${SOURCE_PATH}/core/SkBlitMask_D32.cpp 
 ${SOURCE_PATH}/core/SkBlitRow_D32.cpp 
@@ -199,6 +207,7 @@ ${SOURCE_PATH}/core/SkBlurImageFilter.cpp
 ${SOURCE_PATH}/core/SkBuffer.cpp 
 ${SOURCE_PATH}/core/SkCachedData.cpp 
 ${SOURCE_PATH}/core/SkCanvas.cpp 
+${SOURCE_PATH}/core/SkCanvasPriv.cpp
 ${SOURCE_PATH}/core/SkClipStack.cpp 
 ${SOURCE_PATH}/core/SkClipStackDevice.cpp 
 ${SOURCE_PATH}/core/SkColor.cpp 
@@ -208,21 +217,24 @@ ${SOURCE_PATH}/core/SkColorMatrixFilterRowMajor255.cpp
 ${SOURCE_PATH}/core/SkColorSpace.cpp 
 ${SOURCE_PATH}/core/SkColorSpaceXform.cpp 
 ${SOURCE_PATH}/core/SkColorSpaceXformCanvas.cpp 
-${SOURCE_PATH}/core/SkColorSpaceXformImageGenerator.cpp 
 ${SOURCE_PATH}/core/SkColorSpaceXform_A2B.cpp 
 ${SOURCE_PATH}/core/SkColorSpaceXformer.cpp 
 ${SOURCE_PATH}/core/SkColorSpace_A2B.cpp 
 ${SOURCE_PATH}/core/SkColorSpace_ICC.cpp 
+${SOURCE_PATH}/core/SkColorSpace_New.cpp
 ${SOURCE_PATH}/core/SkColorSpace_XYZ.cpp 
 ${SOURCE_PATH}/core/SkColorTable.cpp 
 ${SOURCE_PATH}/core/SkConvertPixels.cpp 
-${SOURCE_PATH}/core/SkConvolver.cpp 
+${SOURCE_PATH}/core/SkCoverageDelta.cpp
 ${SOURCE_PATH}/core/SkCpu.cpp 
 ${SOURCE_PATH}/core/SkCubicClipper.cpp 
+${SOURCE_PATH}/core/SkCubicMap.cpp
 ${SOURCE_PATH}/core/SkData.cpp 
 ${SOURCE_PATH}/core/SkDataTable.cpp 
 ${SOURCE_PATH}/core/SkDebug.cpp 
-${SOURCE_PATH}/core/SkDeque.cpp 
+${SOURCE_PATH}/core/SkDeferredDisplayList.cpp 
+${SOURCE_PATH}/core/SkDeferredDisplayListRecorder.cpp
+${SOURCE_PATH}/core/SkDeque.cpp
 ${SOURCE_PATH}/core/SkDevice.cpp 
 ${SOURCE_PATH}/core/SkDeviceLooper.cpp 
 ${SOURCE_PATH}/core/SkDeviceProfile.cpp 
@@ -231,20 +243,21 @@ ${SOURCE_PATH}/core/SkDither.cpp
 ${SOURCE_PATH}/core/SkDocument.cpp 
 ${SOURCE_PATH}/core/SkDraw.cpp 
 ${SOURCE_PATH}/core/SkDrawLooper.cpp 
+${SOURCE_PATH}/core/SkDrawShadowInfo.cpp
 ${SOURCE_PATH}/core/SkDraw_vertices.cpp 
 ${SOURCE_PATH}/core/SkDrawable.cpp 
 ${SOURCE_PATH}/core/SkEdge.cpp 
 ${SOURCE_PATH}/core/SkEdgeBuilder.cpp 
 ${SOURCE_PATH}/core/SkEdgeClipper.cpp 
 ${SOURCE_PATH}/core/SkExecutor.cpp 
+${SOURCE_PATH}/core/SkFDot6Constants.cpp
 ${SOURCE_PATH}/core/SkFlattenable.cpp 
-${SOURCE_PATH}/core/SkFlattenableSerialization.cpp 
 ${SOURCE_PATH}/core/SkFont.cpp 
 ${SOURCE_PATH}/core/SkFontDescriptor.cpp 
 ${SOURCE_PATH}/core/SkFontLCDConfig.cpp 
 ${SOURCE_PATH}/core/SkFontMgr.cpp 
 ${SOURCE_PATH}/core/SkFontStream.cpp 
-${SOURCE_PATH}/core/SkFontStyle.cpp 
+${SOURCE_PATH}/core/SkGaussFilter.cpp
 ${SOURCE_PATH}/core/SkGeometry.cpp 
 ${SOURCE_PATH}/core/SkGlobalInitialization_core.cpp 
 ${SOURCE_PATH}/core/SkGlyphCache.cpp 
@@ -257,9 +270,7 @@ ${SOURCE_PATH}/core/SkImageFilterCache.cpp
 ${SOURCE_PATH}/core/SkImageGenerator.cpp 
 ${SOURCE_PATH}/core/SkImageInfo.cpp 
 ${SOURCE_PATH}/core/SkLatticeIter.cpp 
-${SOURCE_PATH}/core/SkLights.cpp 
 ${SOURCE_PATH}/core/SkLineClipper.cpp 
-${SOURCE_PATH}/core/SkLinearBitmapPipeline.cpp 
 ${SOURCE_PATH}/core/SkLiteDL.cpp 
 ${SOURCE_PATH}/core/SkLiteRecorder.cpp 
 ${SOURCE_PATH}/core/SkLocalMatrixImageFilter.cpp 
@@ -279,9 +290,6 @@ ${SOURCE_PATH}/core/SkMiniRecorder.cpp
 ${SOURCE_PATH}/core/SkMipMap.cpp 
 ${SOURCE_PATH}/core/SkModeColorFilter.cpp 
 ${SOURCE_PATH}/core/SkMultiPictureDraw.cpp 
-${SOURCE_PATH}/core/SkNormalFlatSource.cpp 
-${SOURCE_PATH}/core/SkNormalMapSource.cpp 
-${SOURCE_PATH}/core/SkNormalSource.cpp 
 ${SOURCE_PATH}/core/SkOpts.cpp 
 ${SOURCE_PATH}/core/SkOverdrawCanvas.cpp 
 ${SOURCE_PATH}/core/SkPaint.cpp 
@@ -290,9 +298,8 @@ ${SOURCE_PATH}/core/SkPath.cpp
 ${SOURCE_PATH}/core/SkPathEffect.cpp 
 ${SOURCE_PATH}/core/SkPathMeasure.cpp 
 ${SOURCE_PATH}/core/SkPathRef.cpp 
+${SOURCE_PATH}/core/SkPath_serial.cpp
 ${SOURCE_PATH}/core/SkPicture.cpp 
-${SOURCE_PATH}/core/SkPictureAnalyzer.cpp 
-${SOURCE_PATH}/core/SkPictureContentInfo.cpp 
 ${SOURCE_PATH}/core/SkPictureData.cpp 
 ${SOURCE_PATH}/core/SkPictureFlat.cpp 
 ${SOURCE_PATH}/core/SkPictureImageGenerator.cpp 
@@ -311,7 +318,6 @@ ${SOURCE_PATH}/core/SkRWBuffer.cpp
 ${SOURCE_PATH}/core/SkRasterClip.cpp 
 ${SOURCE_PATH}/core/SkRasterPipeline.cpp 
 ${SOURCE_PATH}/core/SkRasterPipelineBlitter.cpp 
-${SOURCE_PATH}/core/SkRasterizer.cpp 
 ${SOURCE_PATH}/core/SkReadBuffer.cpp 
 ${SOURCE_PATH}/core/SkRecord.cpp 
 ${SOURCE_PATH}/core/SkRecordDraw.cpp 
@@ -323,6 +329,7 @@ ${SOURCE_PATH}/core/SkRect.cpp
 ${SOURCE_PATH}/core/SkRefDict.cpp 
 ${SOURCE_PATH}/core/SkRegion.cpp 
 ${SOURCE_PATH}/core/SkRegion_path.cpp 
+${SOURCE_PATH}/core/SkRemoteGlyphCache.cpp
 ${SOURCE_PATH}/core/SkResourceCache.cpp 
 ${SOURCE_PATH}/core/SkSRGB.cpp 
 ${SOURCE_PATH}/core/SkScalar.cpp 
@@ -331,6 +338,7 @@ ${SOURCE_PATH}/core/SkScan.cpp
 ${SOURCE_PATH}/core/SkScan_AAAPath.cpp 
 ${SOURCE_PATH}/core/SkScan_AntiPath.cpp 
 ${SOURCE_PATH}/core/SkScan_Antihair.cpp 
+${SOURCE_PATH}/core/SkScan_DAAPath.cpp
 ${SOURCE_PATH}/core/SkScan_Hairline.cpp 
 ${SOURCE_PATH}/core/SkScan_Path.cpp 
 ${SOURCE_PATH}/core/SkSemaphore.cpp 
@@ -349,15 +357,17 @@ ${SOURCE_PATH}/core/SkStrokerPriv.cpp
 ${SOURCE_PATH}/core/SkSwizzle.cpp 
 ${SOURCE_PATH}/core/SkTLS.cpp 
 ${SOURCE_PATH}/core/SkTSearch.cpp 
-${SOURCE_PATH}/core/SkTaskGroup.cpp 
+${SOURCE_PATH}/core/SkTaskGroup.cpp
+${SOURCE_PATH}/core/SkTaskGroup2D.cpp 
 ${SOURCE_PATH}/core/SkTextBlob.cpp 
 ${SOURCE_PATH}/core/SkThreadID.cpp 
+${SOURCE_PATH}/core/SkThreadedBMPDevice.cpp
 ${SOURCE_PATH}/core/SkTime.cpp 
 ${SOURCE_PATH}/core/SkTypeface.cpp 
 ${SOURCE_PATH}/core/SkTypefaceCache.cpp 
+${SOURCE_PATH}/core/SkTypeface_remote.cpp
 ${SOURCE_PATH}/core/SkUnPreMultiply.cpp 
 ${SOURCE_PATH}/core/SkUtils.cpp 
-${SOURCE_PATH}/core/SkValidatingReadBuffer.cpp 
 ${SOURCE_PATH}/core/SkVertState.cpp 
 ${SOURCE_PATH}/core/SkVertices.cpp 
 ${SOURCE_PATH}/core/SkWriteBuffer.cpp 
@@ -377,7 +387,6 @@ ${SOURCE_PATH}/effects/GrCircleBlurFragmentProcessor.cpp
 ${SOURCE_PATH}/effects/Sk1DPathEffect.cpp 
 ${SOURCE_PATH}/effects/Sk2DPathEffect.cpp 
 ${SOURCE_PATH}/effects/SkAlphaThresholdFilter.cpp 
-${SOURCE_PATH}/effects/SkArcToPathEffect.cpp 
 ${SOURCE_PATH}/effects/SkArithmeticImageFilter.cpp 
 ${SOURCE_PATH}/effects/SkBlurMask.cpp 
 ${SOURCE_PATH}/effects/SkBlurMaskFilter.cpp 
@@ -395,7 +404,6 @@ ${SOURCE_PATH}/effects/SkEmbossMaskFilter.cpp
 ${SOURCE_PATH}/effects/SkHighContrastFilter.cpp 
 ${SOURCE_PATH}/effects/SkImageSource.cpp 
 ${SOURCE_PATH}/effects/SkLayerDrawLooper.cpp 
-${SOURCE_PATH}/effects/SkLayerRasterizer.cpp 
 ${SOURCE_PATH}/effects/SkLightingImageFilter.cpp 
 ${SOURCE_PATH}/effects/SkLumaColorFilter.cpp 
 ${SOURCE_PATH}/effects/SkMagnifierImageFilter.cpp 
@@ -409,9 +417,11 @@ ${SOURCE_PATH}/effects/SkPaintFlagsDrawFilter.cpp
 ${SOURCE_PATH}/effects/SkPaintImageFilter.cpp 
 ${SOURCE_PATH}/effects/SkPictureImageFilter.cpp 
 ${SOURCE_PATH}/effects/SkRRectsGaussianEdgeMaskFilter.cpp 
+${SOURCE_PATH}/effects/SkShaderMaskFilter.cpp
 ${SOURCE_PATH}/effects/SkTableColorFilter.cpp 
 ${SOURCE_PATH}/effects/SkTableMaskFilter.cpp 
 ${SOURCE_PATH}/effects/SkTileImageFilter.cpp 
+${SOURCE_PATH}/effects/SkToSRGBColorFilter.cpp
 ${SOURCE_PATH}/effects/SkXfermodeImageFilter.cpp 
 )
 SKIA_ADD_SOURCE(effects)
@@ -420,10 +430,10 @@ SKIA_ADD_SOURCE(effects)
 # fonts
 ###############################################
 list(APPEND fonts_SOURCE
-${SOURCE_PATH}/fonts/SkRandomScalerContext.cpp 
-${SOURCE_PATH}/fonts/SkTestScalerContext.cpp 
+#${SOURCE_PATH}/fonts/SkRandomScalerContext.cpp 
+#${SOURCE_PATH}/fonts/SkTestScalerContext.cpp 
 ${SOURCE_PATH}/fonts/SkFontMgr_indirect.cpp 
-${SOURCE_PATH}/fonts/SkRemotableFontMgr.cpp 
+#${SOURCE_PATH}/fonts/SkRemotableFontMgr.cpp 
 )
 SKIA_ADD_SOURCE(fonts)
 
@@ -442,6 +452,7 @@ ${SOURCE_PATH}/gpu/GrBuffer.cpp
 ${SOURCE_PATH}/gpu/GrBufferAllocPool.cpp 
 ${SOURCE_PATH}/gpu/GrCaps.cpp 
 ${SOURCE_PATH}/gpu/GrClipStackClip.cpp 
+${SOURCE_PATH}/gpu/GrColorSpaceInfo.cpp
 ${SOURCE_PATH}/gpu/GrColorSpaceXform.cpp 
 ${SOURCE_PATH}/gpu/GrContext.cpp 
 ${SOURCE_PATH}/gpu/GrDefaultGeoProcFactory.cpp 
@@ -468,7 +479,6 @@ ${SOURCE_PATH}/gpu/GrPathRange.cpp
 ${SOURCE_PATH}/gpu/GrPathRenderer.cpp 
 ${SOURCE_PATH}/gpu/GrPathRendererChain.cpp 
 ${SOURCE_PATH}/gpu/GrPathRendering.cpp 
-${SOURCE_PATH}/gpu/GrPathRenderingRenderTargetContext.cpp 
 ${SOURCE_PATH}/gpu/GrPathUtils.cpp 
 ${SOURCE_PATH}/gpu/GrPipeline.cpp 
 ${SOURCE_PATH}/gpu/GrPrimitiveProcessor.cpp 
@@ -477,6 +487,7 @@ ${SOURCE_PATH}/gpu/GrProcessorAnalysis.cpp
 ${SOURCE_PATH}/gpu/GrProcessorSet.cpp 
 ${SOURCE_PATH}/gpu/GrProcessorUnitTest.cpp 
 ${SOURCE_PATH}/gpu/GrProgramDesc.cpp 
+${SOURCE_PATH}/gpu/GrProxyProvider.cpp
 ${SOURCE_PATH}/gpu/GrRectanizer_pow2.cpp 
 ${SOURCE_PATH}/gpu/GrRectanizer_skyline.cpp 
 ${SOURCE_PATH}/gpu/GrReducedClip.cpp 
@@ -499,6 +510,7 @@ ${SOURCE_PATH}/gpu/GrStyle.cpp
 ${SOURCE_PATH}/gpu/GrSurface.cpp 
 ${SOURCE_PATH}/gpu/GrSurfaceContext.cpp 
 ${SOURCE_PATH}/gpu/GrSurfaceProxy.cpp 
+${SOURCE_PATH}/gpu/GrSurfaceProxyRef.cpp
 ${SOURCE_PATH}/gpu/GrTessellator.cpp 
 ${SOURCE_PATH}/gpu/GrTestUtils.cpp 
 ${SOURCE_PATH}/gpu/GrTexture.cpp 
@@ -509,7 +521,6 @@ ${SOURCE_PATH}/gpu/GrTextureOpList.cpp
 ${SOURCE_PATH}/gpu/GrTextureProducer.cpp 
 ${SOURCE_PATH}/gpu/GrTextureProxy.cpp 
 ${SOURCE_PATH}/gpu/GrTextureRenderTargetProxy.cpp 
-${SOURCE_PATH}/gpu/GrTraceMarker.cpp 
 ${SOURCE_PATH}/gpu/GrXferProcessor.cpp 
 ${SOURCE_PATH}/gpu/GrYUVProvider.cpp 
 ${SOURCE_PATH}/gpu/SkGpuDevice.cpp 
@@ -523,14 +534,18 @@ SKIA_ADD_SOURCE(gpu)
 ###############################################
 file(GLOB GPU_CCPR_SOURCE ${SOURCE_PATH}/gpu/ccpr/*.h)
 list(APPEND GPU_CCPR_SOURCE
-${SOURCE_PATH}/gpu/ccpr/GrCCPRAtlas.cpp 
-${SOURCE_PATH}/gpu/ccpr/GrCCPRCoverageOpsBuilder.cpp 
-${SOURCE_PATH}/gpu/ccpr/GrCCPRCoverageProcessor.cpp 
-${SOURCE_PATH}/gpu/ccpr/GrCCPRCubicProcessor.cpp 
-${SOURCE_PATH}/gpu/ccpr/GrCCPRPathProcessor.cpp 
-${SOURCE_PATH}/gpu/ccpr/GrCCPRQuadraticProcessor.cpp 
-${SOURCE_PATH}/gpu/ccpr/GrCCPRTriangleProcessor.cpp 
-${SOURCE_PATH}/gpu/ccpr/GrCoverageCountingPathRenderer.cpp 
+${SOURCE_PATH}/gpu/ccpr/GrCCAtlas.cpp 
+${SOURCE_PATH}/gpu/ccpr/GrCCClipProcessor.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCCoverageProcessor.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCCoverageProcessor_GSImpl.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCCoverageProcessor_VSImpl.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCCubicShader.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCGeometry.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCPathParser.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCPathProcessor.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCQuadraticShader.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCCTriangleShader.cpp
+${SOURCE_PATH}/gpu/ccpr/GrCoverageCountingPathRenderer.cpp
 )
 
 source_group(gpu\\ccpr FILES ${GPU_CCPR_SOURCE})
@@ -542,6 +557,8 @@ list(APPEND SKIA_SOURCE_FILES ${GPU_CCPR_SOURCE})
 ###############################################
 file(GLOB GPU_EFFECT_SOURCE ${SOURCE_PATH}/gpu/effects/*.h)
 list(APPEND GPU_EFFECT_SOURCE
+${SOURCE_PATH}/gpu/effects/GrAARectEffect.cpp
+${SOURCE_PATH}/gpu/effects/GrArithmeticFP.cpp
 ${SOURCE_PATH}/gpu/effects/GrBezierEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrBicubicEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrBitmapTextGeoProc.cpp 
@@ -557,19 +574,25 @@ ${SOURCE_PATH}/gpu/effects/GrDistanceFieldGeoProc.cpp
 ${SOURCE_PATH}/gpu/effects/GrDitherEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrEllipseEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp 
+${SOURCE_PATH}/gpu/effects/GrLumaColorFilterEffect.cpp
+${SOURCE_PATH}/gpu/effects/GrMagnifierEffect.cpp
 ${SOURCE_PATH}/gpu/effects/GrMatrixConvolutionEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrOvalEffect.cpp 
+${SOURCE_PATH}/gpu/effects/GrOverdrawFragmentProcessor.cpp
 ${SOURCE_PATH}/gpu/effects/GrPorterDuffXferProcessor.cpp 
-${SOURCE_PATH}/gpu/effects/GrRRectEffect.cpp 
+${SOURCE_PATH}/gpu/effects/GrPremulInputFragmentProcessor.cpp
+${SOURCE_PATH}/gpu/effects/GrRRectBlurEffect.cpp
+${SOURCE_PATH}/gpu/effects/GrRRectEffect.cpp
+${SOURCE_PATH}/gpu/effects/GrRectBlurEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrSRGBEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrShadowGeoProc.cpp 
 ${SOURCE_PATH}/gpu/effects/GrSimpleTextureEffect.cpp 
-${SOURCE_PATH}/gpu/effects/GrSingleTextureEffect.cpp 
 ${SOURCE_PATH}/gpu/effects/GrTextureDomain.cpp 
 ${SOURCE_PATH}/gpu/effects/GrTextureStripAtlas.cpp 
+${SOURCE_PATH}/gpu/effects/GrUnpremulInputFragmentProcessor.cpp
 ${SOURCE_PATH}/gpu/effects/GrXfermodeFragmentProcessor.cpp 
-${SOURCE_PATH}/gpu/effects/GrYUVEffect.cpp 
+${SOURCE_PATH}/gpu/effects/GrYUVtoRGBEffect.cpp
 )
 
 source_group(gpu\\effects FILES ${GPU_EFFECT_SOURCE})
@@ -586,10 +609,10 @@ ${SOURCE_PATH}/gpu/gl/GrGLBuffer.cpp
 ${SOURCE_PATH}/gpu/gl/GrGLCaps.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLContext.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLCreateNullInterface.cpp 
-${SOURCE_PATH}/gpu/gl/GrGLDefaultInterface_native.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLExtensions.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLGLSL.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLGpu.cpp 
+${SOURCE_PATH}/gpu/gl/GrGLGpuCommandBuffer.cpp
 ${SOURCE_PATH}/gpu/gl/GrGLGpuProgramCache.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLInterface.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLPath.cpp 
@@ -607,10 +630,12 @@ ${SOURCE_PATH}/gpu/gl/GrGLUniformHandler.cpp
 ${SOURCE_PATH}/gpu/gl/GrGLUtil.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLVaryingHandler.cpp 
 ${SOURCE_PATH}/gpu/gl/GrGLVertexArray.cpp 
-${SOURCE_PATH}/gpu/gl/android/GrGLCreateNativeInterface_android.cpp 
+
+#${SOURCE_PATH}/gpu/gl/android/GrGLMakeNativeInterface_android.cpp 
+${SOURCE_PATH}/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp
+
 ${SOURCE_PATH}/gpu/gl/builders/GrGLProgramBuilder.cpp 
 ${SOURCE_PATH}/gpu/gl/builders/GrGLShaderStringBuilder.cpp 
-${SOURCE_PATH}/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp 
 )
 
 source_group(gpu\\gl FILES ${GPU_GL_SOURCE})
@@ -627,14 +652,13 @@ ${SOURCE_PATH}/gpu/glsl/GrGLSLBlend.cpp
 ${SOURCE_PATH}/gpu/glsl/GrGLSLFragmentProcessor.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLGeometryProcessor.cpp 
-${SOURCE_PATH}/gpu/glsl/GrGLSLGeometryShaderBuilder.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLPrimitiveProcessor.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLProgramBuilder.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLProgramDataManager.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLShaderBuilder.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLUtil.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLVarying.cpp 
-${SOURCE_PATH}/gpu/glsl/GrGLSLVertexShaderBuilder.cpp 
+${SOURCE_PATH}/gpu/glsl/GrGLSLVertexGeoBuilder.cpp 
 ${SOURCE_PATH}/gpu/glsl/GrGLSLXferProcessor.cpp 
 )
 
@@ -645,17 +669,17 @@ list(APPEND SKIA_SOURCE_FILES ${GPU_GLSL_SOURCE})
 ###############################################
 # gpu instanced
 ###############################################
-file(GLOB GPU_INSTANCED_SOURCE ${SOURCE_PATH}/gpu/instanced/*.h)
-list(APPEND GPU_INSTANCED_SOURCE
-${SOURCE_PATH}/gpu/instanced/GLInstancedRendering.cpp
-${SOURCE_PATH}/gpu/instanced/InstanceProcessor.cpp
-${SOURCE_PATH}/gpu/instanced/InstancedOp.cpp
-${SOURCE_PATH}/gpu/instanced/InstancedRendering.cpp
-)
+#file(GLOB GPU_INSTANCED_SOURCE ${SOURCE_PATH}/gpu/instanced/*.h)
+#list(APPEND GPU_INSTANCED_SOURCE
+#${SOURCE_PATH}/gpu/instanced/GLInstancedRendering.cpp
+#${SOURCE_PATH}/gpu/instanced/InstanceProcessor.cpp
+#${SOURCE_PATH}/gpu/instanced/InstancedOp.cpp
+#${SOURCE_PATH}/gpu/instanced/InstancedRendering.cpp
+#)
 
-source_group(gpu\\instanced FILES ${GPU_INSTANCED_SOURCE})
-include_directories(AFTER ${SOURCE_PATH}/gpu/instanced)
-list(APPEND SKIA_SOURCE_FILES ${GPU_INSTANCED_SOURCE})
+#source_group(gpu\\instanced FILES ${GPU_INSTANCED_SOURCE})
+#include_directories(AFTER ${SOURCE_PATH}/gpu/instanced)
+#list(APPEND SKIA_SOURCE_FILES ${GPU_INSTANCED_SOURCE})
 
 ###############################################
 # gpu mock
@@ -687,7 +711,6 @@ ${SOURCE_PATH}/gpu/ops/GrDashLinePathRenderer.cpp
 ${SOURCE_PATH}/gpu/ops/GrDashOp.cpp 
 ${SOURCE_PATH}/gpu/ops/GrDefaultPathRenderer.cpp 
 ${SOURCE_PATH}/gpu/ops/GrDrawAtlasOp.cpp 
-${SOURCE_PATH}/gpu/ops/GrDrawOp.cpp 
 ${SOURCE_PATH}/gpu/ops/GrDrawPathOp.cpp 
 ${SOURCE_PATH}/gpu/ops/GrDrawVerticesOp.cpp 
 ${SOURCE_PATH}/gpu/ops/GrLatticeOp.cpp 
@@ -705,6 +728,7 @@ ${SOURCE_PATH}/gpu/ops/GrSmallPathRenderer.cpp
 ${SOURCE_PATH}/gpu/ops/GrStencilAndCoverPathRenderer.cpp 
 ${SOURCE_PATH}/gpu/ops/GrStencilPathOp.cpp 
 ${SOURCE_PATH}/gpu/ops/GrTessellatingPathRenderer.cpp 
+${SOURCE_PATH}/gpu/ops/GrTextureOp.cpp
 )
 
 source_group(gpu\\ops FILES ${GPU_OPS_SOURCE})
@@ -716,12 +740,12 @@ list(APPEND SKIA_SOURCE_FILES ${GPU_OPS_SOURCE})
 ###############################################
 file(GLOB GPU_TEXT_SOURCE ${SOURCE_PATH}/gpu/text/*.h)
 list(APPEND GPU_TEXT_SOURCE
-${SOURCE_PATH}/gpu/text/GrAtlasGlyphCache.cpp 
+${SOURCE_PATH}/gpu/text/GrAtlasManager.cpp 
 ${SOURCE_PATH}/gpu/text/GrAtlasTextBlob.cpp 
-${SOURCE_PATH}/gpu/text/GrAtlasTextBlob_regenInOp.cpp 
+${SOURCE_PATH}/gpu/text/GrAtlasTextBlobVertexRegenerator.cpp 
 ${SOURCE_PATH}/gpu/text/GrAtlasTextContext.cpp 
 ${SOURCE_PATH}/gpu/text/GrDistanceFieldAdjustTable.cpp 
-${SOURCE_PATH}/gpu/text/GrStencilAndCoverTextContext.cpp 
+${SOURCE_PATH}/gpu/text/GrGlyphCache.cpp 
 ${SOURCE_PATH}/gpu/text/GrTextBlobCache.cpp 
 ${SOURCE_PATH}/gpu/text/GrTextUtils.cpp 
 )
@@ -729,6 +753,13 @@ ${SOURCE_PATH}/gpu/text/GrTextUtils.cpp
 source_group(gpu\\text FILES ${GPU_TEXT_SOURCE})
 include_directories(AFTER ${SOURCE_PATH}/gpu/text)
 list(APPEND SKIA_SOURCE_FILES ${GPU_TEXT_SOURCE})
+
+###############################################
+# gpu vk
+###############################################
+
+# EMPTY
+# We don't have vk support
 
 ###############################################
 # image
@@ -761,7 +792,9 @@ SKIA_ADD_SOURCE(images)
 ###############################################
 list(APPEND jumper_SOURCE
 ${SOURCE_PATH}/jumper/SkJumper.cpp
+
 ${SOURCE_PATH}/jumper/SkJumper_stages.cpp
+${SOURCE_PATH}/jumper/SkJumper_stages_lowp.cpp
 )
 if (MSVC)
     enable_language(ASM_MASM)
@@ -916,14 +949,12 @@ ${SOURCE_PATH}/shaders/SkColorFilterShader.cpp
 ${SOURCE_PATH}/shaders/SkColorShader.cpp 
 ${SOURCE_PATH}/shaders/SkComposeShader.cpp 
 ${SOURCE_PATH}/shaders/SkImageShader.cpp 
-${SOURCE_PATH}/shaders/SkLightingShader.cpp 
 ${SOURCE_PATH}/shaders/SkLocalMatrixShader.cpp 
 ${SOURCE_PATH}/shaders/SkPerlinNoiseShader.cpp 
 ${SOURCE_PATH}/shaders/SkPictureShader.cpp 
 ${SOURCE_PATH}/shaders/SkShader.cpp 
 ${SOURCE_PATH}/shaders/gradients/Sk4fGradientBase.cpp 
 ${SOURCE_PATH}/shaders/gradients/Sk4fLinearGradient.cpp 
-${SOURCE_PATH}/shaders/gradients/SkClampRange.cpp 
 ${SOURCE_PATH}/shaders/gradients/SkGradientBitmapCache.cpp 
 ${SOURCE_PATH}/shaders/gradients/SkGradientShader.cpp 
 ${SOURCE_PATH}/shaders/gradients/SkLinearGradient.cpp 
@@ -944,6 +975,9 @@ ${SOURCE_PATH}/sksl/SkSLCompiler.cpp
 ${SOURCE_PATH}/sksl/SkSLGLSLCodeGenerator.cpp 
 ${SOURCE_PATH}/sksl/SkSLHCodeGenerator.cpp 
 ${SOURCE_PATH}/sksl/SkSLIRGenerator.cpp 
+${SOURCE_PATH}/sksl/SkSLLayoutLexer.cpp
+${SOURCE_PATH}/sksl/SkSLLexer.cpp
+${SOURCE_PATH}/sksl/SkSLMetalCodeGenerator.cpp
 ${SOURCE_PATH}/sksl/SkSLParser.cpp 
 ${SOURCE_PATH}/sksl/SkSLSPIRVCodeGenerator.cpp 
 ${SOURCE_PATH}/sksl/SkSLString.cpp 
@@ -951,7 +985,7 @@ ${SOURCE_PATH}/sksl/SkSLUtil.cpp
 ${SOURCE_PATH}/sksl/ir/SkSLSetting.cpp 
 ${SOURCE_PATH}/sksl/ir/SkSLSymbolTable.cpp 
 ${SOURCE_PATH}/sksl/ir/SkSLType.cpp 
-${SOURCE_PATH}/sksl/lex.layout.cpp 
+#${SOURCE_PATH}/sksl/lex.layout.cpp 
 )
 SKIA_ADD_SOURCE(sksl)
 
@@ -969,18 +1003,17 @@ SKIA_ADD_SOURCE(svg)
 ###############################################
 list(APPEND utils_SOURCE
 ${SOURCE_PATH}/utils/SkBase64.cpp 
-${SOURCE_PATH}/utils/SkBitmapSourceDeserializer.cpp 
 ${SOURCE_PATH}/utils/SkCamera.cpp 
 ${SOURCE_PATH}/utils/SkCanvasStack.cpp 
 ${SOURCE_PATH}/utils/SkCanvasStateUtils.cpp 
-${SOURCE_PATH}/utils/SkCurveMeasure.cpp 
 ${SOURCE_PATH}/utils/SkDashPath.cpp 
-${SOURCE_PATH}/utils/SkDeferredCanvas.cpp 
 ${SOURCE_PATH}/utils/SkDumpCanvas.cpp 
 ${SOURCE_PATH}/utils/SkEventTracer.cpp 
+${SOURCE_PATH}/utils/SkFloatToDecimal.cpp
 ${SOURCE_PATH}/utils/SkFrontBufferedStream.cpp 
 ${SOURCE_PATH}/utils/SkInsetConvexPolygon.cpp 
-${SOURCE_PATH}/utils/SkInterpolator.cpp 
+${SOURCE_PATH}/utils/SkInterpolator.cpp
+${SOURCE_PATH}/utils/SkJSONWriter.cpp 
 ${SOURCE_PATH}/utils/SkMatrix22.cpp 
 ${SOURCE_PATH}/utils/SkMultiPictureDocument.cpp 
 ${SOURCE_PATH}/utils/SkNWayCanvas.cpp 
@@ -994,6 +1027,7 @@ ${SOURCE_PATH}/utils/SkPatchUtils.cpp
 ${SOURCE_PATH}/utils/SkShadowTessellator.cpp
 ${SOURCE_PATH}/utils/SkShadowUtils.cpp 
 ${SOURCE_PATH}/utils/SkTextBox.cpp 
+
 ${SOURCE_PATH}/utils/SkWhitelistTypefaces.cpp 
 )
 if (MSVC)
@@ -1001,6 +1035,8 @@ if (MSVC)
 
     list(APPEND utils_SOURCE
     ${SOURCE_PATH}/utils/SkThreadUtils_win.cpp 
+
+    ${SOURCE_PATH}/utils/win/SkAutoCoInitialize.cpp
     ${SOURCE_PATH}/utils/win/SkDWrite.cpp 
     ${SOURCE_PATH}/utils/win/SkDWrite.h
     ${SOURCE_PATH}/utils/win/SkDWriteFontFileStream.cpp 
@@ -1009,6 +1045,7 @@ if (MSVC)
     ${SOURCE_PATH}/utils/win/SkDWriteGeometrySink.h    
     ${SOURCE_PATH}/utils/win/SkHRESULT.cpp
     ${SOURCE_PATH}/utils/win/SkIStream.cpp
+    #${SOURCE_PATH}/utils/win/SkWGL_win.cpp
     )
 else()
     if (APPLE)
@@ -1063,7 +1100,6 @@ if (MSVC OR APPLE)
     ${SOURCE_PATH}/opts/SkBitmapProcState_opts_SSSE3.cpp 
     ${SOURCE_PATH}/opts/SkBlitRow_opts_SSE2.cpp 
     ${SOURCE_PATH}/opts/SkOpts_avx.cpp 
-    ${SOURCE_PATH}/opts/SkOpts_hsw.cpp 
     ${SOURCE_PATH}/opts/SkOpts_sse41.cpp
     ${SOURCE_PATH}/opts/SkOpts_sse42.cpp
     ${SOURCE_PATH}/opts/SkOpts_ssse3.cpp 

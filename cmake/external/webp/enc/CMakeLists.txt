@@ -8,6 +8,7 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/webp/src/enc )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/webp/src )
 
 include_directories(AFTER ${HEADER_PATH})
+include_directories(AFTER ${M3E_SOURCE_DIR}/${EXT_PATH}/webp)
 
 set(WEBP_ENC_SRC
 ${SOURCE_PATH}/dsp/alpha_processing.c
@@ -15,9 +16,6 @@ ${SOURCE_PATH}/dsp/alpha_processing_mips_dsp_r2.c
 ${SOURCE_PATH}/dsp/alpha_processing_neon.c
 ${SOURCE_PATH}/dsp/alpha_processing_sse2.c
 ${SOURCE_PATH}/dsp/alpha_processing_sse41.c
-${SOURCE_PATH}/dsp/argb.c
-${SOURCE_PATH}/dsp/argb_mips_dsp_r2.c
-${SOURCE_PATH}/dsp/argb_sse2.c
 ${SOURCE_PATH}/dsp/cost.c
 ${SOURCE_PATH}/dsp/cost_mips32.c
 ${SOURCE_PATH}/dsp/cost_mips_dsp_r2.c
@@ -38,8 +36,11 @@ ${SOURCE_PATH}/dsp/lossless_enc_msa.c
 ${SOURCE_PATH}/dsp/lossless_enc_neon.c
 ${SOURCE_PATH}/dsp/lossless_enc_sse2.c
 ${SOURCE_PATH}/dsp/lossless_enc_sse41.c
+${SOURCE_PATH}/dsp/ssim.c
+${SOURCE_PATH}/dsp/ssim_sse2.c
 ${SOURCE_PATH}/enc/alpha_enc.c
 ${SOURCE_PATH}/enc/analysis_enc.c
+${SOURCE_PATH}/enc/backward_references_cost_enc.c
 ${SOURCE_PATH}/enc/backward_references_enc.c
 ${SOURCE_PATH}/enc/config_enc.c
 ${SOURCE_PATH}/enc/cost_enc.c

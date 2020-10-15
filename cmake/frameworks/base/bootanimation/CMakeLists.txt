@@ -40,6 +40,13 @@ if(MSVC)
 
     include(${M3E_SOURCE_DIR}/cmake/core/msvc/include.cmake)
     list(APPEND BOOTANIMATION_DEPLIB ${LIB_MSVC_WRAP})
+
+    # for the skia
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_flag_suppoted)
+    if (_cpp_flag_suppoted)
+        add_compile_options("/std:c++17")
+    endif()
 elseif (APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 endif()

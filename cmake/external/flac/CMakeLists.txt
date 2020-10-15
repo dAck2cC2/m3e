@@ -25,8 +25,10 @@ include_directories(AFTER ${SOURCE_PATH}/include/)
 file(GLOB ${PROJECT_NAME}_HEADER_FILES
 ${HEADER_PATH}/FLAC/*.h
 ${HEADER_PATH}/share/*.h
-${SOURCE_PATH}/include/*.h
-${M3E_SOURCE_DIR}/src/${EXT_PATH}/flac/include/*.h
+${HEADER_PATH}/share/grabbag/*.h
+${SOURCE_PATH}/include/private/*.h
+${SOURCE_PATH}/include/protected/*.h
+${SOURCE_PATH}/../*.h
 )
 
 set(${PROJECT_NAME}_SOURCE_FILES 
@@ -49,12 +51,9 @@ ${SOURCE_PATH}/window.c
 
 if (MSVC)
     list(APPEND ${PROJECT_NAME}_SOURCE_FILES
-    ${M3E_SOURCE_DIR}/src/${EXT_PATH}/flac/windows_unicode_filenames.c
+    ${SOURCE_PATH}/windows_unicode_filenames.c
     )
 endif()
 
 set(LIB_TYPE SHARED)
-set(LIB_NAME FLAC)
-set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(${LIB_NAME} ${LIB_TYPE} ${${PROJECT_NAME}_HEADER_FILES} ${${PROJECT_NAME}_SOURCE_FILES})
-target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_DEPLIB})
+ADD_LIB(FLAC)

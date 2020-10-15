@@ -1,8 +1,8 @@
 diff --git a/include/config/SkUserConfig.h b/include/config/SkUserConfig.h
-index dd3a6c9..13aa9a7 100644
+index b8022043f9..8441a03ae2 100644
 --- a/include/config/SkUserConfig.h
 +++ b/include/config/SkUserConfig.h
-@@ -9,12 +9,12 @@
+@@ -9,13 +9,13 @@
    #define SK_GAMMA_APPLY_TO_A8
    #define SK_GAMMA_CONTRAST 0.0
    #define SK_GAMMA_EXPONENT 1.4
@@ -17,19 +17,18 @@ index dd3a6c9..13aa9a7 100644
    #define SK_SUPPORT_PDF
 -  #define SK_VULKAN
 +  //#define SK_VULKAN
+   #define SK_VULKAN_HEADER "Skia_Vulkan_Android.h"
    #define SK_XML
  #endif//SkUserConfig_DEFINED
 diff --git a/include/config/SkUserConfigManual.h b/include/config/SkUserConfigManual.h
-index 8dea27f..83bf304 100644
+index 69b2d17799..646925f298 100644
 --- a/include/config/SkUserConfigManual.h
 +++ b/include/config/SkUserConfigManual.h
-@@ -9,8 +9,8 @@
+@@ -9,7 +9,7 @@
  #define SkUserConfigManual_DEFINED
    #define GR_GL_CUSTOM_SETUP_HEADER "gl/GrGLConfig_chrome.h"
    #define GR_TEST_UTILS 1
--  #define SKIA_DLL
 -  #define SK_BUILD_FOR_ANDROID_FRAMEWORK
-+  //#define SKIA_DLL
 +  //#define SK_BUILD_FOR_ANDROID_FRAMEWORK
    #define SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)
    #define SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)

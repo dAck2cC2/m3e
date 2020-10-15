@@ -45,7 +45,7 @@ endif(MSVC)
 ###############################################################################
 # external module from android
 set(EXT_LINK https://android.googlesource.com/platform)
-set(EXT_TAG android-8.1.0_r52)
+set(EXT_TAG android-9.0.0_r56)
 set(EXT_TAG_UPDATE android-9.0.0_r56)
 
 set(EXT_UPDATE 
@@ -53,26 +53,26 @@ safe-iop
 zlib
 boringssl
 expat
+aac
+dng_sdk
+flac
+giflib
+libgsm
+piex
+libpng
+sonic
+sonivox
+tremolo
+libvpx
+webp
+libyuv
+skia
 )
 
 # moudles which are going to be updated
-#aac
-#dng_sdk
-#flac
-#giflib
-#libgsm
-#libhevc
-#jpeg
 #jsoncpp
-#piex
-#libpng
-#skia
-#sonic
-#sonivox
-#tremolo
-#libvpx
-#webp
-#libyuv
+#jpeg
+#libhevc
 
 ###############################################################################
 # download module

@@ -40,7 +40,4 @@ ${SOURCE_PATH}/vorbisfile.c
 
 
 #set(LIB_TYPE SHARED)
-set(LIB_NAME vorbisidec)
-set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(${LIB_NAME} ${LIB_TYPE} ${${PROJECT_NAME}_HEADER_FILES} ${${PROJECT_NAME}_SOURCE_FILES})
-target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_DEPLIB})
+ADD_LIB(vorbisidec)
