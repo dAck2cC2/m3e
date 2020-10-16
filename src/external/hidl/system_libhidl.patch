@@ -116,7 +116,7 @@ index ed9f02c..1047e59 100644
      explicit HidlInstrumentor(
              const std::string &package,
 diff --git a/base/include/hidl/HidlSupport.h b/base/include/hidl/HidlSupport.h
-index f8f79a5..7f28d42 100644
+index f8f79a5..f7f2be2 100644
 --- a/base/include/hidl/HidlSupport.h
 +++ b/base/include/hidl/HidlSupport.h
 @@ -33,6 +33,23 @@
@@ -161,6 +161,17 @@ index f8f79a5..7f28d42 100644
      hidl_string();
      ~hidl_string();
  
+@@ -293,8 +310,8 @@ private:
+ // provides factory methods to create an instance from hidl_memory or
+ // from a opened file descriptor. The number of factory methods can be increase
+ // to support other type of hidl_memory without break the ABI.
+-class HidlMemory : public virtual hidl_memory, public virtual ::android::RefBase {
+-public:
++class ANDROID_API_HIDL HidlMemory : public virtual hidl_memory, public virtual ::android::RefBase {
++   public:
+     static sp<HidlMemory> getInstance(const hidl_memory& mem);
+ 
+     static sp<HidlMemory> getInstance(hidl_memory&& mem);
 @@ -317,7 +334,9 @@ protected:
  template<typename T>
  struct hidl_vec {
@@ -335,6 +346,18 @@ index 4e952eb..e9eea75 100644
          myDescriptor = types.c_str();
      });
      ret.isOk(); // ignored, return empty string if not isOk()
+diff --git a/transport/allocator/1.0/utils/include/hidlmemory/FrameworkUtils.h b/transport/allocator/1.0/utils/include/hidlmemory/FrameworkUtils.h
+index 0a62575..ba94a99 100644
+--- a/transport/allocator/1.0/utils/include/hidlmemory/FrameworkUtils.h
++++ b/transport/allocator/1.0/utils/include/hidlmemory/FrameworkUtils.h
+@@ -28,6 +28,7 @@ namespace hardware {
+  *
+  * Return is never nullptr. May be an invalid hidl_memory object.
+  */
++ANDROID_API_HIDL
+ sp<HidlMemory> fromHeap(const sp<IMemoryHeap>& heap);
+ 
+ }  // namespace hardware
 diff --git a/transport/include/hidl/HidlTransportSupport.h b/transport/include/hidl/HidlTransportSupport.h
 index cdcb03e..16f5aa7 100644
 --- a/transport/include/hidl/HidlTransportSupport.h
