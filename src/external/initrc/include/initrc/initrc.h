@@ -31,6 +31,9 @@ int InitRC_entry(int argc, char** argv);
 INITRC_API
 void InitRC_run(void);
 
+INITRC_API
+void InitRC_waitForBootAnimation(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

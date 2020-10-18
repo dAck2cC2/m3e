@@ -29,6 +29,8 @@ static pthread_t mGUIThread = NULL;
 
 void* _threadLoopRay(void* user)
 {
+    InitRC_waitForBootAnimation();
+
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
@@ -43,6 +45,8 @@ void* _threadLoopRay(void* user)
 
 int main(int argc, char** argv)
 {
+    InitRC_set(M_PROPERTY_BOOT_ANIMATION_TIME_SEC, "3");
+
     InitRC_set(M_PROPERTY_DISPLAY_NAME,   "test raygui");
     InitRC_set(M_PROPERTY_DISPLAY_WIDTH,  "800");
     InitRC_set(M_PROPERTY_DISPLAY_HEIGHT, "450");

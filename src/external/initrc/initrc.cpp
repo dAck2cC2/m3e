@@ -40,6 +40,7 @@ public:
 	virtual void Run();
     
     virtual bool HasInited() const { return (mHasInited); };
+    virtual void WaitForBootAnimation();
 
 private:
 	~InitRCImpl();
@@ -172,6 +173,27 @@ void InitRCImpl::Run()
 	}
 }
     
+
+void InitRCImpl::WaitForBootAnimation()
+{
+    struct hw_device_t* hBootAnimation = gServiceList[SERVICE_BOOT_ANIM].handler;
+
+    if ((NULL == hBootAnimation)
+    ||  (NULL == hBootAnimation->module)
+    ||  (NULL == hBootAnimation->module->dso)) {
+        return;
+    }
+
+    sp<InitRCAnimationStatus> animStatus = (InitRCAnimationStatus*)(hBootAnimation->module->dso);
+    if (animStatus != NULL) {
+        animStatus->wait();
+    }
+
+    if (hBootAnimation->close != NULL) {
+        (*(hBootAnimation->close))(hBootAnimation);
+    }
+}
+
 }; // namespace android
 
 static android::Mutex                    s_lockInit("Init RC");
@@ -220,5 +242,21 @@ void InitRC_run(void)
 	pInitRC->Run();
 
 	return;
+}
+
+void InitRC_waitForBootAnimation(void)
+{
+    android::sp<android::InitRCImpl> pInitRC;
+
+    {
+        android::AutoMutex _l(s_lockInit);
+        pInitRC = s_pInitRC;
+    }
+
+    if (pInitRC == NULL) {
+        return;
+    }
+
+    pInitRC->WaitForBootAnimation();
 }
 
