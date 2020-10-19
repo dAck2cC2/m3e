@@ -22,6 +22,8 @@ if(APPLE)
     set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})  
 elseif(MSVC)
     add_definitions(-DNOMINMAX=1)
+elseif(LINUX)
+    set(CMAKE_CXX_FLAGS "-std=c++14" ${CMAKE_CXX_FLAGS})
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libnblog/include/media/nblog )

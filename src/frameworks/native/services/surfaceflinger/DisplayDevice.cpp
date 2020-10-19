@@ -586,7 +586,7 @@ void DisplayDevice::setProjection(int orientation,
         if (R.getOrientation() & Transform::ROT_90) {
             // viewport is always specified in the logical orientation
             // of the display (ie: post-rotation).
-#if defined(_MSC_VER) /* M3E: */
+#if defined(_MSC_VER) || defined(__linux__) /* M3E: */
             int32_t t = viewport.right;
             viewport.right = viewport.bottom;
             viewport.bottom = t;

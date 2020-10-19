@@ -37,6 +37,10 @@
 #include <unordered_set>
 #include <vector>
 
+#if defined(__linux__) // M3E:
+#include <memory>
+#endif
+
 namespace android {
     class Fence;
     class FloatRect;

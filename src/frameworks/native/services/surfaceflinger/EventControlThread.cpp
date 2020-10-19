@@ -37,7 +37,7 @@ namespace impl {
 
 EventControlThread::EventControlThread(EventControlThread::SetVSyncEnabledFunction function)
       : mSetVSyncEnabled(function) {
-#if defined(__linux__) /* M3E; */
+#if 0 /* M3E: */
     pthread_setname_np(mThread.native_handle(), "EventControlThread");
 
     pid_t tid = pthread_gettid_np(mThread.native_handle());

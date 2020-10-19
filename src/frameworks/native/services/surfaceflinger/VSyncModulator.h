@@ -129,10 +129,17 @@ private:
     nsecs_t mLatePhaseOffset = 0;
     nsecs_t mEarlyPhaseOffset = 0;
     EventThread* mEventThread = nullptr;
+#if !defined(__linux__) // M3E: for linux
     std::atomic<nsecs_t> mPhaseOffset = 0;
     std::atomic<TransactionStart> mTransactionStart = TransactionStart::NORMAL;
     std::atomic<bool> mLastFrameUsedRenderEngine = false;
     std::atomic<int> mRemainingEarlyFrameCount = 0;
+#else
+    std::atomic<nsecs_t> mPhaseOffset = { 0 };
+    std::atomic<TransactionStart> mTransactionStart = { TransactionStart::NORMAL };
+    std::atomic<bool> mLastFrameUsedRenderEngine = { false };
+    std::atomic<int> mRemainingEarlyFrameCount = { 0 };
+#endif
 };
 
 } // namespace android

@@ -51,7 +51,7 @@ bool LayerRejecter::reject(const sp<GraphicBuffer>& buf, const BufferItem& item)
     // check that we received a buffer of the right size
     // (Take the buffer's orientation into account)
     if (item.mTransform & Transform::ROT_90) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__linux__) // M3E:
         uint32_t t = bufWidth;
         bufWidth   = bufHeight;
         bufHeight  = t;

@@ -95,9 +95,15 @@ private:
     void disable();
     void clear();
     bool isEnabled();
+#if !defined(__linux__) // M3E: for linux
     void dump(bool asProto, std::optional<uint32_t> maxLayers, String8& result);
+#endif
 
+#if defined(__linux__) // M3E: for linux
+    std::atomic<bool> mEnabled = { false };
+#else
     std::atomic<bool> mEnabled = false;
+#endif
     std::mutex mMutex;
 #if ENABLE_TIME_PROTO /* M3E: */
     TimeStatsHelper::TimeStatsGlobal timeStats;

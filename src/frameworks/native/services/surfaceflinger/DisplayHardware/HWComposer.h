@@ -180,7 +180,9 @@ public:
 
     android::Hwc2::Composer* getComposer() const { return mHwcDevice->getComposer(); }
 
+#if !defined(__linux__) // M3E: std::optional is not supported by linux compiler yet
     std::optional<hwc2_display_t> getHwcDisplayId(int32_t displayId) const;
+#endif
 private:
     // For unit tests
     friend TestableSurfaceFlinger;
