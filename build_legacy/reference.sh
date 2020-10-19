@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET_TAG="android-9.0.0_r56"
+TARGET_TAG="android-10.0.0_r45"
 
 TARGET_DIR="\
 frameworks/av \
@@ -20,6 +20,7 @@ system/libhidl \
 system/libhwbinder \
 system/libfmq \
 system/tools/hidl \
+system/tools/aidl \
 libnativehelper \
 "
 
