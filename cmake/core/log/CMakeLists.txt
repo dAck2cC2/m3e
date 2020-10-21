@@ -10,7 +10,9 @@ set(LOG_DEPLIB )
 if (MSVC)
     include(${MSVC_INCLUDE})
     list(APPEND LOG_DEPLIB ${LIB_MSVC_WRAP})
-endif(MSVC)
+elseif(APPLE)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
+endif()
 
 add_definitions(-DFAKE_LOG_DEVICE=1)
 

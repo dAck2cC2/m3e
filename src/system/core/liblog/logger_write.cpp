@@ -15,10 +15,10 @@
  */
 
 #include <errno.h>
-#if defined(__linux__) || defined(__APPLE__) /* M3E: */
-#include <stdatomic.h>
-#else
+#if defined(_MSC_VER) || defined(__APPLE__) /* M3E: include <atomic> before <stdatomic.h> */
 #include <cutils/stdatomic.h>
+#else
+#include <stdatomic.h>
 #endif
 #include <stdlib.h>
 #include <string.h>

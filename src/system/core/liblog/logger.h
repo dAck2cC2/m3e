@@ -16,7 +16,7 @@
 
 #pragma once
 
-#if defined(_MSC_VER) /* M3E: MSVC */
+#if defined(_MSC_VER) || defined(__APPLE__) /* M3E: include <atomic> before <stdatomic.h> */
 #include <cutils/stdatomic.h>
 #else
 #include <stdatomic.h>

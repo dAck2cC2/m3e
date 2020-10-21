@@ -16,7 +16,7 @@
 
 #pragma once
 
-#if 0 //defined(_WIN32) M3E:
+#if 0 //defined(_WIN32) M3E: we have this wrapper for MSVC
 #include <stddef.h>
 struct iovec {
   void* iov_base;
