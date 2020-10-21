@@ -27,19 +27,20 @@
 
 static int fakeOpen();
 static void fakeClose();
-static int fakeWrite(log_id_t log_id, struct timespec* ts, struct iovec* vec,
-                     size_t nr);
+static int fakeWrite(log_id_t log_id, struct timespec* ts, struct iovec* vec, size_t nr);
 
-static int logFds[(int)LOG_ID_MAX] = { -1, -1, -1, -1, -1, -1 };
+static int logFds[(int)LOG_ID_MAX] = {-1, -1, -1, -1, -1, -1};
 
-LIBLOG_HIDDEN struct android_log_transport_write fakeLoggerWrite = {
-  .node = { &fakeLoggerWrite.node, &fakeLoggerWrite.node },
-  .context.priv = &logFds,
-  .name = "fake",
-  .available = NULL,
-  .open = fakeOpen,
-  .close = fakeClose,
-  .write = fakeWrite,
+struct android_log_transport_write fakeLoggerWrite = {
+    .node = {&fakeLoggerWrite.node, &fakeLoggerWrite.node},
+#if !defined(_MSC_VER) // M3E: Nobody is using it
+    .context.priv = &logFds,
+#endif
+    .name = "fake",
+    .available = NULL,
+    .open = fakeOpen,
+    .close = fakeClose,
+    .write = fakeWrite,
 };
 
 static int fakeOpen() {
@@ -54,7 +55,7 @@ static int fakeOpen() {
     if (logFds[i] >= 0) {
       continue;
     }
-    snprintf(buf, sizeof(buf), "/dev/log_%s", android_log_id_to_name(i));
+    snprintf(buf, sizeof(buf), "/dev/log_%s", android_log_id_to_name(static_cast<log_id_t>(i)));
     logFds[i] = fakeLogOpen(buf);
     if (logFds[i] < 0) {
       fprintf(stderr, "fakeLogOpen(%s) failed\n", buf);
@@ -72,8 +73,7 @@ static void fakeClose() {
   }
 }
 
-static int fakeWrite(log_id_t log_id, struct timespec* ts __unused,
-                     struct iovec* vec, size_t nr) {
+static int fakeWrite(log_id_t log_id, struct timespec*, struct iovec* vec, size_t nr) {
   ssize_t ret;
   size_t i;
   int logFd, len;

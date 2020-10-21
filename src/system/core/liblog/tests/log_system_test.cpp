@@ -19,12 +19,16 @@
 #include <unistd.h>
 
 #include <string>
-#include <sys/time.h> /* M3E: usleep */
-//#include <android-base/file.h> /* M3E: */
-//#include <android-base/stringprintf.h> /* M3E: */
+
+#if 0 // M3E:
+#include <android-base/file.h>
+#include <android-base/stringprintf.h>
+#endif
 #include <gtest/gtest.h>
 // Test the APIs in this standalone include file
 #include <log/log_system.h>
+
+#include <sys/time.h> /* M3E: usleep */
 
 TEST(liblog, SLOG) {
   static const char content[] = "log_system.h";
@@ -91,7 +95,7 @@ TEST(liblog, SLOG) {
       "logcat -b system --pid=%u -d -s"
       " TEST__SLOGV TEST__SLOGD TEST__SLOGI TEST__SLOGW TEST__SLOGE",
       (unsigned)getpid());
-  FILE* fp = popen(buf.c_str(), "r");
+  FILE* fp = popen(buf.c_str(), "re");
   int count = 0;
   int count_false = 0;
   if (fp) {

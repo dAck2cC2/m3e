@@ -22,9 +22,11 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 
 static FILE* logFd = NULL;
 
-LIBLOG_HIDDEN struct android_log_transport_write fileLoggerWrite = {
+struct android_log_transport_write fileLoggerWrite = {
 	.node = { &fileLoggerWrite.node, &fileLoggerWrite.node },
+#if !defined(_MSC_VER) // M3E: Nobody is using it
 	.context.priv = &logFd,
+#endif
 	.name = "file",
 	.available = NULL,
 	.open = fileOpen,

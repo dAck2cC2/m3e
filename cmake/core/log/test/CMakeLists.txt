@@ -34,19 +34,19 @@ ${GTEST_MAIN_CC}
 # test log
 
 list(APPEND TEST_LOG_SOURCE_FILES
-${SOURCE_PATH}/AndroidLog_test.cpp
+# liblog-tests-default
 ${SOURCE_PATH}/libc_test.cpp
 ${SOURCE_PATH}/liblog_test_default.cpp
-#${SOURCE_PATH}/liblog_test_local.cpp
 #${SOURCE_PATH}/liblog_test_stderr.cpp
-#${SOURCE_PATH}/liblog_test_stderr_local.cpp
 ${SOURCE_PATH}/log_id_test.cpp
 ${SOURCE_PATH}/log_radio_test.cpp
 ${SOURCE_PATH}/log_read_test.cpp
 ${SOURCE_PATH}/log_system_test.cpp
 #${SOURCE_PATH}/log_time_test.cpp
 ${SOURCE_PATH}/log_wrap_test.cpp
-#${SOURCE_PATH}/liblog_benchmark.cpp
+
+# M3E: add
+${SOURCE_PATH}/AndroidLog_test.cpp
 )
 
 # project
