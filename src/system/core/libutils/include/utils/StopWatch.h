@@ -26,7 +26,7 @@
 
 namespace android {
 
-class ANDROID_API_UTILS StopWatch /* M3E: MSVC export */
+class StopWatch
 {
 public:
   StopWatch(const char* name, int clock = SYSTEM_TIME_MONOTONIC);
@@ -52,9 +52,7 @@ private:
     int             mNumLaps;
 };
 
-
-}; // namespace android
-
+}  // namespace android
 
 // ---------------------------------------------------------------------------
 

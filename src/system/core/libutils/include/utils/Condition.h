@@ -49,7 +49,7 @@ namespace android {
  * the pthreads semantics, in particular, a boolean predicate must
  * be re-evaluated after a wake-up, as spurious wake-ups may happen.
  */
-class ANDROID_API_UTILS Condition { /* M3E: MSVC export */
+class Condition {
 public:
     enum {
         PRIVATE = 0,
@@ -124,7 +124,7 @@ inline status_t Condition::waitRelative(Mutex& mutex, nsecs_t reltime) {
 #else // __APPLE__
     // Apple doesn't support POSIX clocks.
     struct timeval t;
-    gettimeofday(&t, NULL);
+    gettimeofday(&t, nullptr);
     ts.tv_sec = t.tv_sec;
     ts.tv_nsec = t.tv_usec*1000;
 #endif
@@ -159,7 +159,7 @@ inline void Condition::broadcast() {
 #endif // !defined(_WIN32)
 
 // ---------------------------------------------------------------------------
-}; // namespace android
+}  // namespace android
 // ---------------------------------------------------------------------------
 
 #endif // _LIBS_UTILS_CONDITON_H

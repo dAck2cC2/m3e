@@ -1,7 +1,4 @@
 
-# define
-DLL_PUBLIC(UTILS)
-
 if(MSVC)
     add_definitions(-DHAVE_MS_C_RUNTIME)
     add_definitions(-DHAVE_WIN32_THREADS)

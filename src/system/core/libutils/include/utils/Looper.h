@@ -26,6 +26,8 @@
 #include <sys/epoll.h>
 #endif // _LINUX
 
+#include <android-base/unique_fd.h>
+
 namespace android {
 
 /*
@@ -66,7 +68,7 @@ struct Message {
  * to remove any pending messages destined for the handler so that the handler
  * can be destroyed.
  */
-class ANDROID_API_UTILS MessageHandler : public virtual RefBase { /* M3E: MSVC export */
+class MessageHandler : public virtual RefBase {
 protected:
     virtual ~MessageHandler();
 
@@ -135,7 +137,7 @@ private:
  *
  * A looper can be associated with a thread although there is no requirement that it must be.
  */
-class ANDROID_API_UTILS Looper : public RefBase { /* M3E: MSVC export */
+class Looper : public RefBase {
 protected:
     virtual ~Looper();
 
@@ -264,7 +266,7 @@ public:
      */
     int pollOnce(int timeoutMillis, int* outFd, int* outEvents, void** outData);
     inline int pollOnce(int timeoutMillis) {
-        return pollOnce(timeoutMillis, NULL, NULL, NULL);
+        return pollOnce(timeoutMillis, nullptr, nullptr, nullptr);
     }
 
     /**
@@ -274,7 +276,7 @@ public:
      */
     int pollAll(int timeoutMillis, int* outFd, int* outEvents, void** outData);
     inline int pollAll(int timeoutMillis) {
-        return pollAll(timeoutMillis, NULL, NULL, NULL);
+        return pollAll(timeoutMillis, nullptr, nullptr, nullptr);
     }
 
     /**
@@ -450,7 +452,7 @@ private:
 
     const bool mAllowNonCallbacks; // immutable
 #if defined(_LINUX) /* M3E: */
-    int mWakeEventFd;  // immutable
+    android::base::unique_fd mWakeEventFd;  // immutable
 #else  // _LINUX
     Condition mWaitMessage;
 #endif // _LINUX
@@ -463,7 +465,7 @@ private:
     // any use of it is racy anyway.
     volatile bool mPolling;
 
-    int mEpollFd; // guarded by mLock but only modified on the looper thread
+    android::base::unique_fd mEpollFd;  // guarded by mLock but only modified on the looper thread
     bool mEpollRebuildRequired; // guarded by mLock
 
     // Locked list of file descriptor monitoring requests.

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#if defined(HAVE_PTHREADS) || defined(_MSC_VER) /* M3E: MSVC wrapper */
+#if 1 //!defined(_WIN32) /* M3E: MSVC has pthread wrapper */
 # include <pthread.h>
 #endif
 
@@ -34,11 +34,9 @@ extern "C" {
 #endif
 
 // Create and run a new thread.
-ANDROID_API_UTILS /* M3E: MSVC export */
 extern int androidCreateThread(android_thread_func_t, void *);
 
 // Create thread with lots of parameters
-ANDROID_API_UTILS /* M3E: MSVC export */
 extern int androidCreateThreadEtc(android_thread_func_t entryFunction,
                                   void *userData,
                                   const char* threadName,
@@ -47,7 +45,6 @@ extern int androidCreateThreadEtc(android_thread_func_t entryFunction,
                                   android_thread_id_t *threadId);
 
 // Get some sort of unique identifier for the current thread.
-ANDROID_API_UTILS /* M3E: MSVC export */
 extern android_thread_id_t androidGetThreadId();
 
 // Low-level thread creation -- never creates threads that can
@@ -60,7 +57,6 @@ extern int androidCreateRawThreadEtc(android_thread_func_t entryFunction,
                                      android_thread_id_t *threadId);
 
 // set the same of the running thread
-ANDROID_API_UTILS /* M3E: MSVC export */
 extern void androidSetThreadName(const char* name);
 
 // Used by the Java Runtime to control how threads are created, so that
@@ -75,7 +71,6 @@ typedef int (*android_create_thread_fn)(android_thread_func_t entryFunction,
 extern void androidSetCreateThreadFunc(android_create_thread_fn func);
 
 /* M3E: Add */
-ANDROID_API_UTILS
 extern void androidJoinThread(android_thread_id_t id);
 
 // ------------------------------------------------------------------
@@ -114,7 +109,7 @@ inline bool createThreadEtc(thread_func_t entryFunction,
                             const char* threadName = "android:unnamed_thread",
                             int32_t threadPriority = PRIORITY_DEFAULT,
                             size_t threadStackSize = 0,
-                            thread_id_t *threadId = 0)
+                            thread_id_t *threadId = nullptr)
 {
     return androidCreateThreadEtc(entryFunction, userData, threadName,
         threadPriority, threadStackSize, threadId) ? true : false;
@@ -131,7 +126,7 @@ inline void joinThread(thread_id_t id) {
 }
 
 // ----------------------------------------------------------------------------
-}; // namespace android
+}  // namespace android
 #endif  // __cplusplus
 // ----------------------------------------------------------------------------
 

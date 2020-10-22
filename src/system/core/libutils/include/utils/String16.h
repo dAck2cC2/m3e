@@ -40,7 +40,7 @@ class String8;
 // DO NOT USE: please use std::u16string
 
 //! This is a string holding UTF-16 characters.
-class ANDROID_API_UTILS String16 /* M3E: MSVC export */
+class String16
 {
 public:
     /* use String16(StaticLinkage) if you're statically linking against
@@ -243,7 +243,7 @@ inline String16::operator const char16_t*() const
     return mString;
 }
 
-}; // namespace android
+}  // namespace android
 
 // ---------------------------------------------------------------------------
 

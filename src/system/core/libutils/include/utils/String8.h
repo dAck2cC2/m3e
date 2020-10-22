@@ -36,7 +36,7 @@ class String16;
 
 //! This is a string holding UTF-8 characters. Does not allow the value more
 // than 0x10FFFF, which is not valid unicode codepoint.
-class ANDROID_API_UTILS String8 /* M3E: MSVC export */
+class String8
 {
 public:
     /* use String8(StaticLinkage) if you're statically linking against
@@ -187,7 +187,7 @@ public:
      * "/tmp" --> "tmp" (remain = "")
      * "bar.c" --> "bar.c" (remain = "")
      */
-    String8 walkPath(String8* outRemains = NULL) const;
+    String8 walkPath(String8* outRemains = nullptr) const;
 
     /*
      * Return the filename extension.  This is the last '.' and any number

@@ -19,11 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#if defined(_MSC_VER) /* M3E: */
-#include <windows.h>
-#elif defined(__APPLE__)
-#include <utils/Compat.h>
-#endif 
+#if defined(_MSC_VER) // M3E:
+#include <sys/time.h> // nanosleep
+#endif
 
 static const auto MS_IN_NS = 1000000;
 
@@ -50,15 +48,11 @@ TEST(SystemClock, SystemClock) {
     ASSERT_LT(startRealtimeNs, (startRealtimeMs + SLACK_MS) * MS_IN_NS)
             << "elapsedRealtime() and elapsedRealtimeNano() are inconsistent";
 
-#if defined(_MSC_VER) /* M3E: */
-	Sleep(SLEEP_MS);
-#else // _MSC_VER
     timespec ts;
     ts.tv_sec = 0;
     ts.tv_nsec = SLEEP_MS * MS_IN_NS;
     auto nanosleepErr = TEMP_FAILURE_RETRY(nanosleep(&ts, nullptr));
     ASSERT_EQ(nanosleepErr, 0) << "nanosleep() failed: " << strerror(errno);
-#endif // _MSC_VER
 
     auto endUptimeMs = android::uptimeMillis();
     auto endRealtimeMs = android::elapsedRealtime();

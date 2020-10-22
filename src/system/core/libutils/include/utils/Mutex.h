@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if !defined(_WIN32)
 # include <pthread.h>
 #endif
 
@@ -91,7 +91,7 @@ class Condition;
  * The mutex must be unlocked by the thread that locked it.  They are not
  * recursive, i.e. the same thread can't lock it multiple times.
  */
-class ANDROID_API_UTILS CAPABILITY("mutex") Mutex { /* M3E: MSVC export */
+class CAPABILITY("mutex") Mutex {
   public:
     enum {
         PRIVATE = 0,
@@ -100,7 +100,7 @@ class ANDROID_API_UTILS CAPABILITY("mutex") Mutex { /* M3E: MSVC export */
 
     Mutex();
     explicit Mutex(const char* name);
-    explicit Mutex(int type, const char* name = NULL);
+    explicit Mutex(int type, const char* name = nullptr);
     ~Mutex();
 
     // lock or unlock the mutex
@@ -108,7 +108,7 @@ class ANDROID_API_UTILS CAPABILITY("mutex") Mutex { /* M3E: MSVC export */
     void unlock() RELEASE();
 
     // lock if possible; returns 0 on success, error otherwise
-    status_t tryLock() TRY_ACQUIRE(true);
+    status_t tryLock() TRY_ACQUIRE(0);
 
 #if defined(__ANDROID__)
     // Lock the mutex, but don't wait longer than timeoutNs (relative time).
@@ -122,12 +122,12 @@ class ANDROID_API_UTILS CAPABILITY("mutex") Mutex { /* M3E: MSVC export */
     // which is subject to NTP adjustments, and includes time during suspend,
     // so a timeout may occur even though no processes could run.
     // Not holding a partial wakelock may lead to a system suspend.
-    status_t timedLock(nsecs_t timeoutNs) TRY_ACQUIRE(true);
+    status_t timedLock(nsecs_t timeoutNs) TRY_ACQUIRE(0);
 #endif
 
     // Manages the mutex automatically. It'll be locked when Autolock is
     // constructed and released when Autolock goes out of scope.
-    class ANDROID_API_UTILS SCOPED_CAPABILITY Autolock { /* M3E: MSVC export */
+    class SCOPED_CAPABILITY Autolock {
       public:
         inline explicit Autolock(Mutex& mutex) ACQUIRE(mutex) : mLock(mutex) { mLock.lock(); }
         inline explicit Autolock(Mutex* mutex) ACQUIRE(mutex) : mLock(*mutex) { mLock.lock(); }
@@ -147,7 +147,7 @@ class ANDROID_API_UTILS CAPABILITY("mutex") Mutex { /* M3E: MSVC export */
     Mutex(const Mutex&);
     Mutex& operator=(const Mutex&);
 
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if !defined(_WIN32)
     pthread_mutex_t mMutex;
 #else
     void _init();
@@ -157,13 +157,13 @@ class ANDROID_API_UTILS CAPABILITY("mutex") Mutex { /* M3E: MSVC export */
 
 // ---------------------------------------------------------------------------
 
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if !defined(_WIN32)
 
 inline Mutex::Mutex() {
-    pthread_mutex_init(&mMutex, NULL);
+    pthread_mutex_init(&mMutex, nullptr);
 }
 inline Mutex::Mutex(__attribute__((unused)) const char* name) {
-    pthread_mutex_init(&mMutex, NULL);
+    pthread_mutex_init(&mMutex, nullptr);
 }
 inline Mutex::Mutex(int type, __attribute__((unused)) const char* name) {
     if (type == SHARED) {
@@ -173,7 +173,7 @@ inline Mutex::Mutex(int type, __attribute__((unused)) const char* name) {
         pthread_mutex_init(&mMutex, &attr);
         pthread_mutexattr_destroy(&attr);
     } else {
-        pthread_mutex_init(&mMutex, NULL);
+        pthread_mutex_init(&mMutex, nullptr);
     }
 }
 inline Mutex::~Mutex() {
@@ -199,7 +199,7 @@ inline status_t Mutex::timedLock(nsecs_t timeoutNs) {
 }
 #endif
 
-#endif // HAVE_PTHREADS
+#endif // !defined(_WIN32)
 
 // ---------------------------------------------------------------------------
 
@@ -212,7 +212,7 @@ inline status_t Mutex::timedLock(nsecs_t timeoutNs) {
 typedef Mutex::Autolock AutoMutex;
 
 // ---------------------------------------------------------------------------
-}; // namespace android
+}  // namespace android
 // ---------------------------------------------------------------------------
 
 #endif // _LIBS_UTILS_MUTEX_H

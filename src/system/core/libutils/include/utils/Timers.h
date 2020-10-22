@@ -85,7 +85,6 @@ enum {
 };
 
 // return the system-time according to the specified clock
-ANDROID_API_UTILS /* M3E: MSVC export */
 #ifdef __cplusplus
 nsecs_t systemTime(int clock = SYSTEM_TIME_MONOTONIC);
 #else

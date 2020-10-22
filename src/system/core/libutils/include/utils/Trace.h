@@ -49,7 +49,7 @@ private:
     uint64_t mTag;
 };
 
-}; // namespace android
+}  // namespace android
 
 #else // !__ANDROID__
 
@@ -57,6 +57,7 @@ private:
 #define ATRACE_CALL()
 
 /* M3E: Add */
+#include <stdint.h>
 
 namespace android {
     

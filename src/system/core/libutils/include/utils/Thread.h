@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if !defined(_WIN32)
 # include <pthread.h>
 #endif
 
@@ -38,12 +38,12 @@ namespace android {
 
 // DO NOT USE: please use std::thread
 
-class ANDROID_API_UTILS Thread : virtual public RefBase /* M3E: MSVC export */
+class Thread : virtual public RefBase
 {
 public:
     // Create a Thread object, but doesn't create or start the associated
     // thread. See the run() method.
-    explicit Thread(bool canCallJava = true
+    explicit            Thread(bool canCallJava = true
 #ifdef ENABLE_AFFINITY /* M3E: affinity */
                               , int32_t iAffinity = 0x00000000
 #endif // ENABLE_AFFINITY
@@ -51,6 +51,7 @@ public:
     virtual             ~Thread();
 
     // Start the thread in threadLoop() which needs to be implemented.
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    run(    const char* name,
                                 int32_t priority = PRIORITY_DEFAULT,
                                 size_t stack = 0);
@@ -118,8 +119,7 @@ private:
 #endif // ENABLE_AFFINITY
 };
 
-
-}; // namespace android
+}  // namespace android
 
 // ---------------------------------------------------------------------------
 #endif // _LIBS_UTILS_THREAD_H

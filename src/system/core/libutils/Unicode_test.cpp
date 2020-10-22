@@ -38,15 +38,15 @@ protected:
 };
 
 TEST_F(UnicodeTest, UTF8toUTF16ZeroLength) {
+#if !defined(_MSC_VER) // M3E:
     ssize_t measured;
-#if defined(_MSC_VER) /* M3E: */
-	uint8_t* str = NULL;
-#else  // _MSC_VER
+
     const uint8_t str[] = { };
-#endif // _MSC_VER
+
     measured = utf8_to_utf16_length(str, 0);
     EXPECT_EQ(0, measured)
             << "Zero length input should return zero length output.";
+#endif
 }
 
 TEST_F(UnicodeTest, UTF8toUTF16ASCIILength) {
@@ -124,13 +124,14 @@ TEST_F(UnicodeTest, strstr16EmptyTarget) {
     EXPECT_EQ(strstr16(kSearchString, u""), kSearchString)
             << "should return the original pointer";
 }
-#if !defined(_MSC_VER)
+
 TEST_F(UnicodeTest, strstr16EmptyTarget_bug) {
     // In the original code when target is an empty string strlen16() would
     // start reading the memory until a "terminating null" (that is, zero)
     // character is found.   This happens because "*target++" in the original
     // code would increment the pointer beyond the actual string.
     void* memptr;
+#if !defined(_MSC_VER) // M3E:
     const size_t alignment = sysconf(_SC_PAGESIZE);
     const size_t size = 2 * alignment;
     ASSERT_EQ(posix_memalign(&memptr, alignment, size), 0);
@@ -148,8 +149,9 @@ TEST_F(UnicodeTest, strstr16EmptyTarget_bug) {
     ASSERT_EQ(mprotect((char*)memptr + alignment, alignment, PROT_READ | PROT_WRITE), 0);
     // Free allocated memory.
     free(memptr);
-}
 #endif
+}
+
 TEST_F(UnicodeTest, strstr16SameString) {
     const char16_t* result = strstr16(kSearchString, kSearchString);
     EXPECT_EQ(kSearchString, result)

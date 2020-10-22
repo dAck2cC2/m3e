@@ -22,14 +22,11 @@
 
 namespace android {
 
-ANDROID_API_UTILS /* M3E: MSVC export */
 int64_t uptimeMillis();
-ANDROID_API_UTILS /* M3E: MSVC export */
 int64_t elapsedRealtime();
-ANDROID_API_UTILS /* M3E: MSVC export */
 int64_t elapsedRealtimeNano();
 
-}; // namespace android
+}  // namespace android
 
 #endif // ANDROID_UTILS_SYSTEMCLOCK_H
 

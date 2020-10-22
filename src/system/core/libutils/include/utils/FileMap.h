@@ -49,12 +49,12 @@ namespace android {
  * completing the refcounting stuff and possibly introducing the notion
  * of a FileMap hierarchy.
  */
-class ANDROID_API_UTILS FileMap { /* M3E: MSVC export */
+class FileMap {
 public:
     FileMap(void);
 
-    FileMap(FileMap&& f);
-    FileMap& operator=(FileMap&& f);
+    FileMap(FileMap&& f) noexcept;
+    FileMap& operator=(FileMap&& f) noexcept;
 
     /*
      * Create a new mapping on an open file.
@@ -125,6 +125,6 @@ private:
     static long mPageSize;
 };
 
-}; // namespace android
+}  // namespace android
 
 #endif // __LIBS_FILE_MAP_H

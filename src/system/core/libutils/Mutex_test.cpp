@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_FUNCTOR_H
-#define ANDROID_FUNCTOR_H
+#include <utils/Mutex.h>
 
-#include <utils/Errors.h>
+#include <gtest/gtest.h>
 
-namespace  android {
+static android::Mutex mLock;
+static int i GUARDED_BY(mLock);
 
-// DO NOT USE: please use
-// - C++ lambda
-// - class with well-defined and specific functionality and semantics
+void modifyLockedVariable() REQUIRES(mLock) {
+    i = 1;
+}
 
-class Functor {
-public:
-    Functor() {}
-    virtual ~Functor() {}
-    virtual status_t operator()(int /*what*/, void* /*data*/) { return OK; }
-};
+TEST(Mutex, compile) {
+    android::Mutex::Autolock _l(mLock);
+    i = 0;
+    modifyLockedVariable();
+}
 
-}  // namespace android
+TEST(Mutex, tryLock) {
+    if (mLock.tryLock() != 0) {
+        return;
+    }
+    mLock.unlock();
+}
 
-#endif // ANDROID_FUNCTOR_H
+#if defined(__ANDROID__)
+TEST(Mutex, timedLock) {
+    if (mLock.timedLock(1) != 0) {
+        return;
+    }
+    mLock.unlock();
+}
+#endif

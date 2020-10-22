@@ -39,7 +39,6 @@ inline uint32_t JenkinsHashMix(uint32_t hash, uint32_t data) {
     return hash;
 }
 
-ANDROID_API_UTILS /* M3E: MSVC export */
 hash_t JenkinsHashWhiten(uint32_t hash);
 
 /* Helpful utility functions for hashing data in 32 bit chunks */
