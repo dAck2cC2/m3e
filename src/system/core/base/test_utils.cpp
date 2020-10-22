@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#if defined(_WIN32)
+#if defined(_WIN32) // M3E:
 #include <windows.h>
 #include <direct.h>
 

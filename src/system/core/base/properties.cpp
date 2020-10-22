@@ -157,7 +157,6 @@ static void UpdateTimeSpec(timespec& ts, std::chrono::milliseconds relative_time
   }
 }
 
-//#if 0 /* M3E: no async property */
 // Waits for the system property `key` to be created.
 // Times out after `relative_timeout`.
 // Sets absolute_timeout which represents absolute time for the timeout.

@@ -26,6 +26,10 @@
 
 #include <utils/Printer.h>
 
+#if defined(__APPLE__)
+#include <limits.h> // PATH_MAX
+#endif
+
 namespace android {
 
 enum {

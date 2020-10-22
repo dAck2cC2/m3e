@@ -51,7 +51,6 @@ int android_reboot(unsigned cmd, int /*flags*/, const char* arg) {
     } else {
         ret = asprintf(&prop_value, "%s", restart_cmd);
     }
-
     if (ret < 0) return -1;
     ret = property_set(ANDROID_RB_PROPERTY, prop_value);
     free(prop_value);

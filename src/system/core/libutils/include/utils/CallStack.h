@@ -20,7 +20,7 @@
 #include <memory>
 
 #include <android/log.h>
-#if ENABLE_BACKTRACE // M3E:
+#if ENABLE_BACKTRACE // M3E: no backtrace/backtrace_constants.h
 #include <backtrace/backtrace_constants.h>
 #else
 #define BACKTRACE_CURRENT_THREAD  (0)

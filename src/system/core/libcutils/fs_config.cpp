@@ -337,7 +337,6 @@ static bool fs_config_cmp(bool dir, const char* prefix, size_t len, const char* 
     return false;
 #endif
 }
-
 #ifndef __ANDROID_VNDK__
 auto __for_testing_only__fs_config_cmp = fs_config_cmp;
 #endif

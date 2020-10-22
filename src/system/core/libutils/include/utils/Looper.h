@@ -428,6 +428,7 @@ private:
         int seq;
         sp<LooperCallback> callback;
         void* data;
+
 #if defined(_LINUX) /* M3E: */
         void initEventItem(struct epoll_event* eventItem) const;
 #endif // _LINUX
@@ -451,6 +452,7 @@ private:
     };
 
     const bool mAllowNonCallbacks; // immutable
+
 #if defined(_LINUX) /* M3E: */
     android::base::unique_fd mWakeEventFd;  // immutable
 #else  // _LINUX

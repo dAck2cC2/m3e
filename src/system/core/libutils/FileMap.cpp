@@ -150,7 +150,6 @@ bool FileMap::create(const char* origFileName, int fd, off64_t offset, size_t le
     DWORD  protect = readOnly ? PAGE_READONLY : PAGE_READWRITE;
 
     mFileHandle  = (HANDLE) _get_osfhandle(fd);
-
     mFileMapping = CreateFileMapping( mFileHandle, NULL, protect, 0, 0, NULL);
     if (mFileMapping == NULL) {
         ALOGE("CreateFileMapping(%p, %lx) failed with error %lu\n",

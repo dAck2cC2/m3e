@@ -57,6 +57,7 @@ int SimpleLooperCallback::handleEvent(int fd, int events, void* data) {
 
 // Maximum number of file descriptors for which to retrieve poll events each iteration.
 static const int EPOLL_MAX_EVENTS = 16;
+
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
 static pthread_once_t gTLSOnce = PTHREAD_ONCE_INIT;
 static pthread_key_t gTLSKey = 0;
@@ -104,11 +105,13 @@ void Looper::setForThread(const sp<Looper>& looper) {
     if (looper != nullptr) {
         looper->incStrong((void*)threadDestructor);
     }
+
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     pthread_setspecific(gTLSKey, looper.get());
 #else
     thread_store_set(&gTLS, looper.get(), threadDestructor);
 #endif
+
     if (old != nullptr) {
         old->decStrong((void*)threadDestructor);
     }
@@ -248,6 +251,7 @@ int Looper::pollInner(int timeoutMillis) {
     int result = POLL_WAKE;
     mResponses.clear();
     mResponseIndex = 0;
+
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     // We are about to idle.
     mPolling = true;
@@ -437,6 +441,7 @@ void Looper::wake() {
 #if DEBUG_POLL_AND_WAKE
     ALOGD("%p ~ wake", this);
 #endif
+
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     uint64_t inc = 1;
     ssize_t nWrite = TEMP_FAILURE_RETRY(write(mWakeEventFd.get(), &inc, sizeof(uint64_t)));
@@ -478,6 +483,7 @@ int Looper::addFd(int fd, int ident, int events, const sp<LooperCallback>& callb
     ALOGD("%p ~ addFd - fd=%d, ident=%d, events=0x%x, callback=%p, data=%p", this, fd, ident,
             events, callback.get(), data);
 #endif
+
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     if (!callback.get()) {
         if (! mAllowNonCallbacks) {
@@ -565,6 +571,7 @@ int Looper::removeFd(int fd, int seq) {
 #if DEBUG_CALLBACKS
     ALOGD("%p ~ removeFd - fd=%d, seq=%d", this, fd, seq);
 #endif
+
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     { // acquire lock
         AutoMutex _l(mLock);
@@ -703,6 +710,7 @@ void Looper::removeMessages(const sp<MessageHandler>& handler, int what) {
 bool Looper::isPolling() const {
     return mPolling;
 }
+
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
 void Looper::Request::initEventItem(struct epoll_event* eventItem) const {
     int epollEvents = 0;

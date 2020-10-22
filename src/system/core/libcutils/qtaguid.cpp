@@ -105,6 +105,7 @@ int qtaguid_tagSocket(int sockfd, int tag, uid_t uid) {
     int res = fcntl(sockfd, F_GETFD);
     if (res < 0) return res;
 #endif
+
     ALOGV("Tagging socket %d with tag %u for uid %d", sockfd, tag, uid);
     return getHandler().netdTagSocket(sockfd, tag, uid);
 }
@@ -117,6 +118,7 @@ int qtaguid_untagSocket(int sockfd) {
     int res = fcntl(sockfd, F_GETFD);
     if (res < 0) return res;
 #endif
+
     ALOGV("Untagging socket %d", sockfd);
     return getHandler().netdUntagSocket(sockfd);
 }

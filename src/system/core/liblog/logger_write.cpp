@@ -526,6 +526,7 @@ void __android_log_assert(const char* cond, const char* tag, const char* fmt, ..
     else
       strcpy(buf, "Unspecified assertion failed");
   }
+
 #if (STDERR_LOG_DEVICE == 1) /* M3E: we don't have std output currently */
   // Log assertion failures to stderr for the benefit of "adb shell" users
   // and gtests (http://b/23675822).

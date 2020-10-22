@@ -28,7 +28,9 @@
 // Test the APIs in this standalone include file
 #include <log/log_radio.h>
 
+#if defined(_MSC_VER)
 #include <sys/time.h> /* M3E: usleep */
+#endif
 
 TEST(liblog, RLOG) {
   static const char content[] = "log_radio.h";

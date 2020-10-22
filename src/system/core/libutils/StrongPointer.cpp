@@ -18,7 +18,9 @@
 
 #include <log/log.h>
 
+#if defined(_MSC_VER)
 #include <utils/StrongPointer.h> /* M3E: MSVC export */
+#endif
 
 namespace android {
 
