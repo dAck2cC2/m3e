@@ -15,10 +15,7 @@
  */
 
 #define LOG_TAG "Properties_test"
-#ifdef __APPLE__ /* M3E: */
-#include <atomic>
-#endif
-#define __STDC_CONSTANT_MACROS
+
 #include <limits.h>
 
 #include <iostream>
@@ -26,31 +23,16 @@
 #include <string>
 
 #include <android/log.h>
-//#include <android-base/macros.h> /* M3E: */
+#include <android-base/macros.h>
 #include <cutils/properties.h>
 #include <gtest/gtest.h>
 
+#if defined(_MSC_VER) // M3E:
+#define INT32_C(x)   (x)
+#define INT64_C(x)   (x ## LL)
+#endif
+
 namespace android {
-
-/* M3E: Add */
-// The arraysize(arr) macro returns the # of elements in an array arr.
-// The expression is a compile-time constant, and therefore can be
-// used in defining new arrays, for example.  If you use arraysize on
-// a pointer by mistake, you will get a compile-time error.
-//
-// One caveat is that arraysize() doesn't accept any array of an
-// anonymous type or a type defined inside a function.  In these rare
-// cases, you have to use the unsafe ARRAYSIZE_UNSAFE() macro below.  This is
-// due to a limitation in C++'s template system.  The limitation might
-// eventually be removed, but it hasn't happened yet.
-
-// This template fßunction declaration is used in defining arraysize.
-// Note that the function doesn't need an implementation, as we only
-// use its type.
-template <typename T, size_t N>
-char(&ArraySizeHelper(T(&array)[N]))[N];  // NOLINT(readability/casting)
-    
-#define arraysize(array) (sizeof(ArraySizeHelper(array)))
 
 #define STRINGIFY_INNER(x) #x
 #define STRINGIFY(x) STRINGIFY_INNER(x)

@@ -27,7 +27,9 @@
 #include <string.h>
 #include <unistd.h>
 
-//#include <cutils/sockets.h> /* M3E: */
+#if 0 // M3E:
+#include <cutils/sockets.h>
+#endif
 #include <log/log.h>
 
 int8_t property_get_bool(const char *key, int8_t default_value) {

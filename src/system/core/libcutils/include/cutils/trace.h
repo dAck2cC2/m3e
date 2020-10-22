@@ -78,7 +78,9 @@ __BEGIN_DECLS
 #define ATRACE_TAG_ADB              (1<<22)
 #define ATRACE_TAG_VIBRATOR         (1<<23)
 #define ATRACE_TAG_AIDL             (1<<24)
-#define ATRACE_TAG_LAST             ATRACE_TAG_AIDL
+#define ATRACE_TAG_NNAPI            (1<<25)
+#define ATRACE_TAG_RRO              (1<<26)
+#define ATRACE_TAG_LAST             ATRACE_TAG_RRO
 
 // Reserved for initialization.
 #define ATRACE_TAG_NOT_READY        (1ULL<<63)
@@ -97,7 +99,6 @@ __BEGIN_DECLS
  * This function should not be explicitly called, the first call to any normal
  * trace function will cause it to be run safely.
  */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 void atrace_setup();
 
 /**
@@ -125,7 +126,7 @@ void atrace_set_tracing_enabled(bool enabled);
  * Nonzero indicates setup has completed.
  * Note: This does NOT indicate whether or not setup was successful.
  */
-ANDROID_API_CUTILS /* M3E: MSVC export */
+ANDROID_API_CUTILS // M3E: used by eglApi.cpp
 extern atomic_bool atrace_is_ready;
 
 /**
@@ -133,14 +134,13 @@ extern atomic_bool atrace_is_ready;
  * A value of zero indicates setup has failed.
  * Any other nonzero value indicates setup has succeeded, and tracing is on.
  */
-ANDROID_API_CUTILS /* M3E: MSVC export */
+ANDROID_API_CUTILS // M3E: used by eglApi.cpp
 extern uint64_t atrace_enabled_tags;
 
 /**
  * Handle to the kernel's trace buffer, initialized to -1.
  * Any other value indicates setup has succeeded, and is a valid fd for tracing.
  */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 extern int atrace_marker_fd;
 
 /**

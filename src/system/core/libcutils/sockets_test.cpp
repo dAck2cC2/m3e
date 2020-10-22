@@ -19,11 +19,7 @@
 // should be the case for loopback communication, but is not guaranteed.
 
 #include <string.h>
-#ifdef _MSC_VER /* M3E: */
-#pragma comment(lib, "ws2_32.lib")
-#else
 #include <sys/socket.h>
-#endif
 #include <sys/types.h>
 #include <time.h>
 

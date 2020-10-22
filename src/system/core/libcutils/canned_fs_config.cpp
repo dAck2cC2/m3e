@@ -21,7 +21,6 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -112,6 +111,7 @@ void canned_fs_config(const char* path, int dir, const char* target_out_path,
     *mode = p->mode;
     *capabilities = p->capabilities;
 
+#if 0 // M3E: fs_config needs android::base library
     if (kDebugCannedFsConfig) {
         // for debugging, run the built-in fs_config and compare the results.
 
@@ -130,4 +130,5 @@ void canned_fs_config(const char* path, int dir, const char* target_out_path,
                 c_capabilities);
         }
     }
+#endif
 }

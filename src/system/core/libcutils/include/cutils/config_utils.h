@@ -34,35 +34,27 @@ struct cnode
 };
 
 /* parse a text string into a config node tree */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 void config_load(cnode *root, char *data);
 
 /* parse a file into a config node tree */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 void config_load_file(cnode *root, const char *fn);
 
 /* create a single config node */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 cnode* config_node(const char *name, const char *value);
 
 /* locate a named child of a config node */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 cnode* config_find(cnode *root, const char *name);
 
 /* look up a child by name and return the boolean value */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 int config_bool(cnode *root, const char *name, int _default);
 
 /* look up a child by name and return the string value */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 const char* config_str(cnode *root, const char *name, const char *_default);
 
 /* add a named child to a config node (or modify it if it already exists) */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 void config_set(cnode *root, const char *name, const char *value);
 
 /* free a config node tree */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 void config_free(cnode *root);
 
 #ifdef __cplusplus

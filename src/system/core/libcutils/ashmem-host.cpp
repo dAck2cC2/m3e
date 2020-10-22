@@ -24,7 +24,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -133,3 +132,5 @@ int ashmem_get_size_region(int fd)
 
     return buf.st_size;
 }
+
+void ashmem_init() {}

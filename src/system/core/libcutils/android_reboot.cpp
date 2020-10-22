@@ -21,14 +21,19 @@
 
 #include <cutils/properties.h>
 
+// M3E: add
+#if defined(_MSC_VER)
+#include <vasprintf.h> // asprintf
+#endif
+
 #define TAG "android_reboot"
 
-int android_reboot(int cmd, int /*flags*/, const char* arg) {
+int android_reboot(unsigned cmd, int /*flags*/, const char* arg) {
     int ret;
     const char* restart_cmd = NULL;
     char* prop_value;
 
-    switch (static_cast<unsigned>(cmd)) {
+    switch (cmd) {
         case ANDROID_RB_RESTART:  // deprecated
         case ANDROID_RB_RESTART2:
             restart_cmd = "reboot";
@@ -46,6 +51,7 @@ int android_reboot(int cmd, int /*flags*/, const char* arg) {
     } else {
         ret = asprintf(&prop_value, "%s", restart_cmd);
     }
+
     if (ret < 0) return -1;
     ret = property_set(ANDROID_RB_PROPERTY, prop_value);
     free(prop_value);

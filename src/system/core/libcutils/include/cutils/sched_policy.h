@@ -17,6 +17,15 @@
 #ifndef __CUTILS_SCHED_POLICY_H
 #define __CUTILS_SCHED_POLICY_H
 
+#if 0 // M3E: no processgroup/sched_policy.h
+/*
+ * For backwards compatibility only
+ * New users should include processgroup/sched_policy.h directly
+ */
+#include <processgroup/sched_policy.h>
+
+#else // M3E:
+
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -62,14 +71,12 @@ extern int set_cpuset_policy(int tid, SchedPolicy policy);
  * On platforms which support gettid(), zero tid means current thread.
  * Return value: 0 for success, or -errno for error.
  */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 extern int set_sched_policy(int tid, SchedPolicy policy);
 
 /* Return the policy associated with the cgroup of thread tid via policy pointer.
  * On platforms which support gettid(), zero tid means current thread.
  * Return value: 0 for success, or -1 for error and set errno.
  */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 extern int get_sched_policy(int tid, SchedPolicy *policy);
 
 /* Return a displayable string corresponding to policy.
@@ -81,5 +88,7 @@ extern const char *get_sched_policy_name(SchedPolicy policy);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // M3E:
 
 #endif /* __CUTILS_SCHED_POLICY_H */ 

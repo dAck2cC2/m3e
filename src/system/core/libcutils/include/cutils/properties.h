@@ -19,7 +19,12 @@
 
 #include <sys/cdefs.h>
 #include <stddef.h>
-//#include <sys/system_properties.h> /* M3E: use value directly */
+#if 0 // M3E: no sys/system_properties.h, use value directly
+#include <sys/system_properties.h>
+#else
+#define PROP_NAME_MAX     (32) 
+#define PROP_VALUE_MAX    (92)
+#endif
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -33,8 +38,8 @@ extern "C" {
 ** WARNING: system/bionic/include/sys/system_properties.h also defines
 **          these, but with different names.  (TODO: fix that)
 */
-#define PROPERTY_KEY_MAX    (32) //PROP_NAME_MAX  /* M3E: no sys/system_properties.h */
-#define PROPERTY_VALUE_MAX  (92) //PROP_VALUE_MAX /* M3E: no sys/system_properties.h */
+#define PROPERTY_KEY_MAX   PROP_NAME_MAX
+#define PROPERTY_VALUE_MAX  PROP_VALUE_MAX
 
 /* property_get: returns the length of the value which will never be
 ** greater than PROPERTY_VALUE_MAX - 1 and will always be zero terminated.
@@ -43,7 +48,6 @@ extern "C" {
 ** If the property read fails or returns an empty value, the default
 ** value is used (if nonnull).
 */
-ANDROID_API_CUTILS /* M3E: MSCV export */
 int property_get(const char* key, char* value, const char* default_value);
 
 /* property_get_bool: returns the value of key coerced into a
@@ -60,7 +64,6 @@ int property_get(const char* key, char* value, const char* default_value);
 ** If no property with this key is set (or the key is NULL) or the boolean
 ** conversion fails, the default value is returned.
 **/
-ANDROID_API_CUTILS /* M3E: MSCV export */
 int8_t property_get_bool(const char *key, int8_t default_value);
 
 /* property_get_int64: returns the value of key truncated and coerced into a
@@ -82,7 +85,6 @@ int8_t property_get_bool(const char *key, int8_t default_value);
 ** If no property with this key is set (or the key is NULL) or the numeric
 ** conversion fails, the default value is returned.
 **/
-ANDROID_API_CUTILS /* M3E: MSCV export */
 int64_t property_get_int64(const char *key, int64_t default_value);
 
 /* property_get_int32: returns the value of key truncated and coerced into an
@@ -104,12 +106,10 @@ int64_t property_get_int64(const char *key, int64_t default_value);
 ** If no property with this key is set (or the key is NULL) or the numeric
 ** conversion fails, the default value is returned.
 **/
-ANDROID_API_CUTILS /* M3E: MSCV export */
 int32_t property_get_int32(const char *key, int32_t default_value);
 
 /* property_set: returns 0 on success, < 0 on failure
 */
-ANDROID_API_CUTILS /* M3E: MSCV export */
 int property_set(const char *key, const char *value);
 
 int property_list(void (*propfn)(const char *key, const char *value, void *cookie), void *cookie);

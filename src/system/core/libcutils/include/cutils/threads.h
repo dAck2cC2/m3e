@@ -36,18 +36,17 @@
 extern "C" {
 #endif
 
-/***********************************************************************/
-/***********************************************************************/
-/*****                                                             *****/
-/*****         local thread storage                                *****/
-/*****                                                             *****/
-/***********************************************************************/
-/***********************************************************************/
+//
+// Deprecated: use android::base::GetThreadId instead, which doesn't truncate on Mac/Windows.
+//
 
 #if !defined(__linux__) /* M3E: use original one of linux */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 extern pid_t gettid();
 #endif
+
+//
+// Deprecated: use `_Thread_local` in C or `thread_local` in C++.
+//
 
 #if !defined(_WIN32)
 
@@ -74,10 +73,8 @@ typedef struct {
 
 typedef void  (*thread_store_destruct_t)(void*  value);
 
-ANDROID_API_CUTILS /* M3E: MSVC export */
 extern void*  thread_store_get(thread_store_t*  store);
 
-ANDROID_API_CUTILS /* M3E: MSVC export */
 extern void   thread_store_set(thread_store_t*          store,
                                void*                    value,
                                thread_store_destruct_t  destroy);

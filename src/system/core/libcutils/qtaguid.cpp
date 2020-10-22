@@ -130,4 +130,3 @@ int qtaguid_deleteTagData(int tag, uid_t uid) {
     ALOGV("Deleting tag data with tag %u for uid %d", tag, uid);
     return getHandler().netdDeleteTagData(tag, uid);
 }
-

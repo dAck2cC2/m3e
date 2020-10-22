@@ -3,9 +3,10 @@
 
 TEST(libcutils, bitops)
 {
-	unsigned int  bitmask[2] = { 0xFFFFFFFF, 0xFFFFFFFF };
-	bitmask_init(bitmask, 1);
-	EXPECT_EQ(0, bitmask[0]);
-	bitmask_init(bitmask, sizeof(unsigned int) * 8 + 1);
-	EXPECT_EQ(0, bitmask[1]);
+	unsigned int  bitmask[2] = { 0x01, 0xFFFFFFFF };
+	int bitcnt = 0;
+	bitcnt = popcount(bitmask[0]);
+	EXPECT_EQ(1, bitcnt);
+	bitcnt = popcount(bitmask[1]);
+	EXPECT_EQ(32, bitcnt);
 }

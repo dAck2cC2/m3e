@@ -32,7 +32,6 @@ void android_memset32(uint32_t* dst, uint32_t value, size_t size);
 
 #if defined(__GLIBC__) || defined(_WIN32)
 /* Declaration of strlcpy() for platforms that don't already have it. */
-ANDROID_API_CUTILS /* M3E: MSVC export */
 size_t strlcpy(char *dst, const char *src, size_t size);
 #endif
 

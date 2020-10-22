@@ -23,5 +23,5 @@ if (CFG_NO_POPCNT)
 endif (CFG_NO_POPCNT)
 
 # include
-include_directories(AFTER ${M3E_CFG_PATH})
+#include_directories(AFTER ${M3E_CFG_PATH})
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/system/core/libcutils/include)

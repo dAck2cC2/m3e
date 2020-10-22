@@ -43,8 +43,6 @@ __BEGIN_DECLS
 
 typedef struct prop_info prop_info;
 
-#define PROP_VALUE_MAX  PROPERTY_VALUE_MAX
-
 /*
  * Sets system property `key` to `value`, creating the system property if it doesn't already exist.
  */
@@ -93,8 +91,6 @@ bool __system_property_wait(const prop_info* pi,
                             const struct timespec* relative_timeout)
     __INTRODUCED_IN(26);
 
-/* Deprecated. In Android O and above, there's no limit on property name length. */
-#define PROP_NAME_MAX   PROPERTY_KEY_MAX
 /* Deprecated. Use __system_property_read_callback instead. */
 int __system_property_read(const prop_info* pi, char* name, char* value);
 /* Deprecated. Use __system_property_read_callback instead. */
