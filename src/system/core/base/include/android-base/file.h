@@ -14,45 +14,88 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_BASE_FILE_H
-#define ANDROID_BASE_FILE_H
+#pragma once
 
 #include <sys/stat.h>
 #include <sys/types.h>
+
 #include <string>
 
+#include <android-base/macros.h>
+#include "android-base/off64_t.h"
+
 #if !defined(_WIN32) && !defined(O_BINARY)
+/** Windows needs O_BINARY, but Unix never mangles line endings. */
 #define O_BINARY 0
 #endif
 
-#if defined(__APPLE__)
+#if defined(_WIN32) && !defined(O_CLOEXEC)
+/** Windows has O_CLOEXEC but calls it O_NOINHERIT for some reason. */
+#define O_CLOEXEC O_NOINHERIT
+#endif
+
+#if defined(__APPLE__) // M3E:
 /* Mac OS has always had a 64-bit off_t, so it doesn't have off64_t. */
 typedef off_t off64_t;
 #endif
 
+class TemporaryFile {
+ public:
+  TemporaryFile();
+  explicit TemporaryFile(const std::string& tmp_dir);
+  ~TemporaryFile();
+
+  // Release the ownership of fd, caller is reponsible for closing the
+  // fd or stream properly.
+  int release();
+  // Don't remove the temporary file in the destructor.
+  void DoNotRemove() { remove_file_ = false; }
+
+  int fd;
+  char path[1024];
+
+ private:
+  void init(const std::string& tmp_dir);
+
+  bool remove_file_ = true;
+
+  DISALLOW_COPY_AND_ASSIGN(TemporaryFile);
+};
+
+class TemporaryDir {
+ public:
+  TemporaryDir();
+  ~TemporaryDir();
+  // Don't remove the temporary dir in the destructor.
+  void DoNotRemove() { remove_dir_and_contents_ = false; }
+
+  char path[1024];
+
+ private:
+  bool init(const std::string& tmp_dir);
+
+  bool remove_dir_and_contents_ = true;
+
+  DISALLOW_COPY_AND_ASSIGN(TemporaryDir);
+};
+
 namespace android {
 namespace base {
 
-ANDROID_API_BASE /* M3E: MSVC export */
 bool ReadFdToString(int fd, std::string* content);
-ANDROID_API_BASE /* M3E: MSVC export */
 bool ReadFileToString(const std::string& path, std::string* content,
                       bool follow_symlinks = false);
 
-ANDROID_API_BASE /* M3E: MSVC export */
 bool WriteStringToFile(const std::string& content, const std::string& path,
                        bool follow_symlinks = false);
-ANDROID_API_BASE /* M3E: MSVC export */ 
 bool WriteStringToFd(const std::string& content, int fd);
 
 #if !defined(_WIN32)
-ANDROID_API_BASE /* M3E: MSVC export */ 
 bool WriteStringToFile(const std::string& content, const std::string& path,
                        mode_t mode, uid_t owner, gid_t group,
                        bool follow_symlinks = false);
 #endif
 
-ANDROID_API_BASE /* M3E: MSVC export */ 
 bool ReadFully(int fd, void* data, size_t byte_count);
 
 // Reads `byte_count` bytes from the file descriptor at the specified offset.
@@ -63,13 +106,10 @@ bool ReadFully(int fd, void* data, size_t byte_count);
 // get modified. This means that ReadFullyAtOffset can be used concurrently with other calls to the
 // same function, but concurrently seeking or reading incrementally can lead to unexpected
 // behavior.
-ANDROID_API_BASE /* M3E: MSVC export */
 bool ReadFullyAtOffset(int fd, void* data, size_t byte_count, off64_t offset);
 
-ANDROID_API_BASE /* M3E: MSVC export */ 
 bool WriteFully(int fd, const void* data, size_t byte_count);
 
-ANDROID_API_BASE /* M3E: MSVC export */ 
 bool RemoveFileIfExists(const std::string& path, std::string* err = nullptr);
 
 #if !defined(_WIN32)
@@ -87,5 +127,3 @@ std::string Dirname(const std::string& path);
 
 }  // namespace base
 }  // namespace android
-
-#endif // ANDROID_BASE_FILE_H

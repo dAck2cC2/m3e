@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,15 @@
 
 #pragma once
 
+#include <stdint.h>
+
 namespace android {
 namespace base {
-
-// Use memcpy for access to unaligned data on targets with alignment
-// restrictions.  The compiler will generate appropriate code to access these
-// structures without generating alignment exceptions.
-template <typename T>
-static inline T get_unaligned(const void* address) {
-  T result;
-  memcpy(&result, address, sizeof(T));
-  return result;
+uint64_t GetThreadId();
 }
+}  // namespace android
 
-template <typename T>
-static inline void put_unaligned(void* address, T v) {
-  memcpy(address, &v, sizeof(T));
-}
-
-} // namespace base
-} // namespace android
+#if defined(__GLIBC__)
+// bionic has this Linux-specifix call, but glibc doesn't.
+extern "C" int tgkill(int tgid, int tid, int sig);
+#endif

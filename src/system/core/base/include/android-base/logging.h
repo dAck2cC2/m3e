@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_BASE_LOGGING_H
-#define ANDROID_BASE_LOGGING_H
+#pragma once
 
 //
 // Google-style C++ logging.
@@ -61,7 +60,7 @@
 #endif
 #endif
 
-#ifdef __APPLE__ /* M3E: */
+#ifdef __APPLE__ /* M3E: include <atomic> before <stdatomic.h> */
 #include <atomic>
 #endif
 
@@ -104,11 +103,18 @@ using LogFunction = std::function<void(LogId, LogSeverity, const char*, const ch
                                        unsigned int, const char*)>;
 using AbortFunction = std::function<void(const char*)>;
 
-void KernelLogger(LogId, LogSeverity, const char*, const char*, unsigned int, const char*);
-ANDROID_API_BASE // M3E: MSVC export
-void StderrLogger(LogId, LogSeverity, const char*, const char*, unsigned int, const char*);
+// Loggers for use with InitLogging/SetLogger.
 
-ANDROID_API_BASE // M3E: MSVC export
+// Log to the kernel log (dmesg).
+void KernelLogger(LogId, LogSeverity, const char*, const char*, unsigned int, const char*);
+// Log to stderr in the full logcat format (with pid/tid/time/tag details).
+void StderrLogger(LogId, LogSeverity, const char*, const char*, unsigned int, const char*);
+// Log just the message to stdout/stderr (without pid/tid/time/tag details).
+// The choice of stdout versus stderr is based on the severity.
+// Errors are also prefixed by the program name (as with err(3)/error(3)).
+// Useful for replacing printf(3)/perror(3)/err(3)/error(3) in command-line tools.
+void StdioLogger(LogId, LogSeverity, const char*, const char*, unsigned int, const char*);
+
 void DefaultAborter(const char* abort_message);
 
 std::string GetDefaultTag();
@@ -142,7 +148,6 @@ class LogdLogger {
 #else
 #define INIT_LOGGING_DEFAULT_LOGGER StderrLogger
 #endif
-ANDROID_API_BASE // M3E: MSVC export
 void InitLogging(char* argv[],
                  LogFunction&& logger = INIT_LOGGING_DEFAULT_LOGGER,
                  AbortFunction&& aborter = DefaultAborter);
@@ -432,7 +437,7 @@ class LogMessageData;
 
 // A LogMessage is a temporarily scoped object used by LOG and the unlikely part
 // of a CHECK. The destructor will abort if the severity is FATAL.
-class ANDROID_API_BASE LogMessage { /* M3E: MSVC export */
+class LogMessage {
  public:
   LogMessage(const char* file, unsigned int line, LogId id, LogSeverity severity, const char* tag,
              int error);
@@ -450,23 +455,17 @@ class ANDROID_API_BASE LogMessage { /* M3E: MSVC export */
  private:
   const std::unique_ptr<LogMessageData> data_;
 
-  // TODO(b/35361699): remove these symbols once all prebuilds stop using it.
-  LogMessage(const char* file, unsigned int line, LogId id, LogSeverity severity, int error);
-  static void LogLine(const char* file, unsigned int line, LogId id, LogSeverity severity,
-                      const char* msg);
-
   DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
 // Get the minimum severity level for logging.
-ANDROID_API_BASE /* M3E: MSVC export */
 LogSeverity GetMinimumLogSeverity();
 
 // Set the minimum severity level for logging, returning the old severity.
 LogSeverity SetMinimumLogSeverity(LogSeverity new_severity);
 
 // Allows to temporarily change the minimum severity level for logging.
-class ANDROID_API_BASE ScopedLogSeverity {
+class ScopedLogSeverity {
  public:
   explicit ScopedLogSeverity(LogSeverity level);
   ~ScopedLogSeverity();
@@ -491,7 +490,7 @@ namespace std {
 // Note: to print the pointer, use "<< static_cast<const void*>(string_pointer)" instead.
 // Note: a not-recommended alternative is to let Clang ignore the warning by adding
 //       -Wno-user-defined-warnings to CPPFLAGS.
-#ifdef __clang__
+#ifdef __clang__ // M3E:
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgcc-compat"
 #define OSTREAM_STRING_POINTER_USAGE_WARNING \
@@ -503,11 +502,9 @@ inline std::ostream& operator<<(std::ostream& stream, const std::string* string_
     OSTREAM_STRING_POINTER_USAGE_WARNING {
   return stream << static_cast<const void*>(string_pointer);
 }
-#ifdef __clang__
+#ifdef __clang__ // M3E:
 #pragma clang diagnostic pop
 #endif
 #undef OSTREAM_STRING_POINTER_USAGE_WARNING
 
 }  // namespace std
-
-#endif  // ANDROID_BASE_LOGGING_H

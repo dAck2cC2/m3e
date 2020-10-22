@@ -14,54 +14,26 @@
  * limitations under the License.
  */
 
-#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
-
 #include "android-base/properties.h"
 
-#if 0
+#if defined(__BIONIC__)
+#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #include <sys/system_properties.h>
 #include <sys/_system_properties.h>
-#else
+#else // M3E:
 #include <cutils/properties.h>
 #endif
 
 #include <algorithm>
 #include <chrono>
 #include <limits>
+#include <map>
 #include <string>
 
 #include <android-base/parseint.h>
 
 namespace android {
 namespace base {
-
-std::string GetProperty(const std::string& key, const std::string& default_value) {
-#if 0 /* M3E: use cutils/properties.h */
-  const prop_info* pi = __system_property_find(key.c_str());
-  if (pi == nullptr) return default_value;
-
-  std::string property_value;
-  __system_property_read_callback(pi,
-                                  [](void* cookie, const char*, const char* value, unsigned) {
-                                    auto property_value = reinterpret_cast<std::string*>(cookie);
-                                    *property_value = value;
-                                  },
-                                  &property_value);
-    
-#else
-    std::string property_value;
-    char value[PROPERTY_VALUE_MAX];
-    int len = property_get(key.c_str(), value, NULL);
-    if (len > 0) {
-        property_value = value;
-    }
-#endif
-    
-    // If the property exists but is empty, also return the default value.
-    // Since we can't remove system properties, "empty" is traditionally
-    // the same as "missing" (this was true for cutils' property_get).
-    return property_value.empty() ? default_value : property_value;
-}
 
 bool GetBoolProperty(const std::string& key, bool default_value) {
   std::string value = GetProperty(key, "");
@@ -99,6 +71,44 @@ template uint16_t GetUintProperty(const std::string&, uint16_t, uint16_t);
 template uint32_t GetUintProperty(const std::string&, uint32_t, uint32_t);
 template uint64_t GetUintProperty(const std::string&, uint64_t, uint64_t);
 
+#if !defined(__BIONIC__)
+static std::map<std::string, std::string>& g_properties = *new std::map<std::string, std::string>;
+static int __system_property_set(const char* key, const char* value) {
+  g_properties[key] = value;
+  return 0;
+}
+#endif
+
+std::string GetProperty(const std::string& key, const std::string& default_value) {
+  std::string property_value;
+#if 0 /* M3E: use cutils/properties.h */
+#if defined(__BIONIC__)
+  const prop_info* pi = __system_property_find(key.c_str());
+  if (pi == nullptr) return default_value;
+
+  __system_property_read_callback(pi,
+                                  [](void* cookie, const char*, const char* value, unsigned) {
+                                    auto property_value = reinterpret_cast<std::string*>(cookie);
+                                    *property_value = value;
+                                  },
+                                  &property_value);
+#else
+  auto it = g_properties.find(key);
+  if (it == g_properties.end()) return default_value;
+  property_value = it->second;
+#endif
+#else
+  char value[PROPERTY_VALUE_MAX] = {0};
+  if (property_get(key.c_str(), value, default_value.c_str()) > 0) {
+      property_value = value;
+  }
+#endif
+  // If the property exists but is empty, also return the default value.
+  // Since we can't remove system properties, "empty" is traditionally
+  // the same as "missing" (this was true for cutils' property_get).
+  return property_value.empty() ? default_value : property_value;
+}
+
 bool SetProperty(const std::string& key, const std::string& value) {
 #if 0 /* M3E: use cutils/properties.h */
   return (__system_property_set(key.c_str(), value.c_str()) == 0);
@@ -106,6 +116,8 @@ bool SetProperty(const std::string& key, const std::string& value) {
     return (property_set(key.c_str(), value.c_str()) == 0);
 #endif
 }
+
+#if defined(__BIONIC__)
 
 struct WaitForPropertyData {
   bool done;
@@ -145,7 +157,7 @@ static void UpdateTimeSpec(timespec& ts, std::chrono::milliseconds relative_time
   }
 }
 
-#if 0 /* M3E: no async property */
+//#if 0 /* M3E: no async property */
 // Waits for the system property `key` to be created.
 // Times out after `relative_timeout`.
 // Sets absolute_timeout which represents absolute time for the timeout.
@@ -193,6 +205,7 @@ bool WaitForPropertyCreation(const std::string& key,
   auto start_time = std::chrono::steady_clock::now();
   return (WaitForPropertyCreation(key, relative_timeout, start_time) != nullptr);
 }
+
 #endif
 
 }  // namespace base

@@ -27,8 +27,7 @@
 // special handling to get the error string. Refer to Microsoft documentation
 // to determine which error code to check for each function.
 
-#ifndef ANDROID_BASE_ERRORS_H
-#define ANDROID_BASE_ERRORS_H
+#pragma once
 
 #include <string>
 
@@ -38,10 +37,7 @@ namespace base {
 // Returns a string describing the given system error code. |error_code| must
 // be errno on Unix or GetLastError()/WSAGetLastError() on Windows. Passing
 // errno on Windows has undefined behavior.
-ANDROID_API_BASE /* M3E: MSVC export */
 std::string SystemErrorCodeToString(int error_code);
 
 }  // namespace base
 }  // namespace android
-
-#endif  // ANDROID_BASE_ERRORS_H

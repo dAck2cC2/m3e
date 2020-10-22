@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_BASE_STRINGS_H
-#define ANDROID_BASE_STRINGS_H
+#pragma once
 
-#ifdef __APPLE__ /* M3E: */
+#ifdef __APPLE__ /* M3E: include <atomic> before <stdatomic.h> */
 #include <atomic>
 #endif
 
@@ -33,12 +32,10 @@ namespace base {
 // The string is split at each occurrence of a character in delimiters.
 //
 // The empty string is not a valid delimiter list.
-ANDROID_API_BASE // M3E: MSVC export
 std::vector<std::string> Split(const std::string& s,
                                const std::string& delimiters);
 
 // Trims whitespace off both ends of the given string.
-ANDROID_API_BASE // M3E: MSVC export
 std::string Trim(const std::string& s);
 
 // Joins a container of things into a single string, using the given separator.
@@ -57,41 +54,23 @@ std::string Join(const ContainerT& things, SeparatorT separator) {
 }
 
 // We instantiate the common cases in strings.cpp.
-#if !defined(_MSC_VER) // M3E:
-extern
-#endif
-template std::string Join(const std::vector<std::string>&, char);
-#if !defined(_MSC_VER) // M3E:
-extern
-#endif
-template std::string Join(const std::vector<const char*>&, char);
-#if !defined(_MSC_VER) // M3E:
-extern
-#endif
-template std::string Join(const std::vector<std::string>&, const std::string&);
-#if !defined(_MSC_VER) // M3E:
-extern
-#endif
-template std::string Join(const std::vector<const char*>&, const std::string&);
+extern template std::string Join(const std::vector<std::string>&, char);
+extern template std::string Join(const std::vector<const char*>&, char);
+extern template std::string Join(const std::vector<std::string>&, const std::string&);
+extern template std::string Join(const std::vector<const char*>&, const std::string&);
 
 // Tests whether 's' starts with 'prefix'.
-// TODO: string_view
-bool StartsWith(const std::string& s, const char* prefix);
-bool StartsWithIgnoreCase(const std::string& s, const char* prefix);
-bool StartsWith(const std::string& s, const std::string& prefix);
-bool StartsWithIgnoreCase(const std::string& s, const std::string& prefix);
+bool StartsWith(std::string_view s, std::string_view prefix);
+bool StartsWith(std::string_view s, char prefix);
+bool StartsWithIgnoreCase(std::string_view s, std::string_view prefix);
 
 // Tests whether 's' ends with 'suffix'.
-// TODO: string_view
-bool EndsWith(const std::string& s, const char* suffix);
-bool EndsWithIgnoreCase(const std::string& s, const char* suffix);
-bool EndsWith(const std::string& s, const std::string& suffix);
-bool EndsWithIgnoreCase(const std::string& s, const std::string& suffix);
+bool EndsWith(std::string_view s, std::string_view suffix);
+bool EndsWith(std::string_view s, char suffix);
+bool EndsWithIgnoreCase(std::string_view s, std::string_view suffix);
 
 // Tests whether 'lhs' equals 'rhs', ignoring case.
-bool EqualsIgnoreCase(const std::string& lhs, const std::string& rhs);
+bool EqualsIgnoreCase(std::string_view lhs, std::string_view rhs);
 
 }  // namespace base
 }  // namespace android
-
-#endif  // ANDROID_BASE_STRINGS_H

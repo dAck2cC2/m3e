@@ -17,6 +17,7 @@
 #pragma once
 
 #include <stdlib.h>
+
 #include <stdint.h> /* M3E: __attribute__ */
 
 // Provide emulation for at_quick_exit/quick_exit on platforms that don't have it.

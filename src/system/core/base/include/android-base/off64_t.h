@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-#include "android-base/errors.h"
+#pragma once
 
-#include <errno.h>
-
-#if defined(__linux__) // M3E:
-#include <string.h>
+#if defined(__APPLE__)
+/** Mac OS has always had a 64-bit off_t, so it doesn't have off64_t. */
+typedef off_t off64_t;
 #endif
-
-namespace android {
-namespace base {
-
-std::string SystemErrorCodeToString(int error_code) {
-  return strerror(error_code);
-}
-
-}  // namespace base
-}  // namespace android

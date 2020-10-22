@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_BASE_UTF8_H
-#define ANDROID_BASE_UTF8_H
+#pragma once
 
 #ifdef _WIN32
+#include <sys/types.h>
 #include <string>
+// M3E: add
 typedef int mode_t;
 #else
 // Bring in prototypes for standard APIs so that we can import them into the utf8 namespace.
@@ -91,7 +92,6 @@ namespace utf8 {
 #ifdef _WIN32
 FILE* fopen(const char* name, const char* mode);
 int mkdir(const char* name, mode_t mode);
-ANDROID_API_BASE /* M3E: MSVC export */
 int open(const char* name, int flags, ...);
 int unlink(const char* name);
 #else
@@ -104,5 +104,3 @@ using ::unlink;
 }  // namespace utf8
 }  // namespace base
 }  // namespace android
-
-#endif  // ANDROID_BASE_UTF8_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-#include "android-base/errors.h"
+#include "android-base/macros.h"
 
-#include <errno.h>
+#include <stdint.h>
 
-#if defined(__linux__) // M3E:
-#include <string.h>
-#endif
+#include <gtest/gtest.h>
 
-namespace android {
-namespace base {
-
-std::string SystemErrorCodeToString(int error_code) {
-  return strerror(error_code);
+TEST(macros, SIZEOF_MEMBER_macro) {
+  struct S {
+    int32_t i32;
+    double d;
+  };
+  ASSERT_EQ(4U, SIZEOF_MEMBER(S, i32));
+  ASSERT_EQ(8U, SIZEOF_MEMBER(S, d));
 }
-
-}  // namespace base
-}  // namespace android
