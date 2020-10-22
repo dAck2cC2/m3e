@@ -5,7 +5,7 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 
-set(LOG_DEPLIB )
+set(${PROJECT_NAME}_DEPLIB )
 
 if (MSVC)
     include(${MSVC_INCLUDE})
@@ -54,6 +54,9 @@ ${SOURCE_PATH}/local/file_writer.cpp
 #set_source_files_properties( ${LOG_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )
 
 # target files
+if(MSVC)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 set(LIB_TYPE SHARED)
 ADD_LIB(log)
 

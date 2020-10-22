@@ -88,7 +88,6 @@ typedef enum android_LogPriority {
  * Writes the constant string `text` to the log, with priority `prio` and tag
  * `tag`.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_write(int prio, const char* tag, const char* text);
 
 /**
@@ -96,7 +95,6 @@ int __android_log_write(int prio, const char* tag, const char* text);
  * The details of formatting are the same as for
  * [printf(3)](http://man7.org/linux/man-pages/man3/printf.3.html).
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_print(int prio, const char* tag, const char* fmt, ...)
 #if defined(__GNUC__)
     __attribute__((__format__(printf, 3, 4)))
@@ -107,7 +105,6 @@ int __android_log_print(int prio, const char* tag, const char* fmt, ...)
  * Equivalent to `__android_log_print`, but taking a `va_list`.
  * (If `__android_log_print` is like `printf`, this is like `vprintf`.)
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_vprint(int prio, const char* tag, const char* fmt, va_list ap)
 #if defined(__GNUC__)
     __attribute__((__format__(printf, 3, 0)))
@@ -129,7 +126,6 @@ int __android_log_vprint(int prio, const char* tag, const char* fmt, va_list ap)
  * bionic if more control is needed. They support automatically including the
  * source filename and line number more conveniently than this function.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 void __android_log_assert(const char* cond, const char* tag, const char* fmt,
                           ...)
 #if defined(__GNUC__)
@@ -174,7 +170,6 @@ typedef enum log_id {
  *
  * Apps should use __android_log_write() instead.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_buf_write(int bufID, int prio, const char* tag,
                             const char* text);
 
@@ -186,7 +181,6 @@ int __android_log_buf_write(int bufID, int prio, const char* tag,
  *
  * Apps should use __android_log_print() instead.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_buf_print(int bufID, int prio, const char* tag,
                             const char* fmt, ...)
 #if defined(__GNUC__)

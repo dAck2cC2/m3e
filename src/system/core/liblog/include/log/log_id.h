@@ -43,10 +43,8 @@ typedef enum log_id {
 /*
  * Send a simple string to the log.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_buf_write(int bufID, int prio, const char* tag,
                             const char* text);
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_buf_print(int bufID, int prio, const char* tag,
                             const char* fmt, ...)
 #if defined(__GNUC__)
@@ -57,9 +55,7 @@ int __android_log_buf_print(int bufID, int prio, const char* tag,
 /*
  * log_id_t helpers
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 log_id_t android_name_to_log_id(const char* logName);
-ANDROID_API_LOG /* M3E: MSVC export */
 const char* android_log_id_to_name(log_id_t log_id);
 
 #ifdef __cplusplus

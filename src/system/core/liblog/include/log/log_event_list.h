@@ -63,7 +63,6 @@ typedef struct {
  * Creates a context associated with an event tag to write elements to
  * the list of events.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 android_log_context create_android_logger(uint32_t tag);
 
 /* All lists must be braced by a begin and end call */
@@ -72,11 +71,9 @@ android_log_context create_android_logger(uint32_t tag);
  *     elements, we will manufacturer a list to embrace it for your API
  *     convenience. For a single element, it will remain solitary.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 int android_log_write_list_begin(android_log_context ctx);
 int android_log_write_list_end(android_log_context ctx);
 
-ANDROID_API_LOG /* M3E: MSVC export */
 int android_log_write_int32(android_log_context ctx, int32_t value);
 int android_log_write_int64(android_log_context ctx, int64_t value);
 int android_log_write_string8(android_log_context ctx, const char* value);
@@ -91,12 +88,9 @@ int android_log_write_list(android_log_context ctx, log_id_t id);
 /*
  * Creates a context from a raw buffer representing a list of events to be read.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 android_log_context create_android_log_parser(const char* msg, size_t len);
 
-ANDROID_API_LOG /* M3E: MSVC export */
 android_log_list_element android_log_read_next(android_log_context ctx);
-ANDROID_API_LOG /* M3E: MSVC export */
 android_log_list_element android_log_peek_next(android_log_context ctx);
 
 /* Reset writer context */
@@ -107,7 +101,6 @@ int android_log_parser_reset(android_log_context ctx,
                              const char* msg, size_t len);
 
 /* Finished with reader or writer context */
-ANDROID_API_LOG /* M3E: MSVC export */
 int android_log_destroy(android_log_context* ctx);
 
 #ifdef __cplusplus

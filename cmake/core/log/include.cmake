@@ -1,7 +1,4 @@
 
-# define
-DLL_PUBLIC(LOG)
-
 if(MSVC)
     include(${MSVC_INCLUDE})
 endif()

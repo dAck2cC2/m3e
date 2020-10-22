@@ -14,6 +14,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+
 #ifdef _MSC_VER /* M3E: */
 #define __MINGW32__
 #endif 
@@ -34,7 +35,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <sys/param.h> /* M3E: */
+#if 0 // M3E:
+#include <sys/param.h>
+#endif
 #include <sys/types.h>
 
 #include <cutils/list.h>
@@ -43,7 +46,8 @@
 
 #include "log_portability.h"
 
-#if defined(__APPLE__) || defined(__linux__) /* M3E: Add */
+/* M3E: Add */
+#if defined(__APPLE__) || defined(__linux__)
 #include <limits.h>
 #endif
 
@@ -916,13 +920,8 @@ static int android_log_printBinaryEvent(const unsigned char** pEventData, size_t
           }
           break;
         case TYPE_MONOTONIC: {
-#ifdef _MSC_VER /* M3E: */
-		  #define minute (60)
-		  #define hour (60*minute)
-#else
           static const uint64_t minute = 60;
           static const uint64_t hour = 60 * minute;
-#endif
           static const uint64_t day = 24 * hour;
 
           /* Repaint as unsigned seconds, minutes, hours ... */

@@ -359,7 +359,6 @@ extern int __fake_use_va_args(int, ...);
  * ANDROID_LOG_FATAL. default_prio if no property. Undefined behavior if
  * any other value.
  */
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_is_loggable(int prio, const char* tag, int default_prio);
 int __android_log_is_loggable_len(int prio, const char* tag, size_t len, int default_prio);
 

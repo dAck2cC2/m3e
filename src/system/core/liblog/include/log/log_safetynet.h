@@ -21,7 +21,6 @@ extern "C" {
 #define android_errorWriteWithInfoLog(tag, subTag, uid, data, dataLen) \
   __android_log_error_write(tag, subTag, uid, data, dataLen)
 
-ANDROID_API_LOG /* M3E: MSVC export */
 int __android_log_error_write(int tag, const char* subTag, int32_t uid,
                               const char* data, uint32_t dataLen);
 
