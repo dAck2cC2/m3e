@@ -172,11 +172,17 @@ extern int __fake_use_va_args(int, ...);
  * Stripped out of release builds.  Uses the current LOG_TAG.
  */
 #ifndef ALOG_ASSERT
-#if defined(_MSC_VER) /* M3E: MSVC */
+/* M3E: MSVC 
+* ALOG_ASSERT( true_or_false ); -> all the places use it in this way
+* ALOG_ASSERT( true_or_false, "Message" ); -> noboday uses it in this way
+* 
+* Therefor, MSVC reports that not enough arguments for function-like macro
+*/
+#if defined(_MSC_VER)
 #define ALOG_ASSERT(cond) LOG_FATAL_IF(!(cond), "Assertion failed: " #cond)
-#else
+#else  // M3E
 #define ALOG_ASSERT(cond, ...) LOG_FATAL_IF(!(cond), ##__VA_ARGS__)
-#endif
+#endif // M3E
 #endif
 
 /* --------------------------------------------------------------------- */

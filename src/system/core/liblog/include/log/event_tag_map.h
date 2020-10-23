@@ -41,13 +41,10 @@ void android_closeEventTagMap(EventTagMap* map);
  * Look up a tag by index.  Returns the tag string, or NULL if not found.
  */
 const char* android_lookupEventTag(const EventTagMap* map, unsigned int tag)
-#ifdef _MSC_VER  /* M3E: MSVC */
-;
-#else
     __attribute__((
         deprecated("use android_lookupEventTag_len() instead to minimize "
                    "MAP_PRIVATE copy-on-write memory impact")));
-#endif
+
 /*
  * Look up a tag by index.  Returns the tag string & string length, or NULL if
  * not found.  Returned string is not guaranteed to be nul terminated.

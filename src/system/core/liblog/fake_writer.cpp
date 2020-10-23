@@ -33,9 +33,7 @@ static int logFds[(int)LOG_ID_MAX] = {-1, -1, -1, -1, -1, -1};
 
 struct android_log_transport_write fakeLoggerWrite = {
     .node = {&fakeLoggerWrite.node, &fakeLoggerWrite.node},
-#if !defined(_MSC_VER) // M3E: Nobody is using it
     .context.priv = &logFds,
-#endif
     .name = "fake",
     .available = NULL,
     .open = fakeOpen,

@@ -15,11 +15,15 @@
  */
 
 #include <errno.h>
-#if defined(_MSC_VER) || defined(__APPLE__) /* M3E: include <atomic> before <stdatomic.h> */
+ /* M3E: 
+ * MSVC  : it doesn't have stdatomic.h
+ * Apple : it must include <atomic> before <stdatomic.h> 
+ */
+#if defined(_MSC_VER) || defined(__APPLE__)
 #include <cutils/stdatomic.h>
-#else
+#else  // M3E
 #include <stdatomic.h>
-#endif
+#endif // M3E
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
@@ -527,13 +531,13 @@ void __android_log_assert(const char* cond, const char* tag, const char* fmt, ..
       strcpy(buf, "Unspecified assertion failed");
   }
 
-#if (STDERR_LOG_DEVICE == 1) /* M3E: we don't have std output currently */
+#if (STDERR_LOG_DEVICE == 1) /* M3E: we don't have std output */
   // Log assertion failures to stderr for the benefit of "adb shell" users
   // and gtests (http://b/23675822).
   TEMP_FAILURE_RETRY(write(2, buf, strlen(buf)));
   TEMP_FAILURE_RETRY(write(2, "\n", 1));
 
-#endif
+#endif // M3E
   __android_log_write(ANDROID_LOG_FATAL, tag, buf);
   __android_log_close(); /* M3E: close log file before terminating */
   abort(); /* abort so we have a chance to debug the situation */

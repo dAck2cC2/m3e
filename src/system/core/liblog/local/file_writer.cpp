@@ -22,9 +22,13 @@ static int fileWrite(log_id_t logId, struct timespec *ts,
 
 static FILE* logFd = NULL;
 
-struct android_log_transport_write fileLoggerWrite = {
-	.node = { &fileLoggerWrite.node, &fileLoggerWrite.node },
-#if !defined(_MSC_VER) // M3E: Nobody is using it
+/*
+* The fakeLoggerWrite is registered to log transport at :
+* config_write.cpp - void __android_log_config_write()
+*/
+struct android_log_transport_write fakeLoggerWrite = {
+	.node = { &fakeLoggerWrite.node, &fakeLoggerWrite.node },
+#if !defined(_MSC_VER) // MSVC doesn't support it. Besides, nobody is using context.priv
 	.context.priv = &logFd,
 #endif
 	.name = "file",

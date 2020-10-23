@@ -23,7 +23,7 @@
 
 /* In the future, we would like to make this list extensible */
 static const char* LOG_NAME[LOG_ID_MAX] = {
-#if defined(_MSC_VER) // M3E:
+#if defined(_MSC_VER) // M3E: MSVC doesn't support it
   /* [LOG_ID_MAIN] =     */ "main",
   /* [LOG_ID_RADIO] =    */ "radio",
   /* [LOG_ID_EVENTS] =   */ "events",
@@ -32,7 +32,7 @@ static const char* LOG_NAME[LOG_ID_MAX] = {
   /* [LOG_ID_STATS] =    */ "stats",
   /* [LOG_ID_SECURITY] = */ "security",
   /* [LOG_ID_KERNEL] =   */ "kernel",
-#else
+#else // M3E
     /* clang-format off */
   [LOG_ID_MAIN] = "main",
   [LOG_ID_RADIO] = "radio",
@@ -43,7 +43,7 @@ static const char* LOG_NAME[LOG_ID_MAX] = {
   [LOG_ID_SECURITY] = "security",
   [LOG_ID_KERNEL] = "kernel",
     /* clang-format on */
-#endif
+#endif // M3E
 };
 
 const char* android_log_id_to_name(log_id_t log_id) {
@@ -53,10 +53,10 @@ const char* android_log_id_to_name(log_id_t log_id) {
   return LOG_NAME[log_id];
 }
 
-#if !defined(_MSC_VER) // M3E:
+#if !defined(_MSC_VER) // M3E: MSVC doesn't support it
 static_assert(std::is_same<std::underlying_type<log_id_t>::type, uint32_t>::value,
               "log_id_t must be an unsigned int");
-#endif
+#endif // M3E
 
 log_id_t android_name_to_log_id(const char* logName) {
   const char* b;

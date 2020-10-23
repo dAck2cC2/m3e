@@ -8,12 +8,15 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 set(${PROJECT_NAME}_DEPLIB )
 
 if (MSVC)
+    add_definitions(-D__MINGW32__)
+
     include(${MSVC_INCLUDE})
     list(APPEND LOG_DEPLIB ${LIB_MSVC_WRAP})
 elseif(APPLE)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11 -stdlib=libc++")
 endif()
 
+# use local file logger replacing fake logger
 add_definitions(-DFAKE_LOG_DEVICE=1)
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/liblog/include )
@@ -43,11 +46,12 @@ ${SOURCE_PATH}/logger_write.cpp
 ${SOURCE_PATH}/logprint.cpp
 #${SOURCE_PATH}/stderr_write.cpp
 
-# liblog_host_sources
-${SOURCE_PATH}/fake_log_device.cpp
-${SOURCE_PATH}/fake_writer.cpp
 
-# local file logger
+# liblog_host_sources
+#${SOURCE_PATH}/fake_log_device.cpp
+#${SOURCE_PATH}/fake_writer.cpp
+
+# use local file logger replacing fake logger
 ${SOURCE_PATH}/local/file_writer.cpp
 )
 

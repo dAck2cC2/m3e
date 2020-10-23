@@ -16,11 +16,15 @@
 
 #pragma once
 
-#if defined(_MSC_VER) || defined(__APPLE__) /* M3E: include <atomic> before <stdatomic.h> */
+ /* M3E: 
+ * MSVC  : it doesn't have stdatomic.h
+ * Apple : it must include <atomic> before <stdatomic.h> 
+ */
+#if defined(_MSC_VER) || defined(__APPLE__)
 #include <cutils/stdatomic.h>
-#else
+#else  // M3E
 #include <stdatomic.h>
-#endif
+#endif // M3E
 #include <stdbool.h>
 
 #include <cutils/list.h>

@@ -15,10 +15,6 @@
 ** limitations under the License.
 */
 
-#ifdef _MSC_VER /* M3E: */
-#define __MINGW32__
-#endif 
-
 #ifndef __MINGW32__
 #define HAVE_STRSEP
 #endif
@@ -35,9 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if 0 // M3E:
 #include <sys/param.h>
-#endif
 #include <sys/types.h>
 
 #include <cutils/list.h>
@@ -48,8 +42,8 @@
 
 /* M3E: Add */
 #if defined(__APPLE__) || defined(__linux__)
-#include <limits.h>
-#endif
+#include <limits.h>  // INT_MAX
+#endif // M3E
 
 #define MS_PER_NSEC 1000000
 #define US_PER_NSEC 1000
