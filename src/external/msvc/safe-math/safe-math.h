@@ -594,7 +594,7 @@ PSNIP_SAFE_DEFINE_LARGER_UNSIGNED_OPS(psnip_uint64_t, uint64)
 #define PSNIP_SAFE_DEFINE_INTSAFE(T, name, op, isf) \
   PSNIP_SAFE__FUNCTION psnip_safe_bool \
   psnip_safe_##name##_##op (T* res, T a, T b) { \
-    return isf(a, b, res) == S_OK; \
+    return isf(a, b, res) != S_OK; \
   }
 
 #if CHAR_MIN == 0

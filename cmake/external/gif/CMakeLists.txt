@@ -27,9 +27,6 @@ ${SOURCE_PATH}/quantize.c
 
 if(MSVC)
     include(${MSVC_INCLUDE})
-    list(APPEND GIF_HEADER_FILES 
-    ${MSVC_PATH}/unistd.h
-    )
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})

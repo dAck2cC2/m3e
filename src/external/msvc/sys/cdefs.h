@@ -102,7 +102,7 @@ extern "C" {
 #if !defined(CFG_NO_POPCNT)
 #define __builtin_popcount   __popcnt
 #define __builtin_popcountl  __popcnt
-#define __builtin_popcountll __popcnt
+#define __builtin_popcountll __popcnt64
 #endif
 
 #define __builtin_ctzl  __builtin_ctz

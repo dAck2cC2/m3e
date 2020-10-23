@@ -1,0 +1,32 @@
+diff --git a/include/getopt.h b/include/getopt.h
+index 8111e04..e03e2f9 100644
+--- a/include/getopt.h
++++ b/include/getopt.h
+@@ -9,14 +9,19 @@
+ #ifndef _GETOPT_H_
+ #define _GETOPT_H_
+ 
++#include <msvc_export.h>
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif // __cplusplus
+ 
++    MSVC_EXPORT
+     int getopt(int argc, char* const argv[],
+             const char* optstring);
+ 
++    MSVC_EXPORT
+     extern char *optarg;
++    MSVC_EXPORT
+     extern int optind, opterr, optopt;
+ 
+ #define no_argument 0
+@@ -30,6 +35,7 @@ extern "C" {
+         int val;
+     };
+ 
++    MSVC_EXPORT
+     int getopt_long(int argc, char* const argv[],
+             const char* optstring,
+             const struct option* longopts, int* longindex);

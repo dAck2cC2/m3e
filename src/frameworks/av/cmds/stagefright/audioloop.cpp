@@ -39,6 +39,9 @@
 // M3E: add
 #include <cutils/threads.h>
 #include <initrc/initrc.h>
+#if defined(_MSC_VER)
+#include <getopt.h>  // getopt
+#endif
 
 using namespace android;
 

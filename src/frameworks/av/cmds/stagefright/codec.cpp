@@ -43,7 +43,8 @@
 
 // M3E: add
 #if defined(_MSC_VER)
-#include <media/AudioTrack.h>
+#include <media/AudioTrack.h>  // android::AudioTrack
+#include <getopt.h>  // getopt
 #endif
 #include <initrc/initrc.h>
 

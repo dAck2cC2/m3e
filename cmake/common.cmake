@@ -1,7 +1,7 @@
 ###############################################################################
 # common definition
 set(BUILD_PATH      ${M3E_BINARY_DIR}/build)
-set(MSVC_PATH       ${M3E_SOURCE_DIR}/src/external/msvc)
+set(MSVC_PATH       ${M3E_SOURCE_DIR}/src/external/msvc ${M3E_SOURCE_DIR}/external/win-c/include)
 set(MSVC_INCLUDE    ${M3E_SOURCE_DIR}/cmake/external/msvc/include.cmake)
 set(INITRC_PATH     ${M3E_SOURCE_DIR}/src/external/initrc)
 set(INITRC_INCLUDE  ${M3E_SOURCE_DIR}/cmake/external/initrc/include.cmake)
@@ -50,32 +50,34 @@ endif(MSVC)
 set(EXT_LINK https://android.googlesource.com/platform)
 set(EXT_TAG android-9.0.0_r56)
 set(EXT_TAG_UPDATE android-9.0.0_r56)
+#set(EXT_TAG_UPDATE android-10.0.0_r45)
 
 set(EXT_UPDATE 
-safe-iop
-zlib
-boringssl
-expat
-aac
-dng_sdk
-flac
-giflib
-libgsm
-piex
-libpng
-sonic
-sonivox
-tremolo
-libvpx
-webp
-libyuv
-skia
 )
 
 # moudles which are going to be updated
 #jsoncpp
 #jpeg
 #libhevc
+
+#safe-iop
+#zlib
+#boringssl
+#expat
+#aac
+#dng_sdk
+#flac
+#giflib
+#libgsm
+#piex
+#libpng
+#sonic
+#sonivox
+#tremolo
+#libvpx
+#webp
+#libyuv
+#skia
 
 ###############################################################################
 # download module

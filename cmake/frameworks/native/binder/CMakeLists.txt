@@ -16,6 +16,8 @@ log
 )
 
 if (MSVC)
+    add_definitions(-DNOMINMAX=1)
+
     include(${MSVC_INCLUDE})
     list(APPEND BINDER_DEPLIB ${LIB_MSVC_WRAP})
 endif(MSVC)
