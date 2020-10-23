@@ -24,7 +24,7 @@
 // M3E: add
 #if defined(_MSC_VER)
 #include <vasprintf.h> // asprintf
-#endif
+#endif // M3E
 
 #define TAG "android_reboot"
 

@@ -19,9 +19,9 @@
 
 #include <sys/types.h>
 
-#if defined(_MSC_VER) // M3E:
+#if defined(_MSC_VER) // M3E: MSVC wrapper
 #include <stdint.h> // uid_t gid_t
-#endif
+#endif // M3E
 
 #ifdef __cplusplus
 extern "C" {

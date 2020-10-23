@@ -25,9 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(_MSC_VER) /* M3E: MAX_PATH */
-#include <dirent.h>
-#endif
+#if defined(_MSC_VER) /* M3E: MSVC wrapper */
+#include <dirent.h> // MAX_PATH
+#endif // M3E
 
 typedef struct {
     const char* path;
@@ -130,5 +130,5 @@ void canned_fs_config(const char* path, int dir, const char* target_out_path,
                 c_capabilities);
         }
     }
-#endif
+#endif // M3E
 }

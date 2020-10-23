@@ -25,7 +25,7 @@
 
 #if defined(_WIN32)
 
-#include <stdint.h> /* M3E: MSVC wrapper */
+#include <stdint.h> /* M3E: MSVC wrapper for ssize_t */
 #include <winsock2.h>
 #include <ws2tcpip.h>
 

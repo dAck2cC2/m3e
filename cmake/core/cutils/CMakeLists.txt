@@ -93,8 +93,8 @@ if(MSVC)
 else()
     list(APPEND ${PROJECT_NAME}_SOURCE_FILES
     ${SOURCE_PATH}/socket_inaddr_any_server_unix.cpp
-    #${SOURCE_PATH}/socket_local_client_unix.cpp
-    #${SOURCE_PATH}/socket_local_server_unix.cpp
+    ${SOURCE_PATH}/socket_local_client_unix.cpp
+    ${SOURCE_PATH}/socket_local_server_unix.cpp
     ${SOURCE_PATH}/socket_network_client_unix.cpp
     ${SOURCE_PATH}/sockets_unix.cpp
     )

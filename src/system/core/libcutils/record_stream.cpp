@@ -25,7 +25,7 @@
 #include <stdint.h>
 #if defined(_WIN32)
 #include <winsock2.h>   /* for ntohl */
-#pragma comment(lib, "ws2_32.lib") /* M3E: MSVC */
+#pragma comment(lib, "ws2_32.lib") /* M3E: MSVC needs to link it */
 #else
 #include <netinet/in.h>
 #endif

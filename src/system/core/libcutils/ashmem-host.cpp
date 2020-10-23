@@ -36,7 +36,7 @@
 #if 0
 #include <utils/Compat.h>
 
-#elif defined(_WIN32)
+#elif defined(_WIN32) // M3E
 #include <dirent.h>
 int mkstemp(char* template_name) {
 	if (_mktemp(template_name) == NULL) {
@@ -58,7 +58,7 @@ char* mkdtemp(char* template_name) {
 	return template_name;
 }
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) // M3E
 /*
  * TEMP_FAILURE_RETRY is defined by some, but not all, versions of
  * <unistd.h>. (Alas, it is not as standard as we'd hoped!) So, if it's
@@ -74,9 +74,9 @@ _rc = (exp);                       \
 _rc; })
 #endif /* TEMP_FAILURE_RETRY */
 
-#else
+#else  // M3E
 /* EMPTY */
-#endif
+#endif // M3E
 
 int ashmem_create_region(const char* /*ignored*/, size_t size) {
     char pattern[PATH_MAX];
@@ -84,9 +84,9 @@ int ashmem_create_region(const char* /*ignored*/, size_t size) {
 	char tmp_dir[MAX_PATH];
 	DWORD result = GetTempPathA(sizeof(tmp_dir), tmp_dir);
 	snprintf(pattern, sizeof(pattern), "%s\\android-ashmem-%d-XXXXXXXXX", tmp_dir, getpid());
-#else
+#else  // M3E
     snprintf(pattern, sizeof(pattern), "/tmp/android-ashmem-%d-XXXXXXXXX", getpid());
-#endif
+#endif // M3E
     int fd = mkstemp(pattern);
     if (fd == -1) return -1;
 

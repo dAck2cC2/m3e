@@ -20,9 +20,9 @@
 #include <inttypes.h>
 #if 0 /* M3E: We need a stdatomic.h, which is cross-platform instead of standard one. */
 #include <stdatomic.h>
-#else
+#else  // M3E
 #include <cutils/stdatomic.h>
-#endif
+#endif // M3E
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -187,10 +187,10 @@ static inline uint64_t atrace_is_tag_enabled(uint64_t tag)
 static inline void atrace_begin(uint64_t tag, const char* name)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-#if !defined(_MSC_VER) /* M3E: */
+#if !defined(_MSC_VER) /* M3E: MSVC doesn't export atrace_begin_body() which will cause linking error */
         void atrace_begin_body(const char*);
         atrace_begin_body(name);
-#endif
+#endif // M3E
     }
 }
 
@@ -202,10 +202,10 @@ static inline void atrace_begin(uint64_t tag, const char* name)
 static inline void atrace_end(uint64_t tag)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-#if !defined(_MSC_VER) /* M3E: */
+#if !defined(_MSC_VER) /* M3E: MSVC doesn't export atrace_end_body() which will cause linking error */
         void atrace_end_body();
         atrace_end_body();
-#endif
+#endif // M3E
     }
 }
 
@@ -248,10 +248,10 @@ static inline void atrace_async_end(uint64_t tag, const char* name, int32_t cook
 static inline void atrace_int(uint64_t tag, const char* name, int32_t value)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-#if !defined(_MSC_VER) /* M3E: */
+#if !defined(_MSC_VER) /* M3E: MSVC doesn't export atrace_int_body() which will cause linking error */
         void atrace_int_body(const char*, int32_t);
         atrace_int_body(name, value);
-#endif
+#endif // M3E
     }
 }
 
@@ -263,10 +263,10 @@ static inline void atrace_int(uint64_t tag, const char* name, int32_t value)
 static inline void atrace_int64(uint64_t tag, const char* name, int64_t value)
 {
     if (CC_UNLIKELY(atrace_is_tag_enabled(tag))) {
-#if !defined(_MSC_VER) /* M3E: */
+#if !defined(_MSC_VER) /* M3E: MSVC doesn't export atrace_int64_body() which will cause linking error */
         void atrace_int64_body(const char*, int64_t);
         atrace_int64_body(name, value);
-#endif
+#endif // M3E
     }
 }
 

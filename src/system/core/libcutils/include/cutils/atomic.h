@@ -19,11 +19,15 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-#if 0 /* M3E: We need a stdatomic.h, which is cross-platform instead of standard one. */
+/* M3E: We need a stdatomic.h, which is cross-platform instead of standard one. 
+* MSVC : it doesn't have stdatomic.h
+* Apple & Linxu : it must include <atomic> before <stdatomic.h>
+*/
+#if 0
 #include <stdatomic.h>
-#else
+#else  // M3E
 #include <cutils/stdatomic.h>
-#endif
+#endif // M3E
 
 #ifndef ANDROID_ATOMIC_INLINE
 #define ANDROID_ATOMIC_INLINE static inline
@@ -228,13 +232,13 @@ int android_atomic_release_cas(int32_t oldvalue, int32_t newvalue,
 ANDROID_ATOMIC_INLINE
 void android_compiler_barrier(void)
 {
-#if defined(_MSC_VER) /* M3E: */
+#if defined(_MSC_VER) /* M3E: for MSVC */
 	_ReadWriteBarrier();
-#else
+#else  // M3E
     __asm__ __volatile__ ("" : : : "memory");
     /* Could probably also be:                          */
     /* atomic_signal_fence(memory_order_seq_cst);       */
-#endif
+#endif // M3E
 }
 
 ANDROID_ATOMIC_INLINE

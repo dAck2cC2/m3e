@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#if (__STDC_VERSION__ < 201112L && __cplusplus < 201103L && !defined(_MSC_VER)) /* M3E: MSVC */
+#if __STDC_VERSION__ < 201112L && __cplusplus < 201103L && !defined(_MSC_VER) /* M3E: MSVC has char16_t */
   typedef uint16_t char16_t;
 #endif
   // otherwise char16_t is a keyword with the right semantics

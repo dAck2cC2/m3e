@@ -19,12 +19,12 @@
 
 #include <sys/cdefs.h>
 #include <stddef.h>
-#if 0 // M3E: no sys/system_properties.h, use value directly
+#if 0  // M3E: no sys/system_properties.h, use value directly
 #include <sys/system_properties.h>
-#else
+#else  // M3E
 #define PROP_NAME_MAX     (32) 
 #define PROP_VALUE_MAX    (92)
-#endif
+#endif // M3E
 #include <stdint.h>
 
 #ifdef __cplusplus

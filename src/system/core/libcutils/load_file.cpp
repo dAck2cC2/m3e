@@ -21,9 +21,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#if defined(_MSC_VER) /* M3E: SEEK_END SEEK_SET */
-#include <stdio.h>
-#endif
+#if defined(_MSC_VER) /* M3E: MSVC wrapper */
+#include <stdio.h> // SEEK_END SEEK_SET
+#endif // M3E
 
 void *load_file(const char *fn, unsigned *_sz)
 {

@@ -18,9 +18,7 @@
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#if ENABLE_MOUNT // M3E:
 #include <sys/mount.h> /* for BLKGETSIZE */
-#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>

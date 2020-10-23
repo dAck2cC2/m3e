@@ -20,7 +20,7 @@
 #include <sys/types.h>
 
 #if defined(_MSC_VER) /* M3E: MSVC wrapper */
-#include <unistd.h>
+#include <unistd.h>  // uid_t
 #endif
 
 #ifdef __cplusplus

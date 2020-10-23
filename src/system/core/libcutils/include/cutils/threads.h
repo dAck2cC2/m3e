@@ -23,13 +23,14 @@
 #include <pthread.h>
 #else
 #include <windows.h>
+
 /* M3E: Add */
 #ifndef __inline__
 #define __inline__  inline
 #endif // __inline__
+#include <stdint.h>   // For pid_t
+#include <pthread.h>  // some places are using pthread wrapper on MSVC 
 
-#include <stdint.h> // For pid_t
-#include <pthread.h>
 #endif
 
 #ifdef __cplusplus
@@ -42,7 +43,7 @@ extern "C" {
 
 #if !defined(__linux__) /* M3E: use original one of linux */
 extern pid_t gettid();
-#endif
+#endif // M3E
 
 //
 // Deprecated: use `_Thread_local` in C or `thread_local` in C++.
@@ -78,6 +79,9 @@ extern void*  thread_store_get(thread_store_t*  store);
 extern void   thread_store_set(thread_store_t*          store,
                                void*                    value,
                                thread_store_destruct_t  destroy);
+
+// M3E: It is using by binder.
+// It should be possible to remove following after updating binder
 
 /***********************************************************************/
 /***********************************************************************/

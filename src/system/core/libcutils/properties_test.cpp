@@ -27,10 +27,10 @@
 #include <cutils/properties.h>
 #include <gtest/gtest.h>
 
-#if defined(_MSC_VER) // M3E:
+#if defined(_MSC_VER) // M3E: Lazy fixing instead of including another header file on MSVC
 #define INT32_C(x)   (x)
 #define INT64_C(x)   (x ## LL)
-#endif
+#endif // M3E
 
 namespace android {
 

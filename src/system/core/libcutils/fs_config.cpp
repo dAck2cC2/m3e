@@ -26,7 +26,7 @@
 #include <fcntl.h>
 #if ENABLE_FNMATCH // M3E:
 #include <fnmatch.h>
-#endif
+#endif // M3E
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +41,7 @@
 #include <private/android_filesystem_config.h>
 #if 0 /* M3E: no utils in cutils */
 #include <utils/Compat.h>
-#else
+#else // M3E
 
 #ifndef TEMP_FAILURE_RETRY
 /* Used to retry syscalls that can return EINTR. */
@@ -53,11 +53,11 @@ _rc = (exp);                       \
 _rc; })
 #endif /* TEMP_FAILURE_RETRY */
 
-#endif
+#endif // M3E
 
 #if defined(_MSC_VER) /* M3E: MSVC wrapper */
-#include <vasprintf.h>
-#endif // _MSC_VER
+#include <vasprintf.h>  // asprintf
+#endif // M3E
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -316,7 +316,7 @@ static bool fs_config_cmp(bool dir, const char* prefix, size_t len, const char* 
     // FNM_ESCAPE is set in order to prevent using \\? and \\* and maintenance issues.
     const int fnm_flags = FNM_NOESCAPE;
     if (fnmatch(pattern.c_str(), input.c_str(), fnm_flags) == 0) return true;
-#endif
+#endif // M3E
 
     static constexpr const char* kSystem = "system/";
     if (StartsWith(input, kSystem)) {
@@ -333,9 +333,9 @@ static bool fs_config_cmp(bool dir, const char* prefix, size_t len, const char* 
     if (!is_partition(input)) return false;
 #if ENABLE_FNMATCH // M3E:
     return fnmatch(pattern.c_str(), input.c_str(), fnm_flags) == 0;
-#else
+#else  // M3E
     return false;
-#endif
+#endif // M3E
 }
 #ifndef __ANDROID_VNDK__
 auto __for_testing_only__fs_config_cmp = fs_config_cmp;

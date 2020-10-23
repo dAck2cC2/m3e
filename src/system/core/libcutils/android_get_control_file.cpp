@@ -46,10 +46,6 @@
 
 #include "android_get_control_env.h"
 
-#ifndef TEMP_FAILURE_RETRY
-#define TEMP_FAILURE_RETRY(exp) (exp) // KISS implementation
-#endif
-
 int __android_get_control_from_env(const char* prefix, const char* name) {
     if (!prefix || !name) return -1;
 
@@ -91,7 +87,6 @@ int android_get_control_file(const char* path) {
         if (fd < 0) return fd;
     }
 
-#if defined(__linux__) // M3E:
     // Find file path from /proc and make sure it is correct
     auto proc = android::base::StringPrintf("/proc/self/fd/%d", fd);
     std::string fd_path;
@@ -99,7 +94,6 @@ int android_get_control_file(const char* path) {
 
     if (given_path != fd_path) return -1;
     // It is what we think it is
-#endif
 
     return fd;
 }
