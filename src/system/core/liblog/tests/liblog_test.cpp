@@ -20,7 +20,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <pthread.h>
-//#include <semaphore.h> /* M3E: */
+#include <semaphore.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,11 +29,11 @@
 
 #include <string>
 
-#if 0 // M3E:
+#if !defined(_MSC_VER) // M3E: MSVC building error
 #include <android-base/file.h>
 #include <android-base/macros.h>
+#endif // M3E
 #include <android-base/stringprintf.h>
-#endif
 #ifdef __ANDROID__  // includes sys/properties.h which does not exist outside
 #include <cutils/properties.h>
 #endif
@@ -64,9 +64,6 @@
 // non-syscall libs. Since we are only using this in the emergency of
 // a signal to stuff a terminating code into the logs, we will spin rather
 // than try a usleep.
-#ifdef _MSC_VER /* M3E: */
-#define LOG_FAILURE_RETRY(exp)  exp
-#else
 #define LOG_FAILURE_RETRY(exp)                                           \
   ({                                                                     \
     typeof(exp) _rc;                                                     \
@@ -76,7 +73,6 @@
              (_rc == -EINTR) || (_rc == -EAGAIN));                       \
     _rc;                                                                 \
   })
-#endif
 
 TEST(liblog, __android_log_btwrite) {
 #ifdef TEST_PREFIX
@@ -3011,7 +3007,6 @@ TEST(liblog, create_android_logger_overflow) {
   ASSERT_TRUE(NULL == ctx);
 }
 
-#ifdef __ANDROID__ /* M3E: */
 TEST(liblog, android_log_write_list_buffer) {
   __android_log_event_list ctx(1005);
   ctx << 1005 << "tag_def"
@@ -3026,7 +3021,6 @@ TEST(liblog, android_log_write_list_buffer) {
             0);
   EXPECT_STREQ(msgBuf, "[1005,tag_def,(tag|1),(name|3),(format|3)]");
 }
-#endif
 #endif  // USING_LOGGER_DEFAULT
 
 #ifdef USING_LOGGER_DEFAULT  // Do not retest pmsg functionality

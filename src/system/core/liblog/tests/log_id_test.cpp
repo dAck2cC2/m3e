@@ -82,7 +82,6 @@ static void* ConcurrentPrintFn(void* arg) {
 #define _concurrent_name(a, n) a##__concurrent##n
 #define concurrent_name(a, n) _concurrent_name(a, n)
 
-#if !defined(_MSC_VER) /* M3E: */
 TEST(liblog, concurrent_name(__android_log_buf_print, NUM_CONCURRENT)) {
   pthread_t t[NUM_CONCURRENT];
   int i;
@@ -101,4 +100,3 @@ TEST(liblog, concurrent_name(__android_log_buf_print, NUM_CONCURRENT)) {
   }
   ASSERT_LT(0, ret);
 }
-#endif

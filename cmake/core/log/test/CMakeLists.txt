@@ -7,6 +7,8 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/${EXT_PATH}/gtest/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 
+include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
+
 # dependency
 
 set(TEST_LOG_DEPLIB
@@ -46,7 +48,7 @@ ${SOURCE_PATH}/log_system_test.cpp
 ${SOURCE_PATH}/log_wrap_test.cpp
 
 # M3E: add
-${SOURCE_PATH}/AndroidLog_test.cpp
+${SOURCE_PATH}/../local/AndroidLog_test.cpp
 )
 
 # project

@@ -20,17 +20,15 @@
 
 #include <string>
 
-#if 0 // M3E:
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
-#endif
 #include <gtest/gtest.h>
 // Test the APIs in this standalone include file
 #include <log/log_system.h>
 
-#if defined(_MSC_VER)
-#include <sys/time.h> /* M3E: usleep */
-#endif
+#if defined(_MSC_VER) // M3E: wrapper
+#include <sys/time.h> // usleep
+#endif // M3E
 
 TEST(liblog, SLOG) {
   static const char content[] = "log_system.h";

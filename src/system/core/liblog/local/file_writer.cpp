@@ -332,3 +332,8 @@ error:
 	unlock();
 	return -1;
 }
+
+int __android_log_is_loggable_len(int prio, const char*, size_t, int def) {
+  int logLevel = def;
+  return logLevel >= 0 && prio >= logLevel;
+}
