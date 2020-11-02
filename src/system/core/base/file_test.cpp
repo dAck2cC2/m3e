@@ -234,7 +234,7 @@ TEST(file, GetExecutableDirectory) {
 #ifndef _MSC_VER /* M3E: */
   ASSERT_EQ('/', path[0]);
   ASSERT_NE('/', path[path.size() - 1]);
-#endif
+#endif // M3E
 }
 
 TEST(file, GetExecutablePath) {
@@ -252,11 +252,11 @@ TEST(file, Dirname) {
   EXPECT_EQ("\\system\\bin", android::base::Dirname("\\system\\bin\\sh"));
   EXPECT_EQ(".", android::base::Dirname("sh"));
   EXPECT_EQ("\\system\\bin", android::base::Dirname("\\system\\bin\\sh\\"));
-#else
+#else  // M3E
   EXPECT_EQ("/system/bin", android::base::Dirname("/system/bin/sh"));
   EXPECT_EQ(".", android::base::Dirname("sh"));
   EXPECT_EQ("/system/bin", android::base::Dirname("/system/bin/sh/"));
-#endif
+#endif // M3E
 }
 
 TEST(file, ReadFileToString_capacity) {
@@ -278,7 +278,7 @@ TEST(file, ReadFileToString_capacity) {
   EXPECT_EQ(size, s.size());
 #ifndef _MSC_VER /* M3E: */
   EXPECT_LT(s.capacity(), size + 16);
-#endif
+#endif // M3E
 
   // We'll shrink an enormous string if you read a small file into it.
   size = 64;
@@ -287,7 +287,7 @@ TEST(file, ReadFileToString_capacity) {
   EXPECT_EQ(size, s.size());
 #ifndef _MSC_VER // M3E:
   EXPECT_LT(s.capacity(), size + 16);
-#endif
+#endif // M3E
 }
 
 TEST(file, ReadFileToString_capacity_0) {

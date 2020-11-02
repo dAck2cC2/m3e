@@ -20,7 +20,7 @@
 #include <sys/types.h>
 #include <string>
 // M3E: add
-typedef int mode_t;
+typedef int mode_t; // M3E: MSVC doesn't have mode_t
 #else
 // Bring in prototypes for standard APIs so that we can import them into the utf8 namespace.
 #include <fcntl.h>      // open

@@ -22,16 +22,16 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#if defined(_WIN32) // M3E:
+#if defined(_MSC_VER) // M3E:
 #include <windows.h>
 #include <direct.h>
 
 #define S_IRUSR _S_IREAD 
 #define S_IWUSR _S_IWRITE
 #define OS_PATH_SEPARATOR '\\'
-#else
+#else  // M3E
 #define OS_PATH_SEPARATOR '/'
-#endif
+#endif // M3E
 
 #include <string>
 

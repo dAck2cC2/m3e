@@ -20,7 +20,7 @@
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #include <sys/system_properties.h>
 #include <sys/_system_properties.h>
-#else // M3E:
+#else // M3E: use properties API in cutils
 #include <cutils/properties.h>
 #endif
 
@@ -97,12 +97,12 @@ std::string GetProperty(const std::string& key, const std::string& default_value
   if (it == g_properties.end()) return default_value;
   property_value = it->second;
 #endif
-#else
+#else  // M3E
   char value[PROPERTY_VALUE_MAX] = {0};
   if (property_get(key.c_str(), value, default_value.c_str()) > 0) {
       property_value = value;
   }
-#endif
+#endif // M3E
   // If the property exists but is empty, also return the default value.
   // Since we can't remove system properties, "empty" is traditionally
   // the same as "missing" (this was true for cutils' property_get).
@@ -112,9 +112,9 @@ std::string GetProperty(const std::string& key, const std::string& default_value
 bool SetProperty(const std::string& key, const std::string& value) {
 #if 0 /* M3E: use cutils/properties.h */
   return (__system_property_set(key.c_str(), value.c_str()) == 0);
-#else
+#else  // M3E
     return (property_set(key.c_str(), value.c_str()) == 0);
-#endif
+#endif // M3E
 }
 
 #if defined(__BIONIC__)

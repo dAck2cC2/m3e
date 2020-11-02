@@ -16,9 +16,9 @@
 
 #pragma once
 
-#ifdef __APPLE__ /* M3E: include <atomic> before <stdatomic.h> */
+#if defined(__APPLE__) /* M3E: include <atomic> before <stdatomic.h> */
 #include <atomic>
-#endif
+#endif // M3E
 
 #include <sstream>
 #include <string>

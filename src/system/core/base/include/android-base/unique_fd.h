@@ -251,17 +251,7 @@ inline DIR* Fdopendir(unique_fd&& ufd) {
 
 template <typename T>
 int close(const android::base::unique_fd_impl<T>&)
-#if defined(_MSC_VER) /* M3E: */
-;
-#else
-#if defined(__clang__)
-  __attribute__((__unavailable__(
-#else
-  __attribute__((__error__(
-#endif
-    "close called on unique_fd"
-  )));
-#endif
+    __attribute__((__unavailable__("close called on unique_fd")));
 
 template <typename T>
 FILE* fdopen(const android::base::unique_fd_impl<T>&, const char* mode)

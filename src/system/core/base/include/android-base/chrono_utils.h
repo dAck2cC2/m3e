@@ -19,7 +19,7 @@
 #include <chrono>
 #include <sstream>
 
-#if __cplusplus > 201103L // && !defined(__WIN32)  // C++14 // M3E: MSVC needs it
+#if __cplusplus > 201103L && !defined(__WIN32)  // C++14
 using namespace std::chrono_literals;
 #endif
 

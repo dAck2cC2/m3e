@@ -35,9 +35,8 @@
 #endif
 
 #if defined(__APPLE__) // M3E:
-/* Mac OS has always had a 64-bit off_t, so it doesn't have off64_t. */
-typedef off_t off64_t;
-#endif
+typedef off_t off64_t; /* M3E: Mac OS has a 64-bit off_t, but off64_t. */
+#endif // M3E
 
 class TemporaryFile {
  public:

@@ -59,6 +59,7 @@
 #include <android-base/strings.h>
 #include <android-base/threads.h>
 
+#if 0
 // For gettid.
 #if defined(__APPLE__)
 #include "AvailabilityMacros.h"  // For MAC_OS_X_VERSION_MAX_ALLOWED
@@ -97,6 +98,7 @@ static thread_id GetThreadId() {
   return GetCurrentThreadId();
 #endif
 }
+#endif
 
 namespace android {
 namespace base {
@@ -320,7 +322,7 @@ void LogdLogger::operator()(LogId id, LogSeverity severity, const char* tag,
 void InitLogging(char* argv[], LogFunction&& logger, AbortFunction&& aborter) {
 #if !defined(__APPLE__) /* M3E: */
   SetLogger(std::forward<LogFunction>(logger));
-#endif
+#endif // M3E
   SetAborter(std::forward<AbortFunction>(aborter));
 
   if (gInitialized) {
@@ -386,7 +388,7 @@ void SetAborter(AbortFunction&& aborter) {
   std::lock_guard<std::mutex> lock(LoggingLock());
 #if !defined(__APPLE__) /* M3E: */
   Aborter() = std::move(aborter);
-#endif
+#endif // M3E
 }
 
 // This indirection greatly reduces the stack impact of having lots of

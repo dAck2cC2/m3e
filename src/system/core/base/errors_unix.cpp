@@ -18,9 +18,9 @@
 
 #include <errno.h>
 
-#if defined(__linux__) // M3E:
-#include <string.h>
-#endif
+#if defined(__linux__) // M3E: add
+#include <string.h> // strerror
+#endif // M3E
 
 namespace android {
 namespace base {

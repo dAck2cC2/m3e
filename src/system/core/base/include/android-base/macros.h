@@ -23,9 +23,6 @@
 
 // bionic and glibc both have TEMP_FAILURE_RETRY, but eg Mac OS' libc doesn't.
 #ifndef TEMP_FAILURE_RETRY
-#ifdef _MSC_VER /* M3E: */
-#define TEMP_FAILURE_RETRY(exp)  exp
-#else // _MSC_VER
 #define TEMP_FAILURE_RETRY(exp)            \
   ({                                       \
     decltype(exp) _rc;                     \
@@ -34,7 +31,6 @@
     } while (_rc == -1 && errno == EINTR); \
     _rc;                                   \
   })
-#endif // _MSC_VER
 #endif
 
 // A macro to disallow the copy constructor and operator= functions
@@ -134,16 +130,8 @@ void UNUSED(const T&...) {
 //
 // In either case this macro has no effect on runtime behavior and performance
 // of code.
-#if defined(__clang__) && defined(__has_warning) // M3E:
-#if __has_feature(cxx_attributes) && __has_warning("-Wimplicit-fallthrough")
+#ifndef FALLTHROUGH_INTENDED
 #define FALLTHROUGH_INTENDED [[clang::fallthrough]]  // NOLINT
-#endif
-#endif
-
-#ifndef FALLTHROUGH_INTENDED // M3E:
-#define FALLTHROUGH_INTENDED \
-  do {                       \
-  } while (0)
 #endif
 
 // Current ABI string

@@ -19,10 +19,10 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#if !defined(_MSC_VER) // M3E:
+#if !defined(_MSC_VER) // M3E: no socket API on MSVC
 #include <sys/socket.h>
 #include <sys/user.h>
-#endif
+#endif // M3E
 
 #include <memory>
 
@@ -71,9 +71,9 @@ ssize_t SendFileDescriptorVector(int sockfd, const void* data, size_t len,
 #endif
 
   return TEMP_FAILURE_RETRY(sendmsg(sockfd, &msg, flags));
-#else
+#else  // M3E
   return -1;
-#endif
+#endif // M3E
 }
 
 ssize_t ReceiveFileDescriptorVector(int sockfd, void* data, size_t len, size_t max_fds,
@@ -174,9 +174,9 @@ ssize_t ReceiveFileDescriptorVector(int sockfd, void* data, size_t len, size_t m
 
   *fds = std::move(received_fds);
   return rc;
-#else
+#else  // M3E
   return -1;
-#endif
+#endif // M3E
 }
 
 }  // namespace base

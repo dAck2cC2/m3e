@@ -26,7 +26,7 @@
 
 #if defined(_MSC_VER) // M3E:
 #include <safe-math/safe-math.h> // __builtin_mul_overflow
-#endif
+#endif // M3E
 
 namespace android {
 namespace base {

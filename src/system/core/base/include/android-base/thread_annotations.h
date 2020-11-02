@@ -18,11 +18,7 @@
 
 #include <mutex>
 
-#if defined(__SUPPORT_TS_ANNOTATION__) || defined(__clang__) // M3E:
 #define THREAD_ANNOTATION_ATTRIBUTE__(x) __attribute__((x))
-#else
-#define THREAD_ANNOTATION_ATTRIBUTE__(x)   // no-op
-#endif
 
 #define CAPABILITY(x) \
       THREAD_ANNOTATION_ATTRIBUTE__(capability(x))

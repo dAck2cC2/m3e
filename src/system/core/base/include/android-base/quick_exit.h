@@ -18,7 +18,9 @@
 
 #include <stdlib.h>
 
-#include <stdint.h> /* M3E: __attribute__ */
+#if defined(_MSC_VER) // M3E:
+#include <stdint.h>  // __attribute__
+#endif // M3E
 
 // Provide emulation for at_quick_exit/quick_exit on platforms that don't have it.
 namespace android {

@@ -18,9 +18,9 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E: no ftw on MSVC
 #include <ftw.h>
-#endif
+#endif // M3E
 #include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,12 +52,12 @@
 #include "android-base/utf8.h"
 
 
-#if defined(_WIN32) // M3E:
+#if defined(_WIN32) // M3E: add
 #define O_CLOEXEC O_NOINHERIT
-#include <dirent.h> /* M3E: PATH_MAX */
-#elif defined(__linux__)
+#include <dirent.h> // PATH_MAX
+#elif defined(__linux__) // M3E
 #include <string.h> // strerror()
-#endif
+#endif // M3E
 
 #ifdef _WIN32
 int mkstemp(char* template_name) {
@@ -174,7 +174,7 @@ TemporaryDir::~TemporaryDir() {
   };
 
   nftw(path, callback, 128, FTW_DEPTH | FTW_MOUNT | FTW_PHYS);
-#endif
+#endif // M3E
 }
 
 bool TemporaryDir::init(const std::string& tmp_dir) {
