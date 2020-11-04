@@ -22,7 +22,7 @@
 #include <gtest/gtest.h>
 
 #if defined(__linux__) // M3E: add
-#include <functional> //std::function
+#include <functional> // std::function
 #endif // M3E
 
 TEST(scopeguard, normal) {

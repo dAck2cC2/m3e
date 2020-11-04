@@ -15,9 +15,10 @@
  */
 
 #include <errno.h>
- /* M3E: 
+/* M3E:
  * MSVC  : it doesn't have stdatomic.h
- * Apple : it must include <atomic> before <stdatomic.h> 
+ * Apple : it must include <atomic> before <stdatomic.h>
+ *         https://reviews.llvm.org/D45470
  */
 #if defined(_MSC_VER) || defined(__APPLE__)
 #include <cutils/stdatomic.h>

@@ -34,8 +34,8 @@
 #define O_CLOEXEC O_NOINHERIT
 #endif
 
-#if defined(__APPLE__) // M3E:
-typedef off_t off64_t; /* M3E: Mac OS has a 64-bit off_t, but off64_t. */
+#if defined(__APPLE__) // M3E: add
+typedef off_t off64_t; /* Mac OS has a 64-bit off_t, but off64_t. */
 #endif // M3E
 
 class TemporaryFile {

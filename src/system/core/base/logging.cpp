@@ -59,47 +59,6 @@
 #include <android-base/strings.h>
 #include <android-base/threads.h>
 
-#if 0
-// For gettid.
-#if defined(__APPLE__)
-#include "AvailabilityMacros.h"  // For MAC_OS_X_VERSION_MAX_ALLOWED
-#include <stdint.h>
-#include <stdlib.h>
-#include <sys/syscall.h>
-#include <sys/time.h>
-#include <unistd.h>
-#elif defined(__linux__) && !defined(__ANDROID__)
-#include <syscall.h>
-#include <unistd.h>
-#elif defined(_WIN32)
-#include <windows.h>
-#endif
-
-#if defined(__linux__)  /* M3E: linux */
-#include <string.h> // strerror()
-#endif
-
-#if defined(_WIN32)
-typedef uint32_t thread_id;
-#else
-typedef pid_t thread_id;
-#endif
-
-static thread_id GetThreadId() {
-#if defined(__BIONIC__)
-  return gettid();
-#elif defined(__APPLE__)
-  uint64_t tid;
-  pthread_threadid_np(NULL, &tid);
-  return tid;
-#elif defined(__linux__)
-  return syscall(__NR_gettid);
-#elif defined(_WIN32)
-  return GetCurrentThreadId();
-#endif
-}
-#endif
-
 namespace android {
 namespace base {
 
@@ -320,9 +279,7 @@ void LogdLogger::operator()(LogId id, LogSeverity severity, const char* tag,
 #endif
 
 void InitLogging(char* argv[], LogFunction&& logger, AbortFunction&& aborter) {
-#if !defined(__APPLE__) /* M3E: */
   SetLogger(std::forward<LogFunction>(logger));
-#endif // M3E
   SetAborter(std::forward<AbortFunction>(aborter));
 
   if (gInitialized) {
@@ -386,9 +343,7 @@ void SetLogger(LogFunction&& logger) {
 
 void SetAborter(AbortFunction&& aborter) {
   std::lock_guard<std::mutex> lock(LoggingLock());
-#if !defined(__APPLE__) /* M3E: */
   Aborter() = std::move(aborter);
-#endif // M3E
 }
 
 // This indirection greatly reduces the stack impact of having lots of

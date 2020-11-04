@@ -23,7 +23,7 @@
 #include <string>
 #include <thread>
 
-#if !defined(_WIN32)
+#if 0 //!defined(_WIN32) // M3E: Apple doesn't need it either.
 using namespace std::literals;
 #endif
 

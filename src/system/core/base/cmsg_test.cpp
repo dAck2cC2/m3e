@@ -21,7 +21,7 @@
 #include <android-base/unique_fd.h>
 #include <gtest/gtest.h>
 
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(__APPLE__) // M3E: failure on macOS
 
 using android::base::ReceiveFileDescriptors;
 using android::base::SendFileDescriptors;

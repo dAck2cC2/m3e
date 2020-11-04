@@ -174,8 +174,12 @@ TEST(file, Readlink) {
   // size of the encrypted symlink target. There's also an off-by-one
   // in current kernels (and marlin/sailfish where we're seeing this
   // failure are still on 3.18, far from current). http://b/33306057.
+#if defined(__APPLE__) // M3E: max. is different on Apple.
+  std::string max(static_cast<size_t>(1024 - 1), 'x');
+#else  // M3E
   std::string max(static_cast<size_t>(4096 - 2 - 1 - 1), 'x');
-
+#endif // M3E
+    
   TemporaryDir td;
   std::string min_path{std::string(td.path) + "/" + "min"};
   std::string max_path{std::string(td.path) + "/" + "max"};
@@ -196,7 +200,7 @@ TEST(file, Readlink) {
 }
 
 TEST(file, Realpath) {
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(__APPLE__) // M3E: the realpath of /var is /private/var on macOS
   TemporaryDir td;
   std::string basename = android::base::Basename(td.path);
   std::string dir_name = android::base::Dirname(td.path);

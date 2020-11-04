@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-#if defined(_MSC_VER) // M3E:
+#if defined(_MSC_VER) // M3E: add
 #include <stdint.h>  // __attribute__
 #endif // M3E
 

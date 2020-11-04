@@ -60,8 +60,8 @@
 #endif
 #endif
 
-#if defined(__APPLE__) /* M3E: include <atomic> before <stdatomic.h> */
-#include <atomic>
+#if defined(__APPLE__) // M3E: add
+#include <atomic> /* include <atomic> before <stdatomic.h> */
 #endif // M3E
 
 #include <functional>

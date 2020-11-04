@@ -56,9 +56,10 @@ if(MSVC)
     ${SOURCE_PATH}/utf8_test.cpp
     )
 else()
-    list(APPEND TEST_SOURCE_FILES
-    ${SOURCE_PATH}/chrono_utils_test.cpp  
-    )
+    #add_definitions(-DCLOCK_BOOTTIME=_CLOCK_REALTIME)
+    #list(APPEND TEST_SOURCE_FILES
+    #${SOURCE_PATH}/chrono_utils_test.cpp  
+    #)
 endif()
 source_group(test FILES ${TEST_SOURCE_FILES})
 list(APPEND TEST_BASE_SOURCE_FILES ${TEST_SOURCE_FILES})
