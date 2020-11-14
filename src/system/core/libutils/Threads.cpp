@@ -21,9 +21,9 @@
 #include <utils/Thread.h>
 #include <utils/AndroidThreads.h>
 
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if !defined(_WIN32)
 # include <sys/resource.h>
-#elif defined(HAVE_WIN32_THREADS)
+#else
 # include <windows.h>
 # include <stdint.h>
 # include <process.h>
@@ -36,11 +36,11 @@
 
 #include <utils/Log.h>
 
-#if 0 // M3E: no processgroup/sched_policy.h
+#if 0  // M3E: no processgroup/sched_policy.h
 #include <processgroup/sched_policy.h>
-#else
+#else  // M3E
 #include <cutils/sched_policy.h>
-#endif
+#endif // M3E
 
 #include <cutils/threads.h> /* M3E: gettid() */
 
@@ -59,7 +59,7 @@
 using namespace android;
 
 // ----------------------------------------------------------------------------
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if !defined(_WIN32)
 // ----------------------------------------------------------------------------
 
 /*
@@ -197,7 +197,7 @@ void androidJoinThread(android_thread_id_t id)
 }
 
 // ----------------------------------------------------------------------------
-#elif defined(HAVE_WIN32_THREADS) /* M3E: */
+#else // !defined(_WIN32)
 // ----------------------------------------------------------------------------
 
 /*
@@ -293,9 +293,7 @@ void androidSetThreadName(const char* name) {
 }
 
 // ----------------------------------------------------------------------------
-#else /* M3E: */
-#error "Threads not supported"
-#endif
+#endif // !defined(_WIN32)
 
 // ----------------------------------------------------------------------------
 
@@ -354,11 +352,11 @@ int androidSetThreadPriority(pid_t tid, int pri)
 }
 
 int androidGetThreadPriority(pid_t tid) {
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if defined(HAVE_PTHREADS) /* M3E: no getpriority on MSVC */
     return getpriority(PRIO_PROCESS, tid);
-#else
+#else  // M3E
     return ANDROID_PRIORITY_NORMAL;
-#endif
+#endif // M3E
 }
 
 #endif
@@ -371,9 +369,9 @@ namespace android {
  * ===========================================================================
  */
 
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if !defined(_WIN32)
 // implemented as inlines in threads.h
-#elif defined(HAVE_WIN32_THREADS)
+#else
 
 Mutex::Mutex()
 {
@@ -435,9 +433,7 @@ status_t Mutex::tryLock()
     return (dwWaitResult == WAIT_OBJECT_0) ? 0 : -1;
 }
 
-#else /* M3E: */
-#error "Somebody forgot to implement threads for this platform."
-#endif
+#endif // !defined(_WIN32)
 
 
 /*
@@ -446,9 +442,9 @@ status_t Mutex::tryLock()
  * ===========================================================================
  */
 
-#if defined(HAVE_PTHREADS) /* M3E: */
+#if !defined(_WIN32)
 // implemented as inlines in threads.h
-#elif defined(HAVE_WIN32_THREADS)
+#else
 
 /*
  * Windows doesn't have a condition variable solution.  It's possible
@@ -669,9 +665,7 @@ void Condition::broadcast()
     ReleaseMutex(condState->internalMutex);
 }
 
-#else /* M3E: */
-#error "condition variables not supported on this platform"
-#endif
+#endif // !defined(_WIN32)
 
 // ----------------------------------------------------------------------------
 
@@ -682,7 +676,7 @@ void Condition::broadcast()
 Thread::Thread(bool canCallJava
 #ifdef ENABLE_AFFINITY /* M3E: affinity */
                , int32_t iAffinity
-#endif // ENABLE_AFFINITY
+#endif // M3E
               )
     : mCanCallJava(canCallJava),
       mThread(thread_id_t(-1)),
@@ -696,7 +690,7 @@ Thread::Thread(bool canCallJava
 #endif
 #ifdef ENABLE_AFFINITY /* M3E: affinity */
         , mAffinity(iAffinity)
-#endif // ENABLE_AFFINITY
+#endif // M3E
 {
 }
 
@@ -760,9 +754,9 @@ status_t Thread::run(const char* name, int32_t priority, size_t stack)
 
 int Thread::_threadLoop(void* user)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E: to call windows API
     CoInitializeEx(NULL, COINIT_MULTITHREADED);
-#endif
+#endif // M3E
 
     Thread* const self = static_cast<Thread*>(user);
 
@@ -854,9 +848,9 @@ int Thread::_threadLoop(void* user)
         strong = weak.promote();
     } while(strong != nullptr);
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // to call windows API
     CoUninitialize();
-#endif
+#endif // M3E
 
     return 0;
 }
@@ -930,7 +924,7 @@ pid_t Thread::getTid() const
     }
     return tid;
 }
-#else /* M3E: */
+#else // M3E
 pid_t Thread::getTid() const
 {
 	Mutex::Autolock _l(mLock);

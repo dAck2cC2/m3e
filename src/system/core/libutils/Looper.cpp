@@ -14,11 +14,11 @@
 #define DEBUG_CALLBACKS 0
 
 #include <utils/Looper.h>
-#if defined(_LINUX) /* M3E: */
+#if defined(_LINUX) /* M3E: use cutils/threads.h for cross-platform */
 #include <sys/eventfd.h>
-#else
+#else  // M3E
 #include <cutils/threads.h>
-#endif // _LINUX
+#endif // M3E
 
 namespace android {
 
@@ -61,9 +61,9 @@ static const int EPOLL_MAX_EVENTS = 16;
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
 static pthread_once_t gTLSOnce = PTHREAD_ONCE_INIT;
 static pthread_key_t gTLSKey = 0;
-#else  // _LINUX
+#else  // M3E
 thread_store_t gTLS = THREAD_STORE_INITIALIZER;
-#endif // _LINUX
+#endif // M3E
 
 Looper::Looper(bool allowNonCallbacks)
     : mAllowNonCallbacks(allowNonCallbacks),
@@ -76,7 +76,7 @@ Looper::Looper(bool allowNonCallbacks)
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     mWakeEventFd.reset(eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC));
     LOG_ALWAYS_FATAL_IF(mWakeEventFd.get() < 0, "Could not make wake event fd: %s", strerror(errno));
-#endif // _LINUX
+#endif // M3E
 
     AutoMutex _l(mLock);
     rebuildEpollLocked();
@@ -89,7 +89,7 @@ void Looper::initTLSKey() {
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     int error = pthread_key_create(&gTLSKey, threadDestructor);
     LOG_ALWAYS_FATAL_IF(error != 0, "Could not allocate TLS key: %s", strerror(error));
-#endif // _LINUX
+#endif // M3E
 }
 
 void Looper::threadDestructor(void *st) {
@@ -108,9 +108,9 @@ void Looper::setForThread(const sp<Looper>& looper) {
 
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     pthread_setspecific(gTLSKey, looper.get());
-#else
+#else  // M3E
     thread_store_set(&gTLS, looper.get(), threadDestructor);
-#endif
+#endif // M3E
 
     if (old != nullptr) {
         old->decStrong((void*)threadDestructor);
@@ -123,9 +123,9 @@ sp<Looper> Looper::getForThread() {
     LOG_ALWAYS_FATAL_IF(result != 0, "pthread_once failed");
 
     return (Looper*)pthread_getspecific(gTLSKey);
-#else
+#else  // M3E
     return (Looper*)thread_store_get(&gTLS);
-#endif
+#endif // M3E
 }
 
 sp<Looper> Looper::prepare(int opts) {
@@ -179,7 +179,7 @@ void Looper::rebuildEpollLocked() {
                   request.fd, strerror(errno));
         }
     }
-#endif  // _LINUX
+#endif  // M3E
 }
 
 void Looper::scheduleEpollRebuildLocked() {
@@ -322,7 +322,7 @@ int Looper::pollInner(int timeoutMillis) {
     }
 Done: ;
     
-#else // _LINUX
+#else  // M3E
     
     mLock.lock();
 
@@ -344,7 +344,7 @@ Done: ;
         }
     }
     
-#endif // _LINUX
+#endif // M3E
 
     // Invoke pending message callbacks.
     mNextMessageUptime = LLONG_MAX;
@@ -451,9 +451,9 @@ void Looper::wake() {
                              mWakeEventFd.get(), nWrite, strerror(errno));
         }
     }
-#else  // _LINUX
+#else  // M3E
     mWaitMessage.broadcast();
-#endif // _LINUX
+#endif // M3E
 }
 
 void Looper::awoken() {
@@ -464,7 +464,7 @@ void Looper::awoken() {
 #if defined(_LINUX) /* M3E: use cutils/threads.h */
     uint64_t counter;
     TEMP_FAILURE_RETRY(read(mWakeEventFd.get(), &counter, sizeof(uint64_t)));
-#endif // _LINUX
+#endif // M3E
 }
 
 void Looper::pushResponse(int events, const Request& request) {
@@ -559,7 +559,7 @@ int Looper::addFd(int fd, int ident, int events, const sp<LooperCallback>& callb
             mRequests.replaceValueAt(requestIndex, request);
         }
     } // release lock
-#endif // _LINUX
+#endif // M3E
     return 1;
 }
 
@@ -623,7 +623,7 @@ int Looper::removeFd(int fd, int seq) {
             }
         }
     } // release lock
-#endif // _LINUX
+#endif // M3E
     return 1;
 }
 
@@ -721,7 +721,7 @@ void Looper::Request::initEventItem(struct epoll_event* eventItem) const {
     eventItem->events = epollEvents;
     eventItem->data.fd = fd;
 }
-#endif // _LINUX
+#endif // M3E
 
 MessageHandler::~MessageHandler() { }
 

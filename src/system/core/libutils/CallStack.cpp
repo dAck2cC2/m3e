@@ -20,9 +20,9 @@
 #include <utils/Errors.h>
 #include <utils/Log.h>
 
-#if ENABLE_BACKTRACE // M3E:
+#if ENABLE_BACKTRACE // M3E: no backtrace
 #include <backtrace/Backtrace.h>
-#endif
+#endif // M3E
 
 #define CALLSTACK_WEAK  // Don't generate weak definitions.
 #include <utils/CallStack.h>
@@ -43,7 +43,7 @@ CallStack::~CallStack() {
 void CallStack::update(int32_t ignoreDepth, pid_t tid) {
     mFrameLines.clear();
 
-#if ENABLE_BACKTRACE // M3E:
+#if ENABLE_BACKTRACE // M3E: no backtrace
     std::unique_ptr<Backtrace> backtrace(Backtrace::Create(BACKTRACE_CURRENT_PROCESS, tid));
     if (!backtrace->Unwind(ignoreDepth)) {
         ALOGW("%s: Failed to unwind callstack.", __FUNCTION__);
@@ -51,7 +51,7 @@ void CallStack::update(int32_t ignoreDepth, pid_t tid) {
     for (size_t i = 0; i < backtrace->NumFrames(); i++) {
       mFrameLines.push_back(String8(backtrace->FormatFrameData(i).c_str()));
     }
-#endif
+#endif // M3E
 }
 
 void CallStack::log(const char* logtag, android_LogPriority priority, const char* prefix) const {

@@ -17,7 +17,7 @@
 #ifndef ANDROID_TRACE_H
 #define ANDROID_TRACE_H
 
-#if defined(__ANDROID__) || defined(__APPLE__) // M3E:
+#if 1 //defined(__ANDROID__)  // M3E: can work on other platforms
 
 #include <stdint.h>
 
@@ -55,28 +55,6 @@ private:
 
 #define ATRACE_NAME(...)
 #define ATRACE_CALL()
-
-/* M3E: Add */
-#include <stdint.h>
-
-#include <cutils/trace.h>
-
-namespace android {
-    
-    class ScopedTrace {
-    public:
-        inline ScopedTrace(uint64_t tag, const char* name)
-        : mTag(tag) {
-        }
-        
-        inline ~ScopedTrace() {
-        }
-        
-    private:
-        uint64_t mTag;
-    };
-    
-}; // namespace android
 
 #endif // __ANDROID__
 

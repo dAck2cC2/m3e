@@ -21,7 +21,7 @@
 #include <utils/TypeHelpers.h>
 
 /* M3E: Add */
-#include <cutils/bitops.h>
+#include <cutils/bitops.h> // popcountl
 
 /*
  * Contains some bit manipulation helpers.
@@ -49,13 +49,11 @@ struct BitSet32 {
     // Returns the number of marked bits in the set.
     inline uint32_t count() const { return count(value); }
 
-    static inline uint32_t count(uint32_t value) { 
 #if 0 /* M3E: Use cutils/bitops.h instead */
-        return __builtin_popcountl(value);
-#else
-        return popcountl(value);
-#endif
-    }
+    static inline uint32_t count(uint32_t value) { return __builtin_popcountl(value); }
+#else  // M3E
+    static inline uint32_t count(uint32_t value) { return           popcountl(value); }
+#endif // M3E
 
     // Returns true if the bit set does not contain any marked bits.
     inline bool isEmpty() const { return isEmpty(value); }
@@ -137,13 +135,11 @@ struct BitSet32 {
     }
 
     static inline uint32_t getIndexOfBit(uint32_t value, uint32_t n) {
-        return 
 #if 0 /* M3E: Use cutils/bitops.h instead */
-            __builtin_popcountl(
-#else
-            popcountl(
-#endif
-                value & ~(0xffffffffUL >> n));
+        return __builtin_popcountl(value & ~(0xffffffffUL >> n));
+#else  // M3E
+        return           popcountl(value & ~(0xffffffffUL >> n));
+#endif // M3E
     }
 
     inline bool operator== (const BitSet32& other) const { return value == other.value; }
@@ -203,13 +199,11 @@ struct BitSet64 {
     // Returns the number of marked bits in the set.
     inline uint32_t count() const { return count(value); }
 
-    static inline uint32_t count(uint64_t value) { 
 #if 0 /* M3E: Use cutils/bitops.h instead */
-        return __builtin_popcountll(value);
-#else
-        return popcountll(value);
-#endif
-    }
+    static inline uint32_t count(uint64_t value) { return __builtin_popcountll(value); }
+#else  // M3E
+    static inline uint32_t count(uint64_t value) { return           popcountll(value); }
+#endif // M3E
 
     // Returns true if the bit set does not contain any marked bits.
     inline bool isEmpty() const { return isEmpty(value); }
@@ -289,13 +283,11 @@ struct BitSet64 {
     inline uint32_t getIndexOfBit(uint32_t n) const { return getIndexOfBit(value, n); }
 
     static inline uint32_t getIndexOfBit(uint64_t value, uint32_t n) {
-        return 
 #if 0 /* M3E: Use cutils/bitops.h instead */
-            __builtin_popcountll(
-#else
-            popcountll(
-#endif
-                value & ~(0xffffffffffffffffULL >> n));
+        return __builtin_popcountll(value & ~(0xffffffffffffffffULL >> n));
+#else  // M3E
+        return           popcountll(value & ~(0xffffffffffffffffULL >> n));
+#endif // M3E
     }
 
     inline bool operator== (const BitSet64& other) const { return value == other.value; }

@@ -121,9 +121,7 @@ inline thread_id_t getThreadId() {
 }
 
 /* M3E: Add */
-inline void joinThread(thread_id_t id) {
-	return androidJoinThread(id);
-}
+inline void joinThread(thread_id_t id) { return androidJoinThread(id); }
 
 // ----------------------------------------------------------------------------
 }  // namespace android

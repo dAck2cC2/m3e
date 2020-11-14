@@ -60,9 +60,9 @@ protected:
         inline void setNext(_Node* ptr) { mpNext = ptr; }
     private:
         friend class List;
-#if !defined(_MSC_VER) /* M3E: MSVC */
+#if !defined(_MSC_VER) // M3E: building error
         friend class _ListIterator;
-#endif // _MSC_VER
+#endif // M3E
         T           mVal;
         _Node*      mpPrev;
         _Node*      mpNext;

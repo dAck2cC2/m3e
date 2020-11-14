@@ -46,7 +46,7 @@ TEST_F(UnicodeTest, UTF8toUTF16ZeroLength) {
     measured = utf8_to_utf16_length(str, 0);
     EXPECT_EQ(0, measured)
             << "Zero length input should return zero length output.";
-#endif
+#endif // M3E
 }
 
 TEST_F(UnicodeTest, UTF8toUTF16ASCIILength) {
@@ -149,7 +149,7 @@ TEST_F(UnicodeTest, strstr16EmptyTarget_bug) {
     ASSERT_EQ(mprotect((char*)memptr + alignment, alignment, PROT_READ | PROT_WRITE), 0);
     // Free allocated memory.
     free(memptr);
-#endif
+#endif // M3E
 }
 
 TEST_F(UnicodeTest, strstr16SameString) {

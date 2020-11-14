@@ -22,9 +22,9 @@
 #include <utils/KeyedVector.h>
 #include <utils/Timers.h>
 
-#if defined(_LINUX) /* M3E: */
+#if defined(ENABLE_EPOLL) /* M3E: use condition instead */
 #include <sys/epoll.h>
-#endif // _LINUX
+#endif // M3E
 
 #include <android-base/unique_fd.h>
 
@@ -429,9 +429,9 @@ private:
         sp<LooperCallback> callback;
         void* data;
 
-#if defined(_LINUX) /* M3E: */
+#if defined(ENABLE_EPOLL) /* M3E: use condition instead */
         void initEventItem(struct epoll_event* eventItem) const;
-#endif // _LINUX
+#endif // M3E
     };
 
     struct Response {
@@ -453,11 +453,11 @@ private:
 
     const bool mAllowNonCallbacks; // immutable
 
-#if defined(_LINUX) /* M3E: */
+#if defined(ENABLE_EPOLL) /* M3E: use condition instead */
     android::base::unique_fd mWakeEventFd;  // immutable
-#else  // _LINUX
+#else  // M3E
     Condition mWaitMessage;
-#endif // _LINUX
+#endif // M3E
     Mutex mLock;
 
     Vector<MessageEnvelope> mMessageEnvelopes; // guarded by mLock

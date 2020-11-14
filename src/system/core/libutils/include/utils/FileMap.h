@@ -30,7 +30,6 @@
 #include <winsock2.h>
 #endif
 #include <windows.h>
-#include <stdint.h> /* M3E: MSVC */
 #endif
 
 namespace android {

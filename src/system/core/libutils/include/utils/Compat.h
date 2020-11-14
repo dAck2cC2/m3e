@@ -41,8 +41,7 @@ static inline int ftruncate64(int fd, off64_t length) {
     return ftruncate(fd, length);
 }
 
-#elif defined(_WIN32) /* M3E: MSVC */
-
+#elif defined(_MSC_VER) /* M3E: MSVC */
 #define lseek64 _lseeki64
 
 #endif /* __APPLE__ */
@@ -53,25 +52,23 @@ static inline int ftruncate64(int fd, off64_t length) {
 #define DEFFILEMODE 0666
 #endif /* _WIN32 */
 
-#if defined(_WIN32) /* M3E: MSVC */
+#if defined(_MSC_VER) /* M3E: MSVC */
 #define ZD "%ld"
 #define ZD_TYPE long
-#else
+#else  // M3E
 #define ZD "%zd"
 #define ZD_TYPE ssize_t
-#endif
+#endif // M3E
 
 /*
  * Needed for cases where something should be constexpr if possible, but not
  * being constexpr is fine if in pre-C++11 code (such as a const static float
  * member variable).
  */
-#if !defined(CONSTEXPR) // M3E:
 #if __cplusplus >= 201103L || defined(_MSC_VER) /* M3E: MSVC needs it */
 #define CONSTEXPR constexpr
 #else
 #define CONSTEXPR
-#endif
 #endif
 
 /*

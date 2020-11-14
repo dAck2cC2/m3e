@@ -22,9 +22,9 @@
 #include <stdlib.h>
 #include <utils/JenkinsHash.h>
 
-#if defined(_MSC_VER) /* M3E: */
+#if defined(_MSC_VER) /* M3E: no UINT32_MAX on MSVC */
 #define UINT32_MAX   _UI32_MAX
-#endif // _MSC_VER
+#endif // M3E
 
 namespace android {
 

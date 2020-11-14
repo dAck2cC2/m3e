@@ -46,7 +46,7 @@ public:
     explicit            Thread(bool canCallJava = true
 #ifdef ENABLE_AFFINITY /* M3E: affinity */
                               , int32_t iAffinity = 0x00000000
-#endif // ENABLE_AFFINITY
+#endif // M3E
           );
     virtual             ~Thread();
 
@@ -116,7 +116,7 @@ private:
 
 #ifdef ENABLE_AFFINITY /* M3E: affinity */
     int32_t         mAffinity;
-#endif // ENABLE_AFFINITY
+#endif // M3E
 };
 
 }  // namespace android

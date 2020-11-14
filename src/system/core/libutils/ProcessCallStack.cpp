@@ -26,9 +26,9 @@
 
 #include <utils/Printer.h>
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) // M3E: add
 #include <limits.h> // PATH_MAX
-#endif
+#endif // M3E
 
 namespace android {
 
@@ -146,11 +146,11 @@ void ProcessCallStack::update() {
     {
         time_t t = time(nullptr);
         struct tm tm;
-#if defined(_MSC_VER) // M3E:
+#if defined(_MSC_VER) // M3E: add
         localtime_s(&tm, &t);
-#else
+#else  // M3E
         localtime_r(&t, &tm);
-#endif
+#endif // M3E
 
         mTimeUpdated = tm;
     }

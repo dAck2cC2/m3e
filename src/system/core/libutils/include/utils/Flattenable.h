@@ -26,8 +26,6 @@
 
 #include <type_traits>
 
-#include <cutils/compiler.h> /* M3E: ANDROID_API */
-
 namespace android {
 
 

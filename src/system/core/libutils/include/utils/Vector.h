@@ -254,9 +254,9 @@ template<class TYPE> inline
 Vector<TYPE>& Vector<TYPE>::operator = (const Vector<TYPE>& rhs) {
 #if defined(__linux__)  /* M3E: */
     VectorImpl::operator = (static_cast<const VectorImpl&>(rhs));
-#else
+#else  // M3E:
     VectorImpl::operator = (rhs);
-#endif
+#endif // M3E:
     return *this;
 }
 
@@ -264,9 +264,9 @@ template<class TYPE> inline
 const Vector<TYPE>& Vector<TYPE>::operator = (const Vector<TYPE>& rhs) const {
 #if defined(__linux__)  /* M3E: */
     VectorImpl::operator = (rhs);
-#else
+#else  // M3E
     VectorImpl::operator = (static_cast<const VectorImpl&>(rhs));
-#endif
+#endif // M3E
     return *this;
 }
 

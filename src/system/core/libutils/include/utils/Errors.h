@@ -74,8 +74,8 @@ enum {
 
 // Restore define; enumeration is in "android" namespace, so the value defined
 // there won't work for Win32 code in a different namespace.
-#ifdef _WIN32
-//# define NO_ERROR 0L /* M3E: MSVC */
+#if 0 /* M3E: evil NO_ERROR on MSVC */
+# define NO_ERROR 0L
 #endif
 
 }  // namespace android

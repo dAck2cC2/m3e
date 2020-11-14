@@ -27,9 +27,6 @@
 
 #include <utils/Mutex.h>
 
-/* M3E: Add */
-#include <utils/Log.h>
-
 #ifndef __unused
 #define __unused __attribute__((__unused__))
 #endif

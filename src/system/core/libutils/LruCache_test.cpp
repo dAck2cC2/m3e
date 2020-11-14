@@ -23,7 +23,7 @@
 
 #if defined(_MSC_VER) // M3E:
 #include <unistd.h>
-#endif
+#endif // M3E
 
 namespace {
 
