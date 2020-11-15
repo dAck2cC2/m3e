@@ -15,15 +15,17 @@
  */
 #include "linker.h"
 
-#if ENABLE_DLEXT
+#if ENABLE_DLEXT // M3E: no android/dlext.h
 #include <android/dlext.h>
-#endif
+#endif // M3E
 #include <dlfcn.h>
 
 #define LOG_TAG "vndksupport"
 #include <log/log.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#if ENABLE_DLEXT
+#if ENABLE_DLEXT // M3E: no dlext.h
 __attribute__((weak)) extern struct android_namespace_t* android_get_exported_namespace(const char*);
 __attribute__((weak)) extern void* android_dlopen_ext(const char*, int, const android_dlextinfo*);
 
@@ -47,10 +49,30 @@ static struct android_namespace_t* get_vendor_namespace() {
     }
     return vendor_namespace;
 }
-#endif
+#endif // M3E
+
+int android_is_in_vendor_process() {
+#if ENABLE_DLEXT // M3E: no dlext.h
+    // Special case init, since when init runs, ld.config.<ver>.txt hasn't been
+    // loaded (sysprop service isn't up for init to know <ver>).
+    if (getpid() == 1) {
+        return 0;
+    }
+    if (android_get_exported_namespace == NULL) {
+        ALOGD("android_get_exported_namespace() not available. Assuming system process.");
+        return 0;
+    }
+
+    // In vendor process, 'vndk' namespace is not visible, whereas in system
+    // process, it is.
+    return android_get_exported_namespace("vndk") == NULL;
+#else  // M3E
+    return 0;
+#endif // M3E
+}
 
 void* android_load_sphal_library(const char* name, int flag) {
-#if ENABLE_DLEXT
+#if ENABLE_DLEXT // M3E: no dlext.h
     struct android_namespace_t* vendor_namespace = get_vendor_namespace();
     if (vendor_namespace != NULL) {
         const android_dlextinfo dlextinfo = {
@@ -65,7 +87,7 @@ void* android_load_sphal_library(const char* name, int flag) {
         }
         return handle;
     } else
-#endif
+#endif // M3E
     {
         ALOGD("Loading %s from current namespace instead of sphal namespace.", name);
         return dlopen(name, flag);

@@ -18,4 +18,4 @@ file(GLOB ${PROJECT_NAME}_HEADER_FILES ${HEADER_PATH}/vndksupport/*.h)
 # source files
 file(GLOB ${PROJECT_NAME}_SOURCE_FILES ${SOURCE_PATH}/linker.c)
 
-ADD_LIB(vndksupport)
+ADD_SHARED_LIB(vndksupport)
