@@ -30,4 +30,4 @@ ${SOURCE_PATH}/*.cpp
 )
 
 # target files
-ADD_LIB(grallocusage)
+ADD_SHARED_LIB(grallocusage)
