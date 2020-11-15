@@ -59,8 +59,8 @@ set(EXT_UPDATE
 #jsoncpp
 #jpeg
 #libhevc
-
 #safe-iop
+
 #zlib
 #boringssl
 #expat
@@ -133,6 +133,16 @@ endmacro()
 ###############################################################################
 # buid library
 macro(ADD_LIB name)
+    set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
+    add_library(${name} ${LIB_TYPE} ${${PROJECT_NAME}_SOURCE_FILES} ${${PROJECT_NAME}_HEADER_FILES})
+    target_link_libraries(${name} ${${PROJECT_NAME}_DEPLIB})
+endmacro()
+
+macro(ADD_SHARED_LIB name)
+    if(MSVC)
+        set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    endif()
+    set(LIB_TYPE SHARED)
     set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
     add_library(${name} ${LIB_TYPE} ${${PROJECT_NAME}_SOURCE_FILES} ${${PROJECT_NAME}_HEADER_FILES})
     target_link_libraries(${name} ${${PROJECT_NAME}_DEPLIB})

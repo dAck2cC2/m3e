@@ -58,11 +58,7 @@ ${SOURCE_PATH}/local/file_writer.cpp
 #set_source_files_properties( ${LOG_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )
 
 # target files
-if(MSVC)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
-set(LIB_TYPE SHARED)
-ADD_LIB(log)
+ADD_SHARED_LIB(log)
 
 if(UNIX AND NOT APPLE)
     find_package(Threads)

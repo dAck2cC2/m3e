@@ -74,11 +74,7 @@ ${SOURCE_PATH}/Trace.cpp
 )
 
 # target files
-if(MSVC)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
-set(LIB_TYPE SHARED)
-ADD_LIB(utils)
+ADD_SHARED_LIB(utils)
 
 if(UNIX AND NOT APPLE)
     find_package(Threads)

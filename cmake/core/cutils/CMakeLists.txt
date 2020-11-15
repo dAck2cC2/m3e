@@ -119,11 +119,7 @@ elseif(UNIX)
 endif()
 
 # target files
-if(MSVC)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
-set(LIB_TYPE SHARED)
-ADD_LIB(cutils)
+ADD_SHARED_LIB(cutils)
 
 if(UNIX AND NOT APPLE)
     #find_package(Threads)

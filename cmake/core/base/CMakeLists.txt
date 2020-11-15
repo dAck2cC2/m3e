@@ -64,11 +64,7 @@ else()
 endif()
 
 # target files
-if(MSVC)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
-set(LIB_TYPE SHARED)
-ADD_LIB(base)
+ADD_SHARED_LIB(base)
 
 #set(ENABLE_TEST TRUE)
 if(ENABLE_TEST)
