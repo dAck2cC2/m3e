@@ -23,10 +23,12 @@
 #include <string.h>
 
 #include <log/log.h>
-#if ENABLE_SAFE_IOP /* M3E: no safe iop */
-#include <safe_iop.h>
-#endif // M3E
+
 #include "SharedBuffer.h"
+
+#if defined(_MSC_VER) // M3E: add
+#include <safe-math/safe-math.h> // __builtin_mul_overflow ...
+#endif // M3E
 
 /*****************************************************************************/
 
@@ -342,13 +344,9 @@ ssize_t VectorImpl::setCapacity(size_t new_capacity)
         return capacity();
     }
 
-#if ENABLE_SAFE_IOP /* M3E: no safe iop */
     size_t new_allocation_size = 0;
-    LOG_ALWAYS_FATAL_IF(__builtin_mul_overflow(new_capacity, mItemSize, &new_allocation_size));
+    LOG_ALWAYS_FATAL_IF(__builtin_mul_overflow(new_capacity, mItemSize, &new_allocation_size),""); // M3E: MSVC
     SharedBuffer* sb = SharedBuffer::alloc(new_allocation_size);
-#else  // M3E
-    SharedBuffer* sb = SharedBuffer::alloc(new_capacity * mItemSize);
-#endif // M3E
     if (sb) {
         void* array = sb->data();
         _do_copy(array, mStorage, size());
@@ -390,15 +388,10 @@ void* VectorImpl::_grow(size_t where, size_t amount)
             "[%p] _grow: where=%d, amount=%d, count=%d",
             this, (int)where, (int)amount, (int)mCount); // caller already checked
 
-#if ENABLE_SAFE_IOP /* M3E: no safe iop */
     size_t new_size;
     LOG_ALWAYS_FATAL_IF(__builtin_add_overflow(mCount, amount, &new_size), "new_size overflow");
-#else  // M3E
-    const size_t new_size = mCount + amount;
-#endif // M3E
 
     if (capacity() < new_size) {
-#if ENABLE_SAFE_IOP /* M3E: no safe iop */
         // NOTE: This implementation used to resize vectors as per ((3*x + 1) / 2)
         // (sigh..). Also note, the " + 1" was necessary to handle the special case
         // where x == 1, where the resized_capacity will be equal to the old
@@ -417,9 +410,6 @@ void* VectorImpl::_grow(size_t where, size_t amount)
         size_t new_alloc_size = 0;
         LOG_ALWAYS_FATAL_IF(__builtin_mul_overflow(new_capacity, mItemSize, &new_alloc_size),
                             "new_alloc_size overflow");
-#else  // M3E
-        const size_t new_capacity = max(kMinVectorCapacity, ((new_size * 3) + 1) / 2);
-#endif // M3E
 
         // ALOGV("grow vector %p, new_capacity=%d", this, (int)new_capacity);
         if ((mStorage) &&
@@ -428,22 +418,14 @@ void* VectorImpl::_grow(size_t where, size_t amount)
             (mFlags & HAS_TRIVIAL_DTOR))
         {
             const SharedBuffer* cur_sb = SharedBuffer::bufferFromData(mStorage);
-#if ENABLE_SAFE_IOP /* M3E: no safe iop */
             SharedBuffer* sb = cur_sb->editResize(new_alloc_size);
-#else  // M3E
-            SharedBuffer* sb = cur_sb->editResize(new_capacity * mItemSize);
-#endif // M3E
             if (sb) {
                 mStorage = sb->data();
             } else {
                 return nullptr;
             }
         } else {
-#if ENABLE_SAFE_IOP /* M3E: no safe iop */
             SharedBuffer* sb = SharedBuffer::alloc(new_alloc_size);
-#else  // M3E
-            SharedBuffer* sb = SharedBuffer::alloc(new_capacity * mItemSize);
-#endif // M3E
             if (sb) {
                 void* array = sb->data();
                 if (where != 0) {
@@ -485,12 +467,8 @@ void VectorImpl::_shrink(size_t where, size_t amount)
             "[%p] _shrink: where=%d, amount=%d, count=%d",
             this, (int)where, (int)amount, (int)mCount); // caller already checked
 
-#if ENABLE_SAFE_IOP /* M3E: no safe iop */
     size_t new_size;
-    LOG_ALWAYS_FATAL_IF(__builtin_sub_overflow(mCount, amount, &new_size));
-#else  // M3E
-    const size_t new_size = mCount - amount;
-#endif // M3E
+    LOG_ALWAYS_FATAL_IF(__builtin_sub_overflow(mCount, amount, &new_size),""); // M3E: MSVC
 
     if (new_size < (capacity() / 2)) {
         // NOTE: (new_size * 2) is safe because capacity didn't overflow and

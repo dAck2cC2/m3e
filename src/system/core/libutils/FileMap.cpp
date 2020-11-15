@@ -176,7 +176,9 @@ bool FileMap::create(const char* origFileName, int fd, off64_t offset, size_t le
 #else // !defined(__MINGW32__)
     assert(fd >= 0);
     assert(offset >= 0);
+#if 0  // M3E : 0 size should be acceptable, refer to FileMap_test.cpp - zero_length_mapping
     assert(length > 0);
+#endif // M3E
 
     // init on first use
     if (mPageSize == -1) {

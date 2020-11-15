@@ -924,7 +924,7 @@ pid_t Thread::getTid() const
     }
     return tid;
 }
-#else // M3E
+#else // M3E: getTid for other platforms
 pid_t Thread::getTid() const
 {
 	Mutex::Autolock _l(mLock);

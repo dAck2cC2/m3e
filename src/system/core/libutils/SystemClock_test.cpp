@@ -21,6 +21,8 @@
 
 #if defined(_MSC_VER) // M3E: add
 #include <sys/time.h> // nanosleep
+#elif defined(__APPLE__)
+#include <utils/Compat.h>  // for TEMP_FAILURE_RETRY
 #endif // M3E
 
 static const auto MS_IN_NS = 1000000;

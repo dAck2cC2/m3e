@@ -131,7 +131,7 @@ TEST_F(UnicodeTest, strstr16EmptyTarget_bug) {
     // character is found.   This happens because "*target++" in the original
     // code would increment the pointer beyond the actual string.
     void* memptr;
-#if !defined(_MSC_VER) // M3E:
+#if !defined(_MSC_VER) // M3E: no sysconf on MSVC
     const size_t alignment = sysconf(_SC_PAGESIZE);
     const size_t size = 2 * alignment;
     ASSERT_EQ(posix_memalign(&memptr, alignment, size), 0);

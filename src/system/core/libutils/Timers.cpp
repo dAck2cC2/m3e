@@ -22,7 +22,7 @@
 #include <limits.h>
 #include <time.h>
 
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__APPLE__) // M3E: use clock_gettime()
 nsecs_t systemTime(int clock)
 {
     static const clockid_t clocks[] = {

@@ -333,11 +333,13 @@ Done: ;
        
     // wait for the message
     } else if (mMessageEnvelopes.size() == 0) {
-        if (timeoutMillis > 0) {
+        if (timeoutMillis >= 0) {
             nsecs_t timeoutNano = ms2ns(timeoutMillis);
-            mWaitMessage.waitRelative(mLock, timeoutNano);
-            if (mMessageEnvelopes.size() == 0) {
-                result = POLL_TIMEOUT;
+            if (mWaitMessage.waitRelative(mLock, timeoutNano)) {
+                // wait timeout
+                if (mMessageEnvelopes.size() == 0) {
+                    result = POLL_TIMEOUT;
+                }
             }
         } else if (timeoutMillis < 0) {
             mWaitMessage.wait(mLock);

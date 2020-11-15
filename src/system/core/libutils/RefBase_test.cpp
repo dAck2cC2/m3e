@@ -269,7 +269,7 @@ static inline void waitFor(bool val) {
     while (bufferFull != val) {}
 }
 
-#if !defined(_MSC_VER) // M3E: no cpu_set on MSVC
+#if !defined(_MSC_VER) && !defined(__APPLE__) // M3E: no cpu_set
 
 cpu_set_t otherCpus;
 

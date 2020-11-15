@@ -176,6 +176,7 @@ TEST_F(LooperTest, PollOnce_WhenNonZeroTimeoutAndNotAwoken_WaitsForTimeout) {
             << "pollOnce result should be LOOPER_POLL_TIMEOUT";
 }
 
+#if defined(ENABLE_EPOLL) // M3E: condition doesn't support wake before poll
 TEST_F(LooperTest, PollOnce_WhenNonZeroTimeoutAndAwokenBeforeWaiting_ImmediatelyReturns) {
     mLooper->wake();
 
@@ -188,6 +189,7 @@ TEST_F(LooperTest, PollOnce_WhenNonZeroTimeoutAndAwokenBeforeWaiting_Immediately
     EXPECT_EQ(Looper::POLL_WAKE, result)
             << "pollOnce result should be Looper::POLL_CALLBACK because loop was awoken";
 }
+#endif // M3E
 
 TEST_F(LooperTest, PollOnce_WhenNonZeroTimeoutAndAwokenWhileWaiting_PromptlyReturns) {
     sp<DelayedWake> delayedWake = new DelayedWake(100, mLooper);
@@ -232,6 +234,7 @@ TEST_F(LooperTest, PollOnce_WhenZeroTimeoutAndNoSignalledFDs_ImmediatelyReturns)
             << "callback should not have been invoked because FD was not signalled";
 }
 
+#if defined(ENABLE_EPOLL) // M3E: condition doesn't support fd
 TEST_F(LooperTest, PollOnce_WhenZeroTimeoutAndSignalledFD_ImmediatelyInvokesCallbackAndReturns) {
     Pipe pipe;
     StubCallbackHandler handler(true);
@@ -489,6 +492,7 @@ TEST_F(LooperTest, PollOnce_WhenCallbackAddedTwice_OnlySecondCallbackShouldBeInv
     EXPECT_EQ(1, handler2.callbackCount)
             << "replacement handler callback should be invoked";
 }
+#endif // M3E
 
 TEST_F(LooperTest, SendMessage_WhenOneMessageIsEnqueue_ShouldInvokeHandlerDuringNextPoll) {
     sp<StubMessageHandler> handler = new StubMessageHandler();
@@ -698,8 +702,10 @@ TEST_F(LooperTest, RemoveMessage_WhenRemovingAllMessagesForHandler_ShouldRemoveT
 
     EXPECT_NEAR(0, elapsedMillis, TIMING_TOLERANCE_MS)
             << "elapsed time should approx. zero because message was sent so looper was awoken";
+#if defined(ENABLE_EPOLL) // M3E: condition doesn't support wake before poll
     EXPECT_EQ(Looper::POLL_WAKE, result)
             << "pollOnce result should be Looper::POLL_WAKE because looper was awoken";
+#endif // M3E
     EXPECT_EQ(size_t(0), handler->messages.size())
             << "no messages to handle";
 

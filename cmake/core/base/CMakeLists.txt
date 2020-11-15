@@ -21,7 +21,9 @@ if (MSVC)
 
     include(${MSVC_INCLUDE})
     list(APPEND BASE_DEPLIB ${LIB_MSVC_WRAP})
-endif(MSVC)
+elseif(APPLE)
+    add_definitions(-DPAGE_SIZE=4096)
+endif()
 
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/base/include/android-base )

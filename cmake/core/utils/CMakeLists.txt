@@ -22,12 +22,12 @@ if (MSVC)
 
     include(${MSVC_INCLUDE})
     list(APPEND UTILS_DEPLIB ${LIB_MSVC_WRAP})
+
 elseif (APPLE)
-    # use safe-iop
-    include(${M3E_SOURCE_DIR}/cmake/external/safe-iop/include.cmake)
     add_definitions(-DENABLE_SAFE_IOP=1)
     add_definitions(-Dtypeof=__typeof__)
-    list(APPEND UTILS_DEPLIB safeiop)
+    add_definitions(-DCLOCK_BOOTTIME=CLOCK_MONOTONIC)
+    
 elseif(LINUX)
     # to debug core dump of crashing
     #set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-g")
