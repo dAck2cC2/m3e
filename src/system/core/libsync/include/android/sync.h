@@ -19,8 +19,6 @@
 #ifndef __SYS_CORE_SYNC_H
 #define __SYS_CORE_SYNC_H
 
-#include <sys/cdefs.h> /* M3E: MSVC */
-
 /* This file contains the legacy sync interface used by Android platform and
  * device code. The direct contents will be removed over time as code
  * transitions to using the updated interface in ndk/sync.h. When this file is
@@ -43,32 +41,30 @@
 
 __BEGIN_DECLS
 
-struct sync_fence_info_data {
- uint32_t len;
- char name[32];
- int32_t status;
- uint8_t pt_info[0];
-};
-
-struct sync_pt_info {
- uint32_t len;
- char obj_name[32];
- char driver_name[32];
- int32_t status;
- uint64_t timestamp_ns;
- uint8_t driver_data[0];
-};
-
 /* timeout in msecs */
-ANDROID_API_SYNC /* M3E: export */
 int sync_wait(int fd, int timeout);
-ANDROID_API_SYNC /* M3E: export */
+
+
+// M3E: TODO, remove it after updating ui/Fence.cpp
+struct sync_fence_info_data {
+    uint32_t len;
+    char name[32];
+    int32_t status;
+    uint8_t pt_info[0];
+};
+struct sync_pt_info {
+    uint32_t len;
+    char obj_name[32];
+    char driver_name[32];
+    int32_t status;
+    uint64_t timestamp_ns;
+    uint8_t driver_data[0];
+};
 struct sync_fence_info_data *sync_fence_info(int fd);
-ANDROID_API_SYNC /* M3E: export */
 struct sync_pt_info *sync_pt_info(struct sync_fence_info_data *info,
                                   struct sync_pt_info *itr);
-ANDROID_API_SYNC /* M3E: export */
 void sync_fence_info_free(struct sync_fence_info_data *info);
+
 
 __END_DECLS
 
