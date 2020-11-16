@@ -18,7 +18,11 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#if defined(__APPLE__) // M3E: no malloc.h on macOS
+#include <stdlib.h> // free()
+#else  // M3E
 #include <malloc.h>
+#endif // M3E
 #if ENABLE_POOL // M3E: no poll
 #include <poll.h>
 #endif // M3E
