@@ -50,7 +50,7 @@ ${SOURCE_PATH}/zip_writer.cc
 # target files
 ADD_SHARED_LIB(ziparchive)
 
-set(ENABLE_TEST TRUE)
+#set(ENABLE_TEST TRUE)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif(ENABLE_TEST)
