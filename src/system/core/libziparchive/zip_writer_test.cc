@@ -23,9 +23,9 @@
 #include <memory>
 #include <vector>
 
-#ifdef _MSC_VER /* M3E: */
+#if defined(_MSC_VER) /* M3E: no ftello on MSVC */
 #define ftello ftell
-#endif
+#endif // M3E
 
 static ::testing::AssertionResult AssertFileEntryContentsEq(const std::string& expected,
                                                             ZipArchiveHandle handle,
@@ -45,6 +45,10 @@ struct zipwriter : public ::testing::Test {
 
   void TearDown() override {
     fclose(file_);
+#if defined(_MSC_VER) // M3E: crash when close(fd)
+    // After _fdopen, close by using fclose, not _close.
+    temp_file_->fd = -1;
+#endif // M3E
     delete temp_file_;
   }
 };

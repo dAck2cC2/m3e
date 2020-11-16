@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
+#pragma once
+
 /*
  * Read-only access to Zip archives, with minimal heap allocation.
  */
-#ifndef LIBZIPARCHIVE_ZIPARCHIVE_H_
-#define LIBZIPARCHIVE_ZIPARCHIVE_H_
 
 #include <stdint.h>
 #include <string.h>
 #include <sys/cdefs.h>
 #include <sys/types.h>
-#include <utils/Compat.h>
 
-#ifdef _MSC_VER /* M3E: MSVC */
-typedef int mode_t;
-#endif
+#include "android-base/off64_t.h"
+
+#if defined(_MSC_VER) /* M3E: add */
+typedef int mode_t;  // no mode_t on MSVC
+#endif // M3E
 
 __BEGIN_DECLS /* M3E: C calling */
 
@@ -38,7 +39,7 @@ enum {
   kCompressDeflated = 8,  // standard deflate
 };
 
-struct ANDROID_API_ZIPARCHIVE ZipString { /* M3E: MSVC export */
+struct ZipString {
   const uint8_t* name;
   uint16_t name_length;
 
@@ -109,7 +110,8 @@ struct ZipEntry {
   off64_t offset;
 };
 
-typedef void* ZipArchiveHandle;
+struct ZipArchive;
+typedef ZipArchive* ZipArchiveHandle;
 
 /*
  * Open a Zip archive, and sets handle to the value of the opaque
@@ -118,7 +120,6 @@ typedef void* ZipArchiveHandle;
  *
  * Returns 0 on success, and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t OpenArchive(const char* fileName, ZipArchiveHandle* handle);
 
 /*
@@ -139,7 +140,6 @@ int32_t OpenArchive(const char* fileName, ZipArchiveHandle* handle);
  *
  * Returns 0 on success, and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t OpenArchiveFd(const int fd, const char* debugFileName, ZipArchiveHandle* handle,
                       bool assume_ownership = true);
 
@@ -152,8 +152,7 @@ int32_t OpenArchiveFromMemory(void* address, size_t length, const char* debugFil
  * this handle for any further operations without an intervening
  * call to one of the OpenArchive variants.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
-void CloseArchive(ZipArchiveHandle handle);
+void CloseArchive(ZipArchiveHandle archive);
 
 /*
  * Find an entry in the Zip archive, by name. |entryName| must be a null
@@ -171,8 +170,7 @@ void CloseArchive(ZipArchiveHandle handle);
  * On non-Windows platforms this method does not modify internal state and
  * can be called concurrently.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
-int32_t FindEntry(const ZipArchiveHandle handle, const ZipString& entryName, ZipEntry* data);
+int32_t FindEntry(const ZipArchiveHandle archive, const ZipString& entryName, ZipEntry* data);
 
 /*
  * Start iterating over all entries of a zip file. The order of iteration
@@ -187,9 +185,8 @@ int32_t FindEntry(const ZipArchiveHandle handle, const ZipString& entryName, Zip
  *
  * Returns 0 on success and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
-int32_t StartIteration(ZipArchiveHandle handle, void** cookie_ptr, const ZipString* optional_prefix,
-                       const ZipString* optional_suffix);
+int32_t StartIteration(ZipArchiveHandle archive, void** cookie_ptr,
+                       const ZipString* optional_prefix, const ZipString* optional_suffix);
 
 /*
  * Advance to the next element in the zipfile in iteration order.
@@ -197,14 +194,12 @@ int32_t StartIteration(ZipArchiveHandle handle, void** cookie_ptr, const ZipStri
  * Returns 0 on success, -1 if there are no more elements in this
  * archive and lower negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 int32_t Next(void* cookie, ZipEntry* data, ZipString* name);
 
 /*
  * End iteration over all entries of a zip file and frees the memory allocated
  * in StartIteration.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 void EndIteration(void* cookie);
 
 /*
@@ -216,8 +211,7 @@ void EndIteration(void* cookie);
  *
  * Returns 0 on success and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
-int32_t ExtractEntryToFile(ZipArchiveHandle handle, ZipEntry* entry, int fd);
+int32_t ExtractEntryToFile(ZipArchiveHandle archive, ZipEntry* entry, int fd);
 
 /**
  * Uncompress a given zip entry to the memory region at |begin| and of
@@ -227,13 +221,10 @@ int32_t ExtractEntryToFile(ZipArchiveHandle handle, ZipEntry* entry, int fd);
  *
  * Returns 0 on success and negative values on failure.
  */
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
-int32_t ExtractToMemory(ZipArchiveHandle handle, ZipEntry* entry, uint8_t* begin, uint32_t size);
+int32_t ExtractToMemory(ZipArchiveHandle archive, ZipEntry* entry, uint8_t* begin, uint32_t size);
 
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
-int GetFileDescriptor(const ZipArchiveHandle handle);
+int GetFileDescriptor(const ZipArchiveHandle archive);
 
-ANDROID_API_ZIPARCHIVE /* M3E: MSVC export */
 const char* ErrorCodeString(int32_t error_code);
 
 #if !defined(_WIN32)
@@ -243,13 +234,13 @@ typedef bool (*ProcessZipEntryFunction)(const uint8_t* buf, size_t buf_size, voi
  * Stream the uncompressed data through the supplied function,
  * passing cookie to it each time it gets called.
  */
-int32_t ProcessZipEntryContents(ZipArchiveHandle handle, ZipEntry* entry,
+int32_t ProcessZipEntryContents(ZipArchiveHandle archive, ZipEntry* entry,
                                 ProcessZipEntryFunction func, void* cookie);
 #endif
 
 namespace zip_archive {
 
-class ANDROID_API_ZIPARCHIVE Writer { // M3E: MSVC export
+class Writer {
  public:
   virtual bool Append(uint8_t* buf, size_t buf_size) = 0;
   virtual ~Writer();
@@ -262,7 +253,7 @@ class ANDROID_API_ZIPARCHIVE Writer { // M3E: MSVC export
   void operator=(const Writer&) = delete;
 };
 
-class ANDROID_API_ZIPARCHIVE Reader { // M3E: MSVC export
+class Reader {
  public:
   virtual bool ReadAtOffset(uint8_t* buf, size_t len, uint32_t offset) const = 0;
   virtual ~Reader();
@@ -286,11 +277,9 @@ class ANDROID_API_ZIPARCHIVE Reader { // M3E: MSVC export
  * If |crc_out| is not nullptr, it is set to the crc32 checksum of the
  * uncompressed data.
  */
-ANDROID_API_ZIPARCHIVE // M3E: MSVC export
 int32_t Inflate(const Reader& reader, const uint32_t compressed_length,
                 const uint32_t uncompressed_length, Writer* writer, uint64_t* crc_out);
 }  // namespace zip_archive
 
 __END_DECLS /* M3E: C calling */
 
-#endif  // LIBZIPARCHIVE_ZIPARCHIVE_H_

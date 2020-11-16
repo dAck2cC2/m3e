@@ -37,9 +37,9 @@
 
 #if defined(__APPLE__) /* M3E: */
 static size_t kBufSize = 65535;
-#else  // __APPLE__
+#else  // M3E
 static constexpr size_t kBufSize = 65535;
-#endif // __APPLE__
+#endif // M3E
 
 bool ZipArchiveStreamEntry::Init(const ZipEntry& entry) {
   crc32_ = entry.crc32;
