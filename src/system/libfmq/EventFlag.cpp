@@ -16,14 +16,14 @@
 
 #define LOG_TAG "FMQ_EventFlags"
 
-#if ENABLE_FUTEX // M3E:
+#if ENABLE_FUTEX // M3E: no futex
 #include <linux/futex.h>
-#endif
+#endif // M3E
 #include <string.h>
 #include <sys/mman.h>
-#if !defined(_MSC_VER) // M3E:
+#if !defined(_MSC_VER) // M3E: no syscall on MSVC
 #include <sys/syscall.h>
-#endif
+#endif // M3E
 #include <unistd.h>
 
 #include <new>
@@ -32,9 +32,9 @@
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
-#if defined(_MSC_VER) // M3E:
-#include <sys/time.h>
-#endif
+#if defined(_MSC_VER) // M3E: add
+#include <sys/time.h> // clock_gettime()
+#endif // M3E
 
 namespace android {
 namespace hardware {
@@ -84,12 +84,12 @@ status_t EventFlag::createEventFlag(std::atomic<uint32_t>* fwAddr,
  * mmap memory for the futex word
  */
 EventFlag::EventFlag(int fd, off_t offset, status_t* status) {
-#if !defined(_MSC_VER) // M3E:
+#if !defined(_MSC_VER) // M3E: no mmap on MSVC
     mEfWordPtr = static_cast<std::atomic<uint32_t>*>(mmap(NULL,
                                                           sizeof(std::atomic<uint32_t>),
                                                           PROT_READ | PROT_WRITE,
                                                           MAP_SHARED, fd, offset));
-#endif
+#endif // M3E
     mEfWordNeedsUnmapping = true;
     if (mEfWordPtr != MAP_FAILED) {
         *status = NO_ERROR;
@@ -131,14 +131,14 @@ status_t EventFlag::wake(uint32_t bitmask) {
      * already available for all set bits from bitmask.
      */
     if ((~old & bitmask) != 0) {
-#if ENABLE_FUTEX // M3E:
+#if ENABLE_FUTEX // M3E: no futex
         int ret = syscall(__NR_futex, mEfWordPtr, FUTEX_WAKE_BITSET,
                           INT_MAX, NULL, NULL, bitmask);
         if (ret == -1) {
             status = -errno;
             ALOGE("Error in event flag wake attempt: %s\n", strerror(errno));
         }
-#endif
+#endif // M3E
     }
     return status;
 }
@@ -178,12 +178,12 @@ status_t EventFlag::waitHelper(uint32_t bitmask, uint32_t* efState, int64_t time
     if (timeoutNanoSeconds) {
         struct timespec waitTimeAbsolute;
         addNanosecondsToCurrentTime(timeoutNanoSeconds, &waitTimeAbsolute);
-#if ENABLE_FUTEX // M3E:
+#if ENABLE_FUTEX // M3E: no futex
         ret = syscall(__NR_futex, mEfWordPtr, FUTEX_WAIT_BITSET,
                       efWord, &waitTimeAbsolute, NULL, bitmask);
     } else {
         ret = syscall(__NR_futex, mEfWordPtr, FUTEX_WAIT_BITSET, efWord, NULL, NULL, bitmask);
-#endif
+#endif // M3E
     }
     if (ret == -1) {
         status = -errno;
@@ -247,13 +247,13 @@ status_t EventFlag::unmapEventFlagWord(std::atomic<uint32_t>* efWordPtr,
                                        bool* efWordNeedsUnmapping) {
     status_t status = NO_ERROR;
     if (*efWordNeedsUnmapping) {
-#if !defined(_MSC_VER)
+#if !defined(_MSC_VER) // M3E: no munmap on MSVC
         int ret = munmap(efWordPtr, sizeof(std::atomic<uint32_t>));
         if (ret != 0) {
             status = -errno;
             ALOGE("Error in deleting event flag group: %s\n", strerror(errno));
         }
-#endif
+#endif // M3E
         *efWordNeedsUnmapping = false;
     }
     return status;

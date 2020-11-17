@@ -29,13 +29,12 @@
 // M3E:
 #if !defined(PAGE_SIZE)
 #define PAGE_SIZE    1024
-#endif // PAGE_SIZE
+#endif // M3E
 
 namespace android {
 namespace hardware {
 
 namespace details {
-ANDROID_API_FMQ // M3E: MSVC export
 void check(bool exp);
 void logError(const std::string &message);
 }  // namespace details

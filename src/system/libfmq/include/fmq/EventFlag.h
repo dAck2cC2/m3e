@@ -29,7 +29,7 @@ namespace hardware {
  * conditions like full, empty, data available etc. The same EventFlag object
  * can be used with multiple FMQs.
  */
-struct ANDROID_API_FMQ EventFlag { // M3E: MSVC export
+struct EventFlag {
     /**
      * Create an event flag object with mapping information.
      *

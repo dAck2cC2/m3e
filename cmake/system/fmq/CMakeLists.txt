@@ -32,5 +32,4 @@ ${SOURCE_PATH}/FmqInternal.cpp
 )
 
 # target files
-set(LIB_TYPE SHARED)
-ADD_LIB(fmq)
+ADD_SHARED_LIB(fmq)
