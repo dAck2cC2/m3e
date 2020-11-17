@@ -105,7 +105,7 @@ public:
     status_t            writeString16(const String16& str);
 #if !defined(__linux__) // M3E: 
     status_t            writeString16(const std::unique_ptr<String16>& str);
-#endif
+#endif // M3E
     status_t            writeString16(const char16_t* str, size_t len);
     status_t            writeStrongBinder(const sp<IBinder>& val);
     status_t            writeWeakBinder(const wp<IBinder>& val);
@@ -163,7 +163,7 @@ public:
     status_t            readString16(String16* pArg) const;
 #if !defined(__linux__) // M3E: 
     status_t            readString16(std::unique_ptr<String16>* pArg) const;
-#endif
+#endif // M3E
     const char16_t*     readString16Inplace(size_t* outLen) const;
     sp<IBinder>         readStrongBinder() const;
     status_t            readStrongBinder(sp<IBinder>* val) const;
