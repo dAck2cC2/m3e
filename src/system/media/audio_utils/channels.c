@@ -495,7 +495,11 @@ static size_t expand_channels(const void* in_buff, size_t in_buff_chans,
                               void* out_buff, size_t out_buff_chans,
                               unsigned sample_size_in_bytes, size_t num_in_bytes)
 {
+#if defined(__APPLE__) // M3E: Default initialization doesn't work
+    static const uint8x3_t packed24_zero = {}; /* zero 24 bit sample */
+#else  // M3E
     static const uint8x3_t packed24_zero; /* zero 24 bit sample */
+#endif // M3E
 
     switch (sample_size_in_bytes) {
     case 1:

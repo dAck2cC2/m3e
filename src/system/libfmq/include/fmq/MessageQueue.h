@@ -26,7 +26,7 @@
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
-// M3E:
+// M3E: for the platform without PAGE_SIZE definition
 #if !defined(PAGE_SIZE)
 #define PAGE_SIZE    1024
 #endif // M3E

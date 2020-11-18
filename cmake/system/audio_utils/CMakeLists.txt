@@ -17,6 +17,7 @@ log
 )
 
 if(APPLE)
+    set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS})    
     add_definitions(-Dtypeof=__typeof__)
 elseif(MSVC)
     add_definitions(-Dtypeof=decltype)

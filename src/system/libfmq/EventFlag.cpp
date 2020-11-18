@@ -178,6 +178,7 @@ status_t EventFlag::waitHelper(uint32_t bitmask, uint32_t* efState, int64_t time
     if (timeoutNanoSeconds) {
         struct timespec waitTimeAbsolute;
         addNanosecondsToCurrentTime(timeoutNanoSeconds, &waitTimeAbsolute);
+
 #if ENABLE_FUTEX // M3E: no futex
         ret = syscall(__NR_futex, mEfWordPtr, FUTEX_WAIT_BITSET,
                       efWord, &waitTimeAbsolute, NULL, bitmask);

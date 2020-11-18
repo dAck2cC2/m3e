@@ -428,7 +428,11 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
     case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
         uint8x3_t *udst = (uint8x3_t*)dst;
         const uint8x3_t *usrc = (const uint8x3_t*)src;
+#if defined(__APPLE__) // M3E: Default initialization doesn't work
+        static const uint8x3_t zero = {}; /* tricky - we use this to zero out a sample */
+#else  // M3E
         static const uint8x3_t zero; /* tricky - we use this to zero out a sample */
+#endif // M3E
 
         copy_frame_by_mask(udst, dst_mask, usrc, src_mask, count, zero);
     } break;
@@ -483,7 +487,11 @@ void memcpy_by_index_array(void *dst, uint32_t dst_channels,
     case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
         uint8x3_t *udst = (uint8x3_t*)dst;
         const uint8x3_t *usrc = (const uint8x3_t*)src;
+#if defined(__APPLE__) // M3E: Default initialization doesn't work
+        static const uint8x3_t zero = {};
+#else  // M3E
         static const uint8x3_t zero;
+#endif // M3E
 
         copy_frame_by_idx(udst, dst_channels, usrc, src_channels, idxary, count, zero);
     } break;

@@ -25,17 +25,17 @@
 #include <utils/RefBase.h>
 #include <utils/String16.h>
 
-#if 0 // M3E:
+#if 0  // M3E: no linux binder driver
 #include <linux/android/binder.h>
-#else
+#else  // M3E
 struct flat_binder_object;
 #ifdef BINDER_IPC_32BIT
 typedef uint32_t binder_size_t;
-#else
+#else  // BINDER_IPC_32BIT
 typedef uint64_t binder_size_t;
-#endif
+#endif // BINDER_IPC_32BIT
 typedef uintptr_t  binder_uintptr_t;
-#endif
+#endif // M3E
 
 #include <hwbinder/IInterface.h>
 
