@@ -5765,7 +5765,7 @@ void AudioPolicyManager::handleIncallSonification(audio_stream_type_t stream,
             if (stateChange) {
                 muteCount = outputDesc->mRefCount[stream];
             }
-            if (audio_is_low_visibility(stream)) {
+            if (0) { //audio_is_low_visibility(stream)) {
                 ALOGV("handleIncallSonification() low visibility, muteCount %d", muteCount);
                 for (int i = 0; i < muteCount; i++) {
                     setStreamMute(stream, starting, mPrimaryOutput);

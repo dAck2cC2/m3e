@@ -19,7 +19,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include <utils/Log.h>
+#include <log/log.h>
 #include <audio_utils/spdif/FrameScanner.h>
 
 namespace android {
@@ -36,7 +36,7 @@ FrameScanner::FrameScanner(int dataType,
  , mFormatDumpCount(0)
  , mSampleRate(0)
  , mRateMultiplier(1)
- , mFrameSizeBytes(0)
+ , mFrameSizeBytes(headerLength) // minimum
  , mDataType(dataType)
  , mDataTypeInfo(0)
 {

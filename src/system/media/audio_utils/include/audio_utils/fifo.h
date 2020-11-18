@@ -136,7 +136,7 @@ protected:
  * Same as audio_utils_fifo_base, but understands frame sizes and knows about the buffer but does
  * not own it.
  */
-class ANDROID_API_AUDIO_UTILS audio_utils_fifo : public audio_utils_fifo_base { /* M3E: MSVC export */
+class audio_utils_fifo : public audio_utils_fifo_base {
 
     friend class audio_utils_fifo_reader;
     friend class audio_utils_fifo_writer;
@@ -273,7 +273,7 @@ public:
      * except they convey extra information as to the cause.
      * After any error, both iovec[0] and iovec[1] will be empty.
      */
-    virtual ssize_t obtain(audio_utils_iovec iovec[2], size_t count,
+    virtual ssize_t obtain(audio_utils_iovec iovec[2], size_t count = SIZE_MAX,
             const struct timespec *timeout = NULL) = 0;
 
     /**
@@ -290,6 +290,7 @@ public:
      * Determine the number of frames that could be obtained or read/written without blocking.
      * There's an inherent race condition: the value may soon be obsolete so shouldn't be trusted.
      * available() may be called after obtain(), but doesn't affect the number of releasable frames.
+     * The implementation unfortunately prevents the method from being marked 'const'.
      *
      * \return Number of available frames, if greater than or equal to zero.
      *  \retval -EIO        corrupted indices, no recovery is possible
@@ -315,6 +316,9 @@ public:
     uint64_t totalReleased() const
             { return mTotalReleased; }
 
+    /** Return a reference to the associated FIFO. */
+    audio_utils_fifo& fifo()    { return mFifo; }
+
 protected:
     audio_utils_fifo&   mFifo;
 
@@ -338,7 +342,7 @@ protected:
  * The writer is multi-thread safe with respect to reader(s),
  * but not with respect to multiple threads calling the writer API.
  */
-class ANDROID_API_AUDIO_UTILS audio_utils_fifo_writer : public audio_utils_fifo_provider {  /* M3E: MSVC export */
+class audio_utils_fifo_writer : public audio_utils_fifo_provider {
 
 public:
     /**
@@ -381,7 +385,7 @@ public:
     ssize_t write(const void *buffer, size_t count, const struct timespec *timeout = NULL);
 
     // Implement audio_utils_fifo_provider
-    virtual ssize_t obtain(audio_utils_iovec iovec[2], size_t count,
+    virtual ssize_t obtain(audio_utils_iovec iovec[2], size_t count = SIZE_MAX,
             const struct timespec *timeout = NULL);
     virtual void release(size_t count);
     virtual ssize_t available();
@@ -454,7 +458,7 @@ private:
  * Each reader is multi-thread safe with respect to the writer and any other readers,
  * but not with respect to multiple threads calling the reader API.
  */
-class ANDROID_API_AUDIO_UTILS audio_utils_fifo_reader : public audio_utils_fifo_provider { /* M3E: MSVC export */
+class audio_utils_fifo_reader : public audio_utils_fifo_provider {
 
 public:
     /**
@@ -509,7 +513,7 @@ public:
             size_t *lost = NULL);
 
     // Implement audio_utils_fifo_provider
-    virtual ssize_t obtain(audio_utils_iovec iovec[2], size_t count,
+    virtual ssize_t obtain(audio_utils_iovec iovec[2], size_t count = SIZE_MAX,
             const struct timespec *timeout = NULL);
     virtual void release(size_t count);
     virtual ssize_t available();
@@ -531,6 +535,7 @@ public:
      * Determine the number of frames that could be obtained or read without blocking.
      * There's an inherent race condition: the value may soon be obsolete so shouldn't be trusted.
      * available() may be called after obtain(), but doesn't affect the number of releasable frames.
+     * The implementation unfortunately prevents the method from being marked 'const'.
      *
      * \param lost    If non-NULL, set to the approximate number of frames lost before
      *                re-synchronization when -EOVERFLOW occurs, or set to zero when no frames lost.

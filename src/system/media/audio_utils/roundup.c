@@ -16,8 +16,6 @@
 
 #include <audio_utils/roundup.h>
 
-#include <sys/cdefs.h> /* M3E: MSVC wrapper */
-
 unsigned roundup(unsigned v)
 {
     // __builtin_clz is undefined for zero input

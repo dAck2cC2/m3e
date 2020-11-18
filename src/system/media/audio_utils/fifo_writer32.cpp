@@ -22,10 +22,9 @@
 
 #include <audio_utils/fifo_writer32.h>
 
-
-#if defined(__linux__)  /* M3E: MSVC */
+#if defined(__linux__)  /* M3E: no __attribute__ on linux */
 #  define __attribute__(A)  /* do nothing */
-#endif
+#endif // M3E
 
 static inline void memcpyWords(int32_t *dst, const int32_t *src, uint32_t count)
 {

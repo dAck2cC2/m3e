@@ -125,7 +125,6 @@ typedef struct power_log_t power_log_t;
  *
  * \return power log object or NULL on failure.
  */
-ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 power_log_t *power_log_create(uint32_t sample_rate,
         uint32_t channel_count, audio_format_t format, size_t entries, size_t frames_per_entry);
 
@@ -137,7 +136,6 @@ power_log_t *power_log_create(uint32_t sample_rate,
  * \param frames            buffer size in audio frames.
  * \param now_ns            current time in nanoseconds.
  */
-ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 void power_log_log(power_log_t *power_log, const void *buffer, size_t frames, int64_t now_ns);
 
 /**
@@ -152,7 +150,6 @@ void power_log_log(power_log_t *power_log, const void *buffer, size_t frames, in
  *   NO_ERROR on success or a negative number (-errno) on failure of write().
  *   if power_log is NULL, BAD_VALUE is returned.
  */
-ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 int power_log_dump(
         power_log_t *power_log, int fd, const char *prefix,  size_t lines, int64_t limit_ns);
 
@@ -161,7 +158,6 @@ int power_log_dump(
  *
  * \param power_log         object returned by create, if NULL nothing happens.
  */
-ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 void power_log_destroy(power_log_t *power_log);
 
 /** \cond */

@@ -22,7 +22,6 @@ extern "C" {
 #endif
 
 /** Round up to the next highest power of 2 */
-ANDROID_API_AUDIO_UTILS /* M3E: MSVC export */
 unsigned roundup(unsigned v);
 
 #ifdef __cplusplus

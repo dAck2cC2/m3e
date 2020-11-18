@@ -31,7 +31,7 @@ namespace android {
 #define SPDIF_MAX_CHANNELS          8
 #define SPDIF_ENCODED_CHANNEL_COUNT 2
 
-class ANDROID_API_AUDIO_UTILS SPDIFEncoder { /* M3E: MSVC export */
+class SPDIFEncoder {
 public:
 
     explicit SPDIFEncoder(audio_format_t format);
@@ -83,6 +83,7 @@ public:
 
 protected:
     void   clearBurstBuffer();
+    bool   wouldOverflowBuffer(size_t numBytes) const; // Would this many bytes cause an overflow?
     void   writeBurstBufferShorts(const uint16_t* buffer, size_t numBytes);
     void   writeBurstBufferBytes(const uint8_t* buffer, size_t numBytes);
     void   sendZeroPad();

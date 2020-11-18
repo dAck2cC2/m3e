@@ -253,6 +253,15 @@ void memcpy_to_float_from_q8_23(float *dst, const int32_t *src, size_t count)
     }
 }
 
+void memcpy_to_i32_from_u8(int32_t *dst, const uint8_t *src, size_t count)
+{
+    dst += count;
+    src += count;
+    for (; count > 0; --count) {
+        *--dst = ((int32_t)(*--src) - 0x80) << 24;
+    }
+}
+
 void memcpy_to_i32_from_i16(int32_t *dst, const int16_t *src, size_t count)
 {
     dst += count;
@@ -419,7 +428,7 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
     case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
         uint8x3_t *udst = (uint8x3_t*)dst;
         const uint8x3_t *usrc = (const uint8x3_t*)src;
-        static const uint8x3_t zero = {0}; /* tricky - we use this to zero out a sample */
+        static const uint8x3_t zero; /* tricky - we use this to zero out a sample */
 
         copy_frame_by_mask(udst, dst_mask, usrc, src_mask, count, zero);
     } break;
@@ -474,7 +483,7 @@ void memcpy_by_index_array(void *dst, uint32_t dst_channels,
     case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
         uint8x3_t *udst = (uint8x3_t*)dst;
         const uint8x3_t *usrc = (const uint8x3_t*)src;
-        static const uint8x3_t zero = {0};
+        static const uint8x3_t zero;
 
         copy_frame_by_idx(udst, dst_channels, usrc, src_channels, idxary, count, zero);
     } break;
@@ -539,10 +548,10 @@ size_t memcpy_by_index_array_initialization_dst_index(int8_t *idxary, size_t idx
  #if 0 /* M3E: Use cutils/bitops.h instead */
     size_t dst_count = __builtin_popcount(dst_mask);
     size_t src_count = __builtin_popcount(src_mask);
-#else
+#else  // M3E
     size_t dst_count = popcount(dst_mask);
     size_t src_count = popcount(src_mask);
-#endif
+#endif // M3E
     if (idxcount == 0) {
         return dst_count;
     }

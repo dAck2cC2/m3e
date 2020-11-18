@@ -26,7 +26,7 @@ inline size_t audio_utils_strlcpy_zerofill(char *dst, const char *src, size_t ds
     strncpy(dst, src, dst_size);
     dst[dst_size - 1] = '\0';
     return strlen(dst);
-#else
+#else  // M3E
     const size_t srclen = strlcpy(dst, src, dst_size);
     const size_t srclen_with_zero = srclen + 1; /* include zero termination in length. */
     if (srclen_with_zero < dst_size) {
@@ -34,7 +34,7 @@ inline size_t audio_utils_strlcpy_zerofill(char *dst, const char *src, size_t ds
         memset(dst + srclen_with_zero, 0 /* value */, num_zeroes); /* clear remaining buffer */
     }
     return srclen;
-#endif
+#endif // M3E
 }
 
 #ifdef __cplusplus
@@ -48,11 +48,11 @@ inline size_t audio_utils_strlcpy_zerofill(char (&dst)[size], const char *src) {
 /** similar to strlcpy for fixed size destination string. */
 template <size_t size>
 inline size_t audio_utils_strlcpy(char (&dst)[size], const char *src) {
-#if defined(_MSC_VER) // M3E:
+#if defined(_MSC_VER) // M3E: no strlcpy on MSVC
     return audio_utils_strlcpy_zerofill(dst, src, size);
-#else
+#else  // M3E
     return strlcpy(dst, src, size);
-#endif
+#endif // M3E
 }
 
 #endif // __cplusplus
