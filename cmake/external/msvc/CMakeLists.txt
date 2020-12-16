@@ -24,6 +24,8 @@ file(GLOB MSVC_HEADER_FILES
 ${HEADER_PATH}/*.h
 ${HEADER_PATH}/arpa/*.h
 ${HEADER_PATH}/netinet/*.h
+${HEADER_PATH}/predefine/*.*
+${HEADER_PATH}/safe-math/*.h
 ${HEADER_PATH}/sys/*.h
 ${M3E_SOURCE_DIR}/external/win-c/include/*.h
 )

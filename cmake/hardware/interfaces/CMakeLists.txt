@@ -46,6 +46,7 @@ ${HEADER_PATH}/audio/common/4.0/default/*.h
 set(${PROJECT_NAME}_SOURCE_FILES 
 ${SOURCE_PATH}/configstore/utils/ConfigStoreUtils.cpp
 ${SOURCE_PATH}/audio/common/2.0/default/HidlUtils.cpp
+#${SOURCE_PATH}/audio/common/all-versions/default/HidlUtils.cpp
 )
 
 ###############################################################################
@@ -64,6 +65,7 @@ android.hardware.graphics.mapper@2.0
 android.hardware.graphics.mapper@2.1
 android.hardware.graphics.common@1.0
 android.hardware.graphics.common@1.1
+#android.hardware.graphics.common@1.2
 android.hardware.graphics.composer@2.1
 android.hardware.graphics.composer@2.2
 android.hardware.audio@2.0
@@ -76,6 +78,7 @@ android.hardware.media@1.0
 android.hardware.media.omx@1.0
 android.hardware.media.bufferpool@1.0
 android.hardware.graphics.bufferqueue@1.0
+#android.hardware.graphics.bufferqueue@2.0
 )
 
 foreach(module ${HIDL_MODULES})

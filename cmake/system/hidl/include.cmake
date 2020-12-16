@@ -1,6 +1,10 @@
 # define
 DLL_PUBLIC(HIDL)
 
+if(MSVC)
+    add_definitions(-D__WORDSIZE=64)
+endif()
+
 # include
 include_directories(AFTER ${HIDL_ROOT_PATH}/system/libhidl/base/include)
 include_directories(AFTER ${HIDL_ROOT_PATH}/system/libhidl/libhidlmemory/include)

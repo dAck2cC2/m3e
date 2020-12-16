@@ -23,6 +23,14 @@
 #include <stdint.h>
 /* #include <dirent.h> */ /* Since it will include windows.h, don't include it here */
 
+// define ssize_t
+#if defined(_MSC_VER)
+#define WINDOWS_ENABLE_CPLUSPLUS
+#include <BaseTsd.h>
+typedef SSIZE_T    ssize_t;
+#define SSIZE_MAX  MAXSSIZE_T
+#endif
+
 /* Read user permission */
 #if !defined(S_IRUSR)
 #   define S_IRUSR S_IREAD
@@ -79,6 +87,11 @@ typedef unsigned __int16  uint16_t;
 typedef unsigned __int32  uint32_t;
 typedef unsigned __int64  uint64_t;
 
+typedef int          pid_t;
+typedef unsigned int uid_t;
+typedef unsigned int gid_t;
+
+typedef int64_t off64_t;
 
 #ifndef TEMP_FAILURE_RETRY
 #define TEMP_FAILURE_RETRY(exp)  exp
@@ -88,5 +101,15 @@ inline static uid_t getuid() { return 1000; };
 
 MSVC_EXPORT 
 void *memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
+
+// disable the __attribute__
+#if !defined(__attribute__)
+#define __attribute__(A) /* do nothing */
+#endif // __attribute__
+
+// disable the __builtin_expect
+#if !defined(__builtin_expect)
+#define __builtin_expect(cond, result)  ((cond)) 
+#endif // __builtin_expect
 
 #endif /* unistd.h  */

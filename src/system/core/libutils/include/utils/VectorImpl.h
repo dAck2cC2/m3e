@@ -22,6 +22,10 @@
 #include <sys/types.h>
 #include <utils/Errors.h>
 
+#if defined(_MSC_VER) // M3E: add
+#include <unistd.h>   // sszie_t
+#endif // M3E
+
 // ---------------------------------------------------------------------------
 // No user serviceable parts in here...
 // ---------------------------------------------------------------------------

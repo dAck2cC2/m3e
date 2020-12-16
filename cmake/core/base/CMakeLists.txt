@@ -21,6 +21,7 @@ if (MSVC)
 
     include(${MSVC_INCLUDE})
     list(APPEND BASE_DEPLIB ${LIB_MSVC_WRAP})
+    add_definitions(-FI"predefine/__attribute__")
 elseif(APPLE)
     add_definitions(-DPAGE_SIZE=4096)
 endif()

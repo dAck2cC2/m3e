@@ -3,7 +3,7 @@ project(ANGLE_ANGLE)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
-#add_definitions(-DNDEBUG=1)
+add_definitions(-DNDEBUG=1)
 #add_definitions(-DLIBANGLE_IMPLEMENTATION=1)
 
 set(gl_prototypes                 "true")

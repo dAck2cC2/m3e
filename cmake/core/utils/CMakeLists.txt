@@ -22,6 +22,7 @@ if (MSVC)
 
     include(${MSVC_INCLUDE})
     list(APPEND UTILS_DEPLIB ${LIB_MSVC_WRAP})
+    add_definitions(-FI"predefine/__attribute__")
 
 elseif (APPLE)
     add_definitions(-DENABLE_SAFE_IOP=1)

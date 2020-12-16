@@ -163,7 +163,9 @@ status_t ATSParser::CasManager::ProgramCasManager::initSession(
         goto l_fail;
     }
 
+#if 0 // M3E:
     returnDescrambler = casService->createDescrambler(descriptor.mSystemID);
+#endif
     if (!returnDescrambler.isOk()) {
         ALOGE("Failed to create descrambler: trans=%s",
                 returnDescrambler.description().c_str());

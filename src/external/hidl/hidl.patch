@@ -355,3 +355,21 @@ index dabbdaa4..b4dc4807 100644
  
      for (int i = 0; i < argc; ++i) {
          FQName fqName;
+diff --git a/utils/include/hidl-util/FQName.h b/utils/include/hidl-util/FQName.h
+index 3e31431d..046ccc7e 100644
+--- a/utils/include/hidl-util/FQName.h
++++ b/utils/include/hidl-util/FQName.h
+@@ -21,6 +21,13 @@
+ #include <string>
+ #include <vector>
+ 
++#if defined(_MSC_VER) // M3E: add
++// disable the __attribute__
++#if !defined(__attribute__)
++#define __attribute__(A) /* do nothing */
++#endif // __attribute__
++#endif // M3E
++
+ namespace android {
+ 
+ struct FQName {

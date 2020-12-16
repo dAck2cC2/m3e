@@ -35,7 +35,7 @@ index e08bf93..795cc1b 100644
          clear();
          moveFrom(std::forward<hidl_string>(other));
 diff --git a/base/Status.cpp b/base/Status.cpp
-index 1ba91c3..35b5836 100644
+index 1ba91c3..92a5896 100644
 --- a/base/Status.cpp
 +++ b/base/Status.cpp
 @@ -21,6 +21,10 @@
@@ -49,36 +49,6 @@ index 1ba91c3..35b5836 100644
  namespace android {
  namespace hardware {
  
-@@ -138,23 +142,29 @@ std::ostream& operator<< (std::ostream& stream, const Status& s) {
- 
- namespace details {
-     void return_status::assertOk() const {
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-         if (!isOk()) {
-             LOG(FATAL) << "Attempted to retrieve value from failed HIDL call: " << description();
-         }
-+#endif
-     }
- 
-     return_status::~return_status() {
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-         // mCheckedStatus must be checked before isOk since isOk modifies mCheckedStatus
-         if (!mCheckedStatus && !isOk()) {
-             LOG(FATAL) << "Failed HIDL return status not checked: " << description();
-         }
-+#endif
-     }
- 
-     return_status &return_status::operator=(return_status &&other) {
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-         if (!mCheckedStatus && !isOk()) {
-             LOG(FATAL) << "Failed HIDL return status not checked: " << description();
-         }
-         std::swap(mStatus, other.mStatus);
-+#endif
-         std::swap(mCheckedStatus, other.mCheckedStatus);
-         return *this;
-     }
 diff --git a/base/include/hidl/HidlInternal.h b/base/include/hidl/HidlInternal.h
 index ed9f02c..1047e59 100644
 --- a/base/include/hidl/HidlInternal.h
@@ -195,10 +165,10 @@ index f8f79a5..f7f2be2 100644
  
  template<size_t SIZE1, size_t SIZE2, size_t... SIZES>
 diff --git a/base/include/hidl/Status.h b/base/include/hidl/Status.h
-index 1a2ef6d..7d189a2 100644
+index 1a2ef6d..1e3158f 100644
 --- a/base/include/hidl/Status.h
 +++ b/base/include/hidl/Status.h
-@@ -27,6 +27,12 @@
+@@ -27,6 +27,19 @@
  namespace android {
  namespace hardware {
  
@@ -208,95 +178,32 @@ index 1a2ef6d..7d189a2 100644
 +#  endif
 +#endif
 +
++#ifdef _WIN32 // M3E: 
++// windows.h includes wingdi.h which defines an evil macro ERROR.
++#ifdef ERROR
++#undef ERROR
++#endif
++#endif
++
  // An object similar in function to a status_t except that it understands
  // how exceptions are encoded in the prefix of a Parcel. Used like:
  //
-@@ -132,9 +138,11 @@ std::ostream& operator<< (std::ostream& stream, const Status& s);
+@@ -132,7 +145,7 @@ std::ostream& operator<< (std::ostream& stream, const Status& s);
  template<typename T> class Return;
  
  namespace details {
 -    class return_status {
 +    class ANDROID_API_HIDL return_status {
      private:
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
          Status mStatus {};
-+#endif
          mutable bool mCheckedStatus = false;
- 
-         template <typename T, typename U>
-@@ -143,8 +151,11 @@ namespace details {
-         void assertOk() const;
+@@ -144,7 +157,6 @@ namespace details {
      public:
          return_status() {}
--        return_status(const Status& s) : mStatus(s) {}
+         return_status(const Status& s) : mStatus(s) {}
 -
-+        return_status(const Status& s)
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-+        : mStatus(s)
-+#endif
-+        {}
          return_status(const return_status &) = delete;
          return_status &operator=(const return_status &) = delete;
- 
-@@ -156,19 +167,31 @@ namespace details {
-         ~return_status();
- 
-         bool isOkUnchecked() const {
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-             // someone else will have to check
-             return mStatus.isOk();
-+#else
-+            return true;
-+#endif
-         }
- 
-         bool isOk() const {
-             mCheckedStatus = true;
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-             return mStatus.isOk();
-+#else
-+            return true;
-+#endif
-         }
- 
-         // Check if underlying error is DEAD_OBJECT.
-         // Check mCheckedStatus only if this method returns true.
-         bool isDeadObject() const {
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-             bool dead = mStatus.transactionError() == DEAD_OBJECT;
-+#else
-+            bool dead = false;
-+#endif
- 
-             // This way, if you only check isDeadObject your process will
-             // only be killed for more serious unchecked errors
-@@ -181,8 +204,12 @@ namespace details {
- 
-         // For debugging purposes only
-         std::string description() const {
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-             // Doesn't consider checked.
-             return mStatus.description();
-+#else
-+            return "No return check";
-+#endif
-         }
-     };
- }  // namespace details
-@@ -265,10 +292,14 @@ namespace details {
- // Return<T> must have an error status and have it checked.
- template <typename T, typename U>
- Return<U> StatusOf(const Return<T> &other) {
-+#if ENABLE_RETURN_CHECK /* M3E: remove return check */
-     if (other.mStatus.isOk() || !other.mCheckedStatus) {
-         details::logAlwaysFatal("cannot call statusOf on an OK Status or an unchecked status");
-     }
-     return Return<U>{other.mStatus};
-+#else
-+    return Return<U>(nullptr);
-+#endif
- }
- }  // namespace details
  
 diff --git a/libhidlmemory/include/hidlmemory/mapping.h b/libhidlmemory/include/hidlmemory/mapping.h
 index 352cbaf..a9bb810 100644

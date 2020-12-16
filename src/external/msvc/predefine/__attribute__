@@ -1,0 +1,10 @@
+
+#ifndef _M3E_ATTRIBUTE_H
+#define _M3E_ATTRIBUTE_H
+
+// disable the __attribute__
+#if !defined(__attribute__)
+#define __attribute__(A) /* do nothing */
+#endif // __attribute__
+
+#endif // _M3E_ATTRIBUTE_H

@@ -1,6 +1,7 @@
 
 
 #include <unistd.h>
+#include <string.h>
 
 /*
 * The memmem() function finds the start of the first occurrence of the

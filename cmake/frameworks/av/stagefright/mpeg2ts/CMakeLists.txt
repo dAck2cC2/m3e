@@ -17,6 +17,11 @@ include(${M3E_SOURCE_DIR}/cmake/frameworks/av/stagefright/include.cmake)
 
 include(${M3E_SOURCE_DIR}/cmake/external/boringssl/include.cmake)
 
+if(MSVC)
+    include(${MSVC_INCLUDE})
+    add_definitions(-FI"predefine/__attribute__")
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/mpeg2ts )
 

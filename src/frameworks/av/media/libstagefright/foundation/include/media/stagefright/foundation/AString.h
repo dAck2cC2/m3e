@@ -22,7 +22,7 @@
 #include <sys/types.h>
 
 #if defined(_MSC_VER) // M3E:
-#include <stdint.h>
+#include <unistd.h> // ssize_t
 #endif // _MSC_VER
 
 namespace android {

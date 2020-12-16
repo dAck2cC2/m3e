@@ -30,6 +30,8 @@ base
 if(MSVC)
     add_definitions(-DNOMINMAX)
     add_definitions(-DRTLD_LAZY=0)
+
+    add_definitions(-FI"predefine/__attribute__")
 elseif(APPLE)
     add_definitions(-Denable_if_t=enable_if)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++14 -stdlib=libc++")
@@ -52,7 +54,11 @@ set(${PROJECT_NAME}_SOURCE_FILES
 ${SOURCE_PATH}/base/HidlInternal.cpp 
 ${SOURCE_PATH}/base/HidlSupport.cpp 
 ${SOURCE_PATH}/base/Status.cpp 
+
+# Local hidl service management
+#${SOURCE_PATH}/transport/ServiceManagement.cpp
 ${M3E_SOURCE_DIR}/src/${EXT_PATH}/libhidl/ServiceManagement.cpp 
+
 ${SOURCE_PATH}/transport/HidlTransportUtils.cpp
 ${SOURCE_PATH}/transport/token/1.0/utils/HybridInterface.cpp
 ${SOURCE_PATH}/transport/allocator/1.0/utils/FrameworkUtils.cpp 
@@ -69,6 +75,7 @@ set(HIDL_MODULES
 android.hidl.memory@1.0
 android.hidl.manager@1.0
 android.hidl.manager@1.1
+#android.hidl.manager@1.2
 android.hidl.allocator@1.0
 android.hidl.token@1.0
 android.hidl.base@1.0
