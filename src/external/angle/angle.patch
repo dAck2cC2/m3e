@@ -1,29 +1,26 @@
-diff --git a/src/libANGLE/Display.cpp b/src/libANGLE/Display.cpp
-index 672d6f92e..cd08dd565 100644
---- a/src/libANGLE/Display.cpp
-+++ b/src/libANGLE/Display.cpp
-@@ -784,6 +784,7 @@ Error Display::initialize()
+diff --git a/src/common/third_party/base/anglebase/logging.h b/src/common/third_party/base/anglebase/logging.h
+index 73f81e87f..9e3e022bc 100644
+--- a/src/common/third_party/base/anglebase/logging.h
++++ b/src/common/third_party/base/anglebase/logging.h
+@@ -20,7 +20,7 @@
  
-     if (isInitialized())
-     {
-+        mImplementation->initialize(this);
-         return NoError();
-     }
+ // Unfortunately ANGLE relies on ASSERT being an empty statement, which these libs don't respect.
+ #ifndef NOTREACHED
+-#    define NOTREACHED() ({ UNREACHABLE(); })
++#    define NOTREACHED() //({ UNREACHABLE(); })
+ #endif
  
-diff --git a/src/libANGLE/renderer/gl/cgl/DisplayCGL.mm b/src/libANGLE/renderer/gl/cgl/DisplayCGL.mm
-index c12a1b1ff..f69323b35 100644
---- a/src/libANGLE/renderer/gl/cgl/DisplayCGL.mm
-+++ b/src/libANGLE/renderer/gl/cgl/DisplayCGL.mm
-@@ -142,6 +142,12 @@ static void SetGPUByRegistryID(CGLContextObj contextObj,
+ #endif  // ANGLEBASE_LOGGING_H_
+diff --git a/src/common/third_party/base/anglebase/numerics/safe_conversions.h b/src/common/third_party/base/anglebase/numerics/safe_conversions.h
+index b37a36cd3..8bbb073ec 100644
+--- a/src/common/third_party/base/anglebase/numerics/safe_conversions.h
++++ b/src/common/third_party/base/anglebase/numerics/safe_conversions.h
+@@ -90,7 +90,7 @@ constexpr Dst saturated_cast_impl(const Src value, const RangeConstraint constra
+                              ? std::numeric_limits<Dst>::max()
+                              : (constraint == RANGE_INVALID
+                                     ? NaNHandler::template HandleNaN<Dst>()
+-                                    : (NOTREACHED(), static_cast<Dst>(value)))));
++                                    : (/*NOTREACHED(),*/ static_cast<Dst>(value)))));
+ }
+ }  // namespace internal
  
- egl::Error DisplayCGL::initialize(egl::Display *display)
- {
-+    // set CGL context for current thread
-+    if ((mEGLDisplay == display) && (mContext != nullptr)) {
-+        CGLSetCurrentContext(mContext);
-+        return egl::NoError();
-+    }
-+    
-     mEGLDisplay = display;
- 
-     angle::SystemInfo info;
