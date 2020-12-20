@@ -1,0 +1,9 @@
+#ifndef _M3E_BUILTIN_EXPECT_H
+#define _M3E_BUILTIN_EXPECT_H
+
+// disable the __builtin_expect
+#if !defined(__builtin_expect)
+#define __builtin_expect(cond, result)  ((cond)) 
+#endif // __builtin_expect
+
+#endif // _M3E_BUILTIN_EXPECT_H
