@@ -32,7 +32,4 @@ ${SOURCE_PATH}/audio_hw.c
 set_source_files_properties( ${${PROJECT_NAME}_SOURCE_FILES} PROPERTIES LANGUAGE "CXX" )
 
 # target files
-set(LIB_NAME audio_primary_default)
-set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(${LIB_NAME} SHARED ${${PROJECT_NAME}_SOURCE_FILES})
-target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_DEPLIB})
+ADD_SHARED_LIB(audio_primary_default)

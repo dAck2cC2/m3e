@@ -16,11 +16,11 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#if defined(__APPLE__) /* M3E: */
-#include <stdlib.h>
-#else
+#if defined(__APPLE__) /* M3E: add */
+#include <stdlib.h> // malloc
+#else  // M3E
 #include <malloc.h>
-#endif
+#endif // M3E
 #include <string.h>
 
 #include <cutils/atomic.h>
@@ -42,7 +42,7 @@ static int hwc_device_open(const struct hw_module_t* module, const char* name,
         struct hw_device_t** device);
 
 static struct hw_module_methods_t hwc_module_methods = {
-    /*.open =*/ hwc_device_open /* M3E: */
+    .open = hwc_device_open
 };
 
 /* M3E: Add */
@@ -53,14 +53,14 @@ extern "C"
 __declspec(dllexport)
 #endif
 hwc_module_t HAL_MODULE_INFO_SYM = {
-    /*.common =*/ { /* M3E: */
-        /*.tag =*/ HARDWARE_MODULE_TAG,
-        /*.version_major =*/ 1,
-        /*.version_minor =*/ 0,
-        /*.id =*/ HWC_HARDWARE_MODULE_ID,
-        /*.name =*/ "Sample hwcomposer module",
-        /*.author =*/ "The Android Open Source Project",
-        /*.methods =*/ &hwc_module_methods,
+    .common = {
+        .tag = HARDWARE_MODULE_TAG,
+        .version_major = 1,
+        .version_minor = 0,
+        .id = HWC_HARDWARE_MODULE_ID,
+        .name = "Sample hwcomposer module",
+        .author = "The Android Open Source Project",
+        .methods = &hwc_module_methods,
     }
 };
 

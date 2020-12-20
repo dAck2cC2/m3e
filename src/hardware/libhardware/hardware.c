@@ -18,41 +18,47 @@
 
 #include <cutils/properties.h>
 
-#if defined(_MSC_VER) /* M3E: */
-#include <windows.h>
-#ifndef PATH_MAX
-#define PATH_MAX MAX_PATH
-#endif
-#define strlcpy strncpy
-#else
 #include <dlfcn.h>
-#endif // _MSC_VER
 #include <string.h>
 #include <pthread.h>
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define LOG_TAG "HAL"
 #include <log/log.h>
 
-//#include <vndksupport/linker.h> /* M3E: */
+#if !defined(__ANDROID_RECOVERY__)
+#include <vndksupport/linker.h>
+#endif
 
+// M3E: cross-platform separator
 #if !defined(OS_PATH_SEPARATOR_STR)
 	#if defined(USE_MINGW) || defined(_MSC_VER)
 		#define OS_PATH_SEPARATOR_STR "\\"
 	#else  /* not USE_MINGW */
 		#define OS_PATH_SEPARATOR_STR "/"
 	#endif /* not USE_MINGW */
-#endif // OS_PATH_SEPARATOR_STR
+#endif // M3E
 
 /** Base path of the hal modules */
-/* M3E: Add */
+#if 0 /* M3E: local library */
+#if defined(__LP64__)
+#define HAL_LIBRARY_PATH1 "/system/lib64/hw"
+#define HAL_LIBRARY_PATH2 "/vendor/lib64/hw"
+#define HAL_LIBRARY_PATH3 "/odm/lib64/hw"
+#else
+#define HAL_LIBRARY_PATH1 "/system/lib/hw"
+#define HAL_LIBRARY_PATH2 "/vendor/lib/hw"
+#define HAL_LIBRARY_PATH3 "/odm/lib/hw"
+#endif
+#else  // M3E
 #define HAL_LIBRARY_PATH1 "."
 #define HAL_LIBRARY_PATH2 "sw"
 #define HAL_LIBRARY_PATH3 "hw"
-
+#endif // M3E
 
 /**
  * There are a set of variant filename for modules. The form of the filename
@@ -88,36 +94,45 @@ static int load(const char *id,
     int status = -EINVAL;
     void *handle = NULL;
     struct hw_module_t *hmi = NULL;
+#ifdef __ANDROID_VNDK__
+    const bool try_system = false;
+#else
+    const bool try_system = true;
+#endif
 
     /*
      * load the symbols resolving undefined symbols before
      * dlopen returns. Since RTLD_GLOBAL is not or'd in with
      * RTLD_NOW the external symbols will not be global
      */
-#if defined(_MSC_VER)
-	handle = LoadLibrary(path);
+    if (try_system &&
+        strncmp(path, HAL_LIBRARY_PATH1, strlen(HAL_LIBRARY_PATH1)) == 0) {
+        /* If the library is in system partition, no need to check
+         * sphal namespace. Open it with dlopen.
+         */
+        handle = dlopen(path, RTLD_NOW);
+    } else {
+#if defined(__ANDROID_RECOVERY__)
+        handle = dlopen(path, RTLD_NOW);
 #else
-    handle = dlopen(path, RTLD_NOW);
+        handle = android_load_sphal_library(path, RTLD_NOW);
 #endif
+    }
     if (handle == NULL) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) // M3E: MSVC dll
 		DWORD dwerror = GetLastError();
 		ALOGE("load: module=%s\n%d", path, dwerror);
-#else
+#else  // M3E
         char const *err_str = dlerror();
         ALOGE("load: module=%s\n%s", path, err_str?err_str:"unknown");
-#endif
+#endif // M3E
         status = -EINVAL;
         goto done;
     }
 
     /* Get the address of the struct hal_module_info. */
     const char *sym = HAL_MODULE_INFO_SYM_AS_STR;
-#if defined(_MSC_VER) 
-	hmi = (struct hw_module_t *)GetProcAddress(handle, sym);
-#else
     hmi = (struct hw_module_t *)dlsym(handle, sym);
-#endif
     if (hmi == NULL) {
         ALOGE("load: couldn't find symbol %s", sym);
         status = -EINVAL;
@@ -140,21 +155,41 @@ static int load(const char *id,
     if (status != 0) {
         hmi = NULL;
         if (handle != NULL) {
-#if defined(_MSC_VER)
-			FreeLibrary((HMODULE)handle);
-#else
             dlclose(handle);
-#endif
             handle = NULL;
         }
     } else {
         ALOGV("loaded HAL id=%s path=%s hmi=%p handle=%p",
-                id, path, *pHmi, handle);
+                id, path, hmi, handle);
     }
 
     *pHmi = hmi;
 
     return status;
+}
+
+/*
+ * If path is in in_path.
+ */
+static bool path_in_path(const char *path, const char *in_path) {
+#if 0  // M3E: no need to check path_in_path
+    char real_path[PATH_MAX];
+    if (realpath(path, real_path) == NULL) return false;
+
+    char real_in_path[PATH_MAX];
+    if (realpath(in_path, real_in_path) == NULL) return false;
+
+    const size_t real_in_path_len = strlen(real_in_path);
+    if (strncmp(real_path, real_in_path, real_in_path_len) != 0) {
+        return false;
+    }
+
+    return strlen(real_path) > real_in_path_len &&
+        real_path[real_in_path_len] == '/';
+#else  // M3E
+    // always true
+    return true;
+#endif // M3E
 }
 
 /*
@@ -164,7 +199,7 @@ static int load(const char *id,
 static int hw_module_exists(char *path, size_t path_len, const char *name,
                             const char *subname)
 {
-#if defined(__APPLE__)
+#if defined(__APPLE__) // M3E: cross-platform lib
     const char* prefix  = "lib";
     const char* extname = "dylib";
 #elif defined(_MSC_VER)
@@ -173,21 +208,39 @@ static int hw_module_exists(char *path, size_t path_len, const char *name,
 #else
     const char* prefix  = "lib";
     const char* extname = "so";
-#endif
+#endif // M3E
+
+#if 0  // M3E: cross-platform lib
+    snprintf(path, path_len, "%s/%s.%s.so",
+             HAL_LIBRARY_PATH3, name, subname);
+#else  // M3E
     snprintf(path, path_len, "%s%s%s%s_%s.%s",
              HAL_LIBRARY_PATH3, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
-    if (access(path, R_OK) == 0)
+#endif // M3E
+    if (path_in_path(path, HAL_LIBRARY_PATH3) && access(path, R_OK) == 0)
         return 0;
 
+#if 0  // M3E: cross-platform lib
+    snprintf(path, path_len, "%s/%s.%s.so",
+             HAL_LIBRARY_PATH2, name, subname);
+#else  // M3E
     snprintf(path, path_len, "%s%s%s%s_%s.%s",
              HAL_LIBRARY_PATH2, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
-    if (access(path, R_OK) == 0)
+#endif // M3E
+    if (path_in_path(path, HAL_LIBRARY_PATH2) && access(path, R_OK) == 0)
         return 0;
 
+#ifndef __ANDROID_VNDK__
+#if 0  // M3E: cross-platform lib
+    snprintf(path, path_len, "%s/%s.%s.so",
+             HAL_LIBRARY_PATH1, name, subname);
+#else  // M3E
     snprintf(path, path_len, "%s%s%s%s_%s.%s",
              HAL_LIBRARY_PATH1, OS_PATH_SEPARATOR_STR, prefix, name, subname, extname);
-    if (access(path, R_OK) == 0)
+#endif // M3E
+    if (path_in_path(path, HAL_LIBRARY_PATH1) && access(path, R_OK) == 0)
         return 0;
+#endif
 
     return -ENOENT;
 }
@@ -203,7 +256,11 @@ int hw_get_module_by_class(const char *class_id, const char *inst,
 
 
     if (inst)
+#if 0  // M3E: cross-platform lib
+        snprintf(name, PATH_MAX, "%s.%s", class_id, inst);
+#else  // M3E
         snprintf(name, PATH_MAX, "%s_%s", class_id, inst);
+#endif // M3E
     else
         strlcpy(name, class_id, PATH_MAX);
 

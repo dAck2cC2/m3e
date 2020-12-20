@@ -222,7 +222,6 @@ typedef struct hw_device_t {
  *
  * @return: 0 == success, <0 == error and *module == NULL
  */
-ANDROID_API_HARDWARE /* M3E: MSVC export */
 int hw_get_module(const char *id, const struct hw_module_t **module);
 
 /**
@@ -237,7 +236,6 @@ int hw_get_module(const char *id, const struct hw_module_t **module);
  *
  * @return: 0 == success, <0 == error and *module == NULL
  */
-ANDROID_API_HARDWARE /* M3E: MSVC export */
 int hw_get_module_by_class(const char *class_id, const char *inst,
                            const struct hw_module_t **module);
 

@@ -18,11 +18,11 @@
 //#define LOG_NDEBUG 0
 
 #include <errno.h>
-#if defined(__APPLE__) /* M3E: */
-#include <stdlib.h>
-#else
+#if defined(__APPLE__) /* M3E: add */
+#include <stdlib.h> // malloc
+#else  // M3E
 #include <malloc.h>
-#endif
+#endif // M3E
 #include <pthread.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -164,12 +164,7 @@ static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
 
     /* XXX: fake timing for audio output */
     struct stub_stream_out *out = (struct stub_stream_out *)stream;
-#if 0 /* M3E: */
     struct timespec t = { .tv_sec = 0, .tv_nsec = 0 };
-#else
-	struct timespec t;
-	memset(&t, 0x00, sizeof(t));
-#endif
     clock_gettime(CLOCK_MONOTONIC, &t);
     const int64_t now = (t.tv_sec * 1000000000LL + t.tv_nsec) / 1000;
     const int64_t elapsed_time_since_last_write = now - out->last_write_time_us;
@@ -310,12 +305,7 @@ static ssize_t in_read(struct audio_stream_in *stream, void* buffer,
 
     /* XXX: fake timing for audio input */
     struct stub_stream_in *in = (struct stub_stream_in *)stream;
-#if 0 /* M3E: */
     struct timespec t = { .tv_sec = 0, .tv_nsec = 0 };
-#else
-	struct timespec t;
-	memset(&t, 0x00, sizeof(t));
-#endif
     clock_gettime(CLOCK_MONOTONIC, &t);
     const int64_t now = (t.tv_sec * 1000000000LL + t.tv_nsec) / 1000;
 
@@ -590,7 +580,7 @@ static int adev_open(const hw_module_t* module, const char* name,
     if (strcmp(name, AUDIO_HARDWARE_INTERFACE) != 0)
         return -EINVAL;
 
-    adev = (struct stub_audio_device *)calloc(1, sizeof(struct stub_audio_device)); /* M3E: */
+    adev = (struct stub_audio_device *)calloc(1, sizeof(struct stub_audio_device)); /* M3E: type convert */
     if (!adev)
         return -ENOMEM;
 
@@ -623,7 +613,7 @@ static int adev_open(const hw_module_t* module, const char* name,
 }
 
 static struct hw_module_methods_t hal_module_methods = {
-    /*.open = */adev_open, /* M3E: */
+    .open = adev_open,
 };
 
 /* M3E: Add */
@@ -634,13 +624,13 @@ extern "C"
 __declspec(dllexport)
 #endif
 struct audio_module HAL_MODULE_INFO_SYM = {
-    /*.common =*/ {
-        /*.tag =*/ HARDWARE_MODULE_TAG,
-        /*.module_api_version =*/ AUDIO_MODULE_API_VERSION_0_1,
-        /*.hal_api_version =*/ HARDWARE_HAL_API_VERSION,
-        /*.id =*/ AUDIO_HARDWARE_MODULE_ID,
-        /*.name =*/ "Default audio HW HAL",
-        /*.author =*/ "The Android Open Source Project",
-        /*.methods =*/ &hal_module_methods,
+    .common = {
+        .tag = HARDWARE_MODULE_TAG,
+        .module_api_version = AUDIO_MODULE_API_VERSION_0_1,
+        .hal_api_version = HARDWARE_HAL_API_VERSION,
+        .id = AUDIO_HARDWARE_MODULE_ID,
+        .name = "Default audio HW HAL",
+        .author = "The Android Open Source Project",
+        .methods = &hal_module_methods,
     },
 };

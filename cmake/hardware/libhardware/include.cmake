@@ -1,5 +1,3 @@
-# define
-DLL_PUBLIC(HARDWARE)
 
 include(${M3E_SOURCE_DIR}/cmake/core/system/include.cmake)
 
