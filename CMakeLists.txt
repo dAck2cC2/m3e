@@ -2,11 +2,11 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the M3E source code and call cmake from there")
 endif()
 
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 3.19.1)
 project(M3E)
 
 # Version
-# It is based on the stagefright from Android 8.1.0_r52
+# It is based on the stagefright from Android 9.0.0_r56
 set(M3E_MAJOR_VERSION 9)
 set(M3E_MINOR_VERSION 0)
 set(M3E_MICRO_VERSION 0)

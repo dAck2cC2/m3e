@@ -19,6 +19,11 @@ stagefright_omx
 avcdec
 )
 
+if (MSVC)
+    include(${MSVC_INCLUDE})
+    add_definitions(-FI"predefine/posix_memalign")
+endif()
+
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/codecs/avcdec )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/av/media/libstagefright/codecs/avcdec )
 

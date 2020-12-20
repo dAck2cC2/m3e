@@ -1,6 +1,7 @@
 
 if(MSVC)
     include(${MSVC_INCLUDE})
+    add_definitions(-FI"predefine/ssize_t")
 endif()
 
 # include

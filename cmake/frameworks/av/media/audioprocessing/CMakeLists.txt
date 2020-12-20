@@ -36,6 +36,7 @@ if (MSVC)
 
     include(${MSVC_INCLUDE})
     list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
+    add_definitions(-FI"predefine/posix_memalign")
 
 elseif(LINUX)
     add_definitions(-D__unused= )

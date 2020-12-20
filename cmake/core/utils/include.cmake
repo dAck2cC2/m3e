@@ -5,6 +5,7 @@ if(MSVC)
     add_definitions(-D__PRETTY_FUNCTION__=__FUNCTION__)
     add_definitions(-D__STDC_LIMIT_MACROS=1)
     include(${MSVC_INCLUDE})
+    add_definitions(-FI"predefine/__attribute__")
 
 elseif(APPLE)
     add_definitions(-D_MACOSX)

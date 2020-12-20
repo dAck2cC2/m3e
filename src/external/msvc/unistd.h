@@ -23,14 +23,6 @@
 #include <stdint.h>
 /* #include <dirent.h> */ /* Since it will include windows.h, don't include it here */
 
-// define ssize_t
-#if defined(_MSC_VER)
-#define WINDOWS_ENABLE_CPLUSPLUS
-#include <BaseTsd.h>
-typedef SSIZE_T    ssize_t;
-#define SSIZE_MAX  MAXSSIZE_T
-#endif
-
 /* Read user permission */
 #if !defined(S_IRUSR)
 #   define S_IRUSR S_IREAD

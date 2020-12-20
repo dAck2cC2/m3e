@@ -16,6 +16,10 @@
 
 #pragma once
 
+#if defined(_MSC_VER) // M3E: defines M_PI
+#define _USE_MATH_DEFINES 
+#endif // M3E
+
 #include <math/mat3.h>
 #include <math/quat.h>
 #include <math/TMatHelpers.h>

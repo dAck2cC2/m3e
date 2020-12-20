@@ -2,7 +2,7 @@
 
 - Windows 10
 
-git, cmake, python, nasm (https://www.nasm.us), visual studio 2019
+git, cmake, python, nasm (https://www.nasm.us), perl, visual studio 2019
 
 It may need -DCMAKE_SYSTEM_VERSION for cmake.
 See also: https://stackoverflow.com/questions/56145118/cmake-cannot-open-ucrtd-lib
@@ -34,4 +34,3 @@ export CC=clang
 4.  after building, everything will be in "build" directory
 
 Have fun :)
-Jeremy Feng <dAck2cC@yahoo.com>

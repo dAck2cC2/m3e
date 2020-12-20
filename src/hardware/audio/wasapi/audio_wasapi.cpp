@@ -1,6 +1,6 @@
 
 
-#define LOG_TAG "audio_dump"
+#define LOG_TAG "audio_wasapi"
 //#define LOG_NDEBUG 0
 
 #define INITGUID
@@ -88,7 +88,7 @@ class AudioSinkWasapi : public RefBase
 public:
 	AudioSinkWasapi(audio_config_t* pconfig) :
 		UpdateSize(4096),
-		NumUpdates(3),
+		NumUpdates(2),
 		devid(NULL),
 		mmdev(NULL),
 		client(NULL),
@@ -445,7 +445,12 @@ public:
 	}
 
 	const audio_config_t& getConfig() const { return config; };
+
+	// Buffer size must make mFrameCount equal mNormalFrameCount
+	// Refer to 
+	// void AudioFlinger::PlaybackThread::readOutputParameters_l()
 	const unsigned int getBufferSize() const { return (UpdateSize * NumUpdates); };
+
 	const unsigned int getLatency() const { return (UpdateSize * NumUpdates * 1000) / config.sample_rate; };
 
 private:
@@ -622,14 +627,19 @@ static ssize_t out_write(struct audio_stream_out* stream, const void* buffer,
 {
 	ALOGV("[0x%X]%s: bytes: 0x%X, %d", stream, __FUNCTION__, buffer, bytes);
 
-	if (buffer == NULL || bytes <= 0) {
-		ALOGV("%s invalid input data !", __FUNCTION__);
+	if (buffer == NULL || bytes < 0) {
+		ALOGE("%s invalid input data !", __FUNCTION__);
+		return bytes;
+	}
+
+	if (bytes == 0) {
+		ALOGD("%s Zero bytes data !", __FUNCTION__);
 		return bytes;
 	}
 
 	struct stub_stream_out* out = (struct stub_stream_out*)stream;
 	if (out == NULL || out->sink == NULL) {
-		ALOGV("%s no output sink !", __FUNCTION__);
+		ALOGE("%s no output sink !", __FUNCTION__);
 		return -1;
 	}
 

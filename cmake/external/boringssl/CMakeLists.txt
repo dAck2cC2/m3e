@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.11)
+#cmake_minimum_required (VERSION 2.8.11)
 
 # Report AppleClang separately from Clang. Their version numbers are different.
 # https://cmake.org/cmake/help/v3.0/policy/CMP0025.html

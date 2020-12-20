@@ -21,8 +21,9 @@
 #include <sys/types.h>
 #include <utils/Errors.h>
 
-// M3E: add
-#include <stdint.h> // uint32_t, uint64_t
+#if defined(_MSC_VER) // M3E: add
+#include <unistd.h> // uint32_t, uint64_t
+#endif // M3E
 
 namespace android {
 

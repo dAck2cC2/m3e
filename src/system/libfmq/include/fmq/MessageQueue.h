@@ -31,6 +31,10 @@
 #define PAGE_SIZE    1024
 #endif // M3E
 
+#if defined(_MSC_VER) // M3E: add
+#include <android-base/mapped_file.h> // PORT_READ, PORT_WRITE
+#endif // M3E
+
 namespace android {
 namespace hardware {
 

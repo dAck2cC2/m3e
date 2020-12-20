@@ -23,6 +23,10 @@
 #include <utils/Log.h>
 #include "StateQueue.h"
 
+#if defined(_MSC_VER) // M3E: add
+#include <sys/time.h> // nanosleep
+#endif // M3E
+
 namespace android {
 
 #ifdef STATE_QUEUE_DUMP

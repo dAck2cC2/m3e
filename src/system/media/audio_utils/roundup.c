@@ -16,6 +16,10 @@
 
 #include <audio_utils/roundup.h>
 
+#if defined(_MSC_VER) //M3E: add
+#include <sys/cdefs.h> // __builtin_clz
+#endif // M3E
+
 unsigned roundup(unsigned v)
 {
     // __builtin_clz is undefined for zero input
