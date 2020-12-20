@@ -16,8 +16,8 @@ include(${MSVC_INCLUDE})
 
 add_definitions(-DMSVC_WRAP_IMPLEMENTATION=1)
 
-set( HEADER_PATH ${M3E_SOURCE_DIR}/src/external/msvc/ )
-set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/external/msvc/ )
+set( HEADER_PATH ${M3E_SOURCE_DIR}/src/external/msvc/include )
+set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/external/msvc/src )
 
 # header files
 file(GLOB MSVC_HEADER_FILES  
@@ -35,7 +35,6 @@ file(GLOB MSVC_SOURCE_FILES
 ${SOURCE_PATH}/*.c
 ${SOURCE_PATH}/*.cc
 ${SOURCE_PATH}/*.cpp
-${HEADER_PATH}/sys/*.c
 ${M3E_SOURCE_DIR}/external/win-c/source/*.c
 )
 

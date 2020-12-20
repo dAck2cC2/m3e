@@ -2,7 +2,7 @@
 # common definition
 set(BUILD_PATH      ${M3E_BINARY_DIR}/build)
 set(EXT_PATH        external)
-set(MSVC_PATH       ${M3E_SOURCE_DIR}/src/external/msvc ${M3E_SOURCE_DIR}/external/win-c/include)
+set(MSVC_PATH       ${M3E_SOURCE_DIR}/src/external/msvc/include ${M3E_SOURCE_DIR}/external/win-c/include)
 set(MSVC_INCLUDE    ${M3E_SOURCE_DIR}/cmake/external/msvc/include.cmake)
 set(INITRC_PATH     ${M3E_SOURCE_DIR}/src/external/initrc)
 set(INITRC_INCLUDE  ${M3E_SOURCE_DIR}/cmake/external/initrc/include.cmake)
