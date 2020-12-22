@@ -24,7 +24,7 @@
 // ---------------------------------------------------------------------------
 namespace android {
 
-class ANDROID_API_BINDER BBinder : public IBinder /* M3E: MSVC export */
+class BBinder : public IBinder
 {
 public:
                         BBinder();
@@ -34,19 +34,22 @@ public:
     virtual status_t    pingBinder();
     virtual status_t    dump(int fd, const Vector<String16>& args);
 
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    transact(   uint32_t code,
                                     const Parcel& data,
                                     Parcel* reply,
                                     uint32_t flags = 0);
 
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    linkToDeath(const sp<DeathRecipient>& recipient,
-                                    void* cookie = NULL,
+                                    void* cookie = nullptr,
                                     uint32_t flags = 0);
 
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    unlinkToDeath(  const wp<DeathRecipient>& recipient,
-                                        void* cookie = NULL,
+                                        void* cookie = nullptr,
                                         uint32_t flags = 0,
-                                        wp<DeathRecipient>* outRecipient = NULL);
+                                        wp<DeathRecipient>* outRecipient = nullptr);
 
     virtual void        attachObject(   const void* objectID,
                                         void* object,
@@ -57,9 +60,14 @@ public:
 
     virtual BBinder*    localBinder();
 
+    bool                isRequestingSid();
+    // This must be called before the object is sent to another process. Not thread safe.
+    void                setRequestingSid(bool requestSid);
+
 protected:
     virtual             ~BBinder();
 
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    onTransact( uint32_t code,
                                     const Parcel& data,
                                     Parcel* reply,
@@ -71,13 +79,15 @@ private:
 
     class Extras;
 
+    Extras*             getOrCreateExtras();
+
     std::atomic<Extras*> mExtras;
             void*       mReserved0;
 };
 
 // ---------------------------------------------------------------------------
 
-class ANDROID_API_BINDER BpRefBase : public virtual RefBase /* M3E: MSVC export */
+class BpRefBase : public virtual RefBase
 {
 protected:
     explicit                BpRefBase(const sp<IBinder>& o);

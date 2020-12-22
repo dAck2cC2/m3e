@@ -138,7 +138,7 @@ public:
     }
     template <typename T>
     typename std::enable_if<std::is_base_of<IInterface, T>::value, status_t>::type write(
-            Parcel* parcel, const sp<T>& _interface) const {   /* M3E: MSVC */
+            Parcel* parcel, const sp<T>& _interface) const {   /* M3E: evil interface on MSVC */
         return write(parcel, IInterface::asBinder(_interface));
     }
     template <typename T>
@@ -151,6 +151,12 @@ public:
             Parcel* parcel, const std::vector<T>& v) const {
         return callParcel("writeParcelableVector",
                           [&]() { return parcel->writeParcelableVector(v); });
+    }
+    status_t read(const Parcel& parcel, float* f) const {
+        return callParcel("readFloat", [&]() { return parcel.readFloat(f); });
+    }
+    status_t write(Parcel* parcel, float f) const {
+        return callParcel("writeFloat", [&]() { return parcel->writeFloat(f); });
     }
 
     // Templates to handle integral types. We use a struct template to require that the called
@@ -416,12 +422,12 @@ private:
     template <typename T>
 #if !defined(_MSC_VER) /* M3E: MSVC */
     static
-#endif
+#endif // M3E
     typename std::enable_if<!IsPointerIfDecayed<T>::value, status_t>::type readIfOutput(
             const Parcel& /*reply*/, T&& /*t*/)
 #if defined(_MSC_VER) /* M3E: MSVC */
     const
-#endif
+#endif // M3E
     {
         return NO_ERROR;
     }

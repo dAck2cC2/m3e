@@ -25,7 +25,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IMediaResourceMonitor : public IInterface { /* M3E: MSVC export */
+class IMediaResourceMonitor : public IInterface {
 public:
     DECLARE_META_INTERFACE(MediaResourceMonitor)
 
@@ -44,7 +44,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER BnMediaResourceMonitor : public BnInterface<IMediaResourceMonitor> { /* M3E: MSVC export */
+class BnMediaResourceMonitor : public BnInterface<IMediaResourceMonitor> {
 public:
     virtual status_t onTransact(uint32_t code, const Parcel& data, Parcel* reply,
             uint32_t flags = 0);

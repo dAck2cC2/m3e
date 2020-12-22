@@ -27,7 +27,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IPermissionController : public IInterface /* M3E: MSVC export */
+class IPermissionController : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(PermissionController)
@@ -56,6 +56,7 @@ public:
 class BnPermissionController : public BnInterface<IPermissionController>
 {
 public:
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    onTransact( uint32_t code,
                                     const Parcel& data,
                                     Parcel* reply,

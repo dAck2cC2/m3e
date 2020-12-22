@@ -24,7 +24,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IResultReceiver : public IInterface /* M3E: MSVC export */
+class IResultReceiver : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ResultReceiver)
@@ -41,6 +41,7 @@ public:
 class BnResultReceiver : public BnInterface<IResultReceiver>
 {
 public:
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    onTransact( uint32_t code,
                                     const Parcel& data,
                                     Parcel* reply,

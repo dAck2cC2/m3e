@@ -40,7 +40,7 @@ namespace android {
  *
  */
 
-class ANDROID_API_BINDER PermissionCache : Singleton<PermissionCache> { /* M3E: MSVC export */
+class PermissionCache : Singleton<PermissionCache> {
     struct Entry {
         String16    name;
         uid_t       uid;

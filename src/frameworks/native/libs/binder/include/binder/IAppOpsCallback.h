@@ -40,9 +40,10 @@ public:
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER BnAppOpsCallback : public BnInterface<IAppOpsCallback> // M3E: MSVC export
+class BnAppOpsCallback : public BnInterface<IAppOpsCallback>
 {
 public:
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    onTransact( uint32_t code,
                                     const Parcel& data,
                                     Parcel* reply,

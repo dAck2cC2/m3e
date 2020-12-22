@@ -58,14 +58,14 @@ MemoryHeapBase::MemoryHeapBase(const char* device, size_t size, uint32_t flags)
     mapfd(gHeapCount++, size, 0);
 }
 
-MemoryHeapBase::MemoryHeapBase(int fd, size_t size, uint32_t flags, uint32_t offset)
+MemoryHeapBase::MemoryHeapBase(int fd, size_t size, uint32_t flags, off_t offset)
     : mFD(-1), mSize(0), mBase(MAP_FAILED), mFlags(flags),
       mDevice(0), mNeedUnmap(false), mOffset(0)
 {
     mapfd(gHeapCount++, size, offset);
 }
 
-status_t MemoryHeapBase::init(int fd, void *base, int size, int flags, const char* device)
+status_t MemoryHeapBase::init(int fd, void *base, size_t size, int flags, const char* device)
 {
     if (mFD != -1) {
         return INVALID_OPERATION;
@@ -78,7 +78,7 @@ status_t MemoryHeapBase::init(int fd, void *base, int size, int flags, const cha
     return NO_ERROR;
 }
 
-status_t MemoryHeapBase::mapfd(int fd, size_t size, uint32_t offset)
+status_t MemoryHeapBase::mapfd(int fd, size_t size, off_t offset)
 {
     const size_t pagesize = getpagesize();
     mSize = ((size + pagesize - 1) & ~(pagesize - 1));
@@ -129,7 +129,7 @@ const char* MemoryHeapBase::getDevice() const {
     return mDevice;
 }
 
-uint32_t MemoryHeapBase::getOffset() const {
+off_t MemoryHeapBase::getOffset() const {
     return mOffset;
 }
 

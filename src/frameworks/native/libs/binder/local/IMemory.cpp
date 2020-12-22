@@ -99,7 +99,7 @@ public:
     virtual void* getBase() const;
     virtual size_t getSize() const;
     virtual uint32_t getFlags() const;
-    virtual uint32_t getOffset() const;
+    virtual off_t getOffset() const;
 
 private:
     friend class IMemory;
@@ -126,7 +126,7 @@ private:
     mutable void*       mBase;
     mutable size_t      mSize;
     mutable uint32_t    mFlags;
-    mutable uint32_t    mOffset;
+    mutable off_t       mOffset;
     mutable bool        mRealHeap;
     mutable Mutex       mLock;
 };
@@ -365,7 +365,7 @@ uint32_t BpMemoryHeap::getFlags() const {
     return mFlags;
 }
 
-uint32_t BpMemoryHeap::getOffset() const {
+off_t BpMemoryHeap::getOffset() const {
     assertMapped();
     return mOffset;
 }

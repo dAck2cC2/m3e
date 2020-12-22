@@ -28,9 +28,9 @@
 
 using android::BAD_TYPE;
 using android::BAD_VALUE;
-#if !defined(_MSC_VER) /* M3E: */
+#if !defined(_MSC_VER) /* M3E: evil NO_ERROR on MSVC */
 using android::NO_ERROR;
-#endif
+#endif // M3E
 using android::Parcel;
 using android::sp;
 using android::status_t;

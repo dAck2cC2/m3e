@@ -31,10 +31,10 @@ class SimpleBestFitAllocator;
 
 // ----------------------------------------------------------------------------
 
-class ANDROID_API_BINDER MemoryDealer : public RefBase /* M3E: MSVC export */
+class MemoryDealer : public RefBase
 {
 public:
-    MemoryDealer(size_t size, const char* name = 0,
+    explicit MemoryDealer(size_t size, const char* name = nullptr,
             uint32_t flags = 0 /* or bits such as MemoryHeapBase::READ_ONLY */ );
 
     virtual sp<IMemory> allocate(size_t size);

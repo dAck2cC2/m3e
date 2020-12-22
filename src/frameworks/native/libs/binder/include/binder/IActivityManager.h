@@ -26,7 +26,7 @@ namespace android {
 
 // ------------------------------------------------------------------------------------
 
-class ANDROID_API_BINDER IActivityManager : public IInterface /* M3E: MSVC export */
+class IActivityManager : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ActivityManager)
@@ -38,12 +38,14 @@ public:
                                      const String16& callingPackage) = 0;
     virtual void unregisterUidObserver(const sp<IUidObserver>& observer) = 0;
     virtual bool isUidActive(const uid_t uid, const String16& callingPackage) = 0;
+    virtual int32_t getUidProcessState(const uid_t uid, const String16& callingPackage) = 0;
 
     enum {
         OPEN_CONTENT_URI_TRANSACTION = IBinder::FIRST_CALL_TRANSACTION,
         REGISTER_UID_OBSERVER_TRANSACTION,
         UNREGISTER_UID_OBSERVER_TRANSACTION,
-        IS_UID_ACTIVE_TRANSACTION
+        IS_UID_ACTIVE_TRANSACTION,
+        GET_UID_PROCESS_STATE_TRANSACTION
     };
 };
 

@@ -17,8 +17,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <binder/ActivityManager.h>
 #include <binder/IActivityManager.h>
-
 #include <binder/Parcel.h>
 
 namespace android {
@@ -46,9 +46,9 @@ public:
                 // Success is indicated here by a nonzero int followed by the fd;
                 // failure by a zero int with no data following.
                 if (reply.readInt32() != 0) {
-#if TODO /* M3E: */
+#if TODO /* M3E: no fcntl */
                     fd = fcntl(reply.readParcelFileDescriptor(), F_DUPFD_CLOEXEC, 0);
-#endif
+#endif  // M3E
                 }
             } else {
                 // An exception was thrown back; fall through to return failure
@@ -91,6 +91,20 @@ public:
          // fail on exception
          if (reply.readExceptionCode() != 0) return false;
          return reply.readInt32() == 1;
+    }
+
+    virtual int32_t getUidProcessState(const uid_t uid, const String16& callingPackage)
+    {
+        Parcel data, reply;
+        data.writeInterfaceToken(IActivityManager::getInterfaceDescriptor());
+        data.writeInt32(uid);
+        data.writeString16(callingPackage);
+        remote()->transact(GET_UID_PROCESS_STATE_TRANSACTION, data, &reply);
+        // fail on exception
+        if (reply.readExceptionCode() != 0) {
+            return ActivityManager::PROCESS_STATE_UNKNOWN;
+        }
+        return reply.readInt32();
     }
 };
 

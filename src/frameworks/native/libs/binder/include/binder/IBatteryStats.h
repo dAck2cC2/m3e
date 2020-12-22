@@ -25,7 +25,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IBatteryStats : public IInterface /* M3E: MSVC export */
+class IBatteryStats : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(BatteryStats)
@@ -68,6 +68,7 @@ public:
 class BnBatteryStats : public BnInterface<IBatteryStats>
 {
 public:
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t    onTransact( uint32_t code,
                                     const Parcel& data,
                                     Parcel* reply,

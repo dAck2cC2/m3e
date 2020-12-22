@@ -49,11 +49,11 @@ public:
         remote()->transact(OP_OPEN_OUTPUT_FILE, data, &reply, 0);
         reply.readExceptionCode();
         int fd = reply.readParcelFileDescriptor();
-#if TODO /* M3E: */
+#if TODO /* M3E: no fcntl */
         return fd >= 0 ? fcntl(fd, F_DUPFD_CLOEXEC, 0) : fd;
-#else
+#else  // M3E
 		return fd >= 0 ? dup(fd) : fd;
-#endif
+#endif // M3E
 
     }
 };
@@ -62,6 +62,7 @@ IMPLEMENT_META_INTERFACE(ShellCallback, "com.android.internal.os.IShellCallback"
 
 // ----------------------------------------------------------------------
 
+// NOLINTNEXTLINE(google-default-arguments)
 status_t BnShellCallback::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
@@ -72,7 +73,7 @@ status_t BnShellCallback::onTransact(
             String16 seLinuxContext(data.readString16());
             String16 mode(data.readString16());
             int fd = openFile(path, seLinuxContext, mode);
-            if (reply != NULL) {
+            if (reply != nullptr) {
                 reply->writeNoException();
                 if (fd >= 0) {
                     reply->writeInt32(1);

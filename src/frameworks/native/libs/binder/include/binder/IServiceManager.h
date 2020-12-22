@@ -26,7 +26,7 @@ namespace android {
 
 // ----------------------------------------------------------------------
 
-class ANDROID_API_BINDER IServiceManager : public IInterface /* M3E: MSVC export */
+class IServiceManager : public IInterface
 {
 public:
     DECLARE_META_INTERFACE(ServiceManager)
@@ -61,6 +61,7 @@ public:
     /**
      * Register a service.
      */
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual status_t addService(const String16& name, const sp<IBinder>& service,
                                 bool allowIsolated = false,
                                 int dumpsysFlags = DUMP_FLAG_PRIORITY_DEFAULT) = 0;
@@ -68,6 +69,7 @@ public:
     /**
      * Return list of all existing services.
      */
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual Vector<String16> listServices(int dumpsysFlags = DUMP_FLAG_PRIORITY_ALL) = 0;
 
     enum {
@@ -78,26 +80,22 @@ public:
     };
 };
 
-ANDROID_API_BINDER /* M3E: MSVC export */
 sp<IServiceManager> defaultServiceManager();
 
 template<typename INTERFACE>
 status_t getService(const String16& name, sp<INTERFACE>* outService)
 {
     const sp<IServiceManager> sm = defaultServiceManager();
-    if (sm != NULL) {
+    if (sm != nullptr) {
         *outService = interface_cast<INTERFACE>(sm->getService(name));
-        if ((*outService) != NULL) return NO_ERROR;
+        if ((*outService) != nullptr) return NO_ERROR;
     }
     return NAME_NOT_FOUND;
 }
 
-ANDROID_API_BINDER /* M3E: MSVC export */
 bool checkCallingPermission(const String16& permission);
-ANDROID_API_BINDER /* M3E: MSVC export */
 bool checkCallingPermission(const String16& permission,
                             int32_t* outPid, int32_t* outUid);
-ANDROID_API_BINDER /* M3E: MSVC export */
 bool checkPermission(const String16& permission, pid_t pid, uid_t uid);
 
 }; // namespace android

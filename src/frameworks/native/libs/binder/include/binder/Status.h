@@ -22,6 +22,7 @@
 
 #include <binder/Parcel.h>
 #include <utils/String8.h>
+#include <string>
 
 namespace android {
 namespace binder {
@@ -49,7 +50,7 @@ namespace binder {
 //         // exception during handling.
 //     }
 //
-class ANDROID_API_BINDER Status final { /* M3E: MSVC export */
+class Status final {
 public:
     // Keep the exception codes in sync with android/os/Parcel.java.
     enum Exception {
@@ -96,6 +97,8 @@ public:
                                            const char* message);
 
     static Status fromStatusT(status_t status);
+
+    static std::string exceptionToString(status_t exceptionCode);
 
     Status() = default;
     ~Status() = default;
