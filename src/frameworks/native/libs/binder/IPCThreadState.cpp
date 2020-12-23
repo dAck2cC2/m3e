@@ -36,11 +36,7 @@
 
 #include <errno.h>
 #include <inttypes.h>
-#if 0 /* M3E: uss cutils/threads instead of pthread */
 #include <pthread.h>
-#else
-#include <cutils/threads.h>
-#endif
 #if !defined(_MSC_VER) /* M3E: no sched.h on MSVC */
 #include <sched.h>
 #endif // M3E
@@ -305,50 +301,65 @@ static const void* printCommand(TextOutput& out, const void* _cmd)
     return cmd;
 }
 
-static thread_store_t gTLS = THREAD_STORE_INITIALIZER;
+static pthread_mutex_t gTLSMutex = PTHREAD_MUTEX_INITIALIZER;
+static bool gHaveTLS = false;
+static pthread_key_t gTLS = 0;
 static bool gShutdown = false;
 static bool gDisableBackgroundScheduling = false;
 
 IPCThreadState* IPCThreadState::self()
 {
-    if (gTLS.has_tls) {
-        IPCThreadState* st = (IPCThreadState*)thread_store_get(&gTLS);
-        if (st) {
-            return st;
-        } else {
-            goto create_thread;
-        }
+    if (gHaveTLS) {
+restart:
+        const pthread_key_t k = gTLS;
+        IPCThreadState* st = (IPCThreadState*)pthread_getspecific(k);
+        if (st) return st;
+        return new IPCThreadState;
     }
 
     if (gShutdown) {
         ALOGW("Calling IPCThreadState::self() during shutdown is dangerous, expect a crash.\n");
         return nullptr;
     }
-    
-create_thread:
-    IPCThreadState* new_st = new IPCThreadState;
-    if (new_st) {
-        thread_store_set(&gTLS, new_st, threadDestructor);
+
+    pthread_mutex_lock(&gTLSMutex);
+    if (!gHaveTLS) {
+        int key_create_value = pthread_key_create(&gTLS, threadDestructor);
+        if (key_create_value != 0) {
+            pthread_mutex_unlock(&gTLSMutex);
+            ALOGW("IPCThreadState::self() unable to create TLS key, expect a crash: %s\n",
+                    strerror(key_create_value));
+            return nullptr;
+        }
+        gHaveTLS = true;
     }
-    return new_st;
+    pthread_mutex_unlock(&gTLSMutex);
+    goto restart;
 }
 
 IPCThreadState* IPCThreadState::selfOrNull()
 {
-    return (IPCThreadState*)thread_store_get(&gTLS);
+    if (gHaveTLS) {
+        const pthread_key_t k = gTLS;
+        IPCThreadState* st = (IPCThreadState*)pthread_getspecific(k);
+        return st;
+    }
+    return nullptr;
 }
 
 void IPCThreadState::shutdown()
 {
     gShutdown = true;
-    
-    if (gTLS.has_tls) {
-        IPCThreadState* st = (IPCThreadState*)thread_store_get(&gTLS);
+
+    if (gHaveTLS) {
+        // XXX Need to wait for all thread pool threads to exit!
+        IPCThreadState* st = (IPCThreadState*)pthread_getspecific(gTLS);
         if (st) {
             delete st;
-            thread_store_set(&gTLS, NULL, threadDestructor);
+            pthread_setspecific(gTLS, nullptr);
         }
-        gTLS.has_tls = 0;
+        pthread_key_delete(gTLS);
+        gHaveTLS = false;
     }
 }
 
@@ -820,7 +831,7 @@ IPCThreadState::IPCThreadState()
       mLastTransactionBinderFlags(0),
       mCallRestriction(mProcess->mCallRestriction)
 {
-
+    pthread_setspecific(gTLS, this);
     clearCaller();
     mIn.setDataCapacity(256);
     mOut.setDataCapacity(256);

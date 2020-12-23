@@ -894,6 +894,7 @@ status_t binder_ioctl_local(int handler, int cmd, void* data)
 			gDeamonCount = maxThreads;
 		}
 	}   break;
+    case BINDER_SET_CONTEXT_MGR_EXT:
 	case BINDER_SET_CONTEXT_MGR: {
         gHandlerContextManager = handler;
     }   break;

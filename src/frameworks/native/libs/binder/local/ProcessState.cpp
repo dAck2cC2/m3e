@@ -211,9 +211,20 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
 			gProcess->mBinderContextCheckFunc = checkFunc;
 			gProcess->mBinderContextUserData = userData;
 		}
+        flat_binder_object obj {
+            .flags = FLAT_BINDER_FLAG_TXN_SECURITY_CTX,
+        };
 
-        int dummy = 0;
-        status_t result = binder_ioctl_local(mDriverFD, BINDER_SET_CONTEXT_MGR, &dummy);
+        status_t result = binder_ioctl_local(mDriverFD, BINDER_SET_CONTEXT_MGR_EXT, &obj);
+
+        // fallback to original method
+        if (result != 0) {
+            android_errorWriteLog(0x534e4554, "121035042");
+
+            int dummy = 0;
+            result = binder_ioctl_local(mDriverFD, BINDER_SET_CONTEXT_MGR, &dummy);
+        }
+
         if (result == 0) {
             mManagesContexts = true;
         } else if (result == -1) {
@@ -392,8 +403,14 @@ String8 ProcessState::makeBinderThreadName() {
 
 void ProcessState::spawnPooledThread(bool isMain)
 {
-    // M3E: The process is the same as thread. It has no thread pool.
-    /* EMPTY */
+#if 0 // M3E: The process is the same as thread. It has no thread pool.
+    if (mThreadPoolStarted) {
+        String8 name = makeBinderThreadName();
+        ALOGV("Spawning new pooled thread, name=%s\n", name.string());
+        sp<Thread> t = new PoolThread(isMain);
+        t->run(name.string());
+    }
+#endif // M3E
 }
 
 status_t ProcessState::setThreadPoolMaxThreadCount(size_t maxThreads) {

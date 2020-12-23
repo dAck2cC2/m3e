@@ -104,8 +104,8 @@ sp<ProcessState> ProcessState::initWithDriver(const char* driver)
 
 sp<ProcessState> ProcessState::selfOrNull()
 {
-    Mutex::Autolock _l(gProcessMutex);
-    return gProcess;
+	ProcessState* pt = (ProcessState*)thread_store_get(&gTLS);
+	return pt;
 }
 
 void ProcessState::setContextObject(const sp<IBinder>& object)
