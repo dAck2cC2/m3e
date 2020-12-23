@@ -1190,16 +1190,16 @@ void* MessageQueue<T, flavor>::mapGrantorDescr(uint32_t grantorIdx) {
     int mapLength =
             grantors[grantorIdx].offset - mapOffset + grantors[grantorIdx].extent;
 
-#if !defined(_MSC_VER) // M3E:
+#if !defined(_MSC_VER) // M3E: no mmap on MSVC
     void* address = mmap(0, mapLength, PROT_READ | PROT_WRITE, MAP_SHARED,
                          handle->data[fdIndex], mapOffset);
     return (address == MAP_FAILED)
             ? nullptr
             : reinterpret_cast<uint8_t*>(address) +
             (grantors[grantorIdx].offset - mapOffset);
-#else
+#else  // M3E
     return nullptr;
-#endif
+#endif // M3E
 }
 
 template <typename T, MQFlavor flavor>
@@ -1215,9 +1215,9 @@ void MessageQueue<T, flavor>::unmapGrantorDescr(void* address,
             grantors[grantorIdx].offset - mapOffset + grantors[grantorIdx].extent;
     void* baseAddress = reinterpret_cast<uint8_t*>(address) -
             (grantors[grantorIdx].offset - mapOffset);
-#if !defined(_MSC_VER) // M3E:
+#if !defined(_MSC_VER) // M3E: no mmap on MSVC
     if (baseAddress) munmap(baseAddress, mapLength);
-#endif
+#endif // M3E
 }
 
 }  // namespace hardware

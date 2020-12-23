@@ -19,10 +19,6 @@
 
 #include <android/log.h>
 
-#if defined(_MSC_VER) /* M3E: no __attribute__ */
-#define __attribute__(a)  
-#endif // M3E
-
 namespace android {
 
 // Interface for printing to an arbitrary data stream
