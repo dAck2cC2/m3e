@@ -439,7 +439,11 @@ public:
     void                print(TextOutput& to, uint32_t flags = 0) const;
 
 private:
-                        Parcel(const Parcel& o) {}; /* M3E: */
+#if defined(__APPLE__)  // M3E
+                        Parcel(const Parcel& o) {};
+#else  // M3E
+                        Parcel(const Parcel& o);
+#endif // M3E
     Parcel&             operator=(const Parcel& o);
     
     status_t            finishWrite(size_t len);

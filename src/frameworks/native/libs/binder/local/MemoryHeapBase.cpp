@@ -40,27 +40,27 @@ static int gHeapCount = 0;
 
 MemoryHeapBase::MemoryHeapBase()
     : mFD(-1), mSize(0), mBase(MAP_FAILED),
-      mDevice(NULL), mNeedUnmap(false), mOffset(0)
+      mDevice(nullptr), mNeedUnmap(false), mOffset(0)
 {
 }
 
 MemoryHeapBase::MemoryHeapBase(size_t size, uint32_t flags, char const * name)
     : mFD(-1), mSize(0), mBase(MAP_FAILED), mFlags(flags),
-      mDevice(0), mNeedUnmap(false), mOffset(0)
+      mDevice(nullptr), mNeedUnmap(false), mOffset(0)
 {
     mapfd(gHeapCount++, size, 0);
 }
 
 MemoryHeapBase::MemoryHeapBase(const char* device, size_t size, uint32_t flags)
     : mFD(-1), mSize(0), mBase(MAP_FAILED), mFlags(flags),
-      mDevice(0), mNeedUnmap(false), mOffset(0)
+      mDevice(nullptr), mNeedUnmap(false), mOffset(0)
 {
     mapfd(gHeapCount++, size, 0);
 }
 
 MemoryHeapBase::MemoryHeapBase(int fd, size_t size, uint32_t flags, off_t offset)
     : mFD(-1), mSize(0), mBase(MAP_FAILED), mFlags(flags),
-      mDevice(0), mNeedUnmap(false), mOffset(0)
+      mDevice(nullptr), mNeedUnmap(false), mOffset(0)
 {
     mapfd(gHeapCount++, size, offset);
 }

@@ -10,9 +10,13 @@ include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
 
+include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binderthreadstate/include.cmake)
+
+
 set(${PROJECT_NAME}_DEPLIB
 utils
 log
+binderthreadstate
 )
 
 if (MSVC)
@@ -51,7 +55,7 @@ ${SOURCE_PATH}/IAppOpsService.cpp
 ${SOURCE_PATH}/IBatteryStats.cpp 
 ${SOURCE_PATH}/IInterface.cpp 
 ${SOURCE_PATH}/IMediaResourceMonitor.cpp 
-#{SOURCE_PATH}/IMemory.cpp 
+#{SOURCE_PATH}/IMemory.cpp    # local version
 ${SOURCE_PATH}/IPCThreadState.cpp 
 ${SOURCE_PATH}/IPermissionController.cpp 
 #${SOURCE_PATH}/IProcessInfoService.cpp 
@@ -61,14 +65,14 @@ ${SOURCE_PATH}/IShellCallback.cpp
 ${SOURCE_PATH}/IUidObserver.cpp 
 ${SOURCE_PATH}/MemoryBase.cpp 
 ${SOURCE_PATH}/MemoryDealer.cpp 
-#${SOURCE_PATH}/MemoryHeapBase.cpp 
+#${SOURCE_PATH}/MemoryHeapBase.cpp    # local version 
 ${SOURCE_PATH}/Parcel.cpp 
 ${SOURCE_PATH}/ParcelFileDescriptor.cpp
 ${SOURCE_PATH}/PermissionCache.cpp 
 ${SOURCE_PATH}/PermissionController.cpp 
 ${SOURCE_PATH}/PersistableBundle.cpp 
 #${SOURCE_PATH}/ProcessInfoService.cpp 
-#${SOURCE_PATH}/ProcessState.cpp 
+#${SOURCE_PATH}/ProcessState.cpp    # local version
 ${SOURCE_PATH}/Static.cpp 
 ${SOURCE_PATH}/Status.cpp 
 ${SOURCE_PATH}/TextOutput.cpp 
@@ -79,6 +83,7 @@ ${SOURCE_PATH}/Value.cpp
 if (BINDER_ENABLE_LOCAL)
     add_definitions(-DBINDER_LOCAL=1)
     file(GLOB BINDER_LOCAL_SRC ${SOURCE_PATH}/local/*.cpp)
+    source_group(local FILES ${BINDER_LOCAL_SRC})
     list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${BINDER_LOCAL_SRC})
 endif ()
 

@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 
-
 // Provide emulation for at_quick_exit/quick_exit on platforms that don't have it.
 namespace android {
 namespace base {

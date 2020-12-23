@@ -1,4 +1,5 @@
 # the subdirectory
+add_subdirectory(binderthreadstate)
 add_subdirectory(binder)
 add_subdirectory(servicemanager)
 

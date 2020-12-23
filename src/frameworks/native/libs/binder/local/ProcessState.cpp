@@ -44,8 +44,15 @@
 #include <cutils/threads.h>
 #define DEFAULT_DRV_NAME  "M3E::Default"
 
+//#define BINDER_VM_SIZE ((1 * 1024 * 1024) - sysconf(_SC_PAGE_SIZE) * 2)
 #define BINDER_VM_SIZE ((1 * 1024 * 1024) - (4096 *2))
 #define DEFAULT_MAX_BINDER_THREADS 15
+
+#ifdef __ANDROID_VNDK__
+const char* kDefaultDriver = "/dev/vndbinder";
+#else
+const char* kDefaultDriver = "/dev/binder";
+#endif
 
 // -------------------------------------------------------------------------
 
@@ -149,18 +156,18 @@ sp<IBinder> ProcessState::getContextObject(const String16& name, const sp<IBinde
 {
     mLock.lock();
     sp<IBinder> object(
-        mContexts.indexOfKey(name) >= 0 ? mContexts.valueFor(name) : NULL);
+        mContexts.indexOfKey(name) >= 0 ? mContexts.valueFor(name) : nullptr);
     mLock.unlock();
     
     //printf("Getting context object %s for %p\n", String8(name).string(), caller.get());
     
-    if (object != NULL) return object;
+    if (object != nullptr) return object;
 
     // Don't attempt to retrieve contexts if we manage them
     if (mManagesContexts) {
         ALOGE("getContextObject(%s) failed, but we manage the contexts!\n",
             String8(name).string());
-        return NULL;
+        return nullptr;
     }
     
     IPCThreadState* ipc = IPCThreadState::self();
@@ -177,7 +184,7 @@ sp<IBinder> ProcessState::getContextObject(const String16& name, const sp<IBinde
     
     ipc->flushCommands();
     
-    if (object != NULL) setContextObject(object, name);
+    if (object != nullptr) setContextObject(object, name);
     return object;
 }
 
@@ -212,8 +219,8 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
         } else if (result == -1) {
 			/* M3E: save to global */
 			if (gProcess != NULL) {
-				gProcess->mBinderContextCheckFunc = NULL;
-				gProcess->mBinderContextUserData = NULL;
+				gProcess->mBinderContextCheckFunc = nullptr;
+				gProcess->mBinderContextUserData = nullptr;
 			}
             ALOGE("Binder ioctl to become context manager failed: %s\n", strerror(errno));
         }
@@ -230,18 +237,9 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
 ssize_t ProcessState::getKernelReferences(size_t buf_count, uintptr_t* buf)
 {
 #if TODO /* M3E: */
-    // TODO: remove these when they are defined by bionic's binder.h
-    struct binder_node_debug_info {
-        binder_uintptr_t ptr;
-        binder_uintptr_t cookie;
-        __u32 has_strong_ref;
-        __u32 has_weak_ref;
-    };
-#define BINDER_GET_NODE_DEBUG_INFO _IOWR('b', 11, struct binder_node_debug_info)
-
     binder_node_debug_info info = {};
 
-    uintptr_t* end = buf ? buf + buf_count : NULL;
+    uintptr_t* end = buf ? buf + buf_count : nullptr;
     size_t count = 0;
 
     do {
@@ -260,9 +258,15 @@ ssize_t ProcessState::getKernelReferences(size_t buf_count, uintptr_t* buf)
     } while (info.ptr != 0);
 
     return count;
-#else
+#else  // M3E
 	return 0;
-#endif
+#endif // M3E
+}
+
+void ProcessState::setCallRestriction(CallRestriction restriction) {
+    LOG_ALWAYS_FATAL_IF(IPCThreadState::selfOrNull(), "Call restrictions must be set before the threadpool is started.");
+
+    mCallRestriction = restriction;
 }
 
 ProcessState::handle_entry* ProcessState::lookupHandleLocked(int32_t handle)
@@ -270,10 +274,10 @@ ProcessState::handle_entry* ProcessState::lookupHandleLocked(int32_t handle)
     const size_t N=mHandleToObject.size();
     if (N <= (size_t)handle) {
         handle_entry e;
-        e.binder = NULL;
-        e.refs = NULL;
+        e.binder = nullptr;
+        e.refs = nullptr;
         status_t err = mHandleToObject.insertAt(e, N, handle+1-N);
-        if (err < NO_ERROR) return NULL;
+        if (err < NO_ERROR) return nullptr;
     }
     return &mHandleToObject.editItemAt(handle);
 }
@@ -286,12 +290,12 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
 
     handle_entry* e = lookupHandleLocked(handle);
 
-    if (e != NULL) {
+    if (e != nullptr) {
         // We need to create a new BpBinder if there isn't currently one, OR we
         // are unable to acquire a weak reference on this current one.  See comment
         // in getWeakProxyForHandle() for more info about this.
         IBinder* b = e->binder;
-        if (b == NULL || !e->refs->attemptIncWeak(this)) {
+        if (b == nullptr || !e->refs->attemptIncWeak(this)) {
             if (handle == 0) {
                 // Special case for context manager...
                 // The context manager is the only object for which we create
@@ -314,9 +318,9 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
 
                 Parcel data;
                 status_t status = IPCThreadState::self()->transact(
-                        0, IBinder::PING_TRANSACTION, data, NULL, 0);
+                        0, IBinder::PING_TRANSACTION, data, nullptr, 0);
                 if (status == DEAD_OBJECT)
-                   return NULL;
+                   return nullptr;
             }
 
             b = BpBinder::create(handle);
@@ -343,7 +347,7 @@ wp<IBinder> ProcessState::getWeakProxyForHandle(int32_t handle)
 
     handle_entry* e = lookupHandleLocked(handle);
 
-    if (e != NULL) {        
+    if (e != nullptr) {        
         // We need to create a new BpBinder if there isn't currently one, OR we
         // are unable to acquire a weak reference on this current one.  The
         // attemptIncWeak() is safe because we know the BpBinder destructor will always
@@ -352,7 +356,7 @@ wp<IBinder> ProcessState::getWeakProxyForHandle(int32_t handle)
         // releasing a reference on this BpBinder, and a new reference on its handle
         // arriving from the driver.
         IBinder* b = e->binder;
-        if (b == NULL || !e->refs->attemptIncWeak(this)) {
+        if (b == nullptr || !e->refs->attemptIncWeak(this)) {
             b = BpBinder::create(handle);
             result = b;
             e->binder = b;
@@ -375,7 +379,7 @@ void ProcessState::expungeHandle(int32_t handle, IBinder* binder)
     // This handle may have already been replaced with a new BpBinder
     // (if someone failed the AttemptIncWeak() above); we don't want
     // to overwrite it.
-    if (e && e->binder == binder) e->binder = NULL;
+    if (e && e->binder == binder) e->binder = nullptr;
 }
 
 String8 ProcessState::makeBinderThreadName() {
@@ -449,10 +453,11 @@ ProcessState::ProcessState(const char *driver)
     , mMaxThreads(DEFAULT_MAX_BINDER_THREADS)
     , mStarvationStartTimeMs(0)
     , mManagesContexts(false)
-    , mBinderContextCheckFunc(NULL)
-    , mBinderContextUserData(NULL)
+    , mBinderContextCheckFunc(nullptr)
+    , mBinderContextUserData(nullptr)
     , mThreadPoolStarted(false)
     , mThreadPoolSeq(1)
+    , mCallRestriction(CallRestriction::NONE)
 {
     LOG_ALWAYS_FATAL_IF(mDriverFD < 0, "Binder driver could not be opened.  Terminating.");
 }
