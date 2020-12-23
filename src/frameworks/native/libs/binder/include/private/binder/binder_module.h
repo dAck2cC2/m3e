@@ -35,11 +35,38 @@ namespace android {
 #if 0 /* M3E: No fancy encoding */
 #include <linux/ioctl.h>
 #else
-#define _B_IO(x,y)    ((x << 8) | y)
-#define _B_IOR(x,y,t)    _B_IO(x,y)
-#define _B_IOW(x,y,t)    _B_IO(x,y)
-#define _B_IORW(x,y,t)    _B_IO(x,y)
-#define _B_IOWR(x,y,t)    _B_IO(x,y)
+#define _B_IOC_NRBITS    8
+#define _B_IOC_TYPEBITS  8
+#define _B_IOC_SIZEBITS  13
+#define _B_IOC_DIRBITS   3
+
+#define _B_IOC_NRMASK    ((1 << _B_IOC_NRBITS)-1)
+#define _B_IOC_TYPEMASK  ((1 << _B_IOC_TYPEBITS)-1)
+#define _B_IOC_SIZEMASK  ((1 << _B_IOC_SIZEBITS)-1)
+#define _B_IOC_DIRMASK   ((1 << _B_IOC_DIRBITS)-1)
+
+#define _B_IOC_NRSHIFT      0
+#define _B_IOC_TYPESHIFT    (_B_IOC_NRSHIFT+_B_IOC_NRBITS)
+#define _B_IOC_SIZESHIFT    (_B_IOC_TYPESHIFT+_B_IOC_TYPEBITS)
+#define _B_IOC_DIRSHIFT     (_B_IOC_SIZESHIFT+_B_IOC_SIZEBITS)
+
+#define _B_IOC_NONE     1U
+#define _B_IOC_READ     2U
+#define _B_IOC_WRITE    4U
+
+#define _B_IOC(dir,type,nr,size)			\
+	         ((unsigned int)				\
+	     (((dir)  << _B_IOC_DIRSHIFT) |		\
+	     ((type) << _B_IOC_TYPESHIFT) |		\
+	       ((nr)   << _B_IOC_NRSHIFT) |		\
+	      ((size) << _B_IOC_SIZESHIFT)))
+
+#define _B_IO(type,nr)		    _B_IOC(_B_IOC_NONE,(type),(nr),0)
+#define _B_IOR(type,nr,size)    _B_IOC(_B_IOC_READ,(type),(nr),sizeof(size))
+#define _B_IOW(type,nr,size)    _B_IOC(_B_IOC_WRITE,(type),(nr),sizeof(size))
+#define _B_IOWR(type,nr,size)   _B_IOC(_B_IOC_READ|_B_IOC_WRITE,(type),(nr),sizeof(size))
+#define _B_IOWR(type,nr,size)   _B_IOC(_B_IOC_READ|_B_IOC_WRITE,(type),(nr),sizeof(size))
+
 #endif
 
 

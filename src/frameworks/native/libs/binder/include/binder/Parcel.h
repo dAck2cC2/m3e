@@ -49,9 +49,10 @@ typedef uint64_t binder_size_t;
 #include <binder/Parcelable.h>
 #include <binder/Map.h>
 
-/* M3E: Add */
+#if defined(__APPLE__) /* M3E: Add */
 #include <memory>
 #include <limits>
+#endif // M3E
 
 // ---------------------------------------------------------------------------
 namespace android {

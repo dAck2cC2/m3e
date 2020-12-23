@@ -633,9 +633,8 @@ status_t Parcel::writeInterfaceToken(const String16& interface)
     const IPCThreadState* threadState = IPCThreadState::self();
     writeInt32(threadState->getStrictModePolicy() | STRICT_MODE_PENALTY_GATHER);
     updateWorkSourceRequestHeaderPosition();
-    writeInt32(//threadState->shouldPropagateWorkSource() ?
-            //threadState->getCallingWorkSourceUid() : 
-        IPCThreadState::kUnsetWorkSource);
+    writeInt32(threadState->shouldPropagateWorkSource() ?
+            threadState->getCallingWorkSourceUid() : IPCThreadState::kUnsetWorkSource);
     // currently the interface identification token is just its name as a string
     return writeString16(interface);
 }
@@ -692,7 +691,7 @@ bool Parcel::enforceInterface(const String16& interface,
     // WorkSource.
     updateWorkSourceRequestHeaderPosition();
     int32_t workSource = readInt32();
-    //threadState->setCallingWorkSourceUidWithoutPropagation(workSource);
+    threadState->setCallingWorkSourceUidWithoutPropagation(workSource);
     // Interface descriptor.
     const String16 str(readString16());
     if (str == interface) {

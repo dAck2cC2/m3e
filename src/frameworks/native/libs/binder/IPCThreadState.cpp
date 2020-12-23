@@ -1168,11 +1168,19 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
         }
         break;
 
-    //case BR_TRANSACTION_SEC_CTX:
+    case BR_TRANSACTION_SEC_CTX:
     case BR_TRANSACTION:
         {
-            binder_transaction_data tr;
-            result = mIn.read(&tr, sizeof(tr));
+            binder_transaction_data_secctx tr_secctx;
+            binder_transaction_data& tr = tr_secctx.transaction_data;
+
+            if (cmd == (int) BR_TRANSACTION_SEC_CTX) {
+                result = mIn.read(&tr_secctx, sizeof(tr_secctx));
+            } else {
+                result = mIn.read(&tr, sizeof(tr));
+                tr_secctx.secctx = 0;
+            }
+
             ALOG_ASSERT(result == NO_ERROR,
                 "Not enough command data for brTRANSACTION");
             if (result != NO_ERROR) break;
@@ -1201,7 +1209,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
             clearPropagateWorkSource();
 
             mCallingPid = tr.sender_pid;
-            //mCallingSid = reinterpret_cast<const char*>(tr_secctx.secctx);
+            mCallingSid = reinterpret_cast<const char*>(tr_secctx.secctx);
             mCallingUid = tr.sender_euid;
             mLastTransactionBinderFlags = tr.flags;
 
