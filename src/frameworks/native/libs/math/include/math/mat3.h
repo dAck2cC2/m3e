@@ -30,7 +30,7 @@
 #else
 #define CONSTEXPR
 #endif
-#endif
+#endif // M3E
 
 namespace android {
 // -------------------------------------------------------------------------------------

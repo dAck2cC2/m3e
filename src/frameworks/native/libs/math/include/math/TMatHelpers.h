@@ -32,7 +32,7 @@
 
 #if defined(_MSC_VER) /* M3E: MSVC */
 #include <algorithm>
-#endif
+#endif // M3E
 
 #ifndef LIKELY
 #define LIKELY_DEFINED_LOCAL

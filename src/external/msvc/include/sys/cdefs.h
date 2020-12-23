@@ -96,9 +96,11 @@ because it may be included before winsock2.h.
 
 #include "msvc_export.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef __INTRODUCED_IN
+#define __INTRODUCED_IN(a) 
+#endif // __INTRODUCED_IN
+
+__BEGIN_DECLS
 
 #if !defined(CFG_NO_POPCNT)
 #define __builtin_popcount   __popcnt
@@ -122,8 +124,6 @@ MSVC_EXPORT uint32_t __builtin_clz64(uint64_t value);
 
 MSVC_EXPORT extern int ffs(int valu);
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /* !_CDEFS_H_ */
