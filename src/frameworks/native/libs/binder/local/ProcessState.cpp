@@ -61,7 +61,7 @@ namespace android {
 /* M3E: local binder ioctl */
 extern int      binder_open_local(const char* name);
 extern status_t binder_close_local(int handler);
-extern status_t binder_ioctl_local(int handler, int cmd, void* data);
+extern status_t binder_ioctl_local(int handler, unsigned int cmd, void* data);
 
 /* M3E: used cutils/threads instead of pthread */
 static thread_store_t gTLS = THREAD_STORE_INITIALIZER;

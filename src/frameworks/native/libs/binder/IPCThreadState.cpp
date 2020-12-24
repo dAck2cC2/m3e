@@ -86,7 +86,7 @@ namespace android {
 #if !defined(__ANDROID__) /* M3E: use local binder */
 #define __ANDROID__
 #define ioctl   binder_ioctl_local
-extern status_t binder_ioctl_local(int handler, int cmd, void* data);
+extern status_t binder_ioctl_local(int handler, unsigned int cmd, void* data);
 
 #define close   binder_close_local
 extern status_t binder_close_local(int handler);

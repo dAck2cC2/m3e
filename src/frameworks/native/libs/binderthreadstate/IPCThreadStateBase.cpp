@@ -65,7 +65,7 @@ void IPCThreadStateBase::pushCurrentState(CallState callState) {
 }
 
 IPCThreadStateBase::CallState IPCThreadStateBase::popCurrentState() {
-#if !defined(_MSC_VER) // M3E: 
+#if !defined(_MSC_VER) && !defined(__APPLE__) // M3E:
     ALOG_ASSERT(mCallStateStack.size > 0);
 #endif // M3E
     CallState val = mCallStateStack.top();

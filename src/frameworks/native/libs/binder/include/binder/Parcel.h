@@ -49,7 +49,7 @@ typedef uint64_t binder_size_t;
 #include <binder/Parcelable.h>
 #include <binder/Map.h>
 
-#if defined(__APPLE__) /* M3E: Add */
+#if defined(__linux__) /* M3E: Add */
 #include <memory>
 #include <limits>
 #endif // M3E
@@ -440,7 +440,7 @@ public:
     void                print(TextOutput& to, uint32_t flags = 0) const;
 
 private:
-#if defined(__APPLE__)  // M3E
+#if defined(__linux__)  // M3E
                         Parcel(const Parcel& o) {};
 #else  // M3E
                         Parcel(const Parcel& o);

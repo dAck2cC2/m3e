@@ -269,8 +269,8 @@ private:
                 return NOT_ENOUGH_DATA;
             }
             
-            int32_t* cmd = ((int32_t *)data);
-            pbwr->write_consumed += sizeof(int32_t);
+            uint32_t* cmd = ((uint32_t *)data);
+            pbwr->write_consumed += sizeof(uint32_t);
             
             switch (*cmd) {
                 case BC_TRANSACTION:
@@ -871,7 +871,7 @@ status_t binder_close_local(int handler)
 	return NO_ERROR;
 }
 
-status_t binder_ioctl_local(int handler, int cmd, void* data)
+status_t binder_ioctl_local(int handler, unsigned int cmd, void* data)
 {
 	status_t result = NO_ERROR;
 

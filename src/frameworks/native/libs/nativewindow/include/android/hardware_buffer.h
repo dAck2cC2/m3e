@@ -51,6 +51,12 @@
 
 #include <android/rect.h>
 
+#if defined(__APPLE__) || defined(_MSC_VER) // M3E: no __INTRODUCED_IN
+#ifndef __INTRODUCED_IN
+#define __INTRODUCED_IN(a)
+#endif // __INTRODUCED_IN
+#endif // M3E
+
 __BEGIN_DECLS
 
 /**
