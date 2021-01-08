@@ -6,12 +6,12 @@
 #include <utils/KeyedVector.h>
 
 #include <hidl/Status.h>
-#include <android/hidl/manager/1.1/IServiceManager.h>
+#include <android/hidl/manager/1.2/IServiceManager.h>
 
 namespace android {
 namespace hidl {
 namespace manager {
-namespace V1_1 {
+namespace V1_2 {
 
 struct ImplServiceManager : public IServiceManager
 {
@@ -105,13 +105,51 @@ public:
 		return false;
 	} // unregisterForNotifications
 
+	virtual ::android::hardware::Return<bool> registerClientCallback(const ::android::hardware::hidl_string& fqName, const ::android::hardware::hidl_string& name, const ::android::sp<::android::hidl::base::V1_0::IBase>& server, const ::android::sp<::android::hidl::manager::V1_2::IClientCallback>& cb) override
+	{
+		return false;
+	} // registerClientCallback
+
+	virtual ::android::hardware::Return<bool> unregisterClientCallback(const ::android::sp<::android::hidl::base::V1_0::IBase>& server, const ::android::sp<::android::hidl::manager::V1_2::IClientCallback>& cb) override
+	{
+		return false;
+	} // unregisterClientCallback
+
+	virtual ::android::hardware::Return<bool> addWithChain(const ::android::hardware::hidl_string& name, const ::android::sp<::android::hidl::base::V1_0::IBase>& service, const ::android::hardware::hidl_vec<::android::hardware::hidl_string>& chain) override
+	{
+		::std::string strName(name.c_str());
+		::std::string strFQ(chain[0].c_str());
+		::std::string strFull = strName + "@" + strFQ;
+		::android::hardware::hidl_string fullName(strFull.c_str());
+
+		::android::AutoMutex _l(mLockAPI);
+
+		LOG_ALWAYS_FATAL_IF((mServices.indexOfKey(fullName) >= 0), "service of %s already exists", fullName.c_str());
+
+		if (mServices.add(fullName, service) < 0) {
+			LOG_ALWAYS_FATAL("failed to add service");
+			return false;
+		}
+
+		return true;
+	} // addWithChain
+
+	virtual ::android::hardware::Return<void> listManifestByInterface(const ::android::hardware::hidl_string& fqName, listManifestByInterface_cb _hidl_cb) override
+	{
+		return android::hardware::Void();
+	} // listManifestByInterface
+
+	virtual ::android::hardware::Return<bool> tryUnregister(const ::android::hardware::hidl_string& fqName, const ::android::hardware::hidl_string& name, const ::android::sp<::android::hidl::base::V1_0::IBase>& service) override
+	{
+		return false;
+	} // tryUnregister
 
 private:
 	::android::Mutex  mLockAPI;
 	::android::KeyedVector< ::android::hardware::hidl_string, ::android::sp<::android::hidl::base::V1_0::IBase> > mServices;
 }; // ImplServiceManager
 
-}  // namespace V1_1
+}  // namespace V1_2
 }  // namespace manager
 }  // namespace hidl
 }  // namespace android

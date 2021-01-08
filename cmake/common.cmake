@@ -49,8 +49,10 @@ endif(MSVC)
 # external module from android
 set(EXT_LINK https://android.googlesource.com/platform)
 set(EXT_TAG android-9.0.0_r56)
-set(EXT_TAG_UPDATE android-9.0.0_r56)
-#set(EXT_TAG_UPDATE android-10.0.0_r45)
+set(EXT_TAG_UPDATE android-10.0.0_r45)
+set(EXT_TAG_AIDL ${EXT_TAG})
+set(EXT_TAG_HIDL ${EXT_TAG_UPDATE})
+set(EXT_TAG_HIDL_ROOT ${EXT_TAG_UPDATE})
 
 set(EXT_UPDATE 
 )

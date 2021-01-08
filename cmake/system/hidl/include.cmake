@@ -1,5 +1,5 @@
 # define
-DLL_PUBLIC(HIDL)
+#DLL_PUBLIC(HIDL)
 
 if(MSVC)
     add_definitions(-D__WORDSIZE=64)

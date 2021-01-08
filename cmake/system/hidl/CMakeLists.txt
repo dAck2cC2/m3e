@@ -2,7 +2,7 @@ project(HIDL)
 
 include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 
-if (NOT EXISTS ${HIDL_ROOT_PATH}/hardware/interfaces)
+if (NOT EXISTS ${HIDL_ROOT_PATH}/system/libhidl)
     message( FATAL_ERROR "Please firstly execute cmake of ${M3E_SOURCE_DIR}/tool which will download the source code")
 endif()
 
@@ -75,7 +75,7 @@ set(HIDL_MODULES
 android.hidl.memory@1.0
 android.hidl.manager@1.0
 android.hidl.manager@1.1
-#android.hidl.manager@1.2
+android.hidl.manager@1.2
 android.hidl.allocator@1.0
 android.hidl.token@1.0
 android.hidl.base@1.0
@@ -87,5 +87,4 @@ endforeach()
 
 ###############################################################################
 # target files
-set(LIB_TYPE SHARED)
-ADD_LIB(hidl)
+ADD_SHARED_LIB(hidl)

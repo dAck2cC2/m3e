@@ -1,10 +1,23 @@
-diff --git a/audio/common/all-versions/default/include/common/all-versions/default/HidlUtils.h b/audio/common/all-versions/default/include/common/all-versions/default/HidlUtils.h
-index f9a569741..90fd66bc1 100644
---- a/audio/common/all-versions/default/include/common/all-versions/default/HidlUtils.h
-+++ b/audio/common/all-versions/default/include/common/all-versions/default/HidlUtils.h
-@@ -37,7 +37,7 @@ namespace audio {
- namespace common {
- namespace AUDIO_HAL_VERSION {
+diff --git a/audio/common/all-versions/default/HidlUtils.h b/audio/common/all-versions/default/HidlUtils.h
+index 758a7f43d..fdd721911 100644
+--- a/audio/common/all-versions/default/HidlUtils.h
++++ b/audio/common/all-versions/default/HidlUtils.h
+@@ -17,7 +17,12 @@
+ #ifndef android_hardware_audio_Hidl_Utils_H_
+ #define android_hardware_audio_Hidl_Utils_H_
+ 
++#if 0 // M3E:
+ #include PATH(android/hardware/audio/common/FILE_VERSION/types.h)
++#else
++#include <android/hardware/audio/common/2.0/types.h>
++#define CPP_VERSION  V2_0
++#endif
+ 
+ #include <memory>
+ 
+@@ -34,7 +39,7 @@ namespace implementation {
+ 
+ using namespace ::android::hardware::audio::common::CPP_VERSION;
  
 -class HidlUtils {
 +class ANDROID_API_INTERFACES HidlUtils {
@@ -12,30 +25,22 @@ index f9a569741..90fd66bc1 100644
      static void audioConfigFromHal(const audio_config_t& halConfig, AudioConfig* config);
      static void audioConfigToHal(const AudioConfig& config, audio_config_t* halConfig);
 diff --git a/configstore/utils/ConfigStoreUtils.cpp b/configstore/utils/ConfigStoreUtils.cpp
-index 5a1fb42e2..9813a5d23 100644
+index 8cb61a91e..39b68ca44 100644
 --- a/configstore/utils/ConfigStoreUtils.cpp
 +++ b/configstore/utils/ConfigStoreUtils.cpp
-@@ -24,15 +24,23 @@ namespace hardware {
+@@ -19,6 +19,15 @@
+ #include <android-base/logging.h>
+ #include <configstore/Utils.h>
+ 
++// NOTE: For Windows, you must include logging.h after windows.h to allow the
++// following code to suppress the evil ERROR macro:
++#ifdef _WIN32
++// windows.h includes wingdi.h which defines an evil macro ERROR.
++#ifdef ERROR
++#undef ERROR
++#endif
++#endif
++
+ namespace android {
+ namespace hardware {
  namespace details {
- 
- bool wouldLogInfo() {
-+#if TODO /* M3E: */
-     return WOULD_LOG(INFO);
-+#else
-+	return false;
-+#endif
- }
- 
- void logAlwaysInfo(const std::string& message) {
-+#if TODO /* M3E: */
-     LOG(INFO) << message;
-+#endif
- }
- 
- void logAlwaysError(const std::string& message) {
-+#if TODO /* M3E: */
-     LOG(ERROR) << message;
-+#endif
- }
- 
- }  // namespace details

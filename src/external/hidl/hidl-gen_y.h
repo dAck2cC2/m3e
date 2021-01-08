@@ -97,7 +97,7 @@ namespace yy {
     {
 
 /* Line 274 of glr.cc  */
-#line 300 "hidl-gen_y.yy"
+#line 316 "hidl-gen_y.yy"
 
     const char *str;
     android::Type* type;
@@ -158,19 +158,20 @@ namespace yy {
      STRING_LITERAL = 271,
      TYPEDEF = 272,
      UNION = 273,
-     TEMPLATED = 274,
-     ONEWAY = 275,
-     UNKNOWN = 276,
-     LOGICAL_OR = 277,
-     LOGICAL_AND = 278,
-     NEQ = 279,
-     EQUALITY = 280,
-     GEQ = 281,
-     LEQ = 282,
-     RSHIFT = 283,
-     LSHIFT = 284,
-     UNARY_PLUS = 285,
-     UNARY_MINUS = 286
+     SAFE_UNION = 274,
+     TEMPLATED = 275,
+     ONEWAY = 276,
+     UNKNOWN = 277,
+     LOGICAL_OR = 278,
+     LOGICAL_AND = 279,
+     NEQ = 280,
+     EQUALITY = 281,
+     GEQ = 282,
+     LEQ = 283,
+     RSHIFT = 284,
+     LSHIFT = 285,
+     UNARY_PLUS = 286,
+     UNARY_MINUS = 287
    };
 #endif
 
@@ -260,7 +261,7 @@ namespace yy {
 } // yy
 
 /* Line 371 of glr.cc  */
-#line 264 "hidl-gen_y.h"
+#line 265 "hidl-gen_y.h"
 
 
 #endif /* ! defined PARSER_HEADER_H */

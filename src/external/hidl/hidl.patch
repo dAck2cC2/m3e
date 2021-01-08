@@ -1,5 +1,5 @@
 diff --git a/Coordinator.cpp b/Coordinator.cpp
-index 96c96582..3eba4a82 100644
+index ab693f68..5e2e70e4 100644
 --- a/Coordinator.cpp
 +++ b/Coordinator.cpp
 @@ -31,6 +31,10 @@
@@ -12,8 +12,8 @@ index 96c96582..3eba4a82 100644
 +
  static bool existdir(const char *name) {
      DIR *dir = opendir(name);
-     if (dir == NULL) {
-@@ -49,9 +53,16 @@ const std::string &Coordinator::getRootPath() const {
+     if (dir == nullptr) {
+@@ -49,9 +53,15 @@ const std::string &Coordinator::getRootPath() const {
  void Coordinator::setRootPath(const std::string &rootPath) {
      mRootPath = rootPath;
  
@@ -26,11 +26,10 @@ index 96c96582..3eba4a82 100644
          mRootPath += "/";
      }
 +#endif
-+
  }
  
  void Coordinator::setOutputPath(const std::string& outputPath) {
-@@ -390,7 +401,11 @@ const Coordinator::PackageRoot* Coordinator::findPackageRoot(const FQName& fqNam
+@@ -390,7 +400,11 @@ const Coordinator::PackageRoot* Coordinator::findPackageRoot(const FQName& fqNam
  }
  
  std::string Coordinator::makeAbsolute(const std::string& path) const {
@@ -42,7 +41,7 @@ index 96c96582..3eba4a82 100644
          return path;
      }
  
-@@ -430,12 +445,20 @@ status_t Coordinator::getPackagePath(const FQName& fqName, bool relative, bool s
+@@ -430,12 +444,20 @@ status_t Coordinator::getPackagePath(const FQName& fqName, bool relative, bool s
  
      std::vector<std::string> components;
      if (!relative) {
@@ -63,7 +62,7 @@ index 96c96582..3eba4a82 100644
      return OK;
  }
  
-@@ -518,11 +541,20 @@ status_t Coordinator::convertPackageRootToPath(const FQName& fqName, std::string
+@@ -530,11 +552,20 @@ status_t Coordinator::convertPackageRootToPath(const FQName& fqName, std::string
      status_t err = getPackageRoot(fqName, &packageRoot);
      if (err != OK) return err;
  
@@ -84,7 +83,7 @@ index 96c96582..3eba4a82 100644
  
      *path = packageRoot;  // now converted to a path
      return OK;
-@@ -897,7 +929,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
+@@ -920,7 +951,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
  
      size_t start = 1;  // Ignore leading '/'
      size_t slashPos;
@@ -96,7 +95,7 @@ index 96c96582..3eba4a82 100644
          std::string partial = path.substr(0, slashPos);
  
          struct stat st;
-@@ -906,7 +942,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
+@@ -929,7 +964,11 @@ bool Coordinator::MakeParentHierarchy(const std::string &path) {
                  return false;
              }
  
@@ -109,7 +108,7 @@ index 96c96582..3eba4a82 100644
                  return false;
              }
 diff --git a/EnumType.cpp b/EnumType.cpp
-index ead64ba7..728a522f 100644
+index 32682645..9f49e4f5 100644
 --- a/EnumType.cpp
 +++ b/EnumType.cpp
 @@ -25,6 +25,10 @@
@@ -123,7 +122,7 @@ index ead64ba7..728a522f 100644
  namespace android {
  
  EnumType::EnumType(const char* localName, const FQName& fullName, const Location& location,
-@@ -238,6 +242,18 @@ void EnumType::emitTypeDeclarations(Formatter& out) const {
+@@ -246,6 +250,18 @@ void EnumType::emitTypeDeclarations(Formatter& out) const {
      const ScalarType *scalarType = mStorageType->resolveToScalarType();
      CHECK(scalarType != nullptr);
  
@@ -143,7 +142,7 @@ index ead64ba7..728a522f 100644
  
      out << "enum class "
 diff --git a/HidlTypeAssertion.cpp b/HidlTypeAssertion.cpp
-index 4522f15a..4319f36f 100644
+index 6e4822ad..22d7347b 100644
 --- a/HidlTypeAssertion.cpp
 +++ b/HidlTypeAssertion.cpp
 @@ -21,6 +21,10 @@
@@ -158,10 +157,10 @@ index 4522f15a..4319f36f 100644
  
  typedef std::vector<std::pair<std::string, size_t>> Registry;
 diff --git a/Interface.cpp b/Interface.cpp
-index 1c66b315..e9820d1c 100644
+index b0ffa34d..fd22f841 100644
 --- a/Interface.cpp
 +++ b/Interface.cpp
-@@ -318,12 +318,14 @@ bool Interface::fillHashChainMethod(Method *method) const {
+@@ -321,12 +321,14 @@ bool Interface::fillHashChainMethod(Method *method) const {
          HIDL_HASH_CHAIN_TRANSACTION,
          { { IMPL_INTERFACE, [this, digestType](auto &out) {
              std::vector<const Interface *> chain = typeChain();
@@ -177,7 +176,7 @@ index 1c66b315..e9820d1c 100644
          } } }, /* cppImpl */
          { { IMPL_INTERFACE, [this, digestType, chainType](auto &out) {
 diff --git a/TypeDef.cpp b/TypeDef.cpp
-index dcefc57d..b0abfcdc 100644
+index 2543d49a..4c874385 100644
 --- a/TypeDef.cpp
 +++ b/TypeDef.cpp
 @@ -74,6 +74,13 @@ bool TypeDef::resultNeedsDeref() const {
@@ -195,13 +194,13 @@ index dcefc57d..b0abfcdc 100644
          << mReferencedType->getCppStackType()
          << " "
 diff --git a/generateCpp.cpp b/generateCpp.cpp
-index fa2a3ca5..7075fd87 100644
+index 06110ca1..c7cab684 100644
 --- a/generateCpp.cpp
 +++ b/generateCpp.cpp
-@@ -242,8 +242,16 @@ void AST::generateInterfaceHeader(Formatter& out) const {
-     out << "\n";
- 
+@@ -261,8 +261,16 @@ void AST::generateInterfaceHeader(Formatter& out) const {
      if (iface) {
+         iface->emitDocComment(out);
+ 
 +#if defined(_MSC_VER) // M3E: MSVC export
 +        std::vector<std::string> nameComponents;
 +        StringHelper::SplitString(mPackage.package(), '.', &nameComponents);
@@ -215,17 +214,17 @@ index fa2a3ca5..7075fd87 100644
  
          const Interface *superType = iface->superType();
  
-@@ -788,7 +796,9 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -855,7 +863,9 @@ void AST::generateCppSource(Formatter& out) const {
  
          generateCppPackageInclude(out, mPackage, iface->getProxyName());
          generateCppPackageInclude(out, mPackage, iface->getStubName());
-+#if !defined(__APPLE__) // M3E: it is using auto which is not supported by Apple
++#if 0 // M3E: it is using auto which is not supported
          generateCppPackageInclude(out, mPackage, iface->getPassthroughName());
 +#endif
  
          for (const Interface *superType : iface->superTypeChain()) {
              generateCppPackageInclude(out,
-@@ -807,7 +817,9 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -874,7 +884,9 @@ void AST::generateCppSource(Formatter& out) const {
      enterLeaveNamespace(out, true /* enter */);
      out << "\n";
  
@@ -235,23 +234,22 @@ index fa2a3ca5..7075fd87 100644
  
      if (iface) {
          const Interface* iface = mRootScope.getInterface();
-@@ -818,6 +830,8 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -885,6 +897,7 @@ void AST::generateCppSource(Formatter& out) const {
              << "::descriptor(\""
              << iface->fqName().string()
              << "\");\n\n";
-+
 +#if 0 // M3E:
          out << "__attribute__((constructor)) ";
          out << "static void static_constructor() {\n";
          out.indent([&] {
-@@ -864,11 +878,14 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -931,11 +944,14 @@ void AST::generateCppSource(Formatter& out) const {
                  << "::descriptor);\n";
          });
          out << "};\n\n";
 +#endif
  
          generateInterfaceSource(out);
-+#if 0  // M3E:
++#if 0 // M3E:
          generateProxySource(out, iface->fqName());
          generateStubSource(out, iface);
          generatePassthroughSource(out);
@@ -259,7 +257,7 @@ index fa2a3ca5..7075fd87 100644
  
          if (isIBase()) {
              out << "// skipped getService, registerAsService, registerForNotifications\n";
-@@ -880,7 +897,9 @@ void AST::generateCppSource(Formatter& out) const {
+@@ -947,7 +963,9 @@ void AST::generateCppSource(Formatter& out) const {
          }
      }
  
@@ -270,7 +268,7 @@ index fa2a3ca5..7075fd87 100644
  
      enterLeaveNamespace(out, false /* enter */);
 diff --git a/hidl-gen_y.yy b/hidl-gen_y.yy
-index f445199c..154fda49 100644
+index 65f43232..2fb02045 100644
 --- a/hidl-gen_y.yy
 +++ b/hidl-gen_y.yy
 @@ -38,6 +38,10 @@
@@ -285,27 +283,25 @@ index f445199c..154fda49 100644
  
  extern int yylex(yy::parser::semantic_type*, yy::parser::location_type*, void*, Scope** const);
 diff --git a/main.cpp b/main.cpp
-index dabbdaa4..b4dc4807 100644
+index c03b6fcd..b67b5dc7 100644
 --- a/main.cpp
 +++ b/main.cpp
-@@ -31,6 +31,16 @@
+@@ -32,6 +32,14 @@
  #include <string>
  #include <vector>
  
 +#if defined(_MSC_VER) || defined(__linux__) // M3E:
-+#include <algorithm>  // std::sort
++#include <algorithm>
++#include <getopt.h>
 +#endif
 +#if defined(__linux__)
 +#include <cstring>
-+#endif
-+#if defined(_MSC_VER)
-+#include <getopt.h>  // getopt
 +#endif
 +
  using namespace android;
  
  enum class OutputMode {
-@@ -1341,9 +1351,15 @@ int main(int argc, char **argv) {
+@@ -1388,9 +1396,15 @@ int main(int argc, char **argv) {
              }
  
              if (outputFormat->mOutputMode == OutputMode::NEEDS_DIR) {
@@ -321,7 +317,7 @@ index dabbdaa4..b4dc4807 100644
              }
              break;
          }
-@@ -1351,9 +1367,15 @@ int main(int argc, char **argv) {
+@@ -1398,10 +1412,15 @@ int main(int argc, char **argv) {
              if (outputPath.empty()) {
                  outputPath = coordinator.getRootPath();
              }
@@ -333,43 +329,26 @@ index dabbdaa4..b4dc4807 100644
              if (outputPath.back() != '/') {
                  outputPath += "/";
              }
+-
 +#endif
- 
              break;
          }
-@@ -1365,10 +1387,17 @@ int main(int argc, char **argv) {
  
+@@ -1413,10 +1432,17 @@ int main(int argc, char **argv) {
      coordinator.setOutputPath(outputPath);
  
+     if (!suppressDefaultPackagePaths) {
 +#if defined(_MSC_VER)
-+    coordinator.addDefaultPackagePath("android.hardware", "hardware\\interfaces");
-+    coordinator.addDefaultPackagePath("android.hidl", "system\\libhidl\\transport");
-+    coordinator.addDefaultPackagePath("android.frameworks", "frameworks\\hardware\\interfaces");
-+    coordinator.addDefaultPackagePath("android.system", "system\\hardware\\interfaces");
++        coordinator.addDefaultPackagePath("android.hardware", "hardware\\interfaces");
++        coordinator.addDefaultPackagePath("android.hidl", "system\\libhidl\\transport");
++        coordinator.addDefaultPackagePath("android.frameworks", "frameworks\\hardware\\interfaces");
++        coordinator.addDefaultPackagePath("android.system", "system\\hardware\\interfaces");
 +#else
-     coordinator.addDefaultPackagePath("android.hardware", "hardware/interfaces");
-     coordinator.addDefaultPackagePath("android.hidl", "system/libhidl/transport");
-     coordinator.addDefaultPackagePath("android.frameworks", "frameworks/hardware/interfaces");
-     coordinator.addDefaultPackagePath("android.system", "system/hardware/interfaces");
+         coordinator.addDefaultPackagePath("android.hardware", "hardware/interfaces");
+         coordinator.addDefaultPackagePath("android.hidl", "system/libhidl/transport");
+         coordinator.addDefaultPackagePath("android.frameworks", "frameworks/hardware/interfaces");
+         coordinator.addDefaultPackagePath("android.system", "system/hardware/interfaces");
 +#endif
+     }
  
      for (int i = 0; i < argc; ++i) {
-         FQName fqName;
-diff --git a/utils/include/hidl-util/FQName.h b/utils/include/hidl-util/FQName.h
-index 3e31431d..046ccc7e 100644
---- a/utils/include/hidl-util/FQName.h
-+++ b/utils/include/hidl-util/FQName.h
-@@ -21,6 +21,13 @@
- #include <string>
- #include <vector>
- 
-+#if defined(_MSC_VER) // M3E: add
-+// disable the __attribute__
-+#if !defined(__attribute__)
-+#define __attribute__(A) /* do nothing */
-+#endif // __attribute__
-+#endif // M3E
-+
- namespace android {
- 
- struct FQName {

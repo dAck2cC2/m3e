@@ -5,7 +5,7 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 if(NOT EXISTS ${M3E_SOURCE_DIR}/${EXT_PATH}/aidl)
   message(STATUS Download\t aidl)
   exec_program("git clone ${EXT_LINK}/system/tools/aidl" ${M3E_SOURCE_DIR}/${EXT_PATH})
-  exec_program("git checkout tags/${EXT_TAG_UPDATE}" ${M3E_SOURCE_DIR}/${EXT_PATH}/aidl)
+  exec_program("git checkout tags/${EXT_TAG_AIDL}" ${M3E_SOURCE_DIR}/${EXT_PATH}/aidl)
   
   # apply patch
   exec_program("git apply ${M3E_SOURCE_DIR}/src/${EXT_PATH}/aidl/aidl.patch" ${M3E_SOURCE_DIR}/${EXT_PATH}/aidl)
