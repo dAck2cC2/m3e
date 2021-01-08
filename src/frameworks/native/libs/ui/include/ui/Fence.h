@@ -30,7 +30,7 @@ namespace android {
 #  if defined(Status)
 #    undef Status
 #  endif
-#endif
+#endif // M3E
 
 class String8;
 
@@ -38,7 +38,7 @@ class String8;
 // Fence
 // ===========================================================================
 
-class ANDROID_API_UI Fence /* M3E: MSVC export */
+class ANDROID_API_UI Fence
     : public LightRefBase<Fence>, public Flattenable<Fence>
 {
 public:
@@ -104,6 +104,12 @@ public:
     // responsible for closing the returned file descriptor. On error, -1 will
     // be returned and errno will indicate the problem.
     int dup() const;
+
+    // Return the underlying file descriptor without giving up ownership. The
+    // returned file descriptor is only valid for as long as the owning Fence
+    // object lives. (If the situation is unclear, dup() is always a safer
+    // option.)
+    int get() const { return mFenceFd.get(); }
 
     // getSignalTime returns the system monotonic clock time at which the
     // fence transitioned to the signaled state.  If the fence is not signaled

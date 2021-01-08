@@ -66,9 +66,7 @@ enum {
 
 typedef int32_t PixelFormat;
 
-ANDROID_API_UI /* M3E: MSVC export */
 uint32_t bytesPerPixel(PixelFormat format);
-ANDROID_API_UI /* M3E: MSVC export */
 uint32_t bitsPerPixel(PixelFormat format);
 
 }; // namespace android

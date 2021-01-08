@@ -45,8 +45,7 @@ ${HEADER_PATH}/audio/common/4.0/default/*.h
 # source files
 set(${PROJECT_NAME}_SOURCE_FILES 
 ${SOURCE_PATH}/configstore/utils/ConfigStoreUtils.cpp
-${SOURCE_PATH}/audio/common/2.0/default/HidlUtils.cpp
-#${SOURCE_PATH}/audio/common/all-versions/default/HidlUtils.cpp
+${SOURCE_PATH}/audio/common/all-versions/default/HidlUtils.cpp
 )
 
 ###############################################################################
@@ -56,16 +55,21 @@ if(MSVC)
 endif()
 
 set(HIDL_MODULES
+# libui
+#android.frameworks.bufferhub@1.0
+android.hardware.graphics.allocator@2.0
+android.hardware.graphics.allocator@3.0
+android.hardware.graphics.common@1.2
+android.hardware.graphics.mapper@2.0
+android.hardware.graphics.mapper@2.1
+android.hardware.graphics.mapper@3.0
+
 android.hardware.cas@1.0
 android.hardware.cas.native@1.0
 android.hardware.configstore@1.0
 android.hardware.configstore@1.1
-android.hardware.graphics.allocator@2.0
-android.hardware.graphics.mapper@2.0
-android.hardware.graphics.mapper@2.1
 android.hardware.graphics.common@1.0
 android.hardware.graphics.common@1.1
-#android.hardware.graphics.common@1.2
 android.hardware.graphics.composer@2.1
 android.hardware.graphics.composer@2.2
 android.hardware.audio@2.0
@@ -125,5 +129,4 @@ endif(ENABLE_GOOGLE_MEDIA_C2)
 
 ###############################################################################
 # target files
-set(LIB_TYPE SHARED)
-ADD_LIB(interfaces)
+ADD_SHARED_LIB(interfaces)

@@ -26,8 +26,6 @@
 
 #ifdef __cplusplus
 
-#include <cutils/compiler.h> /* M3E: ANDROID_API */
-
 #include <utils/RefBase.h>
 
 namespace android {
@@ -38,7 +36,7 @@ namespace android {
  */
 template <typename NATIVE_TYPE, typename TYPE, typename REF,
         typename NATIVE_BASE = android_native_base_t>
-class ANDROID_API ANativeObjectBase : public NATIVE_TYPE, public REF /* M3E: MSVC export */
+class ANativeObjectBase : public NATIVE_TYPE, public REF
 {
 public:
     // Disambiguate between the incStrong in REF and NATIVE_TYPE

@@ -26,7 +26,7 @@
 
 namespace android {
 
-class ANDROID_API_UI HdrCapabilities : public LightFlattenable<HdrCapabilities> /* M3E: */
+class HdrCapabilities : public LightFlattenable<HdrCapabilities>
 {
 public:
     HdrCapabilities(const std::vector<ui::Hdr>& types,
@@ -37,8 +37,8 @@ public:
         mMinLuminance(minLuminance) {}
 
     // Make this move-constructable and move-assignable
-    HdrCapabilities(HdrCapabilities&& other);
-    HdrCapabilities& operator=(HdrCapabilities&& other);
+    HdrCapabilities(HdrCapabilities&& other) noexcept;
+    HdrCapabilities& operator=(HdrCapabilities&& other) noexcept;
 
     HdrCapabilities()
       : mSupportedHdrTypes(),

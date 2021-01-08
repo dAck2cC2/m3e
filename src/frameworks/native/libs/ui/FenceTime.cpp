@@ -27,8 +27,7 @@
 
 #if defined(__linux__) /* M3E: add */
 #include <algorithm>
-#endif
-
+#endif // M3E
 
 namespace android {
 
@@ -37,21 +36,9 @@ namespace android {
 // ============================================================================
 #if defined(_MSC_VER) || defined(__linux__) /* M3E: add */
 const std::shared_ptr<FenceTime> FenceTime::NO_FENCE = std::make_shared<FenceTime>(Fence::NO_FENCE);
-#else
+#else  // M3E
 const auto FenceTime::NO_FENCE = std::make_shared<FenceTime>(Fence::NO_FENCE);
-#endif
-
-void* FenceTime::operator new(size_t byteCount) noexcept {
-    void *p = nullptr;
-    if (posix_memalign(&p, alignof(FenceTime), byteCount)) {
-        return nullptr;
-    }
-    return p;
-}
-
-void FenceTime::operator delete(void *p) {
-    free(p);
-}
+#endif // M3E
 
 FenceTime::FenceTime(const sp<Fence>& fence)
   : mState(((fence.get() != nullptr) && fence->isValid()) ?
@@ -299,8 +286,8 @@ void FenceTimeline::push(const std::shared_ptr<FenceTime>& fence) {
 }
 
 void FenceTimeline::updateSignalTimes() {
+    std::lock_guard<std::mutex> lock(mMutex);
     while (!mQueue.empty()) {
-        std::lock_guard<std::mutex> lock(mMutex);
         std::shared_ptr<FenceTime> fence = mQueue.front().lock();
         if (!fence) {
             // The shared_ptr no longer exists and no one cares about the

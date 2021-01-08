@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#include <ui/UiConfig.h>
+#define LOG_TAG "Gralloc"
+
+#include <ui/Gralloc.h>
 
 namespace android {
 
-void appendUiConfigString(std::string& configStr) {
-    static const char* config =
-            " [libui]";
-    configStr.append(config);
-}
+GrallocMapper::~GrallocMapper() {}
 
+GrallocAllocator::~GrallocAllocator() {}
 
-}; // namespace android
+} // namespace android

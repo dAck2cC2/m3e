@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-#include <ui/UiConfig.h>
+#pragma once
 
+// android::ui::* in this header file will alias different types as
+// the HIDL interface is updated.
 namespace android {
+namespace ui {
 
-void appendUiConfigString(std::string& configStr) {
-    static const char* config =
-            " [libui]";
-    configStr.append(config);
-}
+struct CieXyz {
+    float X;
+    float Y;
+    float Z;
+};
+struct DisplayPrimaries {
+    CieXyz red;
+    CieXyz green;
+    CieXyz blue;
+    CieXyz white;
+};
 
-
-}; // namespace android
+}  // namespace ui
+}  // namespace android

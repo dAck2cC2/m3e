@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-#include <ui/UiConfig.h>
+#include <ui/Size.h>
 
-namespace android {
+namespace android::ui {
 
-void appendUiConfigString(std::string& configStr) {
-    static const char* config =
-            " [libui]";
-    configStr.append(config);
-}
+const Size Size::INVALID{-1, -1};
+const Size Size::EMPTY{0, 0};
 
-
-}; // namespace android
+} // namespace android::ui

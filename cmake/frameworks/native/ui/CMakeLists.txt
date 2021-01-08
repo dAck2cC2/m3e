@@ -15,12 +15,13 @@ include(${M3E_SOURCE_DIR}/cmake/core/grallocusage/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/libhardware/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/system/hwbinder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/binder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/frameworks/native/math/include.cmake)
 
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/frameworks/native/include/)
 
-set(UI_DEPLIB
+set(${PROJECT_NAME}_DEPLIB
 binder
 utils
 log
@@ -52,38 +53,52 @@ set( HEADER_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/ui/include )
 set( SOURCE_PATH ${M3E_SOURCE_DIR}/src/frameworks/native/libs/ui )
 
 # header files
-file(GLOB UI_HEADER_FILES  
+file(GLOB ${PROJECT_NAME}_HEADER_FILES  
 ${HEADER_PATH}/ui/*.h
 ${M3E_SOURCE_DIR}/src/frameworks/native/include/private/ui/*.h
 )
 
 # source files
-set(UI_SOURCE_FILES 
+set(${PROJECT_NAME}_SOURCE_FILES 
 #${SOURCE_PATH}/ColorSpace.cpp
+${SOURCE_PATH}/BufferHubBuffer.cpp
+${SOURCE_PATH}/BufferHubEventFd.cpp
+${SOURCE_PATH}/BufferHubMetadata.cpp
 ${SOURCE_PATH}/DebugUtils.cpp
 ${SOURCE_PATH}/Fence.cpp
 ${SOURCE_PATH}/FenceTime.cpp
 ${SOURCE_PATH}/FrameStats.cpp
+${SOURCE_PATH}/Gralloc.cpp
 ${SOURCE_PATH}/Gralloc2.cpp
+${SOURCE_PATH}/Gralloc3.cpp
 ${SOURCE_PATH}/GraphicBuffer.cpp
 ${SOURCE_PATH}/GraphicBufferAllocator.cpp
 ${SOURCE_PATH}/GraphicBufferMapper.cpp
 ${SOURCE_PATH}/HdrCapabilities.cpp
 ${SOURCE_PATH}/PixelFormat.cpp
+${SOURCE_PATH}/PublicFormat.cpp
 ${SOURCE_PATH}/Rect.cpp
 ${SOURCE_PATH}/Region.cpp
+${SOURCE_PATH}/Size.cpp
+${SOURCE_PATH}/Transform.cpp
 ${SOURCE_PATH}/UiConfig.cpp
 )
 
 if(MSVC)
 else()
-    list(APPEND UI_SOURCE_FILES ${SOURCE_PATH}/ColorSpace.cpp)
+    list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${SOURCE_PATH}/ColorSpace.cpp)
 endif()
 
+# bufferhub is not used when building libgui for vendors
+add_definitions(-DLIBUI_IN_VNDK)
+list(REMOVE_ITEM ${PROJECT_NAME}_SOURCE_FILES
+${SOURCE_PATH}/BufferHubBuffer.cpp
+${SOURCE_PATH}/BufferHubEventFd.cpp
+${SOURCE_PATH}/BufferHubMetadata.cpp
+)
+
 # target files
-set(LIBRARY_OUTPUT_PATH ${BUILD_PATH})
-add_library(ui SHARED ${UI_SOURCE_FILES} ${UI_HEADER_FILES})
-target_link_libraries(ui ${UI_DEPLIB})
+ADD_SHARED_LIB(ui)
 
 #set(ENABLE_TEST true)
 if(ENABLE_TEST)

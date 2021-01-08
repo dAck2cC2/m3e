@@ -31,6 +31,42 @@
 
 #if ENABLE_SYNC_FILE // M3E: no linux/sync_file.h
 #include <linux/sync_file.h>
+#else  // M3E
+ /**
+  * struct sync_fence_info - detailed fence information
+  * @obj_name:		name of parent sync_timeline
+ * @driver_name:	name of driver implementing the parent
+ * @status:		status of the fence 0:active 1:signaled <0:error
+  * @flags:		fence_info flags
+  * @timestamp_ns:	timestamp of status change in nanoseconds
+  */
+struct sync_fence_info {
+	char	obj_name[32];
+	char	driver_name[32];
+	int32_t	status;
+	uint32_t	flags;
+	uint64_t	timestamp_ns;
+};
+
+/**
+ * struct sync_file_info - data returned from fence info ioctl
+ * @name:	name of fence
+ * @status:	status of fence. 1: signaled 0:active <0:error
+ * @flags:	sync_file_info flags
+ * @num_fences	number of fences in the sync_file
+ * @pad:	padding for 64-bit alignment, should always be zero
+ * @sync_fence_info: pointer to array of structs sync_fence_info with all
+ *		 fences in the sync_file
+ */
+struct sync_file_info {
+	char	name[32];
+	int32_t	status;
+	uint32_t	flags;
+	uint32_t	num_fences;
+	uint32_t	pad;
+
+	uint64_t	sync_fence_info;
+};
 #endif // M3E
 
 // M3E: add

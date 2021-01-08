@@ -136,7 +136,7 @@ static atomic_int g_uapi_version = ATOMIC_VAR_INIT(UAPI_UNKNOWN);
 
 int sync_wait(int fd, int timeout)
 {
-#if ENABLE_POLL // M3E: no pool
+#if ENABLE_POLL // M3E: no poll
     struct pollfd fds;
     int ret;
 

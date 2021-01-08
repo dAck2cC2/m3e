@@ -28,14 +28,9 @@ class Rect;
 std::string decodeStandard(android_dataspace dataspace);
 std::string decodeTransfer(android_dataspace dataspace);
 std::string decodeRange(android_dataspace dataspace);
-ANDROID_API_UI /* M3E: MSVC export */
 std::string dataspaceDetails(android_dataspace dataspace);
-ANDROID_API_UI /* M3E: MSVC export */
 std::string decodeColorMode(android::ui::ColorMode colormode);
 std::string decodeColorTransform(android_color_transform colorTransform);
-ANDROID_API_UI /* M3E: MSVC export */
 std::string decodePixelFormat(android::PixelFormat format);
-ANDROID_API_UI /* M3E: MSVC export */
 std::string decodeRenderIntent(android::ui::RenderIntent renderIntent);
-ANDROID_API_UI /* M3E: MSVC export */
 std::string to_string(const android::Rect& rect);

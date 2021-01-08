@@ -19,6 +19,7 @@
 
 #include <ui/Fence.h>
 #include <utils/Flattenable.h>
+#include <utils/Mutex.h>
 #include <utils/Timers.h>
 
 #include <atomic>
@@ -28,7 +29,7 @@
 
 #if defined(__linux__) /* M3E: Add */
 #include <memory>
-#endif
+#endif // M3E
 
 namespace android {
 
@@ -37,7 +38,7 @@ class FenceToFenceTimeMap;
 // A wrapper around fence that only implements isValid and getSignalTime.
 // It automatically closes the fence in a thread-safe manner once the signal
 // time is known.
-class ANDROID_API_UI FenceTime { /* M3E: MSVC export */
+class ANDROID_API_UI FenceTime {
 friend class FenceToFenceTimeMap;
 public:
     // An atomic snapshot of the FenceTime that is flattenable.
@@ -46,7 +47,7 @@ public:
     // consistent for all steps of the flattening process.
     //
     // Not thread safe.
-    struct ANDROID_API_UI Snapshot : public Flattenable<Snapshot> { /* M3E: MSVC export */
+    struct ANDROID_API_UI Snapshot : public Flattenable<Snapshot> {
         enum class State {
             EMPTY,
             FENCE,
@@ -64,7 +65,7 @@ public:
         // Not copyable.
         Snapshot(const Snapshot& src) = delete;
         Snapshot& operator=(const Snapshot&& src) = delete;
-#endif
+#endif // M3E
         // Flattenable implementation.
         size_t getFlattenedSize() const;
         size_t getFdCount() const;
@@ -118,11 +119,6 @@ public:
 
     void signalForTest(nsecs_t signalTime);
 
-    // Override new and delete since this needs 8-byte alignment, which
-    // is not guaranteed on x86.
-    static void* operator new(size_t nbytes) noexcept;
-    static void operator delete(void *p);
-
 private:
     // For tests only. If forceValidForTest is true, then getSignalTime will
     // never return SIGNAL_TIME_INVALID and isValid will always return true.
@@ -160,7 +156,7 @@ private:
 //
 // push() and updateSignalTimes() are safe to call simultaneously from
 // different threads.
-class ANDROID_API_UI FenceTimeline { /* M3E: MSVC export */
+class FenceTimeline {
 public:
     static constexpr size_t MAX_ENTRIES = 64;
 
@@ -169,7 +165,7 @@ public:
 
 private:
     mutable std::mutex mMutex;
-    std::queue<std::weak_ptr<FenceTime>> mQueue;
+    std::queue<std::weak_ptr<FenceTime>> mQueue GUARDED_BY(mMutex);
 };
 
 // Used by test code to create or get FenceTimes for a given Fence.
