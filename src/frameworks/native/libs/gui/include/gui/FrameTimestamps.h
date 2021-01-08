@@ -30,7 +30,6 @@ namespace android {
 
 struct FrameEvents;
 class FrameEventHistoryDelta;
-class String8;
 
 
 // Identifiers for all the events that may be recorded or reported.
@@ -72,7 +71,7 @@ struct FrameEvents {
     bool hasDequeueReadyInfo() const;
 
     void checkFencesForCompletion();
-    void dump(String8& outString) const;
+    void dump(std::string& outString) const;
 
     bool valid{false};
     int connectId{0};
@@ -105,14 +104,14 @@ struct CompositorTiming {
 
 // A short history of frames that are synchronized between the consumer and
 // producer via deltas.
-class ANDROID_API_GUI FrameEventHistory { /* M3E: MSVC export */
+class FrameEventHistory {
 public:
     virtual ~FrameEventHistory();
 
     FrameEvents* getFrame(uint64_t frameNumber);
     FrameEvents* getFrame(uint64_t frameNumber, size_t* iHint);
     void checkFencesForCompletion();
-    void dump(String8& outString) const;
+    void dump(std::string& outString) const;
 
     static constexpr size_t MAX_FRAME_HISTORY = 8;
 
@@ -203,7 +202,7 @@ private:
 
 
 // The consumer's interface to FrameEventHistory
-class ANDROID_API_GUI ConsumerFrameEventHistory : public FrameEventHistory { /* M3E: MSVC export */
+class ConsumerFrameEventHistory : public FrameEventHistory {
 public:
     ~ConsumerFrameEventHistory() override;
 
@@ -300,7 +299,7 @@ private:
 
 // A collection of updates from consumer to producer that can be sent
 // through Binder.
-class ANDROID_API_GUI FrameEventHistoryDelta /* M3E: MSVC export */
+class FrameEventHistoryDelta
         : public Flattenable<FrameEventHistoryDelta> {
 
 friend class ConsumerFrameEventHistory;
@@ -311,7 +310,7 @@ public:
 
     // Movable.
     FrameEventHistoryDelta(FrameEventHistoryDelta&& src) = default;
-    FrameEventHistoryDelta& operator=(FrameEventHistoryDelta&& src);
+    FrameEventHistoryDelta& operator=(FrameEventHistoryDelta&& src) noexcept;
     // Not copyable.
     FrameEventHistoryDelta(const FrameEventHistoryDelta& src) = delete;
     FrameEventHistoryDelta& operator=(

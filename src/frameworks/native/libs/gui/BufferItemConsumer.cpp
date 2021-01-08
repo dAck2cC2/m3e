@@ -27,13 +27,13 @@
 #if defined(_MSC_VER) /* M3E: */
 #define BI_LOGV(x, ...) 
 #define BI_LOGE(x, ...) 
-#else  // _MSC_VER
+#else  // M3E
 #define BI_LOGV(x, ...) ALOGV("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define BI_LOGD(x, ...) ALOGD("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define BI_LOGI(x, ...) ALOGI("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define BI_LOGW(x, ...) ALOGW("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define BI_LOGE(x, ...) ALOGE("[%s] " x, mName.string(), ##__VA_ARGS__)
-#endif // _MSC_VER
+#endif // M3E
 
 namespace android {
 
@@ -112,7 +112,7 @@ status_t BufferItemConsumer::releaseBuffer(const BufferItem &item,
 
 void BufferItemConsumer::freeBufferLocked(int slotIndex) {
     sp<BufferFreedListener> listener = mBufferFreedListener.promote();
-    if (listener != NULL && mSlots[slotIndex].mGraphicBuffer != NULL) {
+    if (listener != nullptr && mSlots[slotIndex].mGraphicBuffer != nullptr) {
         // Fire callback if we have a listener registered and the buffer being freed is valid.
         BI_LOGV("actually calling onBufferFreed");
         listener->onBufferFreed(mSlots[slotIndex].mGraphicBuffer);

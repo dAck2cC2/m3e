@@ -17,13 +17,12 @@
 #ifndef ANDROID_GUI_CONFIG_H
 #define ANDROID_GUI_CONFIG_H
 
-#include <utils/String8.h>
+#include <string>
 
 namespace android {
 
 // Append the libgui configuration details to configStr.
-ANDROID_API_GUI /* M3E: MSVC export */
-void appendGuiConfigString(String8& configStr);
+void appendGuiConfigString(std::string& configStr);
 
 }; // namespace android
 

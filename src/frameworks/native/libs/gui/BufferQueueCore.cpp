@@ -20,7 +20,7 @@
 
 #if !defined(__linux__)  /* M3E: */
 #define EGL_EGLEXT_PROTOTYPES
-#endif
+#endif // M3E
 
 #if DEBUG_ONLY_CODE
 #define VALIDATE_CONSISTENCY() do { validateConsistencyLocked(); } while (0)
@@ -30,7 +30,7 @@
 
 #if defined(_MSC_VER)  /* M3E: MSVC */
 #include <algorithm>
-#endif // _MSC_VER
+#endif // M3E
 
 #include <inttypes.h>
 
@@ -71,6 +71,7 @@ BufferQueueCore::BufferQueueCore() :
     mConnectedApi(NO_CONNECTED_API),
     mLinkedToDeath(),
     mConnectedProducerListener(),
+    mBufferReleasedCbEnabled(false),
     mSlots(),
     mQueue(),
     mFreeSlots(),
@@ -79,6 +80,8 @@ BufferQueueCore::BufferQueueCore() :
     mActiveBuffers(),
     mDequeueCondition(),
     mDequeueBufferCannotBlock(false),
+    mQueueBufferCanDrop(false),
+    mLegacyBufferDrop(true),
     mDefaultBufferFormat(PIXEL_FORMAT_RGBA_8888),
     mDefaultWidth(1),
     mDefaultHeight(1),
@@ -116,13 +119,15 @@ BufferQueueCore::BufferQueueCore() :
 BufferQueueCore::~BufferQueueCore() {}
 
 void BufferQueueCore::dumpState(const String8& prefix, String8* outResult) const {
-    Mutex::Autolock lock(mMutex);
+    std::lock_guard<std::mutex> lock(mMutex);
 
     outResult->appendFormat("%s- BufferQueue ", prefix.string());
     outResult->appendFormat("mMaxAcquiredBufferCount=%d mMaxDequeuedBufferCount=%d\n",
                             mMaxAcquiredBufferCount, mMaxDequeuedBufferCount);
     outResult->appendFormat("%s  mDequeueBufferCannotBlock=%d mAsyncMode=%d\n", prefix.string(),
                             mDequeueBufferCannotBlock, mAsyncMode);
+    outResult->appendFormat("%s  mQueueBufferCanDrop=%d mLegacyBufferDrop=%d\n", prefix.string(),
+                            mQueueBufferCanDrop, mLegacyBufferDrop);
     outResult->appendFormat("%s  default-size=[%dx%d] default-format=%d ", prefix.string(),
                             mDefaultWidth, mDefaultHeight, mDefaultBufferFormat);
     outResult->appendFormat("transform-hint=%02x frame-counter=%" PRIu64, mTransformHint,
@@ -221,7 +226,7 @@ void BufferQueueCore::clearBufferSlotLocked(int slot) {
     if (mSlots[slot].mEglFence != EGL_NO_SYNC_KHR) {
 #if defined(EGL_EGLEXT_PROTOTYPES)  /* M3E: */
         eglDestroySyncKHR(mSlots[slot].mEglDisplay, mSlots[slot].mEglFence);
-#endif
+#endif // M3E
         mSlots[slot].mEglFence = EGL_NO_SYNC_KHR;
     }
     mSlots[slot].mFence = Fence::NO_FENCE;
@@ -264,6 +269,12 @@ void BufferQueueCore::freeAllBuffersLocked() {
 }
 
 void BufferQueueCore::discardFreeBuffersLocked() {
+    // Notify producer about the discarded buffers.
+    if (mConnectedProducerListener != nullptr && mFreeBuffers.size() > 0) {
+        std::vector<int32_t> freeBuffers(mFreeBuffers.begin(), mFreeBuffers.end());
+        mConnectedProducerListener->onBuffersDiscarded(freeBuffers);
+    }
+
     for (int s : mFreeBuffers) {
         mFreeSlots.insert(s);
         clearBufferSlotLocked(s);
@@ -314,10 +325,10 @@ bool BufferQueueCore::adjustAvailableSlotsLocked(int delta) {
     return true;
 }
 
-void BufferQueueCore::waitWhileAllocatingLocked() const {
+void BufferQueueCore::waitWhileAllocatingLocked(std::unique_lock<std::mutex>& lock) const {
     ATRACE_CALL();
     while (mIsAllocating) {
-        mIsAllocatingCondition.wait(mMutex);
+        mIsAllocatingCondition.wait(lock);
     }
 }
 
@@ -357,7 +368,7 @@ void BufferQueueCore::validateConsistencyLocked() const {
                 BQ_LOGE("Slot %d is in mUnusedSlots but is not FREE", slot);
                 usleep(PAUSE_TIME);
             }
-            if (mSlots[slot].mGraphicBuffer != NULL) {
+            if (mSlots[slot].mGraphicBuffer != nullptr) {
                 BQ_LOGE("Slot %d is in mUnusedSluts but has an active buffer",
                         slot);
                 usleep(PAUSE_TIME);
@@ -379,7 +390,7 @@ void BufferQueueCore::validateConsistencyLocked() const {
                 BQ_LOGE("Slot %d is in mFreeSlots but is not FREE", slot);
                 usleep(PAUSE_TIME);
             }
-            if (mSlots[slot].mGraphicBuffer != NULL) {
+            if (mSlots[slot].mGraphicBuffer != nullptr) {
                 BQ_LOGE("Slot %d is in mFreeSlots but has a buffer",
                         slot);
                 usleep(PAUSE_TIME);
@@ -402,7 +413,7 @@ void BufferQueueCore::validateConsistencyLocked() const {
                 BQ_LOGE("Slot %d is in mFreeBuffers but is not FREE", slot);
                 usleep(PAUSE_TIME);
             }
-            if (mSlots[slot].mGraphicBuffer == NULL) {
+            if (mSlots[slot].mGraphicBuffer == nullptr) {
                 BQ_LOGE("Slot %d is in mFreeBuffers but has no buffer", slot);
                 usleep(PAUSE_TIME);
             }
@@ -426,7 +437,7 @@ void BufferQueueCore::validateConsistencyLocked() const {
                 BQ_LOGE("Slot %d is in mActiveBuffers but is FREE", slot);
                 usleep(PAUSE_TIME);
             }
-            if (mSlots[slot].mGraphicBuffer == NULL && !mIsAllocating) {
+            if (mSlots[slot].mGraphicBuffer == nullptr && !mIsAllocating) {
                 BQ_LOGE("Slot %d is in mActiveBuffers but has no buffer", slot);
                 usleep(PAUSE_TIME);
             }

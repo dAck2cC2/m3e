@@ -25,7 +25,7 @@
 
 namespace android {
 
-class ANDROID_API_GUI BufferQueue {  /* M3E: MSVC export */
+class BufferQueue {
 public:
     // BufferQueue will keep track of at most this value of buffers.
     // Attempts at runtime to increase the number of buffers past this will fail.
@@ -54,7 +54,7 @@ public:
     // reference in the BufferQueue class is because we're planning to expose the
     // consumer side of a BufferQueue as a binder interface, which doesn't support
     // weak references.
-    class ANDROID_API_GUI ProxyConsumerListener : public BnConsumerListener {  /* M3E: MSVC export */
+    class ProxyConsumerListener : public BnConsumerListener {
     public:
         explicit ProxyConsumerListener(const wp<ConsumerListener>& consumerListener);
         ~ProxyConsumerListener() override;

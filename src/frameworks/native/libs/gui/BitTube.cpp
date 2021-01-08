@@ -19,7 +19,7 @@
 #include <stdint.h>
 #if !defined(_MSC_VER)  /* M3E: MSVC */
 #include <sys/socket.h>
-#endif
+#endif // M3E
 #include <sys/types.h>
 
 #include <fcntl.h>
@@ -64,7 +64,7 @@ void BitTube::init(size_t rcvbuf, size_t sndbuf) {
         mReceiveFd.reset();
         ALOGE("BitTube: pipe creation failed (%s)", strerror(errno));
     }
-#endif
+#endif // M3E
 }
 
 status_t BitTube::initCheck() const {
@@ -98,10 +98,10 @@ ssize_t BitTube::write(void const* vaddr, size_t size) {
         // cannot return less than size, since we're using SOCK_SEQPACKET
         err = len < 0 ? errno : 0;
     } while (err == EINTR);
-#else
+#else  // M3E
     len = 0;
     err = EINTR;
-#endif
+#endif // M3E
     return err == 0 ? len : -err;
 }
 
@@ -112,7 +112,7 @@ ssize_t BitTube::read(void* vaddr, size_t size) {
         len = ::recv(mReceiveFd, vaddr, size, MSG_DONTWAIT);
         err = len < 0 ? errno : 0;
     } while (err == EINTR);
-#endif
+#endif // M3E
     if (err == EAGAIN || err == EWOULDBLOCK) {
         // EAGAIN means that we have non-blocking I/O but there was no data to be read. Nothing the
         // client should care about.

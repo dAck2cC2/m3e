@@ -53,7 +53,7 @@ public:
     virtual void requestNextVsync() = 0; // Asynchronous
 };
 
-class ANDROID_API_GUI BnDisplayEventConnection : public SafeBnInterface<IDisplayEventConnection> { /* M3E: MSVC export */
+class BnDisplayEventConnection : public SafeBnInterface<IDisplayEventConnection> {
 public:
     BnDisplayEventConnection()
           : SafeBnInterface<IDisplayEventConnection>("BnDisplayEventConnection") {}

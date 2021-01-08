@@ -29,13 +29,13 @@
 #define CC_LOGV(x, ...) 
 #define CC_LOGW(x, ...) 
 #define CC_LOGE(x, ...) 
-#else  // _MSC_VER
+#else  // M3E
 #define CC_LOGV(x, ...) ALOGV("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define CC_LOGD(x, ...) ALOGD("[%s] " x, mName.string(), ##__VA_ARGS__)
 //#define CC_LOGI(x, ...) ALOGI("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define CC_LOGW(x, ...) ALOGW("[%s] " x, mName.string(), ##__VA_ARGS__)
 #define CC_LOGE(x, ...) ALOGE("[%s] " x, mName.string(), ##__VA_ARGS__)
-#endif // _MSC_VER
+#endif // M3E
 
 namespace android {
 

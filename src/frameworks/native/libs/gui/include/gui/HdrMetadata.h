@@ -17,21 +17,25 @@
 #pragma once
 
 #include <stdint.h>
+#include <vector>
 
 #include <system/graphics.h>
 #include <utils/Flattenable.h>
 
 namespace android {
 
-struct ANDROID_API_GUI HdrMetadata : public LightFlattenable<HdrMetadata> { /* M3E: MSVC export */
+struct HdrMetadata : public LightFlattenable<HdrMetadata> {
     enum Type : uint32_t {
         SMPTE2086 = 1 << 0,
-        CTA861_3  = 1 << 1,
+        CTA861_3 = 1 << 1,
+        HDR10PLUS = 1 << 2,
     };
+
     uint32_t validTypes{0};
 
     android_smpte2086_metadata smpte2086{};
     android_cta861_3_metadata cta8613{};
+    std::vector<uint8_t> hdr10plus{};
 
     // LightFlattenable
     bool isFixedSize() const { return false; }

@@ -42,10 +42,10 @@ SyncFeatures::SyncFeatures() : Singleton<SyncFeatures>(),
     // This can only be called after EGL has been initialized; otherwise the
     // check below will abort.
     const char* exts = eglQueryStringImplementationANDROID(dpy, EGL_EXTENSIONS);
-#else
+#else  // M3E
     const char* exts = "";
-#endif
-    LOG_ALWAYS_FATAL_IF(exts == NULL, "eglQueryStringImplementationANDROID failed");
+#endif // M3E
+    LOG_ALWAYS_FATAL_IF(exts == nullptr, "eglQueryStringImplementationANDROID failed");
     if (strstr(exts, "EGL_ANDROID_native_fence_sync")) {
         // This makes GLConsumer use the EGL_ANDROID_native_fence_sync
         // extension to create Android native fences to signal when all

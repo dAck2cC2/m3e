@@ -17,7 +17,7 @@
 #include <inttypes.h>
 #if !defined(_MSC_VER) /* M3E: MSVC */
 #include <pwd.h>
-#endif
+#endif // M3E
 #include <sys/types.h>
 
 #define LOG_TAG "BufferQueueConsumer"
@@ -36,9 +36,10 @@
 #include <gui/IConsumerListener.h>
 #include <gui/IProducerListener.h>
 
-#include <binder/IPCThreadState.h>
+#include <private/gui/BufferQueueThreadState.h>
 #ifndef __ANDROID_VNDK__
 #include <binder/PermissionCache.h>
+#include <vndksupport/linker.h>
 #endif
 
 #include <system/window.h>
@@ -59,7 +60,7 @@ status_t BufferQueueConsumer::acquireBuffer(BufferItem* outBuffer,
     int numDroppedBuffers = 0;
     sp<IProducerListener> listener;
     {
-        Mutex::Autolock lock(mCore->mMutex);
+        std::unique_lock<std::mutex> lock(mCore->mMutex);
 
         // Check that the consumer doesn't currently have the maximum number of
         // buffers acquired. We allow the max buffer count to be exceeded by one
@@ -95,8 +96,6 @@ status_t BufferQueueConsumer::acquireBuffer(BufferItem* outBuffer,
         // Skip this if we're in shared buffer mode and the queue is empty,
         // since in that case we'll just return the shared buffer.
         if (expectedPresent != 0 && !mCore->mQueue.empty()) {
-            const int MAX_REASONABLE_NSEC = 1000000000ULL; // 1 second
-
             // The 'expectedPresent' argument indicates when the buffer is expected
             // to be presented on-screen. If the buffer's desired present time is
             // earlier (less) than expectedPresent -- meaning it will be displayed
@@ -169,7 +168,9 @@ status_t BufferQueueConsumer::acquireBuffer(BufferItem* outBuffer,
                         mCore->mFreeBuffers.push_back(front->mSlot);
                     }
 
-                    listener = mCore->mConnectedProducerListener;
+                    if (mCore->mBufferReleasedCbEnabled) {
+                        listener = mCore->mConnectedProducerListener;
+                    }
                     ++numDroppedBuffers;
                 }
 
@@ -191,6 +192,7 @@ status_t BufferQueueConsumer::acquireBuffer(BufferItem* outBuffer,
                         desiredPresent - expectedPresent,
                         systemTime(CLOCK_MONOTONIC),
                         front->mFrameNumber, maxFrameNumber);
+                ATRACE_NAME("PRESENT_LATER");
                 return PRESENT_LATER;
             }
 
@@ -204,7 +206,7 @@ status_t BufferQueueConsumer::acquireBuffer(BufferItem* outBuffer,
 
         if (sharedBufferAvailable && mCore->mQueue.empty()) {
             // make sure the buffer has finished allocating before acquiring it
-            mCore->waitWhileAllocatingLocked();
+            mCore->waitWhileAllocatingLocked(lock);
 
             slot = mCore->mSharedBufferSlot;
 
@@ -257,7 +259,7 @@ status_t BufferQueueConsumer::acquireBuffer(BufferItem* outBuffer,
         // mGraphicBuffer to NULL to avoid unnecessarily remapping this buffer
         // on the consumer side
         if (outBuffer->mAcquireCalled) {
-            outBuffer->mGraphicBuffer = NULL;
+            outBuffer->mGraphicBuffer = nullptr;
         }
 
         mCore->mQueue.erase(front);
@@ -265,7 +267,7 @@ status_t BufferQueueConsumer::acquireBuffer(BufferItem* outBuffer,
         // We might have freed a slot while dropping old buffers, or the producer
         // may be blocked waiting for the number of buffers in the queue to
         // decrease.
-        mCore->mDequeueCondition.broadcast();
+        mCore->mDequeueCondition.notify_all();
 
         ATRACE_INT(mCore->mConsumerName.string(),
                 static_cast<int32_t>(mCore->mQueue.size()));
@@ -274,7 +276,7 @@ status_t BufferQueueConsumer::acquireBuffer(BufferItem* outBuffer,
         VALIDATE_CONSISTENCY();
     }
 
-    if (listener != NULL) {
+    if (listener != nullptr) {
         for (int i = 0; i < numDroppedBuffers; ++i) {
             listener->onBufferReleased();
         }
@@ -287,7 +289,7 @@ status_t BufferQueueConsumer::detachBuffer(int slot) {
     ATRACE_CALL();
     ATRACE_BUFFER_INDEX(slot);
     BQ_LOGV("detachBuffer: slot %d", slot);
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
 
     if (mCore->mIsAbandoned) {
         BQ_LOGE("detachBuffer: BufferQueue has been abandoned");
@@ -313,7 +315,7 @@ status_t BufferQueueConsumer::detachBuffer(int slot) {
     mCore->mActiveBuffers.erase(slot);
     mCore->mFreeSlots.insert(slot);
     mCore->clearBufferSlotLocked(slot);
-    mCore->mDequeueCondition.broadcast();
+    mCore->mDequeueCondition.notify_all();
     VALIDATE_CONSISTENCY();
 
     return NO_ERROR;
@@ -323,15 +325,15 @@ status_t BufferQueueConsumer::attachBuffer(int* outSlot,
         const sp<android::GraphicBuffer>& buffer) {
     ATRACE_CALL();
 
-    if (outSlot == NULL) {
+    if (outSlot == nullptr) {
         BQ_LOGE("attachBuffer: outSlot must not be NULL");
         return BAD_VALUE;
-    } else if (buffer == NULL) {
+    } else if (buffer == nullptr) {
         BQ_LOGE("attachBuffer: cannot attach NULL buffer");
         return BAD_VALUE;
     }
 
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
 
     if (mCore->mSharedBufferMode) {
         BQ_LOGE("attachBuffer: cannot attach a buffer in shared buffer mode");
@@ -415,7 +417,7 @@ status_t BufferQueueConsumer::releaseBuffer(int slot, uint64_t frameNumber,
     ATRACE_BUFFER_INDEX(slot);
 
     if (slot < 0 || slot >= BufferQueueDefs::NUM_BUFFER_SLOTS ||
-            releaseFence == NULL) {
+            releaseFence == nullptr) {
         BQ_LOGE("releaseBuffer: slot %d out of range or fence %p NULL", slot,
                 releaseFence.get());
         return BAD_VALUE;
@@ -423,7 +425,7 @@ status_t BufferQueueConsumer::releaseBuffer(int slot, uint64_t frameNumber,
 
     sp<IProducerListener> listener;
     { // Autolock scope
-        Mutex::Autolock lock(mCore->mMutex);
+        std::lock_guard<std::mutex> lock(mCore->mMutex);
 
         // If the frame number has changed because the buffer has been reallocated,
         // we can ignore this releaseBuffer for the old buffer.
@@ -459,15 +461,17 @@ status_t BufferQueueConsumer::releaseBuffer(int slot, uint64_t frameNumber,
             mCore->mFreeBuffers.push_back(slot);
         }
 
-        listener = mCore->mConnectedProducerListener;
+        if (mCore->mBufferReleasedCbEnabled) {
+            listener = mCore->mConnectedProducerListener;
+        }
         BQ_LOGV("releaseBuffer: releasing slot %d", slot);
 
-        mCore->mDequeueCondition.broadcast();
+        mCore->mDequeueCondition.notify_all();
         VALIDATE_CONSISTENCY();
     } // Autolock scope
 
     // Call back without lock held
-    if (listener != NULL) {
+    if (listener != nullptr) {
         listener->onBufferReleased();
     }
 
@@ -478,7 +482,7 @@ status_t BufferQueueConsumer::connect(
         const sp<IConsumerListener>& consumerListener, bool controlledByApp) {
     ATRACE_CALL();
 
-    if (consumerListener == NULL) {
+    if (consumerListener == nullptr) {
         BQ_LOGE("connect: consumerListener may not be NULL");
         return BAD_VALUE;
     }
@@ -486,7 +490,7 @@ status_t BufferQueueConsumer::connect(
     BQ_LOGV("connect: controlledByApp=%s",
             controlledByApp ? "true" : "false");
 
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
 
     if (mCore->mIsAbandoned) {
         BQ_LOGE("connect: BufferQueue has been abandoned");
@@ -504,31 +508,31 @@ status_t BufferQueueConsumer::disconnect() {
 
     BQ_LOGV("disconnect");
 
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
 
-    if (mCore->mConsumerListener == NULL) {
+    if (mCore->mConsumerListener == nullptr) {
         BQ_LOGE("disconnect: no consumer is connected");
         return BAD_VALUE;
     }
 
     mCore->mIsAbandoned = true;
-    mCore->mConsumerListener = NULL;
+    mCore->mConsumerListener = nullptr;
     mCore->mQueue.clear();
     mCore->freeAllBuffersLocked();
     mCore->mSharedBufferSlot = BufferQueueCore::INVALID_BUFFER_SLOT;
-    mCore->mDequeueCondition.broadcast();
+    mCore->mDequeueCondition.notify_all();
     return NO_ERROR;
 }
 
 status_t BufferQueueConsumer::getReleasedBuffers(uint64_t *outSlotMask) {
     ATRACE_CALL();
 
-    if (outSlotMask == NULL) {
+    if (outSlotMask == nullptr) {
         BQ_LOGE("getReleasedBuffers: outSlotMask may not be NULL");
         return BAD_VALUE;
     }
 
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
 
     if (mCore->mIsAbandoned) {
         BQ_LOGE("getReleasedBuffers: BufferQueue has been abandoned");
@@ -570,7 +574,7 @@ status_t BufferQueueConsumer::setDefaultBufferSize(uint32_t width,
 
     BQ_LOGV("setDefaultBufferSize: width=%u height=%u", width, height);
 
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     mCore->mDefaultWidth = width;
     mCore->mDefaultHeight = height;
     return NO_ERROR;
@@ -584,7 +588,7 @@ status_t BufferQueueConsumer::setMaxBufferCount(int bufferCount) {
         return BAD_VALUE;
     }
 
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
 
     if (mCore->mConnectedApi != BufferQueueCore::NO_CONNECTED_API) {
         BQ_LOGE("setMaxBufferCount: producer is already connected");
@@ -624,8 +628,8 @@ status_t BufferQueueConsumer::setMaxAcquiredBufferCount(
 
     sp<IConsumerListener> listener;
     { // Autolock scope
-        Mutex::Autolock lock(mCore->mMutex);
-        mCore->waitWhileAllocatingLocked();
+        std::unique_lock<std::mutex> lock(mCore->mMutex);
+        mCore->waitWhileAllocatingLocked(lock);
 
         if (mCore->mIsAbandoned) {
             BQ_LOGE("setMaxAcquiredBufferCount: consumer is abandoned");
@@ -670,12 +674,12 @@ status_t BufferQueueConsumer::setMaxAcquiredBufferCount(
         BQ_LOGV("setMaxAcquiredBufferCount: %d", maxAcquiredBuffers);
         mCore->mMaxAcquiredBufferCount = maxAcquiredBuffers;
         VALIDATE_CONSISTENCY();
-        if (delta < 0) {
+        if (delta < 0 && mCore->mBufferReleasedCbEnabled) {
             listener = mCore->mConsumerListener;
         }
     }
     // Call back without lock held
-    if (listener != NULL) {
+    if (listener != nullptr) {
         listener->onBuffersReleased();
     }
 
@@ -685,7 +689,7 @@ status_t BufferQueueConsumer::setMaxAcquiredBufferCount(
 status_t BufferQueueConsumer::setConsumerName(const String8& name) {
     ATRACE_CALL();
     BQ_LOGV("setConsumerName: '%s'", name.string());
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     mCore->mConsumerName = name;
     mConsumerName = name;
     return NO_ERROR;
@@ -694,7 +698,7 @@ status_t BufferQueueConsumer::setConsumerName(const String8& name) {
 status_t BufferQueueConsumer::setDefaultBufferFormat(PixelFormat defaultFormat) {
     ATRACE_CALL();
     BQ_LOGV("setDefaultBufferFormat: %u", defaultFormat);
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     mCore->mDefaultBufferFormat = defaultFormat;
     return NO_ERROR;
 }
@@ -703,7 +707,7 @@ status_t BufferQueueConsumer::setDefaultBufferDataSpace(
         android_dataspace defaultDataSpace) {
     ATRACE_CALL();
     BQ_LOGV("setDefaultBufferDataSpace: %u", defaultDataSpace);
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     mCore->mDefaultBufferDataSpace = defaultDataSpace;
     return NO_ERROR;
 }
@@ -711,7 +715,7 @@ status_t BufferQueueConsumer::setDefaultBufferDataSpace(
 status_t BufferQueueConsumer::setConsumerUsageBits(uint64_t usage) {
     ATRACE_CALL();
     BQ_LOGV("setConsumerUsageBits: %#" PRIx64, usage);
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     mCore->mConsumerUsageBits = usage;
     return NO_ERROR;
 }
@@ -719,7 +723,7 @@ status_t BufferQueueConsumer::setConsumerUsageBits(uint64_t usage) {
 status_t BufferQueueConsumer::setConsumerIsProtected(bool isProtected) {
     ATRACE_CALL();
     BQ_LOGV("setConsumerIsProtected: %s", isProtected ? "true" : "false");
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     mCore->mConsumerIsProtected = isProtected;
     return NO_ERROR;
 }
@@ -727,26 +731,26 @@ status_t BufferQueueConsumer::setConsumerIsProtected(bool isProtected) {
 status_t BufferQueueConsumer::setTransformHint(uint32_t hint) {
     ATRACE_CALL();
     BQ_LOGV("setTransformHint: %#x", hint);
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     mCore->mTransformHint = hint;
     return NO_ERROR;
 }
 
 status_t BufferQueueConsumer::getSidebandStream(sp<NativeHandle>* outStream) const {
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     *outStream = mCore->mSidebandStream;
     return NO_ERROR;
 }
 
 status_t BufferQueueConsumer::getOccupancyHistory(bool forceFlush,
         std::vector<OccupancyTracker::Segment>* outHistory) {
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     *outHistory = mCore->mOccupancyTracker.getSegmentHistory(forceFlush);
     return NO_ERROR;
 }
 
 status_t BufferQueueConsumer::discardFreeBuffers() {
-    Mutex::Autolock lock(mCore->mMutex);
+    std::lock_guard<std::mutex> lock(mCore->mMutex);
     mCore->discardFreeBuffersLocked();
     return NO_ERROR;
 }
@@ -755,30 +759,40 @@ status_t BufferQueueConsumer::dumpState(const String8& prefix, String8* outResul
 #if !defined(_MSC_VER)  /* M3E: MSVC */
     struct passwd* pwd = getpwnam("shell");
     uid_t shellUid = pwd ? pwd->pw_uid : 0;
-#else
+#else  // M3E
 	uid_t shellUid = 0;
-#endif
+#endif // M3E
     if (!shellUid) {
         int savedErrno = errno;
         BQ_LOGE("Cannot get AID_SHELL");
         return savedErrno ? -savedErrno : UNKNOWN_ERROR;
     }
 
-    const IPCThreadState* ipc = IPCThreadState::self();
-    const uid_t uid = ipc->getCallingUid();
+    bool denied = false;
+    const uid_t uid = BufferQueueThreadState::getCallingUid();
 #ifndef __ANDROID_VNDK__
     // permission check can't be done for vendors as vendors have no access to
-    // the PermissionController
-    const pid_t pid = ipc->getCallingPid();
-    if ((uid != shellUid) &&
-        !PermissionCache::checkPermission(String16("android.permission.DUMP"), pid, uid)) {
-        outResult->appendFormat("Permission Denial: can't dump BufferQueueConsumer "
-                "from pid=%d, uid=%d\n", pid, uid);
+    // the PermissionController. We need to do a runtime check as well, since
+    // the system variant of libgui can be loaded in a vendor process. For eg:
+    // if a HAL uses an llndk library that depends on libgui (libmediandk etc).
+    if (!android_is_in_vendor_process()) {
+        const pid_t pid = BufferQueueThreadState::getCallingPid();
+        if ((uid != shellUid) &&
+            !PermissionCache::checkPermission(String16("android.permission.DUMP"), pid, uid)) {
+            outResult->appendFormat("Permission Denial: can't dump BufferQueueConsumer "
+                                    "from pid=%d, uid=%d\n",
+                                    pid, uid);
+            denied = true;
+        }
+    }
 #else
     if (uid != shellUid) {
+        denied = true;
+    }
 #endif
+    if (denied) {
         android_errorWriteWithInfoLog(0x534e4554, "27046057",
-                static_cast<int32_t>(uid), NULL, 0);
+                static_cast<int32_t>(uid), nullptr, 0);
         return PERMISSION_DENIED;
     }
 

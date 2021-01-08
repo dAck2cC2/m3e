@@ -26,7 +26,7 @@ class Parcel;
 
 namespace gui {
 
-class ANDROID_API_GUI BitTube : public Parcelable {  /* M3E: MSVC export */
+class BitTube : public Parcelable {
 public:
     // creates an uninitialized BitTube (to unparcel into)
     BitTube() = default;

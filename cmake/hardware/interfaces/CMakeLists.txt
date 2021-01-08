@@ -64,12 +64,18 @@ android.hardware.graphics.mapper@2.0
 android.hardware.graphics.mapper@2.1
 android.hardware.graphics.mapper@3.0
 
+# libgui
+android.hardware.graphics.bufferqueue@1.0
+android.hardware.graphics.bufferqueue@2.0
+android.hardware.graphics.common@1.1
+#android.hardware.graphics.common@1.2
+#android.hidl.token@1.0-utils
+
 android.hardware.cas@1.0
 android.hardware.cas.native@1.0
 android.hardware.configstore@1.0
 android.hardware.configstore@1.1
 android.hardware.graphics.common@1.0
-android.hardware.graphics.common@1.1
 android.hardware.graphics.composer@2.1
 android.hardware.graphics.composer@2.2
 android.hardware.audio@2.0
@@ -81,8 +87,6 @@ android.hardware.audio.common@4.0
 android.hardware.media@1.0
 android.hardware.media.omx@1.0
 android.hardware.media.bufferpool@1.0
-android.hardware.graphics.bufferqueue@1.0
-#android.hardware.graphics.bufferqueue@2.0
 )
 
 foreach(module ${HIDL_MODULES})
