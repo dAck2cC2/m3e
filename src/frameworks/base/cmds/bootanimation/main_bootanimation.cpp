@@ -66,7 +66,7 @@ public:
 		mCnd(cnd), 
 		mThd() 
 	{
-		mThd = new AnimationTimeout(time);
+		//mThd = new AnimationTimeout(time);
 	};
 
 	void init(const Vector<Animation::Part>& parts) override {
@@ -189,6 +189,10 @@ int open_bootanimation(const struct hw_module_t* module, const char* id,
 
 	if (gBootAnimation == NULL) {
 		gBootAnimation = new BootAnimation(gAnimationStatus->getCallback());
+	}
+
+	if (gBootAnimation) {
+		gBootAnimation->run("BootAnimation", PRIORITY_DISPLAY);
 	}
 
 	if (device != NULL) {

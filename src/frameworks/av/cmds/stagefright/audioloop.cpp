@@ -42,6 +42,7 @@
 #if defined(_MSC_VER)
 #include <getopt.h>  // getopt
 #endif
+// M3E
 
 using namespace android;
 
@@ -129,7 +130,7 @@ int main(int argc, char* argv[])
                 String16(),
                 sampleRate,
                 channels);
-#endif
+#endif // M3E
     } else {
         // use a sine source at 500 hz.
         source = new SineSource(sampleRate, channels);
@@ -169,7 +170,7 @@ int main(int argc, char* argv[])
         int fd = open(fileOut, O_CREAT
 #if defined(O_LARGEFILE) // M3E: add
 			| O_LARGEFILE 
-#endif 
+#endif // M3E
 			| O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
         if (fd < 0) {
             return 1;

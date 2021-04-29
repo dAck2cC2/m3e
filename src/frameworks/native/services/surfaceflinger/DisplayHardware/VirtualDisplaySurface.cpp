@@ -38,53 +38,57 @@ namespace android {
 #define VDS_LOGE(msg, ...) 
 #define VDS_LOGW_IF(cond, msg, ...) 
 #define VDS_LOGV(msg, ...) 
-#else
+#else  // M3E
 #define VDS_LOGE(msg, ...) ALOGE("[%s] " msg, \
-        mDisplayName.string(), ##__VA_ARGS__)
+        mDisplayName.c_str(), ##__VA_ARGS__)
 #define VDS_LOGW_IF(cond, msg, ...) ALOGW_IF(cond, "[%s] " msg, \
-        mDisplayName.string(), ##__VA_ARGS__)
+        mDisplayName.c_str(), ##__VA_ARGS__)
 #define VDS_LOGV(msg, ...) ALOGV("[%s] " msg, \
-        mDisplayName.string(), ##__VA_ARGS__)
-#endif
+        mDisplayName.c_str(), ##__VA_ARGS__)
+#endif // M3E
 
-static const char* dbgCompositionTypeStr(DisplaySurface::CompositionType type) {
+static const char* dbgCompositionTypeStr(compositionengine::DisplaySurface::CompositionType type) {
     switch (type) {
-        case DisplaySurface::COMPOSITION_UNKNOWN: return "UNKNOWN";
-        case DisplaySurface::COMPOSITION_GLES:    return "GLES";
-        case DisplaySurface::COMPOSITION_HWC:     return "HWC";
-        case DisplaySurface::COMPOSITION_MIXED:   return "MIXED";
+        case compositionengine::DisplaySurface::COMPOSITION_UNKNOWN:
+            return "UNKNOWN";
+        case compositionengine::DisplaySurface::COMPOSITION_GLES:
+            return "GLES";
+        case compositionengine::DisplaySurface::COMPOSITION_HWC:
+            return "HWC";
+        case compositionengine::DisplaySurface::COMPOSITION_MIXED:
+            return "MIXED";
         default:                                  return "<INVALID>";
     }
 }
 
-VirtualDisplaySurface::VirtualDisplaySurface(HWComposer& hwc, int32_t dispId,
-        const sp<IGraphicBufferProducer>& sink,
-        const sp<IGraphicBufferProducer>& bqProducer,
-        const sp<IGraphicBufferConsumer>& bqConsumer,
-        const String8& name)
-:   ConsumerBase(bqConsumer),
-    mHwc(hwc),
-    mDisplayId(dispId),
-    mDisplayName(name),
-    mSource{},
-    mDefaultOutputFormat(HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED),
-    mOutputFormat(HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED),
-    mOutputUsage(GRALLOC_USAGE_HW_COMPOSER),
-    mProducerSlotSource(0),
-    mProducerBuffers(),
-    mQueueBufferOutput(),
-    mSinkBufferWidth(0),
-    mSinkBufferHeight(0),
-    mCompositionType(COMPOSITION_UNKNOWN),
-    mFbFence(Fence::NO_FENCE),
-    mOutputFence(Fence::NO_FENCE),
-    mFbProducerSlot(BufferQueue::INVALID_BUFFER_SLOT),
-    mOutputProducerSlot(BufferQueue::INVALID_BUFFER_SLOT),
-    mDbgState(DBG_STATE_IDLE),
-    mDbgLastCompositionType(COMPOSITION_UNKNOWN),
-    mMustRecompose(false),
-    mForceHwcCopy(SurfaceFlinger::useHwcForRgbToYuv)
-{
+VirtualDisplaySurface::VirtualDisplaySurface(HWComposer& hwc,
+                                             const std::optional<DisplayId>& displayId,
+                                             const sp<IGraphicBufferProducer>& sink,
+                                             const sp<IGraphicBufferProducer>& bqProducer,
+                                             const sp<IGraphicBufferConsumer>& bqConsumer,
+                                             const std::string& name)
+      : ConsumerBase(bqConsumer),
+        mHwc(hwc),
+        mDisplayId(displayId),
+        mDisplayName(name),
+        mSource{},
+        mDefaultOutputFormat(HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED),
+        mOutputFormat(HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED),
+        mOutputUsage(GRALLOC_USAGE_HW_COMPOSER),
+        mProducerSlotSource(0),
+        mProducerBuffers(),
+        mQueueBufferOutput(),
+        mSinkBufferWidth(0),
+        mSinkBufferHeight(0),
+        mCompositionType(COMPOSITION_UNKNOWN),
+        mFbFence(Fence::NO_FENCE),
+        mOutputFence(Fence::NO_FENCE),
+        mFbProducerSlot(BufferQueue::INVALID_BUFFER_SLOT),
+        mOutputProducerSlot(BufferQueue::INVALID_BUFFER_SLOT),
+        mDbgState(DBG_STATE_IDLE),
+        mDbgLastCompositionType(COMPOSITION_UNKNOWN),
+        mMustRecompose(false),
+        mForceHwcCopy(SurfaceFlinger::useHwcForRgbToYuv) {
     mSource[SOURCE_SINK] = sink;
     mSource[SOURCE_SCRATCH] = bqProducer;
 
@@ -111,7 +115,7 @@ VirtualDisplaySurface::VirtualDisplaySurface(HWComposer& hwc, int32_t dispId,
     }
     mOutputFormat = mDefaultOutputFormat;
 
-    ConsumerBase::mName = String8::format("VDS: %s", mDisplayName.string());
+    ConsumerBase::mName = String8::format("VDS: %s", mDisplayName.c_str());
     mConsumer->setConsumerName(ConsumerBase::mName);
     mConsumer->setConsumerUsageBits(GRALLOC_USAGE_HW_COMPOSER);
     mConsumer->setDefaultBufferSize(sinkWidth, sinkHeight);
@@ -125,8 +129,9 @@ VirtualDisplaySurface::~VirtualDisplaySurface() {
 }
 
 status_t VirtualDisplaySurface::beginFrame(bool mustRecompose) {
-    if (mDisplayId < 0)
+    if (!mDisplayId) {
         return NO_ERROR;
+    }
 
     mMustRecompose = mustRecompose;
 
@@ -138,8 +143,9 @@ status_t VirtualDisplaySurface::beginFrame(bool mustRecompose) {
 }
 
 status_t VirtualDisplaySurface::prepareFrame(CompositionType compositionType) {
-    if (mDisplayId < 0)
+    if (!mDisplayId) {
         return NO_ERROR;
+    }
 
     VDS_LOGW_IF(mDbgState != DBG_STATE_BEGUN,
             "Unexpected prepareFrame() in %s state", dbgStateStr());
@@ -186,8 +192,9 @@ status_t VirtualDisplaySurface::prepareFrame(CompositionType compositionType) {
 }
 
 status_t VirtualDisplaySurface::advanceFrame() {
-    if (mDisplayId < 0)
+    if (!mDisplayId) {
         return NO_ERROR;
+    }
 
     if (mCompositionType == COMPOSITION_HWC) {
         VDS_LOGW_IF(mDbgState != DBG_STATE_PREPARED,
@@ -220,32 +227,32 @@ status_t VirtualDisplaySurface::advanceFrame() {
 
     // At this point we know the output buffer acquire fence,
     // so update HWC state with it.
-    mHwc.setOutputBuffer(mDisplayId, mOutputFence, outBuffer);
+    mHwc.setOutputBuffer(*mDisplayId, mOutputFence, outBuffer);
 
     status_t result = NO_ERROR;
     if (fbBuffer != nullptr) {
         uint32_t hwcSlot = 0;
         sp<GraphicBuffer> hwcBuffer;
-        mHwcBufferCache.getHwcBuffer(mFbProducerSlot, fbBuffer,
-                &hwcSlot, &hwcBuffer);
+        mHwcBufferCache.getHwcBuffer(mFbProducerSlot, fbBuffer, &hwcSlot, &hwcBuffer);
 
         // TODO: Correctly propagate the dataspace from GL composition
-        result = mHwc.setClientTarget(mDisplayId, hwcSlot, mFbFence,
-                hwcBuffer, ui::Dataspace::UNKNOWN);
+        result = mHwc.setClientTarget(*mDisplayId, hwcSlot, mFbFence, hwcBuffer,
+                                      ui::Dataspace::UNKNOWN);
     }
 
     return result;
 }
 
 void VirtualDisplaySurface::onFrameCommitted() {
-    if (mDisplayId < 0)
+    if (!mDisplayId) {
         return;
+    }
 
     VDS_LOGW_IF(mDbgState != DBG_STATE_HWC,
             "Unexpected onFrameCommitted() in %s state", dbgStateStr());
     mDbgState = DBG_STATE_IDLE;
 
-    sp<Fence> retireFence = mHwc.getPresentFence(mDisplayId);
+    sp<Fence> retireFence = mHwc.getPresentFence(*mDisplayId);
     if (mCompositionType == COMPOSITION_MIXED && mFbProducerSlot >= 0) {
         // release the scratch buffer back to the pool
         Mutex::Autolock lock(mMutex);
@@ -300,8 +307,9 @@ const sp<Fence>& VirtualDisplaySurface::getClientTargetAcquireFence() const {
 
 status_t VirtualDisplaySurface::requestBuffer(int pslot,
         sp<GraphicBuffer>* outBuf) {
-    if (mDisplayId < 0)
+    if (!mDisplayId) {
         return mSource[SOURCE_SINK]->requestBuffer(pslot, outBuf);
+    }
 
     VDS_LOGW_IF(mDbgState != DBG_STATE_GLES,
             "Unexpected requestBuffer pslot=%d in %s state",
@@ -322,7 +330,7 @@ status_t VirtualDisplaySurface::setAsyncMode(bool async) {
 
 status_t VirtualDisplaySurface::dequeueBuffer(Source source,
         PixelFormat format, uint64_t usage, int* sslot, sp<Fence>* fence) {
-    LOG_FATAL_IF(mDisplayId < 0, "mDisplayId=%d but should not be < 0.", mDisplayId);
+    LOG_FATAL_IF(!mDisplayId, "M3E: MSVC");
 
     status_t result =
             mSource[source]->dequeueBuffer(sslot, fence, mSinkBufferWidth, mSinkBufferHeight,
@@ -368,7 +376,7 @@ status_t VirtualDisplaySurface::dequeueBuffer(int* pslot, sp<Fence>* fence, uint
                                               PixelFormat format, uint64_t usage,
                                               uint64_t* outBufferAge,
                                               FrameEventHistoryDelta* outTimestamps) {
-    if (mDisplayId < 0) {
+    if (!mDisplayId) {
         return mSource[SOURCE_SINK]->dequeueBuffer(pslot, fence, w, h, format, usage, outBufferAge,
                                                    outTimestamps);
     }
@@ -455,8 +463,9 @@ status_t VirtualDisplaySurface::attachBuffer(int* /* outSlot */,
 
 status_t VirtualDisplaySurface::queueBuffer(int pslot,
         const QueueBufferInput& input, QueueBufferOutput* output) {
-    if (mDisplayId < 0)
+    if (!mDisplayId) {
         return mSource[SOURCE_SINK]->queueBuffer(pslot, input, output);
+    }
 
     VDS_LOGW_IF(mDbgState != DBG_STATE_GLES,
             "Unexpected queueBuffer(pslot=%d) in %s state", pslot,
@@ -513,8 +522,9 @@ status_t VirtualDisplaySurface::queueBuffer(int pslot,
 
 status_t VirtualDisplaySurface::cancelBuffer(int pslot,
         const sp<Fence>& fence) {
-    if (mDisplayId < 0)
+    if (!mDisplayId) {
         return mSource[SOURCE_SINK]->cancelBuffer(mapProducer2SourceSlot(SOURCE_SINK, pslot), fence);
+    }
 
     VDS_LOGW_IF(mDbgState != DBG_STATE_GLES,
             "Unexpected cancelBuffer(pslot=%d) in %s state", pslot,
@@ -625,6 +635,8 @@ void VirtualDisplaySurface::resetPerFrameState() {
 }
 
 status_t VirtualDisplaySurface::refreshOutputBuffer() {
+    LOG_FATAL_IF(!mDisplayId, "M3E: MSVC");
+
     if (mOutputProducerSlot >= 0) {
         mSource[SOURCE_SINK]->cancelBuffer(
                 mapProducer2SourceSlot(SOURCE_SINK, mOutputProducerSlot),
@@ -642,8 +654,8 @@ status_t VirtualDisplaySurface::refreshOutputBuffer() {
     // until after GLES calls queueBuffer(). So here we just set the buffer
     // (for use in HWC prepare) but not the fence; we'll call this again with
     // the proper fence once we have it.
-    result = mHwc.setOutputBuffer(mDisplayId, Fence::NO_FENCE,
-            mProducerBuffers[mOutputProducerSlot]);
+    result = mHwc.setOutputBuffer(*mDisplayId, Fence::NO_FENCE,
+                                  mProducerBuffers[mOutputProducerSlot]);
 
     return result;
 }

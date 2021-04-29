@@ -60,7 +60,7 @@ ${M3E_SOURCE_DIR}/src/frameworks/native/include/private/ui/*.h
 
 # source files
 set(${PROJECT_NAME}_SOURCE_FILES 
-#${SOURCE_PATH}/ColorSpace.cpp
+${SOURCE_PATH}/ColorSpace.cpp
 ${SOURCE_PATH}/BufferHubBuffer.cpp
 ${SOURCE_PATH}/BufferHubEventFd.cpp
 ${SOURCE_PATH}/BufferHubMetadata.cpp

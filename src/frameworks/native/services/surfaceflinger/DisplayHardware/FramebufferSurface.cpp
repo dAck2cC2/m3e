@@ -55,26 +55,25 @@ using ui::Dataspace;
  *
  */
 
-FramebufferSurface::FramebufferSurface(HWComposer& hwc, int disp,
-        const sp<IGraphicBufferConsumer>& consumer) :
-    ConsumerBase(consumer),
-    mDisplayType(disp),
-    mCurrentBufferSlot(-1),
-    mCurrentBuffer(),
-    mCurrentFence(Fence::NO_FENCE),
-    mHwc(hwc),
-    mHasPendingRelease(false),
-    mPreviousBufferSlot(BufferQueue::INVALID_BUFFER_SLOT),
-    mPreviousBuffer()
-{
-    ALOGV("Creating for display %d", disp);
+FramebufferSurface::FramebufferSurface(HWComposer& hwc, DisplayId displayId,
+                                       const sp<IGraphicBufferConsumer>& consumer)
+      : ConsumerBase(consumer),
+        mDisplayId(displayId),
+        mCurrentBufferSlot(-1),
+        mCurrentBuffer(),
+        mCurrentFence(Fence::NO_FENCE),
+        mHwc(hwc),
+        mHasPendingRelease(false),
+        mPreviousBufferSlot(BufferQueue::INVALID_BUFFER_SLOT),
+        mPreviousBuffer() {
+    ALOGV("Creating for display %s", to_string(displayId).c_str());
 
     mName = "FramebufferSurface";
     mConsumer->setConsumerName(mName);
     mConsumer->setConsumerUsageBits(GRALLOC_USAGE_HW_FB |
                                        GRALLOC_USAGE_HW_RENDER |
                                        GRALLOC_USAGE_HW_COMPOSER);
-    const auto& activeConfig = mHwc.getActiveConfig(disp);
+    const auto& activeConfig = mHwc.getActiveConfig(displayId);
     mConsumer->setDefaultBufferSize(activeConfig->getWidth(),
             activeConfig->getHeight());
     mConsumer->setMaxAcquiredBufferCount(
@@ -115,8 +114,7 @@ status_t FramebufferSurface::nextBuffer(uint32_t& outSlot,
     BufferItem item;
     status_t err = acquireBufferLocked(&item, 0);
     if (err == BufferQueue::NO_BUFFER_AVAILABLE) {
-        mHwcBufferCache.getHwcBuffer(mCurrentBufferSlot, mCurrentBuffer,
-                &outSlot, &outBuffer);
+        mHwcBufferCache.getHwcBuffer(mCurrentBufferSlot, mCurrentBuffer, &outSlot, &outBuffer);
         return NO_ERROR;
     } else if (err != NO_ERROR) {
         ALOGE("error acquiring buffer: %s (%d)", strerror(-err), err);
@@ -142,11 +140,9 @@ status_t FramebufferSurface::nextBuffer(uint32_t& outSlot,
     mCurrentFence = item.mFence;
 
     outFence = item.mFence;
-    mHwcBufferCache.getHwcBuffer(mCurrentBufferSlot, mCurrentBuffer,
-            &outSlot, &outBuffer);
+    mHwcBufferCache.getHwcBuffer(mCurrentBufferSlot, mCurrentBuffer, &outSlot, &outBuffer);
     outDataspace = static_cast<Dataspace>(item.mDataSpace);
-    status_t result =
-            mHwc.setClientTarget(mDisplayType, outSlot, outFence, outBuffer, outDataspace);
+    status_t result = mHwc.setClientTarget(mDisplayId, outSlot, outFence, outBuffer, outDataspace);
     if (result != NO_ERROR) {
         ALOGE("error posting framebuffer: %d", result);
         return result;
@@ -164,7 +160,7 @@ void FramebufferSurface::freeBufferLocked(int slotIndex) {
 
 void FramebufferSurface::onFrameCommitted() {
     if (mHasPendingRelease) {
-        sp<Fence> fence = mHwc.getPresentFence(mDisplayType);
+        sp<Fence> fence = mHwc.getPresentFence(mDisplayId);
         if (fence->isValid()) {
             status_t result = addReleaseFence(mPreviousBufferSlot,
                     mPreviousBuffer, fence);

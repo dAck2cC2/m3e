@@ -37,7 +37,7 @@ namespace android {
 class GrallocAllocator;
 class GraphicBufferMapper;
 
-class GraphicBufferAllocator : public Singleton<GraphicBufferAllocator>
+class ANDROID_API_UI GraphicBufferAllocator : public Singleton<GraphicBufferAllocator>
 {
 public:
     static inline GraphicBufferAllocator& get() { return getInstance(); }

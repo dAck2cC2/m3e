@@ -47,6 +47,7 @@
 #include <getopt.h>  // getopt
 #endif
 #include <initrc/initrc.h>
+// M3E
 
 static void usage(const char *me) {
     fprintf(stderr, "usage: %s [-a] use audio\n"
@@ -145,7 +146,7 @@ static int decode(
 
     CHECK(!stateByTrack.isEmpty());
 
-    int64_t startTimeUs = ALooper::GetNowUs();
+    int64_t startTimeUs = android::ALooper::GetNowUs();
     int64_t startTimeRender = -1;
 
     for (size_t i = 0; i < stateByTrack.size(); ++i) {
@@ -314,7 +315,7 @@ static int decode(
         }
     }
 
-    int64_t elapsedTimeUs = ALooper::GetNowUs() - startTimeUs;
+    int64_t elapsedTimeUs = android::ALooper::GetNowUs() - startTimeUs;
 
     for (size_t i = 0; i < stateByTrack.size(); ++i) {
         CodecState *state = &stateByTrack.editValueAt(i);
@@ -377,13 +378,13 @@ int main(int argc, char **argv) {
             case 'T':
             {
                 useTimestamp = true;
+                FALLTHROUGH_INTENDED;
             }
-            // fall through
             case 'R':
             {
                 renderSurface = true;
+                FALLTHROUGH_INTENDED;
             }
-            // fall through
             case 'S':
             {
                 useSurface = true;
@@ -411,7 +412,7 @@ int main(int argc, char **argv) {
 
     ProcessState::self()->startThreadPool();
 
-    sp<ALooper> looper = new ALooper;
+    sp<android::ALooper> looper = new android::ALooper;
     looper->start();
 
     sp<SurfaceComposerClient> composerClient;
@@ -423,10 +424,12 @@ int main(int argc, char **argv) {
         composerClient = new SurfaceComposerClient;
         CHECK_EQ(composerClient->initCheck(), (status_t)OK);
 
-        sp<IBinder> display(SurfaceComposerClient::getBuiltInDisplay(
-                ISurfaceComposer::eDisplayIdMain));
+        const sp<IBinder> display = SurfaceComposerClient::getInternalDisplayToken();
+        CHECK(display != nullptr);
+
         DisplayInfo info;
-        SurfaceComposerClient::getDisplayInfo(display, &info);
+        CHECK_EQ(SurfaceComposerClient::getDisplayInfo(display, &info), NO_ERROR);
+
         ssize_t displayWidth = info.w;
         ssize_t displayHeight = info.h;
 

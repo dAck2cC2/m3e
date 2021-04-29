@@ -49,6 +49,8 @@ add_definitions(-DYYDEBUG=1)
 if (MSVC)
   add_definitions(-DNOMINMAX)
   add_definitions(-Dstrcasecmp=_stricmp)
+elseif(LINUX)
+  add_definitions(-Dregister= )
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/aidl )

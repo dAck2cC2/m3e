@@ -18,76 +18,206 @@
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 
 #include "SurfaceTracing.h"
+#include <SurfaceFlinger.h>
 
 #include <android-base/file.h>
+#include <android-base/stringprintf.h>
 #include <log/log.h>
 #include <utils/SystemClock.h>
 #include <utils/Trace.h>
 
+#if defined(_MSC_VER) // M3E
+#include "Layer.h"  // sp of Layer
+#endif // M3E
+
 namespace android {
 
+SurfaceTracing::SurfaceTracing(SurfaceFlinger& flinger)
+      : mFlinger(flinger), mSfLock(flinger.mDrawingStateLock) {}
+
+void SurfaceTracing::mainLoop() {
+    addFirstEntry();
+#if ENABLE_LAYER_PROTO /* M3E: */
+    bool enabled = true;
+    while (enabled) {
+        LayersTraceProto entry = traceWhenNotified();
+        enabled = addTraceToBuffer(entry);
+    }
+#endif // M3E
+}
+
+void SurfaceTracing::addFirstEntry() {
+#if ENABLE_LAYER_PROTO /* M3E: */
+    LayersTraceProto entry;
+    {
+        std::scoped_lock lock(mSfLock);
+        entry = traceLayersLocked("tracing.enable");
+    }
+    addTraceToBuffer(entry);
+#endif // M3E
+}
+
+#if ENABLE_LAYER_PROTO /* M3E: */
+LayersTraceProto SurfaceTracing::traceWhenNotified() {
+    std::unique_lock<std::mutex> lock(mSfLock);
+    mCanStartTrace.wait(lock);
+    android::base::ScopedLockAssertion assumeLock(mSfLock);
+    LayersTraceProto entry = traceLayersLocked(mWhere);
+    lock.unlock();
+    return entry;
+}
+
+bool SurfaceTracing::addTraceToBuffer(LayersTraceProto& entry) {
+    std::scoped_lock lock(mTraceLock);
+    mBuffer.emplace(std::move(entry));
+    if (mWriteToFile) {
+        writeProtoFileLocked();
+        mWriteToFile = false;
+    }
+    return mEnabled;
+}
+#endif // M3E
+
+void SurfaceTracing::notify(const char* where) {
+    std::scoped_lock lock(mSfLock);
+    mWhere = where;
+    mCanStartTrace.notify_one();
+}
+
+void SurfaceTracing::writeToFileAsync() {
+    std::scoped_lock lock(mTraceLock);
+    mWriteToFile = true;
+    mCanStartTrace.notify_one();
+}
+
+#if ENABLE_LAYER_PROTO /* M3E: */
+void SurfaceTracing::LayersTraceBuffer::reset(size_t newSize) {
+    // use the swap trick to make sure memory is released
+    std::queue<LayersTraceProto>().swap(mStorage);
+    mSizeInBytes = newSize;
+    mUsedInBytes = 0U;
+}
+
+void SurfaceTracing::LayersTraceBuffer::emplace(LayersTraceProto&& proto) {
+    auto protoSize = proto.ByteSize();
+    while (mUsedInBytes + protoSize > mSizeInBytes) {
+        if (mStorage.empty()) {
+            return;
+        }
+        mUsedInBytes -= mStorage.front().ByteSize();
+        mStorage.pop();
+    }
+    mUsedInBytes += protoSize;
+    mStorage.emplace();
+    mStorage.back().Swap(&proto);
+}
+
+void SurfaceTracing::LayersTraceBuffer::flush(LayersTraceFileProto* fileProto) {
+    fileProto->mutable_entry()->Reserve(mStorage.size());
+
+    while (!mStorage.empty()) {
+        auto entry = fileProto->add_entry();
+        entry->Swap(&mStorage.front());
+        mStorage.pop();
+    }
+}
+#endif // M3E
+
 void SurfaceTracing::enable() {
+    std::scoped_lock lock(mTraceLock);
+
     if (mEnabled) {
         return;
     }
-    ATRACE_CALL();
+#if ENABLE_LAYER_PROTO /* M3E: */
+    mBuffer.reset(mBufferSize);
+#endif // M3E
     mEnabled = true;
-    std::lock_guard<std::mutex> protoGuard(mTraceMutex);
-
-#if ENABLE_LAYER_PROTO /* M3E: */
-    mTrace.set_magic_number(uint64_t(LayersTraceFileProto_MagicNumber_MAGIC_NUMBER_H) << 32 |
-                            LayersTraceFileProto_MagicNumber_MAGIC_NUMBER_L);
-#endif
+    mThread = std::thread(&SurfaceTracing::mainLoop, this);
 }
 
-status_t SurfaceTracing::disable() {
+status_t SurfaceTracing::writeToFile() {
+    mThread.join();
+    return mLastErr;
+}
+
+bool SurfaceTracing::disable() {
+    std::scoped_lock lock(mTraceLock);
+
     if (!mEnabled) {
-        return NO_ERROR;
+        return false;
     }
-    ATRACE_CALL();
-    std::lock_guard<std::mutex> protoGuard(mTraceMutex);
+
     mEnabled = false;
-    status_t err(writeProtoFileLocked());
-    ALOGE_IF(err == PERMISSION_DENIED, "Could not save the proto file! Permission denied");
-    ALOGE_IF(err == NOT_ENOUGH_DATA, "Could not save the proto file! There are missing fields");
-#if ENABLE_LAYER_PROTO /* M3E: */
-    mTrace.Clear();
-#endif
-    return err;
+    mWriteToFile = true;
+    mCanStartTrace.notify_all();
+    return true;
 }
 
-bool SurfaceTracing::isEnabled() {
+bool SurfaceTracing::isEnabled() const {
+    std::scoped_lock lock(mTraceLock);
     return mEnabled;
 }
 
+void SurfaceTracing::setBufferSize(size_t bufferSizeInByte) {
+    std::scoped_lock lock(mTraceLock);
+    mBufferSize = bufferSizeInByte;
 #if ENABLE_LAYER_PROTO /* M3E: */
-void SurfaceTracing::traceLayers(const char* where, LayersProto layers) {
-    std::lock_guard<std::mutex> protoGuard(mTraceMutex);
-
-    LayersTraceProto* entry = mTrace.add_entry();
-    entry->set_elapsed_realtime_nanos(elapsedRealtimeNano());
-    entry->set_where(where);
-    entry->mutable_layers()->Swap(&layers);
+    mBuffer.setSize(bufferSizeInByte);
+#endif // M3E
 }
-#endif
 
-status_t SurfaceTracing::writeProtoFileLocked() {
+void SurfaceTracing::setTraceFlags(uint32_t flags) {
+    std::scoped_lock lock(mSfLock);
+    mTraceFlags = flags;
+}
+
+#if ENABLE_LAYER_PROTO /* M3E: */
+LayersTraceProto SurfaceTracing::traceLayersLocked(const char* where) {
     ATRACE_CALL();
 
-#if ENABLE_LAYER_PROTO /* M3E: */
-    if (!mTrace.IsInitialized()) {
-        return NOT_ENOUGH_DATA;
-    }
-    std::string output;
-    if (!mTrace.SerializeToString(&output)) {
-        return PERMISSION_DENIED;
-    }
-    if (!android::base::WriteStringToFile(output, mOutputFileName, true)) {
-        return PERMISSION_DENIED;
-    }
-#endif
+    LayersTraceProto entry;
+    entry.set_elapsed_realtime_nanos(elapsedRealtimeNano());
+    entry.set_where(where);
+    LayersProto layers(mFlinger.dumpProtoInfo(LayerVector::StateSet::Drawing, mTraceFlags));
+    entry.mutable_layers()->Swap(&layers);
 
-    return NO_ERROR;
+    return entry;
+}
+
+void SurfaceTracing::writeProtoFileLocked() {
+    ATRACE_CALL();
+
+    LayersTraceFileProto fileProto;
+    std::string output;
+
+    fileProto.set_magic_number(uint64_t(LayersTraceFileProto_MagicNumber_MAGIC_NUMBER_H) << 32 |
+                               LayersTraceFileProto_MagicNumber_MAGIC_NUMBER_L);
+    mBuffer.flush(&fileProto);
+    mBuffer.reset(mBufferSize);
+
+    if (!fileProto.SerializeToString(&output)) {
+        ALOGE("Could not save the proto file! Permission denied");
+        mLastErr = PERMISSION_DENIED;
+    }
+    if (!android::base::WriteStringToFile(output, kDefaultFileName, S_IRWXU | S_IRGRP, getuid(),
+                                          getgid(), true)) {
+        ALOGE("Could not save the proto file! There are missing fields");
+        mLastErr = PERMISSION_DENIED;
+    }
+
+    mLastErr = NO_ERROR;
+}
+#endif // M3E
+
+void SurfaceTracing::dump(std::string& result) const {
+    std::scoped_lock lock(mTraceLock);
+    base::StringAppendF(&result, "Tracing state: %s\n", mEnabled ? "enabled" : "disabled");
+#if ENABLE_LAYER_PROTO /* M3E: */
+    base::StringAppendF(&result, "  number of entries: %zu (%.2fMB / %.2fMB)\n",
+                        mBuffer.frameCount(), float(mBuffer.used()) / float(1_MB),
+                        float(mBuffer.size()) / float(1_MB));
+#endif // M3E
 }
 
 } // namespace android

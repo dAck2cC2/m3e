@@ -116,6 +116,8 @@ elseif (MSVC)
   list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 
   add_definitions(-Dmode_t=int)
+elseif(LINUX)
+  add_definitions(-Dregister= )
 endif()
 
 ###############################################################################

@@ -9,7 +9,9 @@ external
 proj
 backup
 out
+out_linux
 tool
+tool_linux
 
 !/cmake/external
 !/cmake/tool

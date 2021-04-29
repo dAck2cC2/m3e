@@ -6,8 +6,8 @@
 #include <binder/IServiceManager.h>
 #include <hardware/hardware.h>
 
-#include "SurfaceFlinger.h"
-#include "customized/NSurfaceFlinger.h"
+#include "Scheduler/RefreshRateConfigs.h"
+#include "SurfaceFlingerFactory.h"
 
 #include "Layer.h"
 #include <gui/BufferItem.h>
@@ -19,16 +19,11 @@ namespace android {
 	class SurfaceFlingerService : public RefBase
 	{
 	public:
-		SurfaceFlingerService(sp<SurfaceFlinger> flinger) : mService(flinger), mMessage(flinger) {};
+		SurfaceFlingerService(sp<SurfaceFlinger> flinger) : mService(flinger) {};
 		~SurfaceFlingerService() {};
 
 		void Start() {
 			mService.waitForStarted();
-
-			/*
-			*  The message must be executed in main thread. Because it may create surface.
-			*/
-			//mMessage.waitForStarted();
 		}
 
 	private:
@@ -76,42 +71,24 @@ namespace android {
 			};
 		};
 
-		class MessageThread : public CommonThread
-		{
-		public:
-			MessageThread(sp<SurfaceFlinger> flinger) : CommonThread(flinger) {};
-
-		private:
-			virtual bool threadLoop() {
-				mStartedMutex.lock();
-
-				mStartedCondition.broadcast();
-				mStartedMutex.unlock();
-
-				while (true) {
-					mFlinger->run();
-				}
-
-				return false;
-			};
-		};
-
 		ServiceThread mService;
-		MessageThread mMessage;
 	};
 
 	class SurfaceFlingerMainWindow : public InitRCMainWindow {
 	public:
-		SurfaceFlingerMainWindow(sp<NATIVE::SurfaceFlinger> sf) : mSF(sf) {};
+		SurfaceFlingerMainWindow(sp<android::SurfaceFlinger> sf) : mSF(sf) {};
 
 		virtual void run() {
 			if (mSF != NULL) {
+				/*
+				*  The message must be executed in main thread. Because it may create surface.
+				*/
 				mSF->runLoop();
 			}
 		};
 		
 	private:
-		sp<NATIVE::SurfaceFlinger> mSF;
+		sp<android::SurfaceFlinger> mSF;
 
 	protected:
 		virtual ~SurfaceFlingerMainWindow() {};
@@ -127,7 +104,7 @@ namespace android {
 #define SURFACE_FLINGER_NAME    "android.SurfaceFlinger"
 #define SURFACE_FLINGER_AUTHOR  "yuki.kokoto"
 
-static android::sp<android::NATIVE::SurfaceFlinger>   gSurfaceFlinger;
+static android::sp<android::SurfaceFlinger>           gSurfaceFlinger;
 static android::sp<android::SurfaceFlingerService>    gService;
 static android::sp<android::SurfaceFlingerMainWindow> gMainWindow;
 
@@ -167,7 +144,7 @@ int open_surfaceflinger(const struct hw_module_t* module, const char* id,
                         struct hw_device_t** device)
 {
     if (gSurfaceFlinger == NULL) {
-        gSurfaceFlinger = new android::NATIVE::SurfaceFlinger();
+        gSurfaceFlinger = android::surfaceflinger::createSurfaceFlinger();
         gSurfaceFlinger->init();
 
 		gService = new android::SurfaceFlingerService(gSurfaceFlinger);

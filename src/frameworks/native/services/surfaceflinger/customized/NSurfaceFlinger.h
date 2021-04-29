@@ -4,6 +4,7 @@
 #define NATIVE_SURFACE_FLINGER_H
 
 
+#include "SurfaceFlinger.h"
 #include "Client.h"
 #include "DisplayHardware/ComposerHal.h"
 
@@ -16,12 +17,12 @@ namespace NATIVE {
 
 class SurfaceFlinger : public android::SurfaceFlinger {
 public:
-    SurfaceFlinger() :
-    android::SurfaceFlinger(),
+    SurfaceFlinger(android::surfaceflinger::Factory& factory) :
+    android::SurfaceFlinger(factory),
     mClients()
     {};
 
-    void runLoop()
+    virtual void runLoop() override
     {
         bool isRunning = true;
 
@@ -32,18 +33,14 @@ public:
             //IPCThreadState::self()->handlePolledCommands();
             
             // Clear events that the application did not process from this frame
-            if (getBE().mHwc == NULL) {
-                isRunning = false;
-            }
-            else if (getBE().mHwc->getComposer() == NULL) {
+            if (getHwComposer().getComposer() == NULL) {
                 isRunning = false;
 
             } else {
                 // pop native window event and message loop
-                android::hardware::graphics::composer::V2_1::Error ret = getBE().mHwc->getComposer()->executeCommands();
+                android::hardware::graphics::composer::V2_1::Error ret = getHwComposer().getComposer()->executeCommands();
                 if (ret != android::hardware::graphics::composer::V2_1::Error::NONE) {
                     isRunning = false;
-
                 }
             }
 

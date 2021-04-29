@@ -25,15 +25,16 @@
 
 #if ENABLE_VR /* M3E: */
 #include <android/frameworks/vr/composer/1.0/IVrComposerClient.h>
-#endif
+#endif // M3E
 #include <android/hardware/graphics/common/1.1/types.h>
-#include <android/hardware/graphics/composer/2.2/IComposer.h>
-#include <android/hardware/graphics/composer/2.2/IComposerClient.h>
+#include <android/hardware/graphics/composer/2.3/IComposer.h>
+#include <android/hardware/graphics/composer/2.3/IComposerClient.h>
 #if ENABLE_CMD_BUFFER /* M3E: */
-#include <composer-command-buffer/2.2/ComposerCommandBuffer.h>
-#endif
+#include <composer-command-buffer/2.3/ComposerCommandBuffer.h>
+#endif // M3E
 #include <gui/HdrMetadata.h>
 #include <math/mat4.h>
+#include <ui/DisplayedFrameStats.h>
 #include <ui/GraphicBuffer.h>
 #include <utils/StrongPointer.h>
 
@@ -43,37 +44,37 @@ namespace Hwc2 {
 
 #if ENABLE_VR /* M3E: */
 using frameworks::vr::composer::V1_0::IVrComposerClient;
-#endif
+#endif // M3E
 
 namespace types = hardware::graphics::common;
 
 namespace V2_1 = hardware::graphics::composer::V2_1;
 namespace V2_2 = hardware::graphics::composer::V2_2;
+namespace V2_3 = hardware::graphics::composer::V2_3;
 
 using types::V1_0::ColorTransform;
-using types::V1_0::Hdr;
 using types::V1_0::Transform;
-
-using types::V1_1::ColorMode;
-using types::V1_1::Dataspace;
-using types::V1_1::PixelFormat;
 using types::V1_1::RenderIntent;
+using types::V1_2::ColorMode;
+using types::V1_2::Dataspace;
+using types::V1_2::Hdr;
+using types::V1_2::PixelFormat;
 
 using V2_1::Config;
 using V2_1::Display;
 using V2_1::Error;
 using V2_1::IComposerCallback;
 using V2_1::Layer;
-
 #if ENABLE_CMD_BUFFER /* M3E: */
-using V2_2::CommandReaderBase;
-using V2_2::CommandWriterBase;
-#endif
-using V2_2::IComposer;
-using V2_2::IComposerClient;
-
+using V2_3::CommandReaderBase;
+using V2_3::CommandWriterBase;
+#endif // M3E
+using V2_3::IComposer;
+using V2_3::IComposerClient;
+using DisplayCapability = IComposerClient::DisplayCapability;
 using PerFrameMetadata = IComposerClient::PerFrameMetadata;
 using PerFrameMetadataKey = IComposerClient::PerFrameMetadataKey;
+using PerFrameMetadataBlob = IComposerClient::PerFrameMetadataBlob;
 
 class Composer {
 public:
@@ -188,11 +189,29 @@ public:
     virtual Error setLayerPerFrameMetadata(
             Display display, Layer layer,
             const std::vector<IComposerClient::PerFrameMetadata>& perFrameMetadatas) = 0;
-    virtual Error getPerFrameMetadataKeys(
-            Display display, std::vector<IComposerClient::PerFrameMetadataKey>* outKeys) = 0;
+    virtual std::vector<IComposerClient::PerFrameMetadataKey> getPerFrameMetadataKeys(
+            Display display) = 0;
     virtual Error getRenderIntents(Display display, ColorMode colorMode,
             std::vector<RenderIntent>* outRenderIntents) = 0;
     virtual Error getDataspaceSaturationMatrix(Dataspace dataspace, mat4* outMatrix) = 0;
+
+    // Composer HAL 2.3
+    virtual Error getDisplayIdentificationData(Display display, uint8_t* outPort,
+                                               std::vector<uint8_t>* outData) = 0;
+    virtual Error setLayerColorTransform(Display display, Layer layer,
+                                         const float* matrix) = 0;
+    virtual Error getDisplayedContentSamplingAttributes(Display display, PixelFormat* outFormat,
+                                                        Dataspace* outDataspace,
+                                                        uint8_t* outComponentMask) = 0;
+    virtual Error setDisplayContentSamplingEnabled(Display display, bool enabled,
+                                                   uint8_t componentMask, uint64_t maxFrames) = 0;
+    virtual Error getDisplayedContentSample(Display display, uint64_t maxFrames, uint64_t timestamp,
+                                            DisplayedFrameStats* outStats) = 0;
+    virtual Error getDisplayCapabilities(Display display,
+                                         std::vector<DisplayCapability>* outCapabilities) = 0;
+    virtual Error setLayerPerFrameMetadataBlobs(
+            Display display, Layer layer, const std::vector<PerFrameMetadataBlob>& metadata) = 0;
+    virtual Error setDisplayBrightness(Display display, float brightness) = 0;
 };
 
 namespace impl {
@@ -272,12 +291,12 @@ private:
     // map lookups.
     ReturnData* mCurrentReturnData;
 };
-#endif
+#endif // M3E
 
 // Composer is a wrapper to IComposer, a proxy to server-side composer.
 class Composer final : public Hwc2::Composer {
 public:
-    Composer(const std::string& serviceName);
+    explicit Composer(const std::string& serviceName);
     ~Composer() override;
 
     std::vector<IComposer::Capability> getCapabilities() override;
@@ -384,17 +403,35 @@ public:
     Error setLayerPerFrameMetadata(
             Display display, Layer layer,
             const std::vector<IComposerClient::PerFrameMetadata>& perFrameMetadatas) override;
-    Error getPerFrameMetadataKeys(
-            Display display, std::vector<IComposerClient::PerFrameMetadataKey>* outKeys) override;
+    std::vector<IComposerClient::PerFrameMetadataKey> getPerFrameMetadataKeys(
+            Display display) override;
     Error getRenderIntents(Display display, ColorMode colorMode,
             std::vector<RenderIntent>* outRenderIntents) override;
     Error getDataspaceSaturationMatrix(Dataspace dataspace, mat4* outMatrix) override;
+
+    // Composer HAL 2.3
+    Error getDisplayIdentificationData(Display display, uint8_t* outPort,
+                                       std::vector<uint8_t>* outData) override;
+    Error setLayerColorTransform(Display display, Layer layer, const float* matrix) override;
+    Error getDisplayedContentSamplingAttributes(Display display, PixelFormat* outFormat,
+                                                Dataspace* outDataspace,
+                                                uint8_t* outComponentMask) override;
+    Error setDisplayContentSamplingEnabled(Display display, bool enabled, uint8_t componentMask,
+                                           uint64_t maxFrames) override;
+    Error getDisplayedContentSample(Display display, uint64_t maxFrames, uint64_t timestamp,
+                                    DisplayedFrameStats* outStats) override;
+    Error getDisplayCapabilities(Display display,
+                                 std::vector<DisplayCapability>* outCapabilities) override;
+    Error setLayerPerFrameMetadataBlobs(
+            Display display, Layer layer,
+            const std::vector<IComposerClient::PerFrameMetadataBlob>& metadata) override;
+    Error setDisplayBrightness(Display display, float brightness) override;
 
 private:
 #if ENABLE_CMD_BUFFER /* M3E: */
     class CommandWriter : public CommandWriterBase {
     public:
-        CommandWriter(uint32_t initialMaxSize);
+        explicit CommandWriter(uint32_t initialMaxSize);
         ~CommandWriter() override;
 
         void setLayerInfo(uint32_t type, uint32_t appId);
@@ -407,7 +444,7 @@ private:
         void writeBufferMetadata(
                 const IVrComposerClient::BufferMetadata& metadata);
     };
-#endif
+#endif // M3E
 
     // Many public functions above simply write a command into the command
     // queue to batch the calls.  validateDisplay and presentDisplay will call
@@ -417,7 +454,8 @@ private:
     sp<V2_1::IComposer> mComposer;
 
     sp<V2_1::IComposerClient> mClient;
-    sp<IComposerClient> mClient_2_2;
+    sp<V2_2::IComposerClient> mClient_2_2;
+    sp<IComposerClient> mClient_2_3;
 
     // 64KiB minus a small space for metadata such as read/write pointers
     static constexpr size_t kWriterInitialSize =
@@ -425,7 +463,7 @@ private:
 #if ENABLE_CMD_BUFFER /* M3E: */
     CommandWriter mWriter;
     CommandReader mReader;
-#endif
+#endif // M3E
 
     // When true, the we attach to the vr_hwcomposer service instead of the
     // hwcomposer. This allows us to redirect surfaces to 3d surfaces in vr.

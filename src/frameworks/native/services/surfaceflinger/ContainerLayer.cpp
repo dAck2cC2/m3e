@@ -22,18 +22,20 @@
 
 namespace android {
 
-ContainerLayer::ContainerLayer(SurfaceFlinger* flinger, const sp<Client>& client,
-                               const String8& name, uint32_t w, uint32_t h, uint32_t flags)
-      : Layer(flinger, client, name, w, h, flags) {
-    mDrawingState = mCurrentState;
-}
+ContainerLayer::ContainerLayer(const LayerCreationArgs& args) : Layer(args) {}
 
-void ContainerLayer::onDraw(const RenderArea&, const Region& /* clip */, bool) const {}
+ContainerLayer::~ContainerLayer() = default;
+
+bool ContainerLayer::prepareClientLayer(const RenderArea&, const Region&, bool, Region&, const bool,
+                                        renderengine::LayerSettings&) {
+    return false;
+}
 
 bool ContainerLayer::isVisible() const {
-    return !isHiddenByPolicy();
+    return false;
 }
 
-void ContainerLayer::setPerFrameData(const sp<const DisplayDevice>&) {}
 
+void ContainerLayer::setPerFrameData(const sp<const DisplayDevice>&, const ui::Transform&,
+                                     const Rect&, int32_t, const ui::Dataspace) {}
 } // namespace android

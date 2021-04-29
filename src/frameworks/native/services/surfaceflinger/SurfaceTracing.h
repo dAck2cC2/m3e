@@ -18,41 +18,102 @@
 
 #if ENABLE_LAYER_PROTO /* M3E: */
 #include <layerproto/LayerProtoHeader.h>
-#endif
+#endif // M3E
 #include <utils/Errors.h>
+#include <utils/StrongPointer.h>
 
+#include <android-base/thread_annotations.h>
+#include <condition_variable>
+#include <memory>
 #include <mutex>
+#include <queue>
+#include <thread>
 
 #if ENABLE_LAYER_PROTO /* M3E: */
 using namespace android::surfaceflinger;
-#endif
+#endif // M3E
 
 namespace android {
 
+class SurfaceFlinger;
+
+constexpr auto operator""_MB(unsigned long long const num) {
+    return num * 1024 * 1024;
+}
 /*
  * SurfaceTracing records layer states during surface flinging.
  */
 class SurfaceTracing {
 public:
+    explicit SurfaceTracing(SurfaceFlinger& flinger);
     void enable();
-    status_t disable();
-    bool isEnabled();
+    bool disable();
+    status_t writeToFile();
+    bool isEnabled() const;
+    void notify(const char* where);
 
-#if ENABLE_LAYER_PROTO /* M3E: */
-    void traceLayers(const char* where, LayersProto);
-#endif
+    void setBufferSize(size_t bufferSizeInByte);
+    void writeToFileAsync();
+    void dump(std::string& result) const;
+
+    enum : uint32_t {
+        TRACE_CRITICAL = 1 << 0,
+        TRACE_INPUT = 1 << 1,
+        TRACE_EXTRA = 1 << 2,
+        TRACE_ALL = 0xffffffff
+    };
+    void setTraceFlags(uint32_t flags);
 
 private:
-    static constexpr auto DEFAULT_FILENAME = "/data/misc/wmtrace/layers_trace.pb";
+    static constexpr auto kDefaultBufferCapInByte = 100_MB;
+    static constexpr auto kDefaultFileName = "/data/misc/wmtrace/layers_trace.pb";
 
-    status_t writeProtoFileLocked();
-
-    bool mEnabled = false;
-    std::string mOutputFileName = DEFAULT_FILENAME;
-    std::mutex mTraceMutex;
 #if ENABLE_LAYER_PROTO /* M3E: */
-    LayersTraceFileProto mTrace;
-#endif
+    class LayersTraceBuffer { // ring buffer
+    public:
+        size_t size() const { return mSizeInBytes; }
+        size_t used() const { return mUsedInBytes; }
+        size_t frameCount() const { return mStorage.size(); }
+
+        void setSize(size_t newSize) { mSizeInBytes = newSize; }
+        void reset(size_t newSize);
+        void emplace(LayersTraceProto&& proto);
+        void flush(LayersTraceFileProto* fileProto);
+
+    private:
+        size_t mUsedInBytes = 0U;
+        size_t mSizeInBytes = 0U;
+        std::queue<LayersTraceProto> mStorage;
+    };
+#endif // M3E
+
+    void mainLoop();
+    void addFirstEntry();
+#if ENABLE_LAYER_PROTO /* M3E: */
+    LayersTraceProto traceWhenNotified();
+    LayersTraceProto traceLayersLocked(const char* where) REQUIRES(mSfLock);
+
+    // Returns true if trace is enabled.
+    bool addTraceToBuffer(LayersTraceProto& entry);
+    void writeProtoFileLocked() REQUIRES(mTraceLock);
+#endif // M3E
+
+    const SurfaceFlinger& mFlinger;
+    status_t mLastErr = NO_ERROR;
+    std::thread mThread;
+    std::condition_variable mCanStartTrace;
+
+    std::mutex& mSfLock;
+    uint32_t mTraceFlags GUARDED_BY(mSfLock) = TRACE_ALL;
+    const char* mWhere GUARDED_BY(mSfLock) = "";
+
+    mutable std::mutex mTraceLock;
+#if ENABLE_LAYER_PROTO /* M3E: */
+    LayersTraceBuffer mBuffer GUARDED_BY(mTraceLock);
+#endif // M3E
+    size_t mBufferSize GUARDED_BY(mTraceLock) = kDefaultBufferCapInByte;
+    bool mEnabled GUARDED_BY(mTraceLock) = false;
+    bool mWriteToFile GUARDED_BY(mTraceLock) = false;
 };
 
 } // namespace android

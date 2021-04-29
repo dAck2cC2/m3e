@@ -59,7 +59,9 @@ GraphicBufferMapper::GraphicBufferMapper() {
     }
 
     if (!mMapper->isLoaded()) {
+#if 0  // M3E: No GrallocMapper
         LOG_ALWAYS_FATAL("gralloc-mapper is missing");
+#endif // M3E
     }
 }
 

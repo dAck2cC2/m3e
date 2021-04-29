@@ -31,6 +31,10 @@ namespace graphics {
 namespace composer {
 namespace V2_1 {
 
+void GLFWerrorCallback(int code, const char* msg) {
+    LOG_ALWAYS_FATAL("code[%d][%s]", code, msg);
+}
+
 struct ComposerClientGLFW : public ComposerClientDefault {
     static const uint64_t PRIMARY_DISPLAY = 0; // only one display
     static const uint32_t PRIMARY_CONFIGS = 1; // only one config
@@ -68,7 +72,7 @@ struct ComposerClientGLFW : public ComposerClientDefault {
     {
         property_get("native.display.name", mWindowName, "default");
         
-        //glfwSetErrorCallback(ErrorCallback);
+        glfwSetErrorCallback(GLFWerrorCallback);
         
 #if defined(__APPLE__)
         glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
@@ -286,6 +290,17 @@ struct ComposerClientGLFW : public ComposerClientDefault {
 
     virtual ::android::hardware::Return<void> executeCommands(uint32_t inLength, const ::android::hardware::hidl_vec<::android::hardware::hidl_handle>& inHandles, executeCommands_cb _hidl_cb) override
     {
+#if 0
+        {
+            android::AutoMutex _l(mLockWindow);
+            for (int i = 0; i < mWindows.size(); ++i) {
+                if (mWindows.valueAt(i).win) {
+                    glfwSwapBuffers(mWindows.valueAt(i).win);
+                }
+            }
+        }
+#endif
+
         glfwPollEvents();
         
         _hidl_cb(Error::NONE, false, 0, 0);

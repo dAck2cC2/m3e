@@ -5,6 +5,10 @@
 #ifndef NATIVE_BUFFER_PRODUCER_H
 #define NATIVE_BUFFER_PRODUCER_H
 
+// ********************************
+// Refer to MonitoredProducer
+// ********************************
+
 #include <gui/IGraphicBufferProducer.h>
 #include "Layer.h"
 
@@ -49,6 +53,7 @@ public:
     virtual status_t setGenerationNumber(uint32_t generationNumber);
     virtual String8 getConsumerName() const override;
     virtual status_t setDequeueTimeout(nsecs_t timeout) override;
+    virtual status_t setLegacyBufferDrop(bool drop) override;
     virtual status_t getLastQueuedBuffer(sp<GraphicBuffer>* outBuffer,
             sp<Fence>* outFence, float outTransformMatrix[16]) override;
     virtual IBinder* onAsBinder();

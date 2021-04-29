@@ -1,7 +1,7 @@
 
 #if defined(ENABLE_ANDROID_GL)
 
-#include "MessageQueue.h"
+#include "Scheduler/MessageQueue.h"
 #include "NBufferProducer.h"
 #include "SurfaceFlinger.h"
 #include "DisplayHardware/ComposerHal.h"
@@ -24,18 +24,20 @@ BufferProducer::BufferProducer(const sp<IGraphicBufferProducer>& producer,
     mFBWidth(0),
     mFBHeight(0)
 {
-    mNativeLayer = mFlinger->getBE().mHwc->createLayer(0);
+    auto displayId = mFlinger->getHwComposer().toPhysicalDisplayId(0);
+    mNativeLayer = mFlinger->getHwComposer().createLayer(displayId.value_or(getFallbackDisplayId(0)));
     if (mNativeLayer) {
         mEGLNativeWindow = mNativeLayer->getId();
         
-        mFlinger->getBE().mHwc->getComposer()->getDisplayAttribute(mEGLNativeWindow, 0, IComposerClient::Attribute::WIDTH, &mFBWidth);
-        mFlinger->getBE().mHwc->getComposer()->getDisplayAttribute(mEGLNativeWindow, 0, IComposerClient::Attribute::HEIGHT, &mFBHeight);
+        mFlinger->getHwComposer().getComposer()->getDisplayAttribute(mEGLNativeWindow, 0, IComposerClient::Attribute::WIDTH, &mFBWidth);
+        mFlinger->getHwComposer().getComposer()->getDisplayAttribute(mEGLNativeWindow, 0, IComposerClient::Attribute::HEIGHT, &mFBHeight);
     }
 }
 
 BufferProducer::~BufferProducer() {
     if (mNativeLayer) {
-        mFlinger->getBE().mHwc->destroyLayer(0, mNativeLayer);
+        auto displayId = mFlinger->getHwComposer().toPhysicalDisplayId(0);
+        mFlinger->getHwComposer().destroyLayer(displayId.value_or(getFallbackDisplayId(0)), mNativeLayer);
         mNativeLayer = nullptr;
         mEGLNativeWindow = 0;
     }
@@ -149,6 +151,10 @@ status_t BufferProducer::setAutoRefresh(bool autoRefresh) {
 
 status_t BufferProducer::setDequeueTimeout(nsecs_t timeout) {
     return mProducer->setDequeueTimeout(timeout);
+}
+
+status_t BufferProducer::setLegacyBufferDrop(bool drop) {
+    return mProducer->setLegacyBufferDrop(drop);
 }
 
 status_t BufferProducer::getLastQueuedBuffer(sp<GraphicBuffer>* outBuffer,

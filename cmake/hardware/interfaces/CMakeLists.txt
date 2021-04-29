@@ -68,16 +68,26 @@ android.hardware.graphics.mapper@3.0
 android.hardware.graphics.bufferqueue@1.0
 android.hardware.graphics.bufferqueue@2.0
 android.hardware.graphics.common@1.1
-#android.hardware.graphics.common@1.2
+android.hardware.graphics.common@1.2
 #android.hidl.token@1.0-utils
+
+# surfaceflinger
+#android.hardware.configstore-utils
+android.hardware.configstore@1.0
+android.hardware.configstore@1.1
+#android.hardware.graphics.allocator@2.0
+#android.hardware.graphics.allocator@3.0
+#android.hardware.graphics.common@1.2
+android.hardware.graphics.composer@2.1
+android.hardware.graphics.composer@2.2
+android.hardware.graphics.composer@2.3
+android.hardware.power@1.0
+android.hardware.power@1.1
+android.hardware.power@1.2
+android.hardware.power@1.3
 
 android.hardware.cas@1.0
 android.hardware.cas.native@1.0
-android.hardware.configstore@1.0
-android.hardware.configstore@1.1
-android.hardware.graphics.common@1.0
-android.hardware.graphics.composer@2.1
-android.hardware.graphics.composer@2.2
 android.hardware.audio@2.0
 android.hardware.audio@4.0
 android.hardware.audio.effect@2.0

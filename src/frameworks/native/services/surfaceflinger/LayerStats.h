@@ -19,16 +19,15 @@
 #if ENABLE_LAYER_PROTO /* M3E: */
 #include <layerproto/LayerProtoHeader.h>
 #include <layerproto/LayerProtoParser.h>
-#endif
+#endif  // M3E
 #include <mutex>
 #include <unordered_map>
 
 #if ENABLE_LAYER_PROTO /* M3E: */
 using namespace android::surfaceflinger;
-#endif
+#endif  // M3E
 
 namespace android {
-class String8;
 
 class LayerStats {
 public:
@@ -38,17 +37,17 @@ public:
     bool isEnabled();
 #if ENABLE_LAYER_PROTO /* M3E: */
     void logLayerStats(const LayersProto& layersProto);
-#endif
-    void dump(String8& result);
+#endif  // M3E
+    void dump(std::string& result);
 
 private:
 #if ENABLE_LAYER_PROTO /* M3E: */
     // Traverse layer tree to get all visible layers' stats
     void traverseLayerTreeStatsLocked(
-            const std::vector<std::unique_ptr<LayerProtoParser::Layer>>& layerTree,
+            const std::vector<LayerProtoParser::Layer*>& layerTree,
             const LayerProtoParser::LayerGlobal& layerGlobal,
             std::vector<std::string>* const outLayerShapeVec);
-#endif
+#endif // M3E
     // Convert layer's top-left position into 8x8 percentage of the display
     static const char* destinationLocation(int32_t location, int32_t range, bool isHorizontal);
     // Convert layer's size into 8x8 percentage of the display
@@ -58,11 +57,11 @@ private:
     // Return the name of the composition type
     static const char* layerCompositionType(int32_t compositionType);
     // Return the name of the pixel format
-    static const char* layerPixelFormat(int32_t pixelFormat);
+    static std::string layerPixelFormat(int32_t pixelFormat);
 #if ENABLE_LAYER_PROTO /* M3E: */
     // Calculate scale ratios of layer's width/height with rotation information
     static std::string scaleRatioWH(const LayerProtoParser::Layer* layer);
-#endif
+#endif  // M3E
     // Calculate scale ratio from source to destination and convert to string
     static const char* scaleRatio(int32_t destinationScale, int32_t sourceScale);
     // Bucket the alpha into designed buckets
