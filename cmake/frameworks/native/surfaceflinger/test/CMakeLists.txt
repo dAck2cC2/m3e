@@ -23,11 +23,6 @@ gui
 ${OPENGL_DEPLIB}
 )
 
-# EGL and OpenGL
-if (ENABLE_ANGLE)
-    include(${M3E_SOURCE_DIR}/cmake/external/angle/include.cmake)
-    list(APPEND DEMO_DEPLIBS angle_util)
-endif()
-
-ADD_DEMO(surfaceflinger_Triangle      ${M3E_SOURCE_DIR}/src/frameworks/native/services/surfaceflinger/tests/test_Triangle.cpp)
-ADD_DEMO(surfaceflinger_DrawTexture   ${M3E_SOURCE_DIR}/src/frameworks/native/services/surfaceflinger/tests/test_DrawTexture.cpp)
+ADD_DEMO(surfaceflinger      
+${M3E_SOURCE_DIR}/src/frameworks/native/services/surfaceflinger/customized/test_surfaceflinger.cpp
+)
