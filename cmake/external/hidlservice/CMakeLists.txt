@@ -7,6 +7,7 @@ include(${M3E_SOURCE_DIR}/cmake/common.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/log/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/cutils/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/core/utils/include.cmake)
+include(${M3E_SOURCE_DIR}/cmake/core/base/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/hidl/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/system/hwbinder/include.cmake)
 include(${M3E_SOURCE_DIR}/cmake/hardware/interfaces/include.cmake)
@@ -67,3 +68,9 @@ list(APPEND ${PROJECT_NAME}_SOURCE_FILES ${MEMORY_SOURCE})
 # target files
 set(LIB_TYPE SHARED)
 ADD_LIB(hidlservice_default)
+
+
+#set(ENABLE_TEST  TRUE)
+if(ENABLE_TEST)
+  add_subdirectory(test)
+endif(ENABLE_TEST)

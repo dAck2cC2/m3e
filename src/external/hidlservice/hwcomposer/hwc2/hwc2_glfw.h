@@ -11,6 +11,7 @@
 #include <cutils/properties.h>
 #include <utils/KeyedVector.h>
 #include <utils/Mutex.h>
+#include <utils/Looper.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -59,6 +60,9 @@ struct ComposerClientGLFW : public ComposerClientDefault {
     };
     android::KeyedVector<uint64_t, LayerToNative> mWindows;
 
+    // handle event at main thread
+    sp<Looper>  mLooper;
+
     ComposerClientGLFW() :
         mCallback(),
         mTargetSlot(0),
@@ -68,7 +72,8 @@ struct ComposerClientGLFW : public ComposerClientDefault {
         mWindHeight(property_get_int32("native.display.height", 300)),
         mAttrVsyncPreiod(1),
         mLockWindow("native window"),
-        mWindows()
+        mWindows(),
+        mLooper(new Looper(true))
     {
         property_get("native.display.name", mWindowName, "default");
         
@@ -127,6 +132,8 @@ struct ComposerClientGLFW : public ComposerClientDefault {
         mWindows.clear();
         
         glfwTerminate();
+
+        mLooper = nullptr;
     }
     
     virtual ::android::hardware::Return<void> registerCallback(const ::android::sp<::android::hardware::graphics::composer::V2_1::IComposerCallback>& callback) override
@@ -232,40 +239,95 @@ struct ComposerClientGLFW : public ComposerClientDefault {
             return ::android::hardware::Void();
         }
 
-       GLFWwindow* win = glfwCreateWindow(mWindWidth, mWindHeight, mWindowName, NULL, NULL);
-        LOG_ALWAYS_FATAL_IF((win == NULL), "Failed to create window %s:%d", __FILE__, __LINE__);
-        if (win == NULL) {
+        class MsgCreateLayer : public MessageHandler
+        {
+        public:
+            MsgCreateLayer(int w, int h, const char* name, bool visible = true) 
+                : mMtx(), mCnd(), mWidth(w), mHeight(h), mName(name), mVisible(visible), mHandle(0) {
+                mLayer = {};
+            };
+            ~MsgCreateLayer() {};
+
+            virtual void handleMessage(const Message& evt) {
+                mMtx.lock();
+
+                GLFWwindow* win = glfwCreateWindow(mWidth, mHeight, mName.c_str(), NULL, NULL);
+                LOG_ALWAYS_FATAL_IF((win == NULL), "Failed to create window %s:%d", __FILE__, __LINE__);
+                if (win == NULL) {
+                    return;
+                }
+
+                int fbWidth = 0;
+                int fbHeight = 0;
+                glfwGetFramebufferSize(win, &fbWidth, &fbHeight);
+
+                if (mVisible) {
+                    glfwShowWindow(win);
+                } else {
+                    glfwHideWindow(win);
+                }
+
+#if defined(__linux__)
+                mHandle = static_cast<uint64_t>(glfwGetNativeWindow(win));
+#else
+                mHandle = reinterpret_cast<uint64_t>(glfwGetNativeWindow(win));
+#endif
+
+                mLayer.win = win;
+                mLayer.fbW = fbWidth;
+                mLayer.fbH = fbHeight;
+
+                mCnd.broadcast();
+                mMtx.unlock();
+
+            };
+
+            void sendAndWait(sp<Looper>& looper) {
+                if (looper == nullptr) {
+                    return;
+                }
+
+                mMtx.lock();
+
+                Message evt;
+                looper->sendMessage(this, evt);
+
+                mCnd.wait(mMtx);
+                mMtx.unlock();
+            };
+
+            uint64_t getHandler() const { return mHandle; };
+            LayerToNative getLayer() const { return mLayer; };
+
+        private:
+            Mutex     mMtx;
+            Condition mCnd;
+            int mWidth;
+            int mHeight;
+            std::string mName;
+            bool mVisible;
+            uint64_t mHandle;
+            LayerToNative mLayer;
+        }; // MsgCreateLayer
+
+
+        sp<MsgCreateLayer> createLayer = new MsgCreateLayer(mWindWidth, mWindHeight, mWindowName);
+        LOG_ALWAYS_FATAL_IF((createLayer == NULL), "Failed to new create window class %s:%d", __FILE__, __LINE__);
+        if (createLayer == NULL) {
             _hidl_cb(Error::NO_RESOURCES, 0);
             return ::android::hardware::Void();
         }
 
-        int fbWidth = 0;
-        int fbHeight = 0;
-        glfwGetFramebufferSize(win, &fbWidth, &fbHeight);
-        
-#if defined(ENABLE_ANDROID_GL)
-        // The Android GL will allow surface flinger creating main window,
-        // which should be invisible.
-        if (mWindows.isEmpty()) {
-            glfwHideWindow(win);
-        } else
-#endif
-        {
-            glfwShowWindow(win);
+        createLayer->sendAndWait(mLooper);
+        LOG_ALWAYS_FATAL_IF((createLayer->getLayer().win == 0), "Failed to create window %s:%d", __FILE__, __LINE__);
+        if (createLayer->getLayer().win == 0) {
+            _hidl_cb(Error::NO_RESOURCES, 0);
+            return ::android::hardware::Void();
         }
+
+        mWindows.add(createLayer->getHandler(), createLayer->getLayer());
         
-#if defined(__linux__)
-        uint64_t handle = static_cast<uint64_t>(glfwGetNativeWindow(win));
-#else
-        uint64_t handle = reinterpret_cast<uint64_t>(glfwGetNativeWindow(win));
-#endif
-        LayerToNative layerN;
-        layerN.win = win;
-        layerN.fbW = fbWidth;
-        layerN.fbH = fbHeight;
-        mWindows.add(handle, layerN);
-        
-        _hidl_cb(Error::NONE, handle);
+        _hidl_cb(Error::NONE, createLayer->getHandler());
         return ::android::hardware::Void();
     };
 
@@ -300,6 +362,9 @@ struct ComposerClientGLFW : public ComposerClientDefault {
             }
         }
 #endif
+        if (mLooper != nullptr) {
+            mLooper->pollOnce(1000 / 60);
+        }
 
         glfwPollEvents();
         
