@@ -130,7 +130,7 @@ void InitRCImpl::StartService(int index)
     // Using the structure and interface of hardware.h just for lazy.
     // We could also define our own serivce structure and load interface.
     const hw_module_t*  module = NULL;
-    module = NULL;
+
     hw_get_module(gServiceList[index].name, &module);
     if (module && module->methods && module->methods->open) {
         (*(module->methods->open))(module, gServiceList[index].name, &(gServiceList[index].handler));

@@ -413,8 +413,7 @@ bool BootAnimation::threadLoop()
     // We have no bootanimation file, so we use the stock android logo
     // animation.
     if (mZipFileName.isEmpty()) {
-        //r = android();
-        while (1) Sleep(100);
+        r = android();
     } else {
         r = movie();
     }

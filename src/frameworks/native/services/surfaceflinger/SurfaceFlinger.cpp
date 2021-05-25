@@ -2861,10 +2861,6 @@ void SurfaceFlinger::processDisplayChangesLocked() {
                 sp<IGraphicBufferProducer> bqProducer;
                 sp<IGraphicBufferConsumer> bqConsumer;
                 getFactory().createBufferQueue(&bqProducer, &bqConsumer, false);
-
-#if ENABLE_ANDROID_GL // M3E: create native window with BufferProducer
-                bqProducer = new NATIVE::BufferProducer(bqProducer, this);
-#endif // M3E
                 
                 std::optional<DisplayId> displayId;
                 if (state.isVirtual()) {

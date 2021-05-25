@@ -540,7 +540,7 @@ void BufferQueueLayer::onFirstRef() {
     sp<IGraphicBufferConsumer> consumer;
     BufferQueue::createBufferQueue(&producer, &consumer, true);
 #if ENABLE_ANDROID_GL // M3E
-    mProducer = new NATIVE::BufferProducer(producer, mFlinger);
+    mProducer = new NATIVE::BufferProducer(producer, mFlinger, this);
 #else  // M3E
     mProducer = new MonitoredProducer(producer, mFlinger, this);
 #endif // M3E
