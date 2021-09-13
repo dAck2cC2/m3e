@@ -19,6 +19,8 @@ base
 
 if(MSVC)
     add_definitions(-D__STDC_LIMIT_MACROS)
+elseif(LINUX)
+    set(CMAKE_CXX_FLAGS "-std=c++17" ${CMAKE_CXX_FLAGS})
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/src/system/core/libcutils )
@@ -64,3 +66,4 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH ${BUILD_PATH})
 add_executable(test_cutils ${TEST_CUTILS_SOURCE_FILES})
 target_link_libraries(test_cutils ${TEST_CUTILS_DEPLIB})
+#target_compile_features(test_cutils PRIVATE cxx_std_17)

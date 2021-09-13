@@ -118,6 +118,7 @@ elseif (MSVC)
   add_definitions(-Dmode_t=int)
 elseif(LINUX)
   add_definitions(-Dregister= )
+  set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17")
 endif()
 
 ###############################################################################

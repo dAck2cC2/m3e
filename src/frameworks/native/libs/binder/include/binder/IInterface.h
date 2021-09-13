@@ -20,6 +20,10 @@
 
 #include <binder/Binder.h>
 
+#if defined(__linux__)  // M3E: add
+#include <memory>  // std::unique_ptr
+#endif //  M3E
+
 namespace android {
 
 // ----------------------------------------------------------------------

@@ -35,6 +35,8 @@ if(MSVC)
 elseif(APPLE)
     add_definitions(-Denable_if_t=enable_if)
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++14 -stdlib=libc++")
+elseif(LINUX)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17")
 endif()
 
 set( HEADER_PATH ${HIDL_ROOT_PATH}/system/libhidl/ )

@@ -51,6 +51,7 @@ if (MSVC)
   add_definitions(-Dstrcasecmp=_stricmp)
 elseif(LINUX)
   add_definitions(-Dregister= )
+  set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17")
 endif()
 
 set( HEADER_PATH ${M3E_SOURCE_DIR}/${EXT_PATH}/aidl )

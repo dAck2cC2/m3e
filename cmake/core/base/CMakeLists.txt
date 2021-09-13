@@ -24,6 +24,8 @@ if (MSVC)
     add_definitions(-FI"predefine/__attribute__")
 elseif(APPLE)
     add_definitions(-DPAGE_SIZE=4096)
+elseif(LINUX)
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17")
 endif()
 
 
