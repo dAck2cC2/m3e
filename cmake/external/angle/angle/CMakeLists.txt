@@ -33,6 +33,7 @@ if(MSVC)
     add_definitions(-D_ALLOW_KEYWORD_MACROS=1)
     add_definitions(-D__STDC_LIMIT_MACROS=1)
     add_definitions(-DZLIB_WINAPI)
+    add_definitions(-D_HAS_CXX23=0)
 
     include(CheckCXXCompilerFlag)
     CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_flag_suppoted)

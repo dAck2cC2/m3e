@@ -97,6 +97,7 @@ android.hardware.audio.common@4.0
 android.hardware.media@1.0
 android.hardware.media.omx@1.0
 android.hardware.media.bufferpool@1.0
+android.hardware.graphics.common@1.0
 )
 
 foreach(module ${HIDL_MODULES})

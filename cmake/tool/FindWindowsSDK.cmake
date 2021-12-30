@@ -73,6 +73,7 @@ macro(_winsdk_announce)
 endmacro()
 
 set(_winsdk_win10vers
+	10.0.19041.0
 	10.0.18362.0 
 	10.0.17134.0 
 	10.0.16299.0 

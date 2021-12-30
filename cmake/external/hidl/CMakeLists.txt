@@ -116,6 +116,7 @@ elseif (MSVC)
   list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
 
   add_definitions(-Dmode_t=int)
+  add_definitions(-D_HAS_CXX23=0)
 elseif(LINUX)
   add_definitions(-Dregister= )
   set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17")
