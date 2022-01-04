@@ -110,7 +110,7 @@ include_directories(AFTER ${HEADER_PATH})
 include_directories(AFTER ${M3E_SOURCE_DIR}/src/${EXT_PATH}/hidl)
 
 if(APPLE)
-  set(CMAKE_CXX_FLAGS "-std=c++1z -stdlib=libc++" ${CMAKE_CXX_FLAGS}) 
+  set(CMAKE_CXX_FLAGS "-std=c++14 -stdlib=libc++" ${CMAKE_CXX_FLAGS}) 
 elseif (MSVC)
   include(${MSVC_INCLUDE})
   list(APPEND ${PROJECT_NAME}_DEPLIB ${LIB_MSVC_WRAP})
