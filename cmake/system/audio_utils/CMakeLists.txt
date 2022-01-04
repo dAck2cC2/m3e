@@ -103,3 +103,8 @@ ${SOURCE_PATH}/SPDIFEncoder.cpp
 
 # target files
 ADD_SHARED_LIB(audiospdif)
+
+#set(ENABLE_TEST TRUE)
+if(ENABLE_TEST)
+    add_subdirectory(test)
+endif(ENABLE_TEST)
